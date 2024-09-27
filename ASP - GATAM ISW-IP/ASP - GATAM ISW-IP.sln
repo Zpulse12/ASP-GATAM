@@ -16,19 +16,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Application", "Gatam.Application\Gatam.Application.csproj", "{0B6F5E8B-3A85-458D-BBF4-92CB9D8E7C6C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Application", "ApplicationCore\Gatam.Application\Gatam.Application.csproj", "{0B6F5E8B-3A85-458D-BBF4-92CB9D8E7C6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Domain", "Gatam.Domain\Gatam.Domain.csproj", "{433B7854-AA90-4BFA-ADD7-1615469D5785}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Domain", "ApplicationCore\Gatam.Domain\Gatam.Domain.csproj", "{433B7854-AA90-4BFA-ADD7-1615469D5785}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Infrastructure", "Gatam.Infrastructure\Gatam.Infrastructure.csproj", "{42C7702F-7F16-4E20-86D1-BC5FD753E086}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Infrastructure", "Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj", "{42C7702F-7F16-4E20-86D1-BC5FD753E086}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAPI", "Gatam.WebAPI\Gatam.WebAPI.csproj", "{06483A2B-96DD-45E4-8602-44C052EB27B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAPI", "Presentation\Gatam.WebAPI\Gatam.WebAPI.csproj", "{06483A2B-96DD-45E4-8602-44C052EB27B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAppVolger", "Gatam.WebAppVolger\Gatam.WebAppVolger.csproj", "{0FFEF455-F797-4E54-ABB1-15B79A1F919C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAppVolger", "Presentation\Gatam.WebAppVolger\Gatam.WebAppVolger.csproj", "{0FFEF455-F797-4E54-ABB1-15B79A1F919C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAppBegeleider", "Gatam.WebAppBegeleider\Gatam.WebAppBegeleider.csproj", "{49F7B7BF-6A22-4C49-B626-51AD269996FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAppBegeleider", "Presentation\Gatam.WebAppBegeleider\Gatam.WebAppBegeleider.csproj", "{49F7B7BF-6A22-4C49-B626-51AD269996FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unittest", "Unittest\Unittest.csproj", "{88C0C989-912D-4435-B606-BABC39C92C30}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unittest", "Unittesting\Unittest\Unittest.csproj", "{88C0C989-912D-4435-B606-BABC39C92C30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

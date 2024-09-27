@@ -1,6 +1,0 @@
-@Gatam.WebAPI_HostAddress = http://localhost:5292
-
-GET {{Gatam.WebAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
