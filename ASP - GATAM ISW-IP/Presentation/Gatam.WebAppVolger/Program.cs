@@ -1,4 +1,4 @@
-using Gatam.WebApp.Components;
+using Gatam.WebAppVolger.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
