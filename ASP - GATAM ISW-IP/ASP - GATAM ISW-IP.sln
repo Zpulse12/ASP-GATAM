@@ -14,19 +14,20 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{079BE6D3-A120-46B5-A150-23DC5747DE51}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Application", "ApplicationCore\Gatam.Application\Gatam.Application.csproj", "{0B6F5E8B-3A85-458D-BBF4-92CB9D8E7C6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.Application", "ApplicationCore\Gatam.Application\Gatam.Application.csproj", "{0B6F5E8B-3A85-458D-BBF4-92CB9D8E7C6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Domain", "ApplicationCore\Gatam.Domain\Gatam.Domain.csproj", "{433B7854-AA90-4BFA-ADD7-1615469D5785}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.Domain", "ApplicationCore\Gatam.Domain\Gatam.Domain.csproj", "{433B7854-AA90-4BFA-ADD7-1615469D5785}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.Infrastructure", "Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj", "{42C7702F-7F16-4E20-86D1-BC5FD753E086}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.Infrastructure", "Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj", "{42C7702F-7F16-4E20-86D1-BC5FD753E086}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAPI", "Presentation\Gatam.WebAPI\Gatam.WebAPI.csproj", "{06483A2B-96DD-45E4-8602-44C052EB27B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.WebAPI", "Presentation\Gatam.WebAPI\Gatam.WebAPI.csproj", "{06483A2B-96DD-45E4-8602-44C052EB27B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAppVolger", "Presentation\Gatam.WebAppVolger\Gatam.WebAppVolger.csproj", "{0FFEF455-F797-4E54-ABB1-15B79A1F919C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.WebAppVolger", "Presentation\Gatam.WebAppVolger\Gatam.WebAppVolger.csproj", "{0FFEF455-F797-4E54-ABB1-15B79A1F919C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gatam.WebAppBegeleider", "Presentation\Gatam.WebAppBegeleider\Gatam.WebAppBegeleider.csproj", "{49F7B7BF-6A22-4C49-B626-51AD269996FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.WebAppBegeleider", "Presentation\Gatam.WebAppBegeleider\Gatam.WebAppBegeleider.csproj", "{49F7B7BF-6A22-4C49-B626-51AD269996FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unittest", "Unittesting\Unittest\Unittest.csproj", "{88C0C989-912D-4435-B606-BABC39C92C30}"
 EndProject
