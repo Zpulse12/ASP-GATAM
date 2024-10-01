@@ -4,7 +4,7 @@ EXPOSE 8080
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG APP_NAME=Gatam.WebAppBegeleider
+ARG APP_NAME=Gatam.Authentication
 
 WORKDIR /src
 COPY ["${APP_NAME}.csproj", "."]
@@ -18,4 +18,4 @@ RUN dotnet publish "${APP_NAME}.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Gatam.WebAppBegeleider.dll"]
+ENTRYPOINT ["dotnet", "Gatam.Authentication.dll"]
