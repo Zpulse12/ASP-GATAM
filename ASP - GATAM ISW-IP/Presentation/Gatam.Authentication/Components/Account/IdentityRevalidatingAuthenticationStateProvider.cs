@@ -1,4 +1,5 @@
 using Gatam.Authentication.Data;
+using Gatam.Domain;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Identity;

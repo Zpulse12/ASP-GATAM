@@ -1,9 +1,11 @@
 using Gatam.Authentication.Components;
 using Gatam.Authentication.Components.Account;
 using Gatam.Authentication.Data;
+using Gatam.Domain;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Gatam.Authentication
 {
