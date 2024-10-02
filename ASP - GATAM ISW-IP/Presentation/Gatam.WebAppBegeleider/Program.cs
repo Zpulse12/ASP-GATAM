@@ -1,4 +1,5 @@
 using Gatam.WebAppBegeleider.Components;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 internal class Program
 {
@@ -11,9 +12,20 @@ internal class Program
             .AddInteractiveServerComponents();
         builder.Services.AddRazorPages();
 
+        //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        //.AddCookie(options =>
+        //{
+        //    options.Cookie.Name = ".AspNet.SharedCookie";
+        //    options.Cookie.Domain = "localhost";
+        //    options.Cookie.SameSite = SameSiteMode.Lax;
+        //    options.LoginPath = "/Account/Login";  // Redirect to ASP.NET 8 project's login page
+        //});
+
+
+
         var app = builder.Build();
 
-        // Middleware voor authenticatie
+        // Middleware voor authenticatie -> omzetten naar eigen middleware file en pas na HTTPS redirect...
         app.Use(async (context, next) =>
         {
             // Controleer of de gebruiker geauthenticeerd is
