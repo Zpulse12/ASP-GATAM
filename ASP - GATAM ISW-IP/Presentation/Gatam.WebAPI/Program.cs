@@ -14,8 +14,6 @@ internal class Program
 
         var app = builder.Build();
 
-        User user = new User("1");
-
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {

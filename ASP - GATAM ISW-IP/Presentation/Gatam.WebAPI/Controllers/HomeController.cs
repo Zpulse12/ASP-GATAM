@@ -10,7 +10,7 @@ namespace Gatam.WebAPI.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(new User("1"));
+            return Ok(new ApplicationUser());
         }
     }
 }

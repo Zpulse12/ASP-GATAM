@@ -28,12 +28,15 @@ internal class Program
         // Middleware voor authenticatie -> omzetten naar eigen middleware file en pas na HTTPS redirect...
         app.Use(async (context, next) =>
         {
-            // Controleer of de gebruiker geauthenticeerd is
-            if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/login"))
+            if(context.User.Identity is not null)
             {
-                context.Response.Redirect("/login");
-                return; // Stop verdere verwerking
+                if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/login"))
+                {
+                    context.Response.Redirect("/login");
+                    return; // Stop verdere verwerking
+                }
             }
+            // Controleer of de gebruiker geauthenticeerd is
             await next.Invoke();
         });
 
