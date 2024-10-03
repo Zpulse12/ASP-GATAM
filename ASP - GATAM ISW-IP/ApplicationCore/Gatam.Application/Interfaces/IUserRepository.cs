@@ -9,6 +9,6 @@ namespace Gatam.Application.Interfaces
 {
     public interface IUserRepository
     {
-        public Task<IEnumerable<User>> GetAllUsers();
+        public Task<IEnumerable<ApplicationUser>> GetAllUsers();
     }
 }
