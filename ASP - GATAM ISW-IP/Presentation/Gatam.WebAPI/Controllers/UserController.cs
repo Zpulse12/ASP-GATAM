@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Gatam.Application.CQRS;
 using MediatR;
 namespace Gatam.WebAPI.Controllers
