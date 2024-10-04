@@ -1,8 +1,10 @@
 using Gatam.WebAppBegeleider.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.DependencyInjection;
 
 internal class Program
 {
+
     private static void Main(string[] args)
     {        
         var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +12,7 @@ internal class Program
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5000") });
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://webapi:8080") });
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
