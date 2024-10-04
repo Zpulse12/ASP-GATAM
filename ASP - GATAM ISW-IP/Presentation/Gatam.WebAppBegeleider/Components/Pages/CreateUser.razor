@@ -4,8 +4,32 @@
 <h3>CreateUser</h3>
 
 <EditForm Model="@user">
+    <label>Gebruikersnaam</label>
+    <input type="text" placeholder="Gebruikersnaam" id="username" name="UserName"/>
+    <label>Wachtwoord</label>
+    <input type="text" placeholder="Wachtwoord" id="password" name="password"/>
+    <label>E-mailadres</label>
+    <input type="text" placeholder="Voorbeeld: jhondoe@example.com" id="email" name="email"/>
+    <label>Telefoonnummer</label>
+    <input type="text" placeholder="Voorbeeld: 0499 99 99 99" id="phonenumber" name="phonenumber"/>
+    <label></label>
+    <select>
+        <option value="0">
+            Beheerder
+        </option>
+        <option value="1">
+            Begeleider
+        </option>
+        <option value="2">
+            Student
+        </option>
+    </select>
     <input type="submit" value="Submit" class="btn btn-primary" />
 </EditForm>
 @code {
     ApplicationUser user = new ApplicationUser();
+    void OnFormSubmit()
+    {
+        
+    }
 }
