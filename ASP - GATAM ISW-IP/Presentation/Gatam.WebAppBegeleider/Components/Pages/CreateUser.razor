@@ -1,35 +1,39 @@
 ﻿@page "/admin/create"
+@inject IJSRuntime JS
 @using Gatam.Domain
+
+@rendermode InteractiveServer
 
 <h3>CreateUser</h3>
 
-<EditForm Model="@user">
+<EditForm Model="user" FormName="createUser" OnValidSubmit="OnFormSubmit">
     <label>Gebruikersnaam</label>
-    <input type="text" placeholder="Gebruikersnaam" id="username" name="UserName"/>
+    <InputText @bind-Value="user.UserName" />
     <label>Wachtwoord</label>
-    <input type="text" placeholder="Wachtwoord" id="password" name="password"/>
+    <InputText  @bind-Value="user.PasswordHash" />
     <label>E-mailadres</label>
-    <input type="text" placeholder="Voorbeeld: jhondoe@example.com" id="email" name="email"/>
+    <InputText @bind-Value="user.Email" />
     <label>Telefoonnummer</label>
-    <input type="text" placeholder="Voorbeeld: 0499 99 99 99" id="phonenumber" name="phonenumber"/>
-    <label></label>
-    <select>
-        <option value="0">
+    <InputText @bind-Value="user.PhoneNumber" />
+    <label>Rol</label>
+@*     <InputSelect @bind="user._role">
+        <Inp value="0">
             Beheerder
-        </option>
+        </Inp>
         <option value="1">
             Begeleider
         </option>
         <option value="2">
             Student
         </option>
-    </select>
-    <input type="submit" value="Submit" class="btn btn-primary" />
+    </InputSelect> *@
+    <button class="btn btn-primary" type="submit" value="submit">Send</button>
 </EditForm>
 @code {
     ApplicationUser user = new ApplicationUser();
-    void OnFormSubmit()
+    private async Task OnFormSubmit() 
     {
-        
+        // var req = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/api/User");
+        await new HttpClient().PostAsJsonAsync("http://localhost:5000/api/User", user);
     }
 }

@@ -16,7 +16,7 @@ internal class Program
         // Voeg services toe aan de container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
-
+        builder.Services.AddHttpClient();
         //builder.Services.AddAuthentication(options =>
         //{
         //    options.DefaultScheme = IdentityConstants.ApplicationScheme;
