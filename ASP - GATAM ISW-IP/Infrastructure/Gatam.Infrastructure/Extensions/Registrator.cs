@@ -1,5 +1,5 @@
 ﻿using Gatam.Application.Interfaces;
-using Gatam.Authentication.Data;
+using Gatam.Infrastructure.Contexts;
 using Gatam.Infrastructure.Repositories;
 using Gatam.Infrastructure.UOW;
 using Microsoft.EntityFrameworkCore;

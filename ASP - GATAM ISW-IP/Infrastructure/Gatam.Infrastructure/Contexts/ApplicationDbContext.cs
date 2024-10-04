@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
 
-namespace Gatam.Authentication.Data
+namespace Gatam.Infrastructure.Contexts
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
