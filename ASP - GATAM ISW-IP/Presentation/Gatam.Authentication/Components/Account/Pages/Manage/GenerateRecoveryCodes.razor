@@ -1,7 +1,8 @@
 ﻿@page "/Account/Manage/GenerateRecoveryCodes"
 
 @using Microsoft.AspNetCore.Identity
-@using Gatam.Authentication.Data
+@using Gatam.Infrastructure.Contexts;
+@using Gatam.Domain
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityUserAccessor UserAccessor
