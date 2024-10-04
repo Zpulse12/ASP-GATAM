@@ -2,54 +2,54 @@
 @using Gatam.Domain
 @using Gatam.WebAPI;
 @inject HttpClient Http
-<h3>UserList</h3>
+
+<h3>User List</h3>
+
 @if (isLoading)
 {
     <p>Bezig met laden...</p>
 }
-else if (users.Count == 0 && fail)
+else if (users.Count == 0 && hasError)
 {
-    <p>Geen gebruikers gevonden.</p>
+    <p>Geen gebruikers gevonden of een fout opgetreden.</p>
 }
 else
 {
     <ul>
         @foreach (var user in users)
         {
-            <li>@user.UserName (@user.Email) (@user._role)</li>
+            <li>@user.UserName (@user.Email)</li> <!-- Assuming 'Role' is a property -->
         }
     </ul>
 }
+
 @code {
-    private List<ApplicationUser> users = new List<ApplicationUser>();
+    private List<ApplicationUser> users = new();
     private bool isLoading = true;
-    private bool fail = false;
+    private bool hasError = false;
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
             var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/user");
-            if (response is not null)
+            if (response != null && response.Count > 0)
             {
                 users = response;
             }
             else
             {
-                fail = true;
+                hasError = true;  // No users found or response is null
             }
         }
         catch (HttpRequestException ex)
         {
-            // Log the error and set fail flag to true
-            fail = true;
+            hasError = true;  // A request error occurred
             Console.WriteLine($"Request error: {ex.Message}");
         }
         finally
         {
             isLoading = false;
         }
-
-
     }
-
 }

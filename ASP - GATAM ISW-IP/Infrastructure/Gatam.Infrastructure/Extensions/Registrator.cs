@@ -17,7 +17,7 @@ namespace Gatam.Infrastructure.Extensions
         public static IServiceCollection RegisterDbContext(this IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                        options.UseSqlServer("Server=mssqlserver,1433;Database=Test.AuthFrontend;User=sa;Password=Test1234;MultipleActiveResultSets=true;TrustServerCertificate=true"));
+                        options.UseSqlServer("Server=mssqlserver,1433;Database=Test.AuthFrontend;User=sa;Password=Test@1234!;MultipleActiveResultSets=true;TrustServerCertificate=true"));
 
             return services;
         }
