@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-using Gatam.Authentication.Data;
-=======
->>>>>>> Stashed changes
 using Gatam.Domain;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;

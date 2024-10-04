@@ -7,11 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ApplicationCore\Gatam.Domain\Gatam.Domain.csproj" />
+    <ProjectReference Include="..\..\ApplicationCore\Gatam.Application\Gatam.Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

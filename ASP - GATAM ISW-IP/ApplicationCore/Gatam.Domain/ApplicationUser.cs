@@ -14,11 +14,6 @@ namespace Gatam.Domain
     {
         public ApplicationUserRoles _role { get; set; }
 
-        public ApplicationUser(ApplicationUserRoles role = ApplicationUserRoles.STUDENT) 
-        { 
-            this._role = role;
-        }
-
 
     }
 
