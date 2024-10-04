@@ -4,60 +4,30 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 internal class Program
 {
     private static void Main(string[] args)
-    {
+    {        
         var builder = WebApplication.CreateBuilder(args);
 
-        // Voeg services toe aan de container.
+        // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
-        builder.Services.AddRazorPages();
-
-        //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        //.AddCookie(options =>
-        //{
-        //    options.Cookie.Name = ".AspNet.SharedCookie";
-        //    options.Cookie.Domain = "localhost";
-        //    options.Cookie.SameSite = SameSiteMode.Lax;
-        //    options.LoginPath = "/Account/Login";  // Redirect to ASP.NET 8 project's login page
-        //});
-
-
-
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5000/api/user") });
         var app = builder.Build();
 
-        // Middleware voor authenticatie -> omzetten naar eigen middleware file en pas na HTTPS redirect...
-        app.Use(async (context, next) =>
-        {
-            if(context.User.Identity is not null)
-            {
-                if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/login"))
-                {
-                    context.Response.Redirect("/login");
-                    return; // Stop verdere verwerking
-                }
-            }
-            // Controleer of de gebruiker geauthenticeerd is
-            await next.Invoke();
-        });
-
-        // Configureer de HTTP-request-pijplijn.
+        // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error", createScopeForErrors: true);
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
         app.UseHttpsRedirection();
+
         app.UseStaticFiles();
-        app.UseRouting();
-        app.UseAuthentication(); // Zorg ervoor dat authenticatie is ingesteld
-        app.UseAuthorization();
+        app.UseAntiforgery();
 
-        app.MapRazorPages(); // Registreer de Razor-pagina's
-        app.MapControllers(); // Indien nodig voor API controllers
-
-        // Fallback route naar de loginpagina
-        app.MapFallbackToPage("/login");
+        app.MapRazorComponents<App>()
+            .AddInteractiveServerRenderMode();
 
         app.Run();
     }

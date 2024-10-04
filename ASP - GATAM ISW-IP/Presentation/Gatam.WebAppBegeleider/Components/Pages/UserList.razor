@@ -1,0 +1,55 @@
+﻿@page "/userlist"
+@using Gatam.Domain
+@using Gatam.WebAPI;
+@inject HttpClient Http
+<h3>UserList</h3>
+@if (isLoading)
+{
+    <p>Bezig met laden...</p>
+}
+else if (users.Count == 0 && fail)
+{
+    <p>Geen gebruikers gevonden.</p>
+}
+else
+{
+    <ul>
+        @foreach (var user in users)
+        {
+            <li>@user.UserName (@user.Email) (@user._role)</li>
+        }
+    </ul>
+}
+@code {
+    private List<ApplicationUser> users = new List<ApplicationUser>();
+    private bool isLoading = true;
+    private bool fail = false;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/user");
+            if (response is not null)
+            {
+                users = response;
+            }
+            else
+            {
+                fail = true;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            // Log the error and set fail flag to true
+            fail = true;
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+
+
+    }
+
+}
