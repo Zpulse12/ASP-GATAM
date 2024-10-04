@@ -1,5 +1,11 @@
+using Gatam.Authentication.Data;
+using Gatam.Domain;
 using Gatam.WebAppBegeleider.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 internal class Program
 {
@@ -12,16 +18,23 @@ internal class Program
             .AddInteractiveServerComponents();
         builder.Services.AddRazorPages();
 
-        //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        //.AddCookie(options =>
-        //{
-        //    options.Cookie.Name = ".AspNet.SharedCookie";
-        //    options.Cookie.Domain = "localhost";
-        //    options.Cookie.SameSite = SameSiteMode.Lax;
-        //    options.LoginPath = "/Account/Login";  // Redirect to ASP.NET 8 project's login page
-        //});
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = IdentityConstants.ApplicationScheme;
+            options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+        }).AddIdentityCookies();
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(connectionString));
 
+        builder.Services.AddIdentityCore<ApplicationUser>(options =>
+        {
+            options.SignIn.RequireConfirmedAccount = true;
+        }).AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
 
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie();
 
         var app = builder.Build();
 

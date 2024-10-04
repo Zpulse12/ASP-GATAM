@@ -1,6 +1,9 @@
 using Gatam.Authentication.Components.Account.Pages;
 using Gatam.Authentication.Components.Account.Pages.Manage;
+<<<<<<< Updated upstream
 using Gatam.Authentication.Data;
+=======
+>>>>>>> Stashed changes
 using Gatam.Domain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;

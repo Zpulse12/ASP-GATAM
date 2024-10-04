@@ -1,4 +1,7 @@
+<<<<<<< Updated upstream
 using Gatam.Authentication.Data;
+=======
+>>>>>>> Stashed changes
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
 
