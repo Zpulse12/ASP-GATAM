@@ -10,6 +10,7 @@ namespace Gatam.Application.CQRS
     {
         public required string Username { get; set; }
         public required string Email { get; set; }
+        public string _role { get; set; }
 
     }
 }
