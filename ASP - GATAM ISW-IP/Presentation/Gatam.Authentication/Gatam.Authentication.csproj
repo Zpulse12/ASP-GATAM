@@ -15,13 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-<<<<<<< Updated upstream
-    <ProjectReference Include="..\..\ApplicationCore\Gatam.Domain\Gatam.Domain.csproj" />
-=======
     <ProjectReference Include="..\..\ApplicationCore\Gatam.Application\Gatam.Application.csproj" />
     <ProjectReference Include="..\..\ApplicationCore\Gatam.Domain\Gatam.Domain.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj" />
->>>>>>> Stashed changes
   </ItemGroup>
 
 </Project>

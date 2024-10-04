@@ -1,0 +1,11 @@
+﻿@page "/admin/create"
+@using Gatam.Domain
+
+<h3>CreateUser</h3>
+
+<EditForm Model="@user">
+    <input type="submit" value="Submit" class="btn btn-primary" />
+</EditForm>
+@code {
+    ApplicationUser user = new ApplicationUser();
+}

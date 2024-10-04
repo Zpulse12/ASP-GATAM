@@ -16,42 +16,41 @@ internal class Program
         // Voeg services toe aan de container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
-        builder.Services.AddRazorPages();
 
-        builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultScheme = IdentityConstants.ApplicationScheme;
-            options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-        }).AddIdentityCookies();
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
+        //builder.Services.AddAuthentication(options =>
+        //{
+        //    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        //    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+        //}).AddIdentityCookies();
+        //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        //builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        //    options.UseSqlServer(connectionString));
 
-        builder.Services.AddIdentityCore<ApplicationUser>(options =>
-        {
-            options.SignIn.RequireConfirmedAccount = true;
-        }).AddEntityFrameworkStores<ApplicationDbContext>()
-        .AddDefaultTokenProviders();
+        //builder.Services.AddIdentityCore<ApplicationUser>(options =>
+        //{
+        //    options.SignIn.RequireConfirmedAccount = true;
+        //}).AddEntityFrameworkStores<ApplicationDbContext>()
+        //.AddDefaultTokenProviders();
 
-        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        .AddCookie();
+        //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        //.AddCookie();
 
         var app = builder.Build();
 
         // Middleware voor authenticatie -> omzetten naar eigen middleware file en pas na HTTPS redirect...
-        app.Use(async (context, next) =>
-        {
-            if(context.User.Identity is not null)
-            {
-                if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/login"))
-                {
-                    context.Response.Redirect("/login");
-                    return; // Stop verdere verwerking
-                }
-            }
-            // Controleer of de gebruiker geauthenticeerd is
-            await next.Invoke();
-        });
+        //app.Use(async (context, next) =>
+        //{
+        //    if(context.User.Identity is not null)
+        //    {
+        //        if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/login"))
+        //        {
+        //            context.Response.Redirect("/login");
+        //            return; // Stop verdere verwerking
+        //        }
+        //    }
+        //    // Controleer of de gebruiker geauthenticeerd is
+        //    await next.Invoke();
+        //});
 
         // Configureer de HTTP-request-pijplijn.
         if (!app.Environment.IsDevelopment())
@@ -62,15 +61,15 @@ internal class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-        app.UseRouting();
-        app.UseAuthentication(); // Zorg ervoor dat authenticatie is ingesteld
-        app.UseAuthorization();
+        app.UseAntiforgery();
+        //app.UseAuthentication(); // Zorg ervoor dat authenticatie is ingesteld
+        //app.UseAuthorization();
 
-        app.MapRazorPages(); // Registreer de Razor-pagina's
-        app.MapControllers(); // Indien nodig voor API controllers
+        app.MapRazorComponents<App>()
+        .AddInteractiveServerRenderMode();// Registreer de Razor-pagina's
 
         // Fallback route naar de loginpagina
-        app.MapFallbackToPage("/login");
+        //app.MapFallbackToPage("/login");
 
         app.Run();
     }

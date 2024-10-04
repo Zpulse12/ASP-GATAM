@@ -1,6 +1,9 @@
 #
 # STAGE 1 Alles builden van projecten en dependencies.
 #
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 as base
+EXPOSE 8080
+EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /source
 ARG APP="Gatam.Authentication"
@@ -19,9 +22,9 @@ RUN dotnet publish Presentation/${APP}/${APP}.csproj -c Release -o /app --no-res
 #
 # STAGE 2 De app omzetten naar een runtime en kleinere image.
 #
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM base AS runtime
 WORKDIR /app
 COPY --from=build /app .
-EXPOSE 8080
-EXPOSE 443
-ENTRYPOINT ["dotnet", "Gatam.Authentication.dll"] # alles voor .dll moet zelfde zijn als APP argument bij Stage 1
+USER $APP_UID
+# alles voor .dll moet zelfde zijn als APP argument bij Stage 1
+ENTRYPOINT ["dotnet" , "Gatam.Authentication.dll"]

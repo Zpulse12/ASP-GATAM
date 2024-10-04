@@ -29,7 +29,7 @@ namespace Gatam.Application.CQRS
 
         public async Task<IEnumerable<UserDTO>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<IEnumerable<UserDTO>>(await _uow.UserRepository.GetAllUsers());
+            return _mapper.Map<IEnumerable<UserDTO>>(await _uow.UserRepository.GetAllAsync());
         }
 
     }

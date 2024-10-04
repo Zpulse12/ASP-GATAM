@@ -2,6 +2,7 @@
 using Gatam.Authentication.Data;
 using Gatam.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +11,8 @@ using System.Threading.Tasks;
 
 namespace Gatam.Infrastructure.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : GenericRepository<ApplicationUser>
     {
-        private readonly ApplicationDbContext _context;
-        public UserRepository(ApplicationDbContext context) 
-        {
-            this._context = context;
-        }
-        public async Task<IEnumerable<ApplicationUser>> GetAllUsers()
-        {
-            return await _context.Users.ToListAsync();
-        }
+        public UserRepository(ApplicationDbContext context) : base(context) { }
     }
 }
