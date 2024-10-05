@@ -14,5 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Gatam.WebAPI\Gatam.WebAPI.csproj" />
+	<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.8" />
   </ItemGroup>
 </Project>
