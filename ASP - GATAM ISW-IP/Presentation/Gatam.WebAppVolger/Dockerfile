@@ -24,4 +24,5 @@ WORKDIR /app
 COPY --from=build /app .
 EXPOSE 8080
 EXPOSE 443
-ENTRYPOINT ["dotnet", "Gatam.WebAppVolger.dll"] 
+# alles voor .dll moet zelfde zijn als APP argument bij Stage 1
+ENTRYPOINT ["dotnet", "Gatam.WebAppVolger.dll"]

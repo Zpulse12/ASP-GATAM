@@ -1,5 +1,10 @@
+using Gatam.Authentication.Data;
+using Gatam.Domain;
 using Gatam.WebAppBegeleider.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 internal class Program
@@ -12,10 +17,43 @@ internal class Program
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://webapi:8080") });
+        builder.Services.AddHttpClient();
+        //builder.Services.AddAuthentication(options =>
+        //{
+        //    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        //    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+        //}).AddIdentityCookies();
+        //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        //builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        //    options.UseSqlServer(connectionString));
+
+        //builder.Services.AddIdentityCore<ApplicationUser>(options =>
+        //{
+        //    options.SignIn.RequireConfirmedAccount = true;
+        //}).AddEntityFrameworkStores<ApplicationDbContext>()
+        //.AddDefaultTokenProviders();
+
+        //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        //.AddCookie();
+
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
+        // Middleware voor authenticatie -> omzetten naar eigen middleware file en pas na HTTPS redirect...
+        //app.Use(async (context, next) =>
+        //{
+        //    if(context.User.Identity is not null)
+        //    {
+        //        if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/login"))
+        //        {
+        //            context.Response.Redirect("/login");
+        //            return; // Stop verdere verwerking
+        //        }
+        //    }
+        //    // Controleer of de gebruiker geauthenticeerd is
+        //    await next.Invoke();
+        //});
+
+        // Configureer de HTTP-request-pijplijn.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -27,9 +65,14 @@ internal class Program
 
         app.UseStaticFiles();
         app.UseAntiforgery();
+        //app.UseAuthentication(); // Zorg ervoor dat authenticatie is ingesteld
+        //app.UseAuthorization();
 
         app.MapRazorComponents<App>()
-            .AddInteractiveServerRenderMode();
+        .AddInteractiveServerRenderMode();// Registreer de Razor-pagina's
+
+        // Fallback route naar de loginpagina
+        //app.MapFallbackToPage("/login");
 
         app.Run();
     }

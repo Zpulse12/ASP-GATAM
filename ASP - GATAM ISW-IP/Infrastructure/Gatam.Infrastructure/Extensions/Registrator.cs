@@ -23,7 +23,7 @@ namespace Gatam.Infrastructure.Extensions
         }
         public static IServiceCollection RegisterInfrastructure(this IServiceCollection services)
         {
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.RegisterDbContext();
             return services;

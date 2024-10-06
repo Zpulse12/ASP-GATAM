@@ -23,5 +23,7 @@ RUN ls -la /app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app .
-ENTRYPOINT ["dotnet", "Gatam.WebAppBegeleider.dll"]  
-
+EXPOSE 8080
+EXPOSE 443
+# alles voor .dll moet zelfde zijn als APP argument bij Stage 1
+ENTRYPOINT ["dotnet", "Gatam.WebAppBegeleider.dll"]

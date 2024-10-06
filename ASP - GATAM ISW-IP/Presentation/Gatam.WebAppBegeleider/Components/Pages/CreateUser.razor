@@ -1,0 +1,39 @@
+﻿@page "/admin/create"
+@inject IJSRuntime JS
+@using Gatam.Domain
+
+@rendermode InteractiveServer
+
+<h3>CreateUser</h3>
+
+<EditForm Model="user" FormName="createUser" OnValidSubmit="OnFormSubmit">
+    <label>Gebruikersnaam</label>
+    <InputText @bind-Value="user.UserName" />
+    <label>Wachtwoord</label>
+    <InputText  @bind-Value="user.PasswordHash" />
+    <label>E-mailadres</label>
+    <InputText @bind-Value="user.Email" />
+    <label>Telefoonnummer</label>
+    <InputText @bind-Value="user.PhoneNumber" />
+    <label>Rol</label>
+@*     <InputSelect @bind="user._role">
+        <Inp value="0">
+            Beheerder
+        </Inp>
+        <option value="1">
+            Begeleider
+        </option>
+        <option value="2">
+            Student
+        </option>
+    </InputSelect> *@
+    <button class="btn btn-primary" type="submit" value="submit">Send</button>
+</EditForm>
+@code {
+    ApplicationUser user = new ApplicationUser();
+    private async Task OnFormSubmit() 
+    {
+        // var req = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/api/User");
+        await new HttpClient().PostAsJsonAsync("http://localhost:5000/api/User", user);
+    }
+}
