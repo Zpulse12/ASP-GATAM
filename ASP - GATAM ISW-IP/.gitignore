@@ -5,6 +5,7 @@ project.lock.json
 *.pyc
 nupkg/
 
+TestResults/
 # Visual Studio Code
 .vscode/
 
