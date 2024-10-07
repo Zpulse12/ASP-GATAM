@@ -26,6 +26,8 @@ services:
       - mssql-server
     networks:
       - database
+    env_file:
+      - .env
   webappbegeleider:
     build:
       context: .
@@ -50,6 +52,8 @@ services:
       - mssql-server
     networks:
       - database
+    env_file:
+      - .env
   webappvolger:
     build:
       context: .
