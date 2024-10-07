@@ -37,7 +37,7 @@ namespace Gatam.Infrastructure.Extensions
             string pattern = "/(,\\d{4})$/g";
             Regex reg = new Regex(pattern, RegexOptions.IgnoreCase);
             Match m = reg.Match(DATABASEHOST);
-            if (!m.Success) { throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} Invalid port. Check your environment file..."); }
+            if (m.Success) {throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} Invalid port. Check your environment file...");}
 
 
             services.AddDbContext<ApplicationDbContext>(options =>
