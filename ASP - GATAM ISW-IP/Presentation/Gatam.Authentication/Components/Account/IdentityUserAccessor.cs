@@ -1,4 +1,5 @@
-using Gatam.Authentication.Data;
+using Gatam.Infrastructure.Contexts;
+using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
 
 namespace Gatam.Authentication.Components.Account

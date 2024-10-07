@@ -14,4 +14,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\ApplicationCore\Gatam.Application\Gatam.Application.csproj" />
+    <ProjectReference Include="..\..\ApplicationCore\Gatam.Domain\Gatam.Domain.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

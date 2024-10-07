@@ -1,10 +1,20 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace Gatam.Authentication.Data
+namespace Gatam.Domain
 {
+
+    public enum ApplicationUserRoles
+    {
+        ADMIN,
+        MENTOR,
+        STUDENT
+    }
     // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
+        public ApplicationUserRoles _role { get; set; }
+
+
     }
 
 }

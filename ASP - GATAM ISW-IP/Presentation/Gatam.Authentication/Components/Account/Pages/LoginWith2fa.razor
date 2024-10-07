@@ -2,7 +2,8 @@
 
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
-@using Gatam.Authentication.Data
+@using Gatam.Infrastructure.Contexts;
+@using Gatam.Domain
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
