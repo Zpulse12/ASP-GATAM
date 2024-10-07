@@ -1,4 +1,4 @@
-﻿@page "/userlist"
+﻿@page "/admin/userlist"
 @using Gatam.Domain
 @using Gatam.WebAPI;
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -9,7 +9,7 @@
         <div class="col-lg-10">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white text-center">
-                    <h2 class="mb-0">User List</h2>
+                    <h2 class="mb-0">Overzicht gebruikers</h2>
                 </div>
                 <div class="card-body">
                     @if (isLoading)
