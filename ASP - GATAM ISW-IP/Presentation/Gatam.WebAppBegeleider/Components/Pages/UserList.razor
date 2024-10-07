@@ -29,12 +29,12 @@
                     else
                     {
                         <QuickGrid Items="users.AsQueryable()" class="table table-hover table-bordered">
-                            <PropertyColumn Property="@(u => u.UserName)" Title="Username" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
                             <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
-                            <PropertyColumn Property="@(u => u._role)" Title="Role" Sortable="true" />
-                            <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Failed Attemps" Sortable="true" />
-                            <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Locked account" Sortable="true" />
-                            <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email confirmed" Sortable="true" />
+                            <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigt" Sortable="true" />
                         </QuickGrid>
                     }
                 </div>
