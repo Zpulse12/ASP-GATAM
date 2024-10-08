@@ -1,5 +1,5 @@
 ﻿@page "/admin/create"
-@inject IJSRuntime JS
+@inject HttpClient http
 @using Gatam.Domain
 
 @rendermode InteractiveServer
@@ -16,24 +16,21 @@
     <label>Telefoonnummer</label>
     <InputText @bind-Value="user.PhoneNumber" />
     <label>Rol</label>
-@*     <InputSelect @bind="user._role">
-        <Inp value="0">
-            Beheerder
-        </Inp>
+    <InputSelect @bind-Value="user._role">
+        <option value="0">Beheerder</option>
         <option value="1">
             Begeleider
         </option>
         <option value="2">
             Student
         </option>
-    </InputSelect> *@
+    </InputSelect>
     <button class="btn btn-primary" type="submit" value="submit">Send</button>
 </EditForm>
 @code {
     ApplicationUser user = new ApplicationUser();
     private async Task OnFormSubmit() 
     {
-        // var req = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/api/User");
-        await new HttpClient().PostAsJsonAsync("http://localhost:5000/api/User", user);
+        await http.PostAsJsonAsync("/api/User", user);
     }
 }

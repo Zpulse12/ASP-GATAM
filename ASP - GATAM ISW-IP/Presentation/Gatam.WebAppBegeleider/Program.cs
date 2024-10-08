@@ -22,7 +22,7 @@ internal class Program
         #if DEBUG
                 baseURI = "http://localhost:5000";
         #endif
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseURI) });
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://webapi:8080/") });
         //builder.Services.AddAuthentication(options =>
         //{
         //    options.DefaultScheme = IdentityConstants.ApplicationScheme;
