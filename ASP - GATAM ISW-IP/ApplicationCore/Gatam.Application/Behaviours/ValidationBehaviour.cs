@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
+using Gatam.Application.Exceptions;
 
 namespace Gatam.Application.Behaviours
 {
@@ -25,7 +26,7 @@ namespace Gatam.Application.Behaviours
                 ValidationResult[] validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
                 List<ValidationFailure> failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToList();
                 if (failures.Count != 0)
-                    throw new ValidationException(failures);
+                    throw new FailedValidationException(failures);
             }
             return await next();
         }
