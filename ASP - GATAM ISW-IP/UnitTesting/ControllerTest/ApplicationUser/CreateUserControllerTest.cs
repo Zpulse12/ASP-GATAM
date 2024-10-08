@@ -27,7 +27,6 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             _userController = new UserController( _mediatorMock.Object );
             _passwordHasher = new PasswordHasher<Gatam.Domain.ApplicationUser>();
         }
-
         [TestMethod]
         public async Task CreateUser_ReturnsCreated_AndUser()
         {
@@ -49,13 +48,8 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             _userController.ModelState.AddModelError("Email", "Email cannot be empty");
             Gatam.Domain.ApplicationUser user = new Gatam.Domain.ApplicationUser() { UserName = "Test", Email = "" };
             user.PasswordHash = _passwordHasher.HashPassword(user, "test1234!@");
-
-
-            _mediatorMock.Setup(setup => setup.Send(It.IsAny<CreateUserCommand>(), default)).ReturnsAsync(user);
-
             IActionResult result = await _userController.CreateUser(user);
-            Debug.WriteLine(result);
-            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+            Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
         }
     }
 }

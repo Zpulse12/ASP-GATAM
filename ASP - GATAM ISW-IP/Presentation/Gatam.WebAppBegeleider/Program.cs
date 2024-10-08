@@ -17,7 +17,12 @@ internal class Program
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://webapi:8080/") });
+
+        string baseURI = "http://webapi:8080/";
+        #if DEBUG
+                baseURI = "http://localhost:5000";
+        #endif
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseURI) });
         //builder.Services.AddAuthentication(options =>
         //{
         //    options.DefaultScheme = IdentityConstants.ApplicationScheme;
