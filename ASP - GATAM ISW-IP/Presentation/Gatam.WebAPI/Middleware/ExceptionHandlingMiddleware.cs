@@ -1,4 +1,5 @@
-﻿using Gatam.Application.Exceptions;
+﻿using FluentValidation.Results;
+using Gatam.Application.Exceptions;
 
 namespace Gatam.WebAPI.Middleware
 {
@@ -18,23 +19,21 @@ namespace Gatam.WebAPI.Middleware
             }
             catch (Exception ex) { 
                 ErrorResponseObject result = new ErrorResponseObject();
+                result.Message = ex.Message;
+                result.TimeStamp = DateTime.UtcNow;
+                result.Failures = null;
                 switch (ex)
                 {
-                    case FailedValidationException:
+                    case FailedValidationException validationException:
                         result.StatusCode = StatusCodes.Status400BadRequest;
-                        if(ex is FailedValidationException validationException) //Casten naar te gebruiken variable.
-                        {
                             if(validationException._validationFailures != null) //Mogelijks null. Dus checken!
                             {
-                                result.Message = string.Join(",",validationException._validationFailures);
+                                result.Message = "Failed validations";
+                                result.Failures = validationException._validationFailures;
                             } else
                             {
                                 result.Message = "Validation failures are null.";
                             }
-                        } else
-                        {
-                            result.Message = ex.Message; //Defaulten naar message van exception
-                        }
                         break;
                     default:
                         result.StatusCode = StatusCodes.Status500InternalServerError;
@@ -52,6 +51,7 @@ namespace Gatam.WebAPI.Middleware
     {
         public string Message { get; set; }
         public int StatusCode { get; set; }
-        public DateTime timeStamp = DateTime.UtcNow;
+        public DateTime TimeStamp { get; set; }
+        public List<ValidationFailure>? Failures { get; set; }
     }
 }

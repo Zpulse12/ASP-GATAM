@@ -16,15 +16,15 @@ namespace Gatam.Application.CQRS
         public required ApplicationUser _user { get; set; }
 
     }
-    public class CreateUserCommandValidator : AbstractValidator<ApplicationUser>
+    public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
 
         public CreateUserCommandValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-
-            RuleFor(validationObject => validationObject.Email).NotNull().NotEmpty().WithMessage("Email mag niet leeg zijn.");
+            RuleFor(validationObject => validationObject._user.Email).NotNull().WithMessage("Email mag niet null zijn");
+            RuleFor(validationObject => validationObject._user.Email).NotEmpty().WithMessage("Email mag niet leeg zijn");
         }
     }
 
