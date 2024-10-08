@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnitTesting.ApplicationUser
+namespace UnitTesting.CQRSTest.ApplicationUser
 {
     [TestClass]
     public class CreateUserCommandTest
@@ -42,7 +42,7 @@ namespace UnitTesting.ApplicationUser
                 .WithErrorCode("NotEmptyValidator");
         }
         [TestMethod]
-        public async Task EmailIsEmptyWithSpace()
+        public async Task EmailIsEmpty_WithSpace()
         {
             Gatam.Domain.ApplicationUser user = new Gatam.Domain.ApplicationUser() { Email = " " };
             Gatam.Application.CQRS.CreateUserCommand unit = new Gatam.Application.CQRS.CreateUserCommand() { _user = user };

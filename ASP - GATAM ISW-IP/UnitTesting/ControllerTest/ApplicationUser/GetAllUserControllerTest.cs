@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnitTesting.ControllerTest
+namespace UnitTesting.ControllerTest.ApplicationUser
 {
     [TestClass]
     public class GetAllUserControllerTest
