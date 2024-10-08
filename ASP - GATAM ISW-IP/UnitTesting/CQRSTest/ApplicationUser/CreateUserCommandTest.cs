@@ -28,8 +28,8 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         {
             Gatam.Domain.ApplicationUser user = new Gatam.Domain.ApplicationUser() { Email = null };
             Gatam.Application.CQRS.CreateUserCommand unit = new Gatam.Application.CQRS.CreateUserCommand() { _user = user };
-            var result = await new Gatam.Application.CQRS.CreateUserCommandValidator(_unitOfWorkMock.Object).TestValidateAsync(user);
-            result.ShouldHaveValidationErrorFor(validationObject => validationObject.Email)
+            var result = await new Gatam.Application.CQRS.CreateUserCommandValidator(_unitOfWorkMock.Object).TestValidateAsync(unit);
+            result.ShouldHaveValidationErrorFor(validationObject => validationObject._user.Email)
                 .WithErrorCode("NotNullValidator");
         }
         [TestMethod]
@@ -37,8 +37,8 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         {
             Gatam.Domain.ApplicationUser user = new Gatam.Domain.ApplicationUser() { Email = "" };
             Gatam.Application.CQRS.CreateUserCommand unit = new Gatam.Application.CQRS.CreateUserCommand() { _user = user };
-            var result = await new Gatam.Application.CQRS.CreateUserCommandValidator(_unitOfWorkMock.Object).TestValidateAsync(user);
-            result.ShouldHaveValidationErrorFor(validationObject => validationObject.Email)
+            var result = await new Gatam.Application.CQRS.CreateUserCommandValidator(_unitOfWorkMock.Object).TestValidateAsync(unit);
+            result.ShouldHaveValidationErrorFor(validationObject => validationObject._user.Email)
                 .WithErrorCode("NotEmptyValidator");
         }
         [TestMethod]
@@ -46,8 +46,8 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         {
             Gatam.Domain.ApplicationUser user = new Gatam.Domain.ApplicationUser() { Email = " " };
             Gatam.Application.CQRS.CreateUserCommand unit = new Gatam.Application.CQRS.CreateUserCommand() { _user = user };
-            var result = await new Gatam.Application.CQRS.CreateUserCommandValidator(_unitOfWorkMock.Object).TestValidateAsync(user);
-            result.ShouldHaveValidationErrorFor(validationObject => validationObject.Email)
+            var result = await new Gatam.Application.CQRS.CreateUserCommandValidator(_unitOfWorkMock.Object).TestValidateAsync(unit);
+            result.ShouldHaveValidationErrorFor(validationObject => validationObject._user.Email)
                 .WithErrorCode("NotEmptyValidator");
         }
     }

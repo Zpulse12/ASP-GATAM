@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace UnitTesting.ControllerTest.ApplicationUser
         }
 
         [TestMethod]
-        public async Task CreateUser_ReturnsOk_AndUser()
+        public async Task CreateUser_ReturnsCreated_AndUser()
         {
             Gatam.Domain.ApplicationUser user = new Gatam.Domain.ApplicationUser() { UserName="Test", Email="test@email.com" };
             user.PasswordHash = _passwordHasher.HashPassword(user, "test1234!@");
@@ -37,24 +38,24 @@ namespace UnitTesting.ControllerTest.ApplicationUser
 
             IActionResult result = await _userController.CreateUser(user);
 
-            OkObjectResult? okObjectResult = result as OkObjectResult;
-            Assert.IsNotNull(okObjectResult);
-            Assert.AreEqual(200, okObjectResult.StatusCode);
-            Assert.AreEqual(user, okObjectResult.Value);
+            CreatedResult? createdResult = result as CreatedResult;
+            Assert.IsNotNull(createdResult);
+            Assert.AreEqual(201, createdResult.StatusCode);
+            Assert.AreEqual(user, createdResult.Value);
         }
         [TestMethod]
-        public async Task CreateUser_ReturnsError_EmptyMail()
+        public async Task CreateUser_ReturnsBadRequest_EmptyMail()
         {
+            _userController.ModelState.AddModelError("Email", "Email cannot be empty");
             Gatam.Domain.ApplicationUser user = new Gatam.Domain.ApplicationUser() { UserName = "Test", Email = "" };
             user.PasswordHash = _passwordHasher.HashPassword(user, "test1234!@");
+
 
             _mediatorMock.Setup(setup => setup.Send(It.IsAny<CreateUserCommand>(), default)).ReturnsAsync(user);
 
             IActionResult result = await _userController.CreateUser(user);
-
-            OkObjectResult? okObjectResult = result as OkObjectResult;
-            Assert.IsNotNull(okObjectResult);
-            Assert.AreNotEqual(200, okObjectResult.StatusCode);
+            Debug.WriteLine(result);
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
         }
     }
 }

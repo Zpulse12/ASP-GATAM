@@ -21,10 +21,8 @@ namespace Gatam.Application.Behaviours
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            Debug.WriteLine("Validation invoked");
             if (_validators.Any())
             {
-                Debug.WriteLine($"Validation any? {_validators.Any()}");
                 ValidationContext<TRequest> context = new ValidationContext<TRequest>(request);
                 ValidationResult[] validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
                 List<ValidationFailure> failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToList();

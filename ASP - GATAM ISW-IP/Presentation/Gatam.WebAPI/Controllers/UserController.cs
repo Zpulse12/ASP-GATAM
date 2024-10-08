@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Gatam.Application.CQRS;
 using MediatR;
 using Gatam.Domain;
+using Gatam.WebAPI.Extensions;
+using System.Diagnostics;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -26,8 +28,9 @@ namespace Gatam.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
         {
-            await _mediator.Send(new CreateUserCommand() { _user = user});
-            return Ok(user);
+            var result = await _mediator.Send(new CreateUserCommand() { _user = user });
+            Debug.WriteLine(result);
+            return result == null ? BadRequest(result) : Created("", result);
         }
     }
 

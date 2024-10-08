@@ -47,7 +47,7 @@ namespace Gatam.WebAPI.Middleware
         }
     }
 
-    internal class ErrorResponseObject
+    public class ErrorResponseObject
     {
         public string Message { get; set; }
         public int StatusCode { get; set; }
