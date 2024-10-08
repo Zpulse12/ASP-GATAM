@@ -1,10 +1,11 @@
 using Gatam.Authentication.Components;
 using Gatam.Authentication.Components.Account;
-using Gatam.Authentication.Data;
+using Gatam.Infrastructure.Contexts;
+using Gatam.Domain;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Gatam.Domain;
+using Gatam.Infrastructure.Extensions;
 
 namespace Gatam.Authentication
 {
@@ -17,7 +18,7 @@ namespace Gatam.Authentication
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
-
+            builder.Services.RegisterDbContext();
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<IdentityUserAccessor>();
             builder.Services.AddScoped<IdentityRedirectManager>();

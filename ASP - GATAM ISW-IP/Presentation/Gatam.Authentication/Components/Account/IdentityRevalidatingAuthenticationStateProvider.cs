@@ -1,3 +1,4 @@
+using Gatam.Infrastructure.Contexts;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;

@@ -1,3 +1,4 @@
+using Gatam.Infrastructure.Contexts;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
 

@@ -1,5 +1,5 @@
 ﻿using Gatam.Application.Interfaces;
-using Gatam.Authentication.Data;
+using Gatam.Infrastructure.Contexts;
 using Gatam.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

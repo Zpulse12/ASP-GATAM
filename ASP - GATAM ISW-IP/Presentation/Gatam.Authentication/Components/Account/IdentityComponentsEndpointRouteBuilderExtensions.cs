@@ -1,5 +1,6 @@
 using Gatam.Authentication.Components.Account.Pages;
 using Gatam.Authentication.Components.Account.Pages.Manage;
+using Gatam.Infrastructure.Contexts;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
