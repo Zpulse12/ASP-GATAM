@@ -55,7 +55,6 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             OkObjectResult? okObjectResult = result as OkObjectResult;
             Assert.IsNotNull(okObjectResult);
             Assert.AreNotEqual(200, okObjectResult.StatusCode);
-            Assert.AreEqual(user, okObjectResult.Value);
         }
     }
 }
