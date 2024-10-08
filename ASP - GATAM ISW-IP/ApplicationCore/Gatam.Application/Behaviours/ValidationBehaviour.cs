@@ -26,7 +26,7 @@ namespace Gatam.Application.Behaviours
                 ValidationResult[] validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
                 List<ValidationFailure> failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToList();
                 if (failures.Count != 0)
-                    throw new FailedValidationException(failures);
+                    throw new FailedValidationException() { _validationFailures = failures};
             }
             return await next();
         }

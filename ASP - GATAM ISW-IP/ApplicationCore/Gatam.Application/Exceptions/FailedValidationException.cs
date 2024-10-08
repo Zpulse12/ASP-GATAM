@@ -11,9 +11,9 @@ namespace Gatam.Application.Exceptions
     public class FailedValidationException : Exception
     {
 
-        public List<ValidationFailure> _validationFailures;
+        public required List<ValidationFailure> _validationFailures { get; set; }
 
-        public FailedValidationException(List<ValidationFailure> failures) : base() { _validationFailures = failures; }
-        public FailedValidationException(string message) : base(message) { _validationFailures = new List<ValidationFailure>(); }
+        public FailedValidationException() : base() {}
+        public FailedValidationException(string message) : base(message) {}
     }
 }
