@@ -21,7 +21,7 @@ namespace Gatam.Application.CQRS
         {
             var user = await userRepository.FindById(request.UserId);
             if (user == null) return false;
-            userRepository.Delete(user);
+            await userRepository.Delete(user);
             return true;
         }
     }
