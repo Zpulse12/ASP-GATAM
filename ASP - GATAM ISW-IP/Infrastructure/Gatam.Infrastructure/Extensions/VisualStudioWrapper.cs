@@ -1,14 +1,23 @@
-﻿namespace Gatam.Infrastructure.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public static class VisualStudioWrapper
+namespace Gatam.Infrastructure.Extensions
 {
-    public static DirectoryInfo GetSolutionDirectoryPath(string currentPath = null)
+    public static class VisualStudioWrapper
     {
-        DirectoryInfo solutionDirectory = new DirectoryInfo(currentPath ?? Directory.GetCurrentDirectory());
-        while (solutionDirectory != null && !solutionDirectory.GetFiles("*.sln").Any())
+
+        public static DirectoryInfo GetSolutionDirectoryPath(string currentPath = null)
         {
-            solutionDirectory = solutionDirectory.Parent;
+            DirectoryInfo solutionDirectory = new DirectoryInfo(currentPath ?? Directory.GetCurrentDirectory());
+            while (solutionDirectory != null && !solutionDirectory.GetFiles("*.sln").Any())
+            {
+                solutionDirectory = solutionDirectory.Parent;
+            }
+            return solutionDirectory;
         }
-        return solutionDirectory;
+
     }
 }

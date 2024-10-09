@@ -1,13 +1,10 @@
 ﻿using Gatam.Application.Interfaces;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using FluentValidation;
 using System.Reflection;
-using System.Security;
-using System.Text;
-using System.Threading.Tasks;
+using Gatam.Application.Behaviours;
+using Gatam.Application.CQRS;
 
 namespace Gatam.Application.Extensions
 {
@@ -17,6 +14,8 @@ namespace Gatam.Application.Extensions
         {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
             return services;
         }

@@ -1,5 +1,6 @@
 using Gatam.Application.Extensions;
 using Gatam.Infrastructure.Extensions;
+using Gatam.WebAPI.Extensions;
 internal class Program
 {
     private static void Main(string[] args)
@@ -22,6 +23,7 @@ internal class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.UseErrorHandlingMiddleware();
 
         app.UseHttpsRedirection();
 
