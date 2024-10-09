@@ -3,6 +3,7 @@
 @using Gatam.Domain
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HttpClient Http;
+@rendermode InteractiveServer
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -36,11 +37,10 @@
                             <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
                             <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
                             <TemplateColumn Title="Actions">
-                                <button class="btn btn-outline-secondary" onclick="@(() => Delete(context.Id))">
-                                    verwijder
-                                </button>
-                            </TemplateColumn>                        
-                            </QuickGrid>
+                                <button  @onclick="@( () => Delete(context.Id))" class="btn btn-outline-secondary">verwijder</button>
+                            </TemplateColumn>
+
+                        </QuickGrid>
                     }
 
                     
@@ -49,23 +49,24 @@
         </div>
     </div>
 </div>
-
 @code {
     private List<ApplicationUser> _users = [];
     private bool _isLoading = true;
     private bool _hasError = false;
-    async void Delete(string userId)
+
+    async Task Delete(string userId)
     {
         Debug.WriteLine(userId);
         try
         {
-            var response = await Http.DeleteAsync($"api/User/{userId}");
+            var response = await Http.DeleteAsync($"api/User/delete/{userId}");
             if (response.IsSuccessStatusCode)
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == userId);
                 if (userToRemove != null)
                 {
                     _users.Remove(userToRemove);
+                    StateHasChanged();
                 }
             }
             else
@@ -80,7 +81,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        
+
         try
         {
             var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");

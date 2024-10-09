@@ -35,9 +35,9 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpDelete]
         [Route("delete/{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
-           var response = await _mediator.Send(new DeleteUserCommand() { UserId = id.ToString() });
+           var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
            if (response)
            {
                return Ok(response);
