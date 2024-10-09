@@ -21,6 +21,11 @@ namespace Gatam.Infrastructure.Extensions
     {
         public static IServiceCollection RegisterDbContext(this IServiceCollection services)
         {
+            #if DEBUG
+            DirectoryInfo rootDirectory = VisualStudioWrapper.GetSolutionDirectoryPath();
+            string dotenvPath = Path.Combine(rootDirectory.FullName, "debug.env");
+            DotEnvLoader.Load(dotenvPath);
+            #endif
             string SAPASSWORD = Environment.GetEnvironmentVariable("SA_PASSWORD");
             string DATABASENAME = Environment.GetEnvironmentVariable("DATABASE_NAME");
             string DATABASEHOST = Environment.GetEnvironmentVariable("DATABASE_HOST");
