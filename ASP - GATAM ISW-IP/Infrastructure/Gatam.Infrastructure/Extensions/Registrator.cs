@@ -7,13 +7,7 @@ using Gatam.Infrastructure.UOW;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -21,6 +15,11 @@ namespace Gatam.Infrastructure.Extensions
     {
         public static IServiceCollection RegisterDbContext(this IServiceCollection services)
         {
+            #if DEBUG
+            DirectoryInfo rootDirectory = VisualStudioWrapper.GetSolutionDirectoryPath();
+            string dotenvPath = Path.Combine(rootDirectory.FullName, "debug.env");
+            DotEnvLoader.Load(dotenvPath);
+            #endif
             string SAPASSWORD = Environment.GetEnvironmentVariable("SA_PASSWORD");
             string DATABASENAME = Environment.GetEnvironmentVariable("DATABASE_NAME");
             string DATABASEHOST = Environment.GetEnvironmentVariable("DATABASE_HOST");

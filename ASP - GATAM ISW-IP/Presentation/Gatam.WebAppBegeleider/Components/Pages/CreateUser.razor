@@ -1,12 +1,12 @@
 ﻿@page "/admin/create"
-@inject IJSRuntime JS
+@inject HttpClient http
 @using Gatam.Domain
 
 @rendermode InteractiveServer
 
 <h3>CreateUser</h3>
 
-<EditForm Model="user" FormName="createUser" OnValidSubmit="OnFormSubmit">
+<EditForm Model="@user" FormName="createUser" OnValidSubmit="OnFormSubmit">
     <label>Gebruikersnaam</label>
     <InputText @bind-Value="user.UserName" />
     <label>Wachtwoord</label>
@@ -16,24 +16,34 @@
     <label>Telefoonnummer</label>
     <InputText @bind-Value="user.PhoneNumber" />
     <label>Rol</label>
-@*     <InputSelect @bind="user._role">
-        <Inp value="0">
-            Beheerder
-        </Inp>
-        <option value="1">
+    <InputSelect @bind-Value="user._role">
+        <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
+        <option value="@ApplicationUserRoles.MENTOR">
             Begeleider
         </option>
-        <option value="2">
+        <option value="@ApplicationUserRoles.STUDENT">
             Student
         </option>
-    </InputSelect> *@
+    </InputSelect>
     <button class="btn btn-primary" type="submit" value="submit">Send</button>
 </EditForm>
+<p id="response">@response</p>
 @code {
-    ApplicationUser user = new ApplicationUser();
+    string response = "";
+    ApplicationUser user = new ApplicationUser() {_role = ApplicationUserRoles.STUDENT};
     private async Task OnFormSubmit() 
     {
-        // var req = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/api/User");
-        await new HttpClient().PostAsJsonAsync("http://localhost:5000/api/User", user);
+        HttpResponseMessage result = await http.PostAsJsonAsync("/api/User", user);
+
+        if(result.IsSuccessStatusCode)
+        {
+            response = "Gebruiker is aangemaakt";
+
+            user = new ApplicationUser() { _role = ApplicationUserRoles.STUDENT }; // refreshen van form.
+        } else
+        {
+            response = result.Content.ToString();
+        }
+        StateHasChanged();
     }
 }
