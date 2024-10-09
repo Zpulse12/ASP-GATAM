@@ -24,14 +24,22 @@ namespace Gatam.Infrastructure.Repositories
             return entity;
         }
 
-        public Task Delete(T entity)
+        public async Task Delete(T entity)
         {
-            throw new NotImplementedException();
+             _dbSet.Remove(entity);
+             await _context.SaveChangesAsync();
+
         }
 
-        public Task<T> FindById(string id)
+        public async Task<T?> FindById(string id)
         {
-            throw new NotImplementedException();
+            var response = await _dbSet.FindAsync(id);
+            return response;
+        }
+
+        public async Task<T> FindByName(string name)
+        {
+            return (await _dbSet.FindAsync(name))!;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
