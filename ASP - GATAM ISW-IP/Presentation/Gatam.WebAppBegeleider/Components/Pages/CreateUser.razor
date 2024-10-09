@@ -6,7 +6,7 @@
 
 <h3>CreateUser</h3>
 
-<EditForm Model="user" FormName="createUser" OnValidSubmit="OnFormSubmit">
+<EditForm Model="@user" FormName="createUser" OnValidSubmit="OnFormSubmit">
     <label>Gebruikersnaam</label>
     <InputText @bind-Value="user.UserName" />
     <label>Wachtwoord</label>
@@ -17,20 +17,33 @@
     <InputText @bind-Value="user.PhoneNumber" />
     <label>Rol</label>
     <InputSelect @bind-Value="user._role">
-        <option value="0">Beheerder</option>
-        <option value="1">
+        <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
+        <option value="@ApplicationUserRoles.MENTOR">
             Begeleider
         </option>
-        <option value="2">
+        <option value="@ApplicationUserRoles.STUDENT">
             Student
         </option>
     </InputSelect>
     <button class="btn btn-primary" type="submit" value="submit">Send</button>
 </EditForm>
+<p id="response">@response</p>
 @code {
-    ApplicationUser user = new ApplicationUser();
+    string response = "";
+    ApplicationUser user = new ApplicationUser() {_role = ApplicationUserRoles.STUDENT};
     private async Task OnFormSubmit() 
     {
-        await http.PostAsJsonAsync("/api/User", user);
+        HttpResponseMessage result = await http.PostAsJsonAsync("/api/User", user);
+
+        if(result.IsSuccessStatusCode)
+        {
+            response = "Gebruiker is aangemaakt";
+
+            user = new ApplicationUser() { _role = ApplicationUserRoles.STUDENT }; // refreshen van form.
+        } else
+        {
+            response = result.Content.ToString();
+        }
+        StateHasChanged();
     }
 }
