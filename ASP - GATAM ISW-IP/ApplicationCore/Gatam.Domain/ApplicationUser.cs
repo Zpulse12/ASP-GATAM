@@ -16,5 +16,4 @@ namespace Gatam.Domain
 
 
     }
-
 }
