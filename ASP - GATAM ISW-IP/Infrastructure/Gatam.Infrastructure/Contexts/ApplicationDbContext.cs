@@ -14,8 +14,8 @@ namespace Gatam.Infrastructure.Contexts
         }
 
 
-        public DbSet<ApplicationTeam> applicationTeams { get; set; }
-        public DbSet<ApplicationUser> applicationUsers { get; set; }
+        public DbSet<ApplicationTeam> ApplicationTeams { get; set; }
+        public DbSet<TeamInvitation> TeamInvitations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -45,18 +45,27 @@ namespace Gatam.Infrastructure.Contexts
                     PasswordHash = hasher.HashPassword(null, "Test@1234")
                 }
             );
+
+            ApplicationTeam GLOBALTESTTEAM = new ApplicationTeam()
+            {
+                Id = Guid.NewGuid().ToString(),
+                TeamName = "test team",
+                TeamCreatorId = GLOBALTESTUSER.Id,
+                IsDeleted = false,
+                CreatedAt = DateTime.UnixEpoch,
+            };
             // SETUP VAN TEAM IN DB
-            builder.Entity<ApplicationTeam>().HasData(
-                new ApplicationTeam()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    TeamName = "test team",
-                    TeamCreatorId = GLOBALTESTUSER.Id,
-                    IsDeleted = false,
-                    CreatedAt = DateTime.UnixEpoch,
-                }
-                );
+            builder.Entity<ApplicationTeam>().HasData(GLOBALTESTTEAM);
+
+            builder.Entity<TeamInvitation>().HasData(new TeamInvitation { ApplicationTeamId = GLOBALTESTTEAM.Id, UserId = GLOBALTESTUSER.Id});
+
+
+
+            // RELATIES
             builder.Entity<ApplicationUser>().HasMany(user => user.OwnedApplicationTeams).WithOne(team => team.TeamCreator).HasForeignKey(team => team.TeamCreatorId).OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<ApplicationTeam>().HasMany(team => team.TeamInvitations).WithOne(invitation => invitation.applicationTeam).HasForeignKey(invitation => invitation.ApplicationTeamId).OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<ApplicationUser>().HasMany(user => user.InvitationsRequests).WithOne(invitation => invitation.applicationUser).HasForeignKey(invitation => invitation.UserId).OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

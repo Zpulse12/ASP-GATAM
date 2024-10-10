@@ -15,6 +15,6 @@ namespace Gatam.Domain
     {
         public ApplicationUserRoles _role { get; set; }
         public ICollection<ApplicationTeam> OwnedApplicationTeams { get; } = new List<ApplicationTeam>();
-
+        public ICollection<TeamInvitation> InvitationsRequests { get; } = new List<TeamInvitation>();
     }
 }
