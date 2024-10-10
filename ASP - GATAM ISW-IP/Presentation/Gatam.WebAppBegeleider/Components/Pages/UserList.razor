@@ -81,10 +81,6 @@
         try
         {
 
-            
-            var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
-            if (response != null && response.Count > 0)
-
             var response = await Http.DeleteAsync($"api/User/delete/{userId}");
             if (response.IsSuccessStatusCode)
 
@@ -154,7 +150,7 @@
                 if (updatedUser != null)
                 {
                     // Werk de lijst bij met de gedeactiveerde gebruiker
-                    var loclalUser = users.FirstOrDefault(u => u.Id == userId);
+                    var loclalUser = _users.FirstOrDefault(u => u.Id == userId);
                     if (loclalUser != null)
                     {
                         loclalUser.IsActive = updatedUser.IsActive;
