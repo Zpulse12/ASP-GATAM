@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gatam.Domain
 {
@@ -13,7 +14,7 @@ namespace Gatam.Domain
     public class ApplicationUser : IdentityUser
     {
         public ApplicationUserRoles _role { get; set; }
-
+        public ICollection<ApplicationTeam> OwnedApplicationTeams { get; } = new List<ApplicationTeam>();
 
     }
 }
