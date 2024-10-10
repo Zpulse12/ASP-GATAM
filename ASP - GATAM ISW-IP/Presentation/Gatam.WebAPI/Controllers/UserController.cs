@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Gatam.Application.CQRS;
 using MediatR;
@@ -47,6 +47,20 @@ namespace Gatam.WebAPI.Controllers
             }
 
             return Ok(user);
+        }
+        [HttpDelete]
+        [Route("delete/{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+           var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
+           if (response)
+           {
+               return Ok(response);
+           }
+           return NotFound("User doesnt exists");
+
+
+
         }
     }
 
