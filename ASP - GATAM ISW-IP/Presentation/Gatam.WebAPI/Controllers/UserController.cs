@@ -32,6 +32,22 @@ namespace Gatam.WebAPI.Controllers
             Debug.WriteLine(result);
             return result == null ? BadRequest(result) : Created("", result);
         }
+
+        [HttpPut]
+        [Route("deactivate/{id}")]
+        public async Task<IActionResult> DeactivateUser(string id, [FromBody] DeactivateUserCommand command)
+        {
+            command._userId = id;
+
+            var user = await _mediator.Send(command);
+
+            if(user == null) 
+            {
+                return NotFound("User betsaat niet");
+            }
+
+            return Ok(user);
+        }
     }
 
 }

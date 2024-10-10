@@ -14,5 +14,6 @@ namespace Gatam.Application.CQRS
         public required string Email { get; set; }
         public ApplicationUserRoles _role { get; set; }
 
+        public required string Id { get; set; }
     }
 }
