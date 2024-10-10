@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace Gatam.Domain
 {
-    class ApplicationTeam
+    public class ApplicationTeam
     {
-        string Id { get; set; }
-        ApplicationUser teamCreator {  get; set; }
-        string teamName { get; set; }
-        ApplicationUser[] teamUsers { get; set; }
-        DateTime createdAt { get; set; }
-        bool isDeleted { get; set; }
+        public string Id { get; set; }
+        public ApplicationUser TeamCreator {  get; set; }
+        public string TeamName { get; set; }
+        public ApplicationUser[] TeamUsers { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool IsDeleted { get; set; }
         public ApplicationTeam(ApplicationUser creator)
         {
             Id = Guid.NewGuid().ToString();
-            teamCreator = creator;
-            createdAt = DateTime.UtcNow;
-            isDeleted = false;
+            TeamCreator = creator;
+            CreatedAt = DateTime.UtcNow;
+            IsDeleted = false;
         }
     }
 }
