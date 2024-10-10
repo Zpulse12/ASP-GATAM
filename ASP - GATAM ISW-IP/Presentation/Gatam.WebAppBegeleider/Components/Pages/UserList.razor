@@ -1,8 +1,9 @@
-﻿@page "/admin/userlist"
+﻿@page "/admin/user-list"
+@using System.Diagnostics
 @using Gatam.Domain
-@using Gatam.WebAPI;
 @using Microsoft.AspNetCore.Components.QuickGrid
-@inject HttpClient http;
+@inject HttpClient Http;
+@rendermode InteractiveServer
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -12,14 +13,14 @@
                     <h2 class="mb-0">Overzicht gebruikers</h2>
                 </div>
                 <div class="card-body">
-                    @if (isLoading)
+                    @if (_isLoading)
                     {
                         <div class="alert alert-info text-center">
                             <div class="spinner-border text-primary me-2" role="status"></div>
                             Loading users... Please wait.
                         </div>
                     }
-                    else if (hasError)
+                    else if (_hasError)
                     {
                         <div class="alert alert-danger text-center">
                             <i class="bi bi-exclamation-circle-fill me-2"></i>
@@ -28,48 +29,80 @@
                     }
                     else
                     {
-                        <QuickGrid Items="users.AsQueryable()" class="table table-hover table-bordered">
+                        <QuickGrid Items="_users.AsQueryable()" class="table table-hover table-bordered">
                             <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
                             <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
                             <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
                             <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
                             <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
                             <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
+                            <TemplateColumn Title="Actions">
+                                <button  @onclick="@( () => Delete(context.Id))" class="btn btn-outline-secondary">verwijder</button>
+                            </TemplateColumn>
+
                         </QuickGrid>
                     }
+
+                    
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 @code {
-    private List<ApplicationUser> users = new();
-    private bool isLoading = true;
-    private bool hasError = false;
+    private List<ApplicationUser> _users = [];
+    private bool _isLoading = true;
+    private bool _hasError = false;
 
-    protected override async Task OnInitializedAsync()
+    async Task Delete(string userId)
     {
+        Debug.WriteLine(userId);
         try
         {
-            var response = await http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
-            if (response != null && response.Count > 0)
+            var response = await Http.DeleteAsync($"api/User/delete/{userId}");
+            if (response.IsSuccessStatusCode)
             {
-                users = response;
+                var userToRemove = _users.FirstOrDefault(u => u.Id == userId);
+                if (userToRemove != null)
+                {
+                    _users.Remove(userToRemove);
+                    StateHasChanged();
+                }
             }
             else
             {
-                hasError = true;  // No users found or response is null
+                Debug.WriteLine($"Failed to delete user {userId}: {response.ReasonPhrase}");
             }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error deleting user: {ex.Message}");
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
+            if (response != null && response.Count > 0)
+            {
+                _users = response;
+            }
+            else
+            {
+                _hasError = true;  // No users found or response is null
+            }
+          
         }
         catch (HttpRequestException ex)
         {
-            hasError = true;  // A request error occurred
+            _hasError = true;  // A request error occurred
             Console.WriteLine($"Request error: {ex.Message}");
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 }

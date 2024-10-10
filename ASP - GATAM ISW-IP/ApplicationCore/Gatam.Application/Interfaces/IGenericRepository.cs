@@ -12,7 +12,8 @@ namespace Gatam.Application.Interfaces
         Task<T> Create(T entity);
         Task<T> Update(T entity);
         Task Delete(T entity);
-        Task<T> FindById(string id);
+        Task<T?> FindById(string id);
+        Task<T> FindByName(string name);
 
     }
 }
