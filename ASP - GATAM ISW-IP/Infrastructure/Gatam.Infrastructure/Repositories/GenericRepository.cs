@@ -1,5 +1,6 @@
 ﻿using Gatam.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,11 +48,10 @@ namespace Gatam.Infrastructure.Repositories
             return  await _dbSet.ToListAsync();
         }
 
-        public async Task<T> Update(T entity)
+        public async Task<EntityEntry<T>> Update(T entity)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
-            return entity;
+            EntityEntry<T> response = _dbSet.Update(entity);
+            return response;
             
         }
     }
