@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
+using Microsoft.AspNetCore.Authentication;
 internal class Program
 {
 
@@ -45,6 +45,29 @@ internal class Program
 
         app.UseStaticFiles();
         app.UseAntiforgery();
+
+        app.MapGet("/account/login", async (HttpContext httpContext, string returnUrl = "/") =>
+        {
+            var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
+                    .WithRedirectUri(returnUrl)
+                    .Build();
+
+            await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+        });
+
+        app.MapGet("/account/logout", async (HttpContext httpContext) =>
+        {
+            var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
+                    .WithRedirectUri("/logout")
+                    .Build();
+
+            await httpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        });
+
+
+
+
         //app.UseAuthentication(); // Zorg ervoor dat authenticatie is ingesteld
         //app.UseAuthorization();
 

@@ -1,4 +1,6 @@
 ﻿@page "/admin/create"
+@attribute [Authorize]
+
 
 @inject HttpClient http
 
@@ -22,7 +24,7 @@
     <label>Telefoonnummer</label>
     <InputText @bind-Value="user.PhoneNumber" />
     <label>Rol</label>
-    <InputSelect @bind-Value="user._role">
+    <InputSelect @bind-Value="user.Role">
         <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
         <option value="@ApplicationUserRoles.MENTOR">
             Begeleider
@@ -35,8 +37,9 @@
 </EditForm>
 <p id="response">@response</p>
 @code {
+
     string response = "";
-    ApplicationUser user = new ApplicationUser() {_role = ApplicationUserRoles.STUDENT};
+    ApplicationUser user = new ApplicationUser() { Role = ApplicationUserRoles.STUDENT };
     private async Task OnFormSubmit() 
     {
         HttpResponseMessage result = await http.PostAsJsonAsync("/api/User", user);
@@ -45,7 +48,7 @@
         {
             response = "Gebruiker is aangemaakt";
 
-            user = new ApplicationUser() { _role = ApplicationUserRoles.STUDENT }; // refreshen van form.
+            user = new ApplicationUser() { Role = ApplicationUserRoles.STUDENT }; // refreshen van form.
         } else
         {
             response = result.Content.ToString();

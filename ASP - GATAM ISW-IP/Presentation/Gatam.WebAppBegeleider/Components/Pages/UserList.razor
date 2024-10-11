@@ -1,4 +1,4 @@
-@page "/admin/user-list"
+@* @page "/admin/user-list"
 
 @using System.Diagnostics
 @using Gatam.Application.CQRS
@@ -35,7 +35,7 @@
                         <QuickGrid Items="_users.AsQueryable()" class="table table-hover table-bordered">
                             <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
                             <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
-                            <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.Role)" Title="Rol" Sortable="true" />
                             <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
                             <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
                             <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
@@ -165,3 +165,4 @@
         }
     }
 }
+ *@

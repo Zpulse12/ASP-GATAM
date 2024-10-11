@@ -1,3 +1,13 @@
+FROM node:18 AS styling
+WORKDIR /style
+RUN ["npx", "tailwindcss", "init"]
+RUN ["mkdir", "out"]
+WORKDIR /style/out
+RUN ["touch", "tailwind.css"]
+WORKDIR /style
+COPY tailwind.config.js ./tailwind.config.js
+COPY global.tailwind.css ./global.tailwind.css
+RUN ["npx", "tailwindcss", "-i", "./global.tailwind.css", "-o", "./out/tailwind.css"]
 #
 # STAGE 1 Alles builden van projecten en dependencies.
 #
@@ -9,11 +19,11 @@ COPY *.sln .
 COPY ApplicationCore/Gatam.Application/*.csproj ./ApplicationCore/Gatam.Application/
 COPY ApplicationCore/Gatam.Domain/*.csproj ./ApplicationCore/Gatam.Domain/
 COPY Infrastructure/Gatam.Infrastructure/*.csproj ./Infrastructure/Gatam.Infrastructure/
-COPY Presentation/Gatam.Authentication/*.csproj ./Presentation/Gatam.Authentication/
 COPY Presentation/${APP}/*.csproj ./Presentation/${APP}/
 RUN dotnet restore ./Presentation/${APP}/${APP}.csproj # Restore dependencies voor het project dat gaat runnen.
 # copy code
 COPY . .
+COPY --from=styling /style/out/tailwind.css ./Presentation/${APP}/wwwroot/
 RUN dotnet build ./Presentation/${APP}/${APP}.csproj --configuration Release # Build project in release mode
 RUN dotnet publish Presentation/${APP}/${APP}.csproj -c Release -o /app --no-restore # Publish the Gatam.WebAPI project
 RUN ls -la /app
