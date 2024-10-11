@@ -6,13 +6,13 @@ using MediatR;
 
 namespace Gatam.Application.CQRS
 {
-    public class DeactivateUserCommand: IRequest<bool>
+    public class DeactivateUserCommand : IRequest<IEnumerable<UserDTO>>
     {
-        public required string _userId{ get; set; }
+        public required string _userId { get; set; }
         public bool IsActive { get; set; }
     }
 
-    public class DeactivateUserCommandHandler: IRequestHandler<DeactivateUserCommand, bool>
+    public class DeactivateUserCommandHandler : IRequestHandler<DeactivateUserCommand, IEnumerable<UserDTO>>
     {
         private readonly IUnitOfWork uow;
         private readonly IMapper mapper;
@@ -22,10 +22,10 @@ namespace Gatam.Application.CQRS
             this.uow = uow;
             this.mapper = mapper;
         }
-        public async Task<UserDTO> Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<UserDTO>> Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
         {
             var user = await uow.UserRepository.FindById(request._userId);
-            if(user == null) 
+            if (user == null)
             {
                 return null;
             }
@@ -34,12 +34,7 @@ namespace Gatam.Application.CQRS
             await uow.commit();
 
             var userDTO = mapper.Map<UserDTO>(user);
-            return userDTO;
-        }
-
-        Task<bool> IRequestHandler<DeactivateUserCommand, bool>.Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
+            return [userDTO];
         }
     }
 

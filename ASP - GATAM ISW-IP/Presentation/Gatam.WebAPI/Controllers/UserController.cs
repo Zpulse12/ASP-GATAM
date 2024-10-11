@@ -39,9 +39,9 @@ namespace Gatam.WebAPI.Controllers
         {
             command._userId = id;
 
-            var user = await _mediator.Send(command);
+            var user = await _mediator.Send(new DeactivateUserCommand() { _userId = id, IsActive = command.IsActive });
 
-            if(user == null) 
+            if (user == null)
             {
                 return NotFound("User betsaat niet");
             }
