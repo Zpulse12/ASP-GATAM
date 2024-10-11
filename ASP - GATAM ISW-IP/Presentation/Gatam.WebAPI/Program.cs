@@ -9,6 +9,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
+using (AsyncServiceScope scope = app.Services.CreateAsyncScope())
+{
+    ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

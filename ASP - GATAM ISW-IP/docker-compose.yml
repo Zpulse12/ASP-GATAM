@@ -47,19 +47,6 @@ services:
       - authfrontend
     networks:
       - database
-  authfrontend:
-    build:
-      context: ./Presentation/Gatam.Authentication
-      dockerfile: Dockerfile
-    ports:
-      - "5006:8080"
-      - "5007:443"
-    depends_on:
-      - ms-sql-server
-    networks:
-      - database
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
 volumes:
   sql_data:
 networks:
