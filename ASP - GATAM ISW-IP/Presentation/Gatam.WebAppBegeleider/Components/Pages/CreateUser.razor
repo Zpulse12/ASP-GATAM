@@ -1,0 +1,50 @@
+﻿@page "/admin/create"
+@inject HttpClient http
+@using Gatam.Domain
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+
+<h3>CreateUser</h3>
+
+<EditForm Model="@user" FormName="createUser" OnValidSubmit="OnFormSubmit">
+    <label>Gebruikersnaam</label>
+    <InputText @bind-Value="user.UserName" />
+    <label>Wachtwoord</label>
+    <InputText  @bind-Value="user.PasswordHash" />
+    <label>E-mailadres</label>
+    <InputText @bind-Value="user.Email" />
+    <label>Telefoonnummer</label>
+    <InputText @bind-Value="user.PhoneNumber" />
+    <label>Rol</label>
+    <InputSelect @bind-Value="user._role">
+        <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
+        <option value="@ApplicationUserRoles.MENTOR">
+            Begeleider
+        </option>
+        <option value="@ApplicationUserRoles.STUDENT">
+            Student
+        </option>
+    </InputSelect>
+    <button class="btn btn-primary" type="submit" value="submit">Send</button>
+</EditForm>
+<p id="response">@response</p>
+@code {
+    string response = "";
+    ApplicationUser user = new ApplicationUser() {_role = ApplicationUserRoles.STUDENT};
+    private async Task OnFormSubmit() 
+    {
+        HttpResponseMessage result = await http.PostAsJsonAsync("/api/User", user);
+
+        if(result.IsSuccessStatusCode)
+        {
+            response = "Gebruiker is aangemaakt";
+
+            user = new ApplicationUser() { _role = ApplicationUserRoles.STUDENT }; // refreshen van form.
+        } else
+        {
+            response = result.Content.ToString();
+        }
+        StateHasChanged();
+    }
+}

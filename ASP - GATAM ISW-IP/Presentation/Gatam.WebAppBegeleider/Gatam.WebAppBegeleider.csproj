@@ -7,7 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+<<<<<<< Updated upstream
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.8" />
+=======
+    <PackageReference Include="Auth0.AspNetCore.Authentication" Version="1.4.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ApplicationCore\Gatam.Application\Gatam.Application.csproj" />
+    <ProjectReference Include="..\..\ApplicationCore\Gatam.Domain\Gatam.Domain.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gatam.WebAPI\Gatam.WebAPI.csproj" />
+	<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.8" />
+>>>>>>> Stashed changes
   </ItemGroup>
 </Project>
