@@ -1,50 +1,55 @@
-version: "3.8"
 services:
-  ms-sql-server:
+  mssql-server:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
     ports: 
-      - "1444:1433"
+      - "1433:1433"
     env_file:
       - .env
     networks:
       - database
     hostname: mssqlserver
-  api:
+  webapi:
     build:
-      context: ./Presentation/Gatam.WebAPI
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Presentation/Gatam.WebAPI/Dockerfile
     ports:
       - "5000:8080"
       - "5001:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - Logging__Loglevel__Default=Debug
+      - Logging__Loglevel__Microsoft.AspNetCore=Debug
     depends_on:
-      - ms-sql-server
-      - authfrontend
+      - mssql-server
     networks:
       - database
+    env_file:
+      - .env
   webappbegeleider:
     build:
-      context: ./Presentation/Gatam.WebAppBegeleider
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Presentation/Gatam.WebAppBegeleider/Dockerfile
     ports:
       - "5002:8080"
       - "5003:443"
     depends_on:
-      - api
-      - authfrontend
+      - webapi
+      - mssql-server
     networks:
       - database
   webappvolger:
     build:
-      context: ./Presentation/Gatam.WebAppVolger
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Presentation/Gatam.WebAppVolger/Dockerfile
     ports:
       - "5004:8080"
       - "5005:443"
     depends_on:
-      - api
-      - authfrontend
+      - webapi
+      - mssql-server
     networks:
       - database
 volumes:

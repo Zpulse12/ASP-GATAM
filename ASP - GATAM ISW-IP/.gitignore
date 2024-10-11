@@ -5,6 +5,7 @@ project.lock.json
 *.pyc
 nupkg/
 
+TestResults/
 # Visual Studio Code
 .vscode/
 
@@ -25,7 +26,7 @@ nupkg/
 *.user
 *.userosscache
 *.sln.docstates
-.env
+*.env
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -43,3 +44,4 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 msbuild.wrn
+/debug.env

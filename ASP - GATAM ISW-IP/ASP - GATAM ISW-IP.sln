@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{67D201B6-11E9-4961-A73D-25696575FD42}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unittesting", "Unittesting", "{AC701D28-F8F7-4A42-82D7-7AD05C808DF2}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{079BE6D3-A120-46B5-A150-23DC5747DE51}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -28,6 +26,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.WebAppVolger", "Presentation\Gatam.WebAppVolger\Gatam.WebAppVolger.csproj", "{0FFEF455-F797-4E54-ABB1-15B79A1F919C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.WebAppBegeleider", "Presentation\Gatam.WebAppBegeleider\Gatam.WebAppBegeleider.csproj", "{49F7B7BF-6A22-4C49-B626-51AD269996FF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTesting", "UnitTesting\UnitTesting.csproj", "{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +59,10 @@ Global
 		{49F7B7BF-6A22-4C49-B626-51AD269996FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49F7B7BF-6A22-4C49-B626-51AD269996FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49F7B7BF-6A22-4C49-B626-51AD269996FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
