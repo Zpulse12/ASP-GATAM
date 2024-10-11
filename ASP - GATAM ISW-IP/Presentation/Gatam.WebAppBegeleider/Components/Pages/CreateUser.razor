@@ -6,19 +6,23 @@
 
 @rendermode InteractiveServer
 
+
+<div class="sidebar">
+        <NavMenu />
+</div>
 <h3>CreateUser</h3>
 
 <EditForm Model="user" FormName="createUser" OnValidSubmit="OnFormSubmit">
     <label>Gebruikersnaam</label>
-    <InputText @bind-value="user.UserName" />
+    <InputText @bind-Value="user.UserName" />
     <label>Wachtwoord</label>
-    <InputText  @bind-value="user.PasswordHash" />
+    <InputText  @bind-Value="user.PasswordHash" />
     <label>E-mailadres</label>
-    <InputText @bind-value="user.Email" />
+    <InputText @bind-Value="user.Email" />
     <label>Telefoonnummer</label>
-    <InputText @bind-value="user.PhoneNumber" />
+    <InputText @bind-Value="user.PhoneNumber" />
     <label>Rol</label>
-    <InputSelect @bind-value="user._role">
+    <InputSelect @bind-Value="user._role">
         <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
         <option value="@ApplicationUserRoles.MENTOR">
             Begeleider

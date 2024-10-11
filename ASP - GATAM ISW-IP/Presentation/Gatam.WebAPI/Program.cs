@@ -1,4 +1,5 @@
 using Gatam.Application.Extensions;
+using Gatam.Infrastructure.Contexts;
 using Gatam.Infrastructure.Extensions;
 using Gatam.WebAPI.Extensions;
 internal class Program {
