@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Gatam.Application.Interfaces;
-
+using Gatam.Domain;
 using MediatR;
 
 
@@ -16,6 +16,10 @@ namespace Gatam.Application.CQRS
     {
         private readonly IUnitOfWork uow;
         private readonly IMapper mapper;
+
+        public DeactivateUserCommandHandler()
+        {
+        }
 
         public DeactivateUserCommandHandler(IUnitOfWork uow, IMapper mapper)
         {
