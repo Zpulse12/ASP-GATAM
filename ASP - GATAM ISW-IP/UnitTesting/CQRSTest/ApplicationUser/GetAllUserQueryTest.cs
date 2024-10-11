@@ -43,8 +43,19 @@ namespace UnitTesting.CQRSTest.ApplicationUser
 
             var userDTOs = new List<UserDTO>
             {
-                new UserDTO { Username = "user1", Email = "user1@example.com", _role = ApplicationUserRoles.ADMIN },
-                new UserDTO { Username = "user2", Email = "user2@example.com" }
+                new UserDTO
+                {
+                    Username = "user1",
+                    Email = "user1@example.com",
+                    _role = ApplicationUserRoles.ADMIN,
+                    Id = "1"
+                },
+                new UserDTO
+                {
+                    Username = "user2",
+                    Email = "user2@example.com",
+                    Id = "2"
+                }
             };
 
             userRepositoryMock.Setup(repo => repo.GetAllAsync())
