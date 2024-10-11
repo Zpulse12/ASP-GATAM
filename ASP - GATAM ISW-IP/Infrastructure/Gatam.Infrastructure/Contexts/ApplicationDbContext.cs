@@ -25,7 +25,9 @@ namespace Gatam.Infrastructure.Contexts
                     NormalizedUserName = "JOHNDOE",
                     Email = "john.doe@example.com",
                     NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
-                    PasswordHash = hasher.HashPassword(null, "Test@1234") // A hashed password
+                    PasswordHash = hasher.HashPassword(null, "Test@1234"), // A hashed password
+                    IsActive = false
+                    
                 },
                 new ApplicationUser
                 {
@@ -34,7 +36,8 @@ namespace Gatam.Infrastructure.Contexts
                     NormalizedUserName = "JANEDOE",
                     Email = "jane.doe@example.com",
                     NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
-                    PasswordHash = hasher.HashPassword(null, "Test@1234")
+                    PasswordHash = hasher.HashPassword(null, "Test@1234"),
+                    IsActive = false
                 }
             );
         }

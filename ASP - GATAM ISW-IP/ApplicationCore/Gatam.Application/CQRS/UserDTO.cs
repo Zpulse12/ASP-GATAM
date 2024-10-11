@@ -1,4 +1,4 @@
-﻿using Gatam.Domain;
+using Gatam.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Gatam.Application.CQRS;
 using MediatR;
@@ -33,6 +33,21 @@ namespace Gatam.WebAPI.Controllers
             return result == null ? BadRequest(result) : Created("", result);
         }
 
+        [HttpPut]
+        [Route("deactivate/{id}")]
+        public async Task<IActionResult> DeactivateUser(string id, [FromBody] DeactivateUserCommand command)
+        {
+            command._userId = id;
+
+            var user = await _mediator.Send(new DeactivateUserCommand() { _userId = id, IsActive = command.IsActive });
+
+            if (user == null)
+            {
+                return NotFound("User betsaat niet");
+            }
+
+            return Ok(user);
+        }
         [HttpDelete]
         [Route("delete/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
@@ -43,6 +58,7 @@ namespace Gatam.WebAPI.Controllers
                return Ok(response);
            }
            return NotFound("User doesnt exists");
+
 
 
         }
