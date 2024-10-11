@@ -48,7 +48,14 @@ namespace Gatam.WebAPI.Controllers
 
             return Ok(user);
         }
-        [HttpDelete]
+
+        [HttpPut]
+        [Route(("/{userId}"))]
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] ApplicationUser user)
+        {
+        }
+
+    [HttpDelete]
         [Route("delete/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
