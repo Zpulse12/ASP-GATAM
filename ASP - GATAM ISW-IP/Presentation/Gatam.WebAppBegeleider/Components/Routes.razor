@@ -1,6 +1,16 @@
 ﻿<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <AuthorizeRouteView  RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <AuthorizeRouteView  RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                @if(context.User?.Identity.IsAuthenticated ?? false)
+                {
+                    <RedirectHandler RedirectUrl="/access-denied"/>
+                } else
+                {
+                    <RedirectHandler RedirectUrl="/Account/Login" />
+                }
+            </NotAuthorized>
+        </AuthorizeRouteView>
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>

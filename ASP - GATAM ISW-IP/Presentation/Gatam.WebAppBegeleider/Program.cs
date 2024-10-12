@@ -19,6 +19,7 @@ internal class Program
             .AddAuth0WebAppAuthentication(options => {
                 options.Domain = builder.Configuration["Auth0:Domain"];
                 options.ClientId = builder.Configuration["Auth0:ClientId"];
+                options.AccessDeniedPath = "/access-denied";
             });
 
         // Add services to the container.
@@ -46,7 +47,7 @@ internal class Program
         app.UseStaticFiles();
         app.UseAntiforgery();
 
-        app.MapGet("/account/login", async (HttpContext httpContext, string returnUrl = "/") =>
+        app.MapGet("/Account/login", async (HttpContext httpContext, string returnUrl = "/") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
                     .WithRedirectUri(returnUrl)
@@ -55,7 +56,7 @@ internal class Program
             await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
         });
 
-        app.MapGet("/account/logout", async (HttpContext httpContext) =>
+        app.MapGet("/Account/logout", async (HttpContext httpContext) =>
         {
             var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
                     .WithRedirectUri("/logout")
@@ -66,16 +67,10 @@ internal class Program
         });
 
 
-
-
-        //app.UseAuthentication(); // Zorg ervoor dat authenticatie is ingesteld
-        //app.UseAuthorization();
-
         app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();// Registreer de Razor-pagina's
 
-        // Fallback route naar de loginpagina
-        //app.MapFallbackToPage("/login");
+        // app.MapFallbackToPage("/login");
 
         app.Run();
     }

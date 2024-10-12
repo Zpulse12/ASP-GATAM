@@ -1,5 +1,5 @@
 ﻿@page "/admin/create"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "ADMIN")]
 
 
 @inject HttpClient http

@@ -1,0 +1,11 @@
+﻿@page "/redirect"
+@inject NavigationManager Navigation
+
+@code  {
+    [Parameter] public string RedirectUrl { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Navigation.NavigateTo(RedirectUrl);
+    }
+}
