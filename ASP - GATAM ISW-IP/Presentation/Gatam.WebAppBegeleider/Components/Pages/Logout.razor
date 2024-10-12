@@ -1,24 +1,5 @@
-﻿@page "/logout"
-@inject NavigationManager Navigation
-@using System.Diagnostics
+﻿<h3>Logout</h3>
 
-@rendermode InteractiveServer
-
-
-<img class="uk-align-center" src="https://static.wixstatic.com/media/f2fc20_8f524d35873443aaa644f419e0c7542e~mv2.png/v1/fill/w_385,h_94,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/f2fc20_8f524d35873443aaa644f419e0c7542e~mv2.png" />
-<p class="uk-align-center uk-text-center">You succesfully logged out. You will be redirected to the home page...</p>
-<p class="uk-text-meta uk-text-center">This can take a couple of seconds...</p>
 @code {
 
-    private bool _hasRedirected = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !_hasRedirected)
-        {
-            _hasRedirected = true;
-            await Task.Delay(2000); // Wait for 2 seconds.
-            Navigation.NavigateTo("/");
-        }
-    }
 }

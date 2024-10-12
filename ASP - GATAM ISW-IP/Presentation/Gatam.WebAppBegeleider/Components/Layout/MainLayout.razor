@@ -1,50 +1,24 @@
 ﻿@inherits LayoutComponentBase
 
-
-<nav class="uk-navbar-container">
-    <div class="uk-container">
-        <div uk-navbar>
-            <div class="uk-navbar-right">
-                <ul class="uk-navbar-nav">
-                    <li class="uk-active"><a href="#">Active</a></li>
-                    <li>
-                        <a href="#">Parent</a>
-                        <div class="uk-navbar-dropdown">
-                            <ul class="uk-nav uk-navbar-dropdown-nav">
-                                <li class="uk-active"><a href="#">Active</a></li>
-                                <li><a href="#">Item</a></li>
-                                <li><a href="#">Item</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li><a href="#">Item</a></li>
-                </ul>
-            </div>
-        </div>
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
     </div>
-</nav>
 
-@Body
+    <main>
+        <div class="top-row px-4">
+            <LoginDisplay />
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
-
-@code {
-    [CascadingParameter]
-    public Task<AuthenticationState> AuthenticationStateTask { get; set; }
-    private string Username = "";
-    private string OtherProperty = "";
-    private bool isAuthenticated = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var state = await AuthenticationStateTask;
-
-        Username = state.User.Identity.Name ?? string.Empty;
-        isAuthenticated = state.User.Identity.IsAuthenticated;
-
-        await base.OnInitializedAsync();
-    }
-}

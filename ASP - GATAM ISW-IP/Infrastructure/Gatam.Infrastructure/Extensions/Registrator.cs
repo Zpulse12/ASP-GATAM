@@ -4,10 +4,15 @@ using Gatam.Infrastructure.Contexts;
 using Gatam.Infrastructure.Exceptions;
 using Gatam.Infrastructure.Repositories;
 using Gatam.Infrastructure.UOW;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.AspNetCore.Builder;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -16,7 +21,7 @@ namespace Gatam.Infrastructure.Extensions
         public static IServiceCollection RegisterDbContext(this IServiceCollection services)
         {
             #if DEBUG
-            DirectoryInfo rootDirectory = VisualStudioWrapper.GetSolutionDirectoryPath();
+            DirectoryInfo rootDirectory = SolutionWrapper.GetSolutionDirectoryPath();
             string dotenvPath = Path.Combine(rootDirectory.FullName, "debug.env");
             DotEnvLoader.Load(dotenvPath);
             #endif
@@ -49,6 +54,61 @@ namespace Gatam.Infrastructure.Extensions
             services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.RegisterDbContext();
+            return services;
+        }
+
+        public static IServiceCollection RegisterAuth0AndCookies(this IServiceCollection services, WebApplicationBuilder builder) {
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
+
+            services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie()
+            .AddOpenIdConnect("Auth0", options => {
+                options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}";
+
+                options.ClientId = "WI2HNZLwffVWq4IFLfL1Vs008fMYQlGc";
+                options.ClientSecret = "secret";
+
+                options.ResponseType = OpenIdConnectResponseType.Code;
+
+                options.Scope.Clear();
+                options.Scope.Add("openid");
+                options.Scope.Add("profile"); // <- Optional extra
+                options.Scope.Add("email");   // <- Optional extra
+
+                options.CallbackPath = new PathString("/callback");
+                options.ClaimsIssuer = "Auth0";
+                options.SaveTokens = true;
+
+                // Add handling of lo
+                options.Events = new OpenIdConnectEvents
+                {
+                    OnRedirectToIdentityProviderForSignOut = (context) =>
+                    {
+                        var logoutUri = $"https://{builder.Configuration["Auth0:Domain"]}/v2/logout?client_id=WI2HNZLwffVWq4IFLfL1Vs008fMYQlGc";
+
+                        var postLogoutUri = context.Properties.RedirectUri;
+                        if (!string.IsNullOrEmpty(postLogoutUri))
+                        {
+                            if (postLogoutUri.StartsWith("/"))
+                            {
+                                var request = context.Request;
+                                postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
+                            }
+                            logoutUri += $"&returnTo={Uri.EscapeDataString(postLogoutUri)}";
+                        }
+
+                        context.Response.Redirect(logoutUri);
+                        context.HandleResponse();
+
+                        return Task.CompletedTask;
+                    }
+                };
+            });
             return services;
         }
     }

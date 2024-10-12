@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gatam.Infrastructure.Extensions
 {
-    public static class VisualStudioWrapper
+    public static class SolutionWrapper
     {
 
         public static DirectoryInfo GetSolutionDirectoryPath(string currentPath = null)
