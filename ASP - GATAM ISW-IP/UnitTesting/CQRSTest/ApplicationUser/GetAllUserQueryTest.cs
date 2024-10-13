@@ -41,16 +41,16 @@ namespace UnitTesting.CQRSTest.ApplicationUser
                 new Gatam.Domain.ApplicationUser { UserName = "user2", Email = "user2@example.com", PhoneNumber = "0488356346", AccessFailedCount = 11}
             };
 
-            var userDTOs = new List<UserDTO>
+            var userDTOs = new List<TeamInvitationDTO>
             {
-                new UserDTO { Username = "user1", Email = "user1@example.com", _role = ApplicationUserRoles.ADMIN },
-                new UserDTO { Username = "user2", Email = "user2@example.com" }
+                new TeamInvitationDTO { Username = "user1", Email = "user1@example.com", _role = ApplicationUserRoles.ADMIN },
+                new TeamInvitationDTO { Username = "user2", Email = "user2@example.com" }
             };
 
             userRepositoryMock.Setup(repo => repo.GetAllAsync())
                 .ReturnsAsync(users);
 
-            mapperMock.Setup(m => m.Map<IEnumerable<UserDTO>>(It.IsAny<IEnumerable<Gatam.Domain.ApplicationUser>>()))
+            mapperMock.Setup(m => m.Map<IEnumerable<TeamInvitationDTO>>(It.IsAny<IEnumerable<Gatam.Domain.ApplicationUser>>()))
                 .Returns(userDTOs);
 
             var query = new GetAllUsersQuery();
@@ -60,7 +60,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             Assert.IsNotNull(result);
             Assert.AreEqual(userDTOs.Count, result.Count());
             userRepositoryMock.Verify(repo => repo.GetAllAsync(), Times.Once);
-            mapperMock.Verify(m => m.Map<IEnumerable<UserDTO>>(users), Times.Once);
+            mapperMock.Verify(m => m.Map<IEnumerable<TeamInvitationDTO>>(users), Times.Once);
         }
 
     }

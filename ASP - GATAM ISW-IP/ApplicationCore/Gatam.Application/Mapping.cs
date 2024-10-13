@@ -12,7 +12,7 @@ namespace Gatam.Application
     {
         public Mapping()
         {
-            CreateMap<ApplicationUser, UserDTO>();
+            CreateMap<ApplicationUser, TeamInvitationDTO>();
 
         }
     }
