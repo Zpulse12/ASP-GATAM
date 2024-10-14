@@ -48,11 +48,9 @@ namespace Gatam.Infrastructure.Repositories
             return  await _dbSet.ToListAsync();
         }
 
-        public async Task<EntityEntry<T>> Update(T entity)
+        public Task<T> Update(T entity)
         {
-            EntityEntry<T> response = _dbSet.Update(entity);
-            return response;
-            
-        }
+            EntityEntry<T> response = _dbSet.Update(entity); 
+            return Task.FromResult(response.Entity);         }
     }
 }

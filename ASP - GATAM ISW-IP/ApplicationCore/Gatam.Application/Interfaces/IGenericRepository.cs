@@ -11,7 +11,7 @@ namespace Gatam.Application.Interfaces
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<T> Create(T entity);
-        Task<EntityEntry<T>> Update(T entity);
+        Task<T> Update(T entity);
         Task Delete(T entity);
         Task<T?> FindById(string id);
         Task<T> FindByName(string name);
