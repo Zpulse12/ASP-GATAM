@@ -1,7 +1,9 @@
 using Gatam.Application.Extensions;
 using Gatam.Infrastructure.Contexts;
 using Gatam.Infrastructure.Extensions;
+using Gatam.Infrastructure.Extensions.Scopes;
 using Gatam.WebAPI.Extensions;
+using Microsoft.AspNetCore.Authorization;
 internal class Program {
     private static void Main(string[] args)
     {
@@ -11,9 +13,13 @@ internal class Program {
         builder.Services.RegisterApplication();
         builder.Services.RegisterInfrastructure();
         builder.Services.AddControllers();
+        builder.Services.RegisterJWTAuthentication(builder);
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+
+
         var app = builder.Build();
 
         using (AsyncServiceScope scope = app.Services.CreateAsyncScope())
@@ -31,11 +37,12 @@ internal class Program {
         app.UseErrorHandlingMiddleware();
 
         app.UseHttpsRedirection();
-
+        app.UseAuthentication();
         app.UseAuthorization();
-
-        app.MapControllers();
-
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
         app.Run();
     }
 }

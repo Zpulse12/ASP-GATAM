@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
+using Gatam.Infrastructure.Extensions.Scopes;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -116,8 +117,8 @@ namespace Gatam.Infrastructure.Extensions
         public static IServiceCollection RegisterJWTAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
         {
 
-            string domain = builder.Configuration["Auth0:Domain"];
-            string audience = builder.Configuration["Auth0:Audience"];
+            string domain = builder.Configuration["Auth0:Domain"] ?? "";
+            string audience = builder.Configuration["Auth0:Audience"] ?? "";
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -128,9 +129,14 @@ namespace Gatam.Infrastructure.Extensions
                     NameClaimType = ClaimTypes.NameIdentifier
                 };
             });
+            services.AddAuthorization(options => 
+                options.AddPolicy("read:messages", policy => policy.Requirements.Add(
+                    new HasScopeRequirement("read:messages", domain)
+                    )
+                )
+            );
             return services;
         }
     }
-
 
 }
