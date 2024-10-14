@@ -28,10 +28,10 @@ namespace Gatam.Infrastructure.Extensions
             string dotenvPath = Path.Combine(rootDirectory.FullName, "debug.env");
             DotEnvLoader.Load(dotenvPath);
             #endif
-            string SAPASSWORD = Environment.GetEnvironmentVariable("SA_PASSWORD");
-            string DATABASENAME = Environment.GetEnvironmentVariable("DATABASE_NAME");
-            string DATABASEHOST = Environment.GetEnvironmentVariable("DATABASE_HOST");
-            string DATABASEUSER = Environment.GetEnvironmentVariable("DATABASE_USER");
+            string SAPASSWORD = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? "";
+            string DATABASENAME = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "";
+            string DATABASEHOST = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "";
+            string DATABASEUSER = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "";
 
             /// NULL CHECKS
             if (DATABASEHOST.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(DATABASEHOST)); }
@@ -124,14 +124,15 @@ namespace Gatam.Infrastructure.Extensions
             {
                 options.Authority = domain;
                 options.Audience = builder.Configuration["Auth0:Audience"];
+                options.RequireHttpsMetadata = false; // REMOVE IN PRODUCTION!!!
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     NameClaimType = ClaimTypes.NameIdentifier
                 };
             });
             services.AddAuthorization(options => 
-                options.AddPolicy("read:messages", policy => policy.Requirements.Add(
-                    new HasScopeRequirement("read:messages", domain)
+                options.AddPolicy("read:admin", policy => policy.Requirements.Add(
+                    new HasScopeRequirement("read:admin", domain)
                     )
                 )
             );

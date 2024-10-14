@@ -20,6 +20,7 @@ internal class Program {
         builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 
+
         var app = builder.Build();
 
         using (AsyncServiceScope scope = app.Services.CreateAsyncScope())
@@ -37,6 +38,7 @@ internal class Program {
         app.UseErrorHandlingMiddleware();
 
         app.UseHttpsRedirection();
+        app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseEndpoints(endpoints =>
