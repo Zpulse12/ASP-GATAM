@@ -25,6 +25,7 @@ namespace Gatam.WebAPI.Controllers
             return Ok(users);
         }
 
+
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
         {
@@ -43,16 +44,21 @@ namespace Gatam.WebAPI.Controllers
 
             if (user == null)
             {
-                return NotFound("User betsaat niet");
+                return NotFound("User bestaat niet");
             }
 
             return Ok(user);
         }
 
-        [HttpPut]
-        [Route(("/{userId}"))]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] ApplicationUser user)
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserDTO user)
         {
+            if (userId != user.Id)
+            {
+                return BadRequest("The user ID in the URL does not match the user ID in the body.");
+            }
+            var returnedUser = await _mediator.Send(new UpdateUserCommand() { Id = userId, User = user });
+            return Ok(returnedUser);
         }
 
     [HttpDelete]
