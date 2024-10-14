@@ -8,12 +8,6 @@
 
 <p>This component demonstrates showing data.</p>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
     <table class="table">
         <thead>
             <tr>
@@ -21,7 +15,7 @@ else
                 <th>Value</th>
             </tr>
         </thead>
-        <tbody>
+       @*  <tbody>
             @foreach (PropertyInfo prop in @context.User.GetProperties())
             {
                 <tr>
@@ -29,13 +23,8 @@ else
                     <td>@forecast.TemperatureC</td>
                 </tr>
             }
-        </tbody>
+        </tbody> *@
     </table>
-}
 
 @code {
-    protected override async Task OnInitializedAsync()
-    {
-       
-    }
 }
