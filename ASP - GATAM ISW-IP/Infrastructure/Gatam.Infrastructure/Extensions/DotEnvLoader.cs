@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Gatam.Infrastructure.Extensions
@@ -23,6 +25,12 @@ namespace Gatam.Infrastructure.Extensions
 
                 Environment.SetEnvironmentVariable(parts[0], parts[1]);
             }
+        }
+
+        public static Match ValidateWithExpression(string expression, string text) 
+        {
+            Regex reg = new Regex(expression, RegexOptions.IgnoreCase);
+            return reg.Match(text);
         }
 
     }

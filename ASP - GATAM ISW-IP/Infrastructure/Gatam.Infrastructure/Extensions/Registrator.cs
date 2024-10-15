@@ -43,9 +43,7 @@ namespace Gatam.Infrastructure.Extensions
             
             // VALID CHECKS
             if (!DATABASEHOST.Contains(",")) { throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} missing port seperator"); }
-            string pattern = "/(,\\d{4})$/g";
-            Regex reg = new Regex(pattern, RegexOptions.IgnoreCase);
-            Match m = reg.Match(DATABASEHOST);
+            Match m = DotEnvLoader.ValidateWithExpression("/(,\\d{4})$/g", DATABASEHOST);
             if (m.Success) {throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} Invalid port. Check your environment file...");}
 
 
@@ -141,13 +139,22 @@ namespace Gatam.Infrastructure.Extensions
             return services;
         }
 
-        public static IServiceCollection RegistorRedisDataProtectionKeys(this IServiceCollection services, string connection)
+        public static IServiceCollection RegisterRedisDataProtectionKeys(this IServiceCollection services)
         {
-            if (connection.IsNullOrEmpty())
-            {
-                throw new EmptyConnectionStringException("RegistorRedisDataProtectionKeys");
-            }
-            services.AddDataProtection().PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(connection));
+            #if DEBUG
+            DirectoryInfo rootDirectory = SolutionWrapper.GetSolutionDirectoryPath();
+            string dotenvPath = Path.Combine(rootDirectory.FullName, "debug.env");
+            DotEnvLoader.Load(dotenvPath);
+            #endif
+            string REDIS = Environment.GetEnvironmentVariable("REDIS") ?? "";
+
+            if (REDIS.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(REDIS)); }
+
+            if (!REDIS.Contains(":")) { throw new InvalidEnvironmentVariableException($"{nameof(REDIS)} missing port seperator"); }
+            Match m = DotEnvLoader.ValidateWithExpression("/(:\\d{4})$/g", REDIS);
+            if (m.Success) { throw new InvalidEnvironmentVariableException($"{nameof(REDIS)} Invalid port. Check your environment file..."); }
+
+            services.AddDataProtection().PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(REDIS));
 
             return services;
         }

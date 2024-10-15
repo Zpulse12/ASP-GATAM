@@ -3,6 +3,7 @@ using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.HttpOverrides;
+using Gatam.Infrastructure.Extensions;
 
 internal class Program
 {
@@ -10,6 +11,7 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.RegisterRedisDataProtectionKeys(Environment.GetEnvironmentVariable("REDIS"));
         builder.Services
             .AddAuth0WebAppAuthentication(options =>
             {
