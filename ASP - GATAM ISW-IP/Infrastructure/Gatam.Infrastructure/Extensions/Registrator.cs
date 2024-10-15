@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
 using Gatam.Infrastructure.Extensions.Scopes;
+using Microsoft.AspNetCore.DataProtection;
+using StackExchange.Redis;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -136,6 +138,17 @@ namespace Gatam.Infrastructure.Extensions
                     )
                 )
             );
+            return services;
+        }
+
+        public static IServiceCollection RegistorRedisDataProtectionKeys(this IServiceCollection services, string connection)
+        {
+            if (connection.IsNullOrEmpty())
+            {
+                throw new EmptyConnectionStringException("RegistorRedisDataProtectionKeys");
+            }
+            services.AddDataProtection().PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(connection));
+
             return services;
         }
     }
