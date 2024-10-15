@@ -11,7 +11,7 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.RegisterRedisDataProtectionKeys(Environment.GetEnvironmentVariable("REDIS"));
+        builder.Services.RegisterRedisDataProtectionKeys();
         builder.Services
             .AddAuth0WebAppAuthentication(options =>
             {
@@ -28,7 +28,7 @@ internal class Program
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
-            });
+            }).AddOpenIdConnect(options => options.SkipUnrecognizedRequests = true);
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents()
