@@ -28,7 +28,7 @@ internal class Program
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
-            }).AddOpenIdConnect(options => options.SkipUnrecognizedRequests = true);
+            });
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents()
@@ -58,8 +58,8 @@ internal class Program
 
         app.UseStaticFiles();
         app.UseAntiforgery();
-        app.UseAuthentication();
-        app.UseAuthorization();
+        //app.UseAuthentication();
+        //app.UseAuthorization();
 
         app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/") =>
         {
