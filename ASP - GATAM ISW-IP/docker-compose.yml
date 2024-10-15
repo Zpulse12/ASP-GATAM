@@ -68,6 +68,9 @@ services:
       - webappvolger
       - webappbegeleider
       - webapi
+  redis:
+    image: redis:7.4.1-alpine
+    
 volumes:
   sql_data:
 networks:
