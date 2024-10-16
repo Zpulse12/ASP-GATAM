@@ -70,6 +70,16 @@ internal class Program
             await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
         });
 
+        app.MapGet("/Account/Signup", async (HttpContext httpContext, string returnUrl = "/") =>
+        {
+            var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
+                    .WithParameter("screen_hint", "signup")
+                    .WithRedirectUri(returnUrl)
+                    .Build();
+
+            await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+        });
+
         app.MapGet("/Account/Logout", async (httpContext) =>
         {
             var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
