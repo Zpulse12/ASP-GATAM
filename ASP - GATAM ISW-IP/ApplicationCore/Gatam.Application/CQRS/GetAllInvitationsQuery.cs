@@ -30,7 +30,9 @@ namespace Gatam.Application.CQRS
 
         public async Task<IEnumerable<TeamInvitation>> Handle(GetAllInvitationsQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<IEnumerable<TeamInvitation>>(await _uow.TeamInvitationRepository.GetAllAsync());
+            return _mapper.Map<IEnumerable<TeamInvitation>>(await _uow.TeamInvitationRepository.GetAllAsync(
+                t => t.applicationUser
+            ));
         }
 
     }

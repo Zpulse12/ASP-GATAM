@@ -24,8 +24,5 @@ namespace Gatam.WebAPI.Controllers
                 return Ok(teams);
         }
 
-
-
-
     }
 }

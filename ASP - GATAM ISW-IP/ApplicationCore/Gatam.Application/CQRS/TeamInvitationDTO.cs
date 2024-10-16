@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS
 {
-    public class TeamInvitationDto
+    public class TeamInvitationDTO
     {
         public string Id { get; set; }
         public string UserId { get; set; }

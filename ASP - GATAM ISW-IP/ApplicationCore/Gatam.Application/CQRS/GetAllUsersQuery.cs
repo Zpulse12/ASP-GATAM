@@ -9,14 +9,14 @@ using MediatR;
 
 namespace Gatam.Application.CQRS
 {
-    public class GetAllUsersQuery : IRequest<IEnumerable<TeamInvitationDTO>>
+    public class GetAllUsersQuery : IRequest<IEnumerable<UserDTO>>
     {
         public GetAllUsersQuery()
         {
         }
 
     }
-    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<TeamInvitationDTO>>
+    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDTO>>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
@@ -27,9 +27,9 @@ namespace Gatam.Application.CQRS
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<TeamInvitationDTO>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<UserDTO>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<IEnumerable<TeamInvitationDTO>>(await _uow.UserRepository.GetAllAsync());
+            return _mapper.Map<IEnumerable<UserDTO>>(await _uow.UserRepository.GetAllAsync());
         }
 
     }

@@ -27,10 +27,10 @@ namespace UnitTesting.ControllerTest.ApplicationUser
         [TestMethod]
         public async Task GetUsers_ReturnsOkResult_WithUsers()
         {
-            var users = new List<TeamInvitationDTO>
+            var users = new List<UserDTO>
             {
-                new TeamInvitationDTO { Username = "user1", Email = "user1@example.com" },
-                new TeamInvitationDTO { Username = "user2", Email = "user2@example.com" }
+                new UserDTO { Username = "user1", Email = "user1@example.com" },
+                new UserDTO { Username = "user2", Email = "user2@example.com" }
             };
 
             mediator.Setup(m => m.Send(It.IsAny<GetAllUsersQuery>(), default))

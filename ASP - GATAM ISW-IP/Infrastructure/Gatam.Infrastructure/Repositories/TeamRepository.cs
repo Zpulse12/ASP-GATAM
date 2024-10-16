@@ -1,5 +1,6 @@
 ﻿using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,13 @@ namespace Gatam.Infrastructure.Repositories
 {
     public class TeamRepository : GenericRepository<ApplicationTeam>
     {
-        public TeamRepository(ApplicationDbContext context) : base(context) { }
+        private readonly ApplicationDbContext _context;
+
+        public TeamRepository(ApplicationDbContext context) : base(context)
+        {
+            _context = context;
+        }
+
     }
-    
+
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Gatam.Domain
@@ -15,7 +16,7 @@ namespace Gatam.Domain
         public string TeamName { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsDeleted { get; set; }
-        public ICollection<TeamInvitation> TeamInvitations { get; } = new List<TeamInvitation>();
+        public ICollection<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();
         public ApplicationTeam() {
             Id = Guid.NewGuid().ToString();
             CreatedAt = DateTime.UtcNow;

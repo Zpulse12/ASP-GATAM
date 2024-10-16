@@ -2,6 +2,7 @@
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,8 +31,16 @@ namespace Gatam.Application.CQRS
 
         public async Task<IEnumerable<ApplicationTeam>> Handle(GetAllTeamsQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<IEnumerable<ApplicationTeam>>(await _uow.TeamRepository.GetAllAsync());
+            return _mapper.Map<IEnumerable<ApplicationTeam>>(await _uow.TeamRepository.GetAllAsync(
+                t => t.TeamCreator,
+                t => t.TeamInvitations,
+                t => ((TeamInvitation)t.TeamInvitations).applicationUser));
         }
-       
+
+        
+
+
+
+
     }
 }

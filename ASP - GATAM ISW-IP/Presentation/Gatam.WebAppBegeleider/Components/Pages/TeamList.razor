@@ -32,12 +32,32 @@ else
             else
             {
                 <p>Uitgenodigde studenten:</p>
-                <ul>
-                    @foreach (var invitation in team.TeamInvitations)
-                    {
-                        <li>@invitation.applicationUser.Id @invitation.applicationUser.UserName @invitation.applicationUser.Email</li>
-                    }
-                </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Gebruikersnaam</th>
+                            <th>Emailadres</th>
+                            <th>Geaccepteerd</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invitation in team.TeamInvitations)
+                        {
+                            <tr>
+                                <td>@invitation.applicationUser.UserName</td>
+                                <td>@invitation.applicationUser.Email</td>
+                                <td>@(invitation.isAccepted ? "Ja" : "Nee")</td>
+                            </tr>
+                        }
+
+                        @if (!team.TeamInvitations.Any())
+                        {
+                            <tr>
+                                <td colspan="3">Geen uitnodigingen gevonden.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             }
         </div>
     }
@@ -60,8 +80,8 @@ else
         }
         catch (HttpRequestException ex)
         {
-            hasError = true;  // A request error occurred
-            Console.WriteLine($"Request error: {ex.Message}");
+            hasError = true;  // Er is een fout opgetreden bij de aanvraag
+            Console.WriteLine($"Aanvraagfout: {ex.Message}");
         }
         finally
         {
