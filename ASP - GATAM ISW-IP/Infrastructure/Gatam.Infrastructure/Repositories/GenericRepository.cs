@@ -62,8 +62,8 @@ namespace Gatam.Infrastructure.Repositories
 
         public Task<T> Update(T entity)
         {
-            EntityEntry<T> response = _dbSet.Update(entity);
-            return Task.FromResult(response.Entity);
+            EntityEntry<T> response = _dbSet.Update(entity); 
+            return Task.FromResult(response.Entity);         
         }
     }
 }
