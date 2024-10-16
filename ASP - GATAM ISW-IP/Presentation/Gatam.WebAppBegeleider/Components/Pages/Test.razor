@@ -1,0 +1,16 @@
+﻿@page "/example"
+
+<h3>Voorbeeld van onclick</h3>
+<button @onclick=OnButtonClick>Klik hier</button>
+
+<p>@message</p>
+
+@code {
+    private string message = "Nog niet geklikt.";
+
+    private void OnButtonClick()
+    {
+        message = "De knop is geklikt!";
+        Console.WriteLine("De knop is geklikt!");
+    }
+}

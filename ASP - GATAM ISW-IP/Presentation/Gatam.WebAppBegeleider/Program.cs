@@ -11,7 +11,7 @@ internal class Program
 {
 
     private static void Main(string[] args)
-    {        
+    {
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
@@ -19,9 +19,9 @@ internal class Program
             .AddInteractiveServerComponents();
 
         string baseURI = "http://webapi:8080/";
-        #if DEBUG
-             baseURI = "http://localhost:5000";
-        #endif
+#if DEBUG
+        baseURI = "http://localhost:5000";
+#endif
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseURI) });
         //builder.Services.AddAuthentication(options =>
         //{

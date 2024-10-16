@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace UnitTesting.ControllerTest.ApplicationUser
 {
     [TestClass]
-    public class GetAllUserControllerTest
+    public class GetAllTeamControllerTest
     {
         private Mock<IMediator>? mediator;
         private UserController? controller;

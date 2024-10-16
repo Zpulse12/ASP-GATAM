@@ -74,7 +74,7 @@ namespace Gatam.Infrastructure.Contexts
                     UserId = john.Id,
                     isAccepted = true,
                     CreatedAt = DateTime.UtcNow,
-                    ResponseDateTime = DateTime.UtcNow
+                    ResponseDateTime = DateTime.UtcNow,
                 },
                 new TeamInvitation()
                 {

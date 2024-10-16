@@ -1,10 +1,11 @@
-﻿@page "/teams"
-
+﻿@page "/admin/teams"
+@using Gatam.Application.CQRS
 @using Gatam.Domain
+@using System.Diagnostics
 @inject HttpClient Http
+@rendermode InteractiveServer
 
 <h3>Teams</h3>
-
 @if (isLoading)
 {
     <p>Loading...</p>
@@ -46,10 +47,22 @@ else
                             <tr>
                                 <td>@invitation.applicationUser.UserName</td>
                                 <td>@invitation.applicationUser.Email</td>
-                                <td>@(invitation.isAccepted ? "Ja" : "Nee")</td>
+                                <td>
+                                    @if (@invitation.isAccepted)
+                                    {
+                                        <p> Geaccepteerd </p>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-success" @onclick="() => ToggleInvitationStatus(invitation,invitation.Id, true)">
+                                            Student toevoegen
+                                        </button>
+
+
+                                    }
+                                </td>
                             </tr>
                         }
-
                         @if (!team.TeamInvitations.Any())
                         {
                             <tr>
@@ -58,6 +71,7 @@ else
                         }
                     </tbody>
                 </table>
+
             }
         </div>
     }
@@ -86,6 +100,47 @@ else
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task ToggleInvitationStatus(TeamInvitation invitation, string invitationId, bool isAccepted)
+    {
+        Console.WriteLine("Button clicked. Toggling invitation status...");
+        Console.WriteLine($"Invitation ID: {invitation.Id}, Accepted: {isAccepted}");
+        invitation.isAccepted = isAccepted;
+        try
+        {
+            var command = new AcceptTeamInvitationCommand()
+                {
+                    _teaminvitationId = invitation.Id,
+                    IsAccepted = isAccepted
+                };
+
+            var response = await Http.PutAsJsonAsync($"api/invitationteam/acceptInvitation/{invitationId}", command);
+            if (response.IsSuccessStatusCode)
+            {
+                var updatedTeam = await response.Content.ReadFromJsonAsync<ApplicationTeam>();
+                if (updatedTeam != null)
+                {
+                    var invitationRequest = teams
+                        .FirstOrDefault(t => t.Id == invitation.ApplicationTeamId)
+                        .TeamInvitations.FirstOrDefault(i => i.Id == invitation.Id);
+
+                    if (invitationRequest != null)
+                    {
+                        invitationRequest.isAccepted = updatedTeam.TeamInvitations.FirstOrDefault(i => i.Id == invitation.Id).isAccepted;
+                    }
+                    StateHasChanged();
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Error updating user status: {response.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during status update: {ex.Message}");
         }
     }
 }

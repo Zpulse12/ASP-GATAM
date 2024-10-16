@@ -31,9 +31,10 @@ namespace Gatam.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<T> FindById(string id)
+        public async Task<T?> FindById(string id)
         {
-            throw new NotImplementedException();
+            var response = await _dbSet.FindAsync(id);
+            return response;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
@@ -51,9 +52,11 @@ namespace Gatam.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
-        public Task<T> Update(T entity)
+        public async Task<T> Update(T entity)
         {
-            throw new NotImplementedException();
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
+            return entity;
         }
     }
 }

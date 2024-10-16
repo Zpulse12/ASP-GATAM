@@ -21,6 +21,7 @@ namespace Gatam.WebAPI.Controllers
         public async Task<IActionResult> GetTeams()
         {
                 var teams = await _mediator.Send(new GetAllTeamsQuery());
+            
                 return Ok(teams);
         }
 
