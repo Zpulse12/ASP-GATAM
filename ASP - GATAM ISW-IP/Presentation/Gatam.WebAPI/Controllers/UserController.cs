@@ -20,8 +20,10 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "read:admin")]
         public async Task<IActionResult> GetUsers()
         {
+
             var users = await _mediator.Send(new GetAllUsersQuery());
             return Ok(users);
         }

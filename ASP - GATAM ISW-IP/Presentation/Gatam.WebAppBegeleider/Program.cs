@@ -11,29 +11,29 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.RegisterRedisDataProtectionKeys();
+
+        /**
+            Cookies added by AddAuth0WebAppAuthentication.
+        */
         builder.Services
             .AddAuth0WebAppAuthentication(options =>
             {
                 options.Domain = builder.Configuration["Auth0:Domain"];
                 options.ClientId = builder.Configuration["Auth0:ClientId"];
+                options.Scope = "openid profile email";
             });
 
-        builder.Services
-        .AddAuthentication(
-            options =>
-            {
-                // I believe this may be where the problem is: I can't specify both cookie auth AND JWT auth; it has to be one or the other.
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-
-            });
-        // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents()
             .AddInteractiveWebAssemblyComponents();
 
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.HttpOnly = true; // Security setting
+            options.Cookie.SameSite = SameSiteMode.Strict; // Adjust if needed
+            options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Adjust for HTTPS
+            options.Cookie.Name = "auth_token";
+        });
 
         var app = builder.Build();
 
@@ -58,8 +58,8 @@ internal class Program
 
         app.UseStaticFiles();
         app.UseAntiforgery();
-        //app.UseAuthentication();
-        //app.UseAuthorization();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/") =>
         {
@@ -80,8 +80,30 @@ internal class Program
             await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         });
 
+        app.MapGet("/user-claims", (HttpContext context) =>
+        {
+            if (!context.User.Identity.IsAuthenticated)
+            {
+                return Results.Unauthorized();
+            }
 
+            var claims = context.User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+            return Results.Ok(claims);
+        });
 
+        app.MapGet("/callback", async (HttpContext context) =>
+        {
+            // This endpoint handles the authentication response
+            var accessToken = await context.GetTokenAsync("access_token");
+            var idToken = await context.GetTokenAsync("id_token");
+
+            // Log tokens to see if they were retrieved
+            Console.WriteLine($"Access Token: {accessToken}");
+            Console.WriteLine($"ID Token: {idToken}");
+
+            // Redirect to another route or handle as needed
+            return Results.Redirect("/");
+        });
 
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode()
