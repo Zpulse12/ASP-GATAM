@@ -1,14 +1,10 @@
-
-
 @using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
-
 @page "/admin/user-list"
 @using System.Diagnostics
-
 @using Gatam.Domain
 @using Microsoft.AspNetCore.Components.QuickGrid
-@inject HttpClient Http;
+@inject HttpClient Http
 @rendermode InteractiveServer
 <CustomCards> 
     <div class="card-body">
@@ -92,8 +88,104 @@
     }
 </CustomCards>
 
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2 class="mb-0">Overzicht gebruikers</h2>
+                </div>
+                <div class="card-body">
+                    @if (_isLoading)
+                    {
+                        <div class="alert alert-info text-center">
+                            <div class="spinner-border text-primary me-2" role="status"></div>
+                            Loading users... Please wait.
+                        </div>
+                    }
+                    else if (_hasError)
+                    {
+                        <div class="alert alert-danger text-center">
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>
+                            <strong>Error:</strong> We encountered an issue while fetching the user list.
+                        </div>
+                    }
+                    else
+                    {
+                        <QuickGrid Items="_users.AsQueryable()" class="table table-hover table-bordered">
+                            <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
+                            <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
+                            <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
+                            <TemplateColumn Title="Actions">
+                                @if (@context.IsActive)
+                                {
+                                    <button class="btn btn-danger" @onclick="() => ToggleUserActiveStatus(context, context.Id, false)">
+                                        Deactiveer
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-success" @onclick="() => ToggleUserActiveStatus(context, context.Id, true)">
+                                        Activeer
+                                    </button>
+                                }
+                                <button @onclick="() => Delete(context.Id)" class="btn btn-outline-secondary">verwijder</button>
+                                <button @onclick="() => StartEditingUser(context)" class="btn btn-outline-secondary">
+                                    <i class="bi bi-pencil"></i> 
+                                </button>
+                            </TemplateColumn>
+                        </QuickGrid>
+                        
+                        @if (userBeingEdited != null)
+                        {
+                            <hr />
+                            <h4>Gebruiker Bewerken: @userBeingEdited.UserName</h4>
+                            <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
+                                <DataAnnotationsValidator />
+                                <ValidationSummary />
+
+                                <div class="form-group mt-3">
+                                    <label for="Username">Gebruikersnaam</label>
+                                    <InputText id="Username" @bind-Value="userBeingEdited.UserName" class="form-control" />
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="Email">Email</label>
+                                    <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="Role">Rol</label>
+                                    <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
+                                        @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
+                                        {
+                                            <option value="@role">@role</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="IsActive">Actief</label>
+                                    <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
+                                </div>
+
+                                <button type="submit" class="btn btn-primary mt-4">Opslaan</button>
+                                <button type="button" class="btn btn-secondary mt-4" @onclick="CancelEditing">Annuleren</button>
+                            </EditForm>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @code {
-    private List<ApplicationUser> _users = [];
+    private List<ApplicationUser> _users = new List<ApplicationUser>();
+    private ApplicationUser userBeingEdited = null;
     private bool _isLoading = true;
     private bool _hasError = false;
 
@@ -102,6 +194,66 @@
     private string selectedUserId;
 
     private void ShowDeleteModal(string userId)
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
+            if (response != null && response.Count > 0)
+            {
+                _users = response;
+            }
+            else
+            {
+                _hasError = true;  // No users found or response is null
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;  // A request error occurred
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void StartEditingUser(ApplicationUser user)
+    {
+        userBeingEdited = user;
+    }
+
+    private void CancelEditing()
+    {
+        userBeingEdited = null;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (userBeingEdited != null)
+        {
+            try
+            {
+                var response = await Http.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
+                if (response.IsSuccessStatusCode)
+                {
+                    userBeingEdited = null; 
+                    StateHasChanged();
+                }
+                else
+                {
+                    Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task Delete(string userId)
     {
         selectedUserId = userId;
         isModalVisible = true;  // Open modal
@@ -120,8 +272,8 @@
         {
 
             var response = await Http.DeleteAsync($"api/User/delete/{selectedUserId}");
+            var response = await Http.DeleteAsync($"api/User/delete/{userId}");
             if (response.IsSuccessStatusCode)
-
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
                 if (userToRemove != null)
@@ -141,54 +293,23 @@
             Debug.WriteLine($"Error deleting user: {ex.Message}");
         }
     }
-    protected override async Task OnInitializedAsync()
+
+    private async Task ToggleUserActiveStatus(ApplicationUser user, string userId, bool isActive)
     {
-
-        try
-        {
-            var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
-            if (response != null && response.Count > 0)
-            {
-                _users = response;
-            }
-            else
-            {
-                _hasError = true;  // No users found or response is null
-            }
-          
-        }
-        catch (HttpRequestException ex)
-        {
-            _hasError = true;  // A request error occurred
-            Console.WriteLine($"Request error: {ex.Message}");
-        }
-        finally
-        {
-            _isLoading = false;
-        }
-
-
-    }
-
-    private async Task ToggleUserActiveStatus(ApplicationUser user,string userId, bool isActive)
-    {
-
         user.IsActive = !user.IsActive;
         try
         {
             var command = new DeactivateUserCommand
-                {
-                    _userId = userId,
-                    IsActive = isActive 
-                };
+            {
+                _userId = userId,
+                IsActive = isActive
+            };
             var response = await Http.PutAsJsonAsync($"api/User/deactivate/{userId}", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
-
                 if (updatedUser != null)
                 {
-                    // Werk de lijst bij met de gedeactiveerde gebruiker
                     var loclalUser = _users.FirstOrDefault(u => u.Id == userId);
                     if (loclalUser != null)
                     {
@@ -198,7 +319,7 @@
             }
             else
             {
-                Console.WriteLine("Error updating user status: {response.ReasonPhrase}");
+                Console.WriteLine($"Error updating user status: {response.ReasonPhrase}");
             }
         }
         catch (Exception ex)
@@ -206,6 +327,4 @@
             Console.WriteLine($"Error during status update: {ex.Message}");
         }
     }
-
-    
 }
