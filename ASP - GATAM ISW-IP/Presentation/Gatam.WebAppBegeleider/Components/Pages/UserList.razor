@@ -1,111 +1,153 @@
 @using Gatam.Application.CQRS
+@using Gatam.WebAppBegeleider.Components.Layout
 @page "/admin/user-list"
 @using System.Diagnostics
 @using Gatam.Domain
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HttpClient Http
 @rendermode InteractiveServer
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white text-center">
-                    <h2 class="mb-0">Overzicht gebruikers</h2>
-                </div>
-                <div class="card-body">
-                    @if (_isLoading)
-                    {
-                        <div class="alert alert-info text-center">
-                            <div class="spinner-border text-primary me-2" role="status"></div>
-                            Loading users... Please wait.
-                        </div>
-                    }
-                    else if (_hasError)
-                    {
-                        <div class="alert alert-danger text-center">
-                            <i class="bi bi-exclamation-circle-fill me-2"></i>
-                            <strong>Error:</strong> We encountered an issue while fetching the user list.
-                        </div>
-                    }
-                    else
-                    {
-                        <QuickGrid Items="_users.AsQueryable()" class="table table-hover table-bordered">
-                            <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
-                            <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
-                            <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
-                            <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
-                            <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
-                            <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
-                            <TemplateColumn Title="Actions">
-                                @if (@context.IsActive)
-                                {
-                                    <button class="btn btn-danger" @onclick="() => ToggleUserActiveStatus(context, context.Id, false)">
-                                        Deactiveer
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-success" @onclick="() => ToggleUserActiveStatus(context, context.Id, true)">
-                                        Activeer
-                                    </button>
-                                }
-                                <button @onclick="() => Delete(context.Id)" class="btn btn-outline-secondary">verwijder</button>
-                                <button @onclick="() => StartEditingUser(context)" class="btn btn-outline-secondary">
-                                    <i class="bi bi-pencil"></i> 
-                                </button>
-                            </TemplateColumn>
-                        </QuickGrid>
-                        
-                        @if (userBeingEdited != null)
+<CustomCards>
+    <div class="card-body">
+        <div class="card-header">
+            <h5>
+                Gebruikers overzicht
+            </h5>
+        </div>
+        @if (_isLoading)
+        {
+        <div class="alert alert-info text-center">
+            <div class="spinner-border text-primary me-2" role="status"></div>
+            Loading users... Please wait.
+        </div>
+        }
+        else if (_hasError)
+        {
+        <div class="alert alert-danger text-center">
+            <i class="bi bi-exclamation-circle-fill me-2"></i>
+            <strong>Error:</strong> We encountered an issue while fetching the user list.
+        </div>
+        }
+        else
+        {
+        <div class="table-responsive-lg">
+            <div>
+                <QuickGrid Items="_users.AsQueryable()">
+                    <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
+                    <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
+                    <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
+                    <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
+                    <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
+                    <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
+                    <TemplateColumn Title="Status">
+                        @if (@context.IsActive)
                         {
-                            <hr />
-                            <h4>Gebruiker Bewerken: @userBeingEdited.UserName</h4>
-                            <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
-                                <DataAnnotationsValidator />
-                                <ValidationSummary />
-
-                                <div class="form-group mt-3">
-                                    <label for="Username">Gebruikersnaam</label>
-                                    <InputText id="Username" @bind-Value="userBeingEdited.UserName" class="form-control" />
-                                </div>
-
-                                <div class="form-group mt-3">
-                                    <label for="Email">Email</label>
-                                    <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
-                                </div>
-
-                                <div class="form-group mt-3">
-                                    <label for="Role">Rol</label>
-                                    <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
-                                        @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
-                                        {
-                                            <option value="@role">@role</option>
-                                        }
-                                    </InputSelect>
-                                </div>
-
-                                <div class="form-group mt-3">
-                                    <label for="IsActive">Actief</label>
-                                    <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
-                                </div>
-
-                                <button type="submit" class="btn btn-primary mt-4">Opslaan</button>
-                                <button type="button" class="btn btn-secondary mt-4" @onclick="CancelEditing">Annuleren</button>
-                            </EditForm>
+                        <button class="btn btn-danger" @onclick="() => ToggleUserActiveStatus(context,context.Id, false)">
+                            Deactiveer
+                        </button>
                         }
-                    }
+                        else
+                        {
+                        <button class="btn btn-success" @onclick="() => ToggleUserActiveStatus(context,context.Id, true)">
+                            Activeer
+                        </button>
+                        }
+                    </TemplateColumn>
+                    <TemplateColumn Title="Verwijder">
+                        <button type="button" @onclick="() => ShowDeleteModal(context.Id)" class="btn btn-outline-danger" data-toggle="modal" data-target="#exampleModal">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button @onclick="() => StartEditingUser(context)" class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </TemplateColumn>
+                </QuickGrid>
+
+                @if (userBeingEdited != null)
+                {
+                <hr />
+                <h4>Gebruiker Bewerken: @userBeingEdited.UserName</h4>
+                <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group mt-3">
+                        <label for="Username">Gebruikersnaam</label>
+                        <InputText id="Username" @bind-Value="userBeingEdited.UserName" class="form-control" />
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="Email">Email</label>
+                        <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="Role">Rol</label>
+                        <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
+                            @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
+                            {
+                            <option value="@role">@role</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="IsActive">Actief</label>
+                        <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-4">Opslaan</button>
+                    <button type="button" class="btn btn-secondary mt-4" @onclick="CancelEditing">Annuleren</button>
+                </EditForm>
+                }
+
+            </div>
+        </div>
+        }
+    </div>
+    <!-- Modal -->
+    @if (isModalVisible)
+    {
+    <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
+                    <button type="button" class="close" @onclick="CloseModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Weet je zeker dat je deze gebruiker wilt verwijderen?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-success" @onclick="CloseModal">Annuleer</button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
+    <div class="modal-backdrop fade show"></div>
+
+    }
+</CustomCards>
+
+
 
 @code {
     private List<ApplicationUser> _users = new List<ApplicationUser>();
     private ApplicationUser userBeingEdited = null;
     private bool _isLoading = true;
     private bool _hasError = false;
+
+    // Boolean to control modal visibility
+    private bool isModalVisible = false;  
+    private string selectedUserId;
+
+    private void ShowDeleteModal(string userId)
+    {
+        selectedUserId = userId;
+        isModalVisible = true;  // Open modal
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -168,22 +210,36 @@
 
     private async Task Delete(string userId)
     {
-        Debug.WriteLine(userId);
+        selectedUserId = userId;
+        isModalVisible = true;  // Open modal
+    }
+
+    // Close the modal
+    private void CloseModal()
+    {
+        isModalVisible = false;
+    }
+
+    async Task Delete()
+    {
+        Debug.WriteLine(selectedUserId);
         try
         {
-            var response = await Http.DeleteAsync($"api/User/delete/{userId}");
+
+            var response = await Http.DeleteAsync($"api/User/delete/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
-                var userToRemove = _users.FirstOrDefault(u => u.Id == userId);
+                var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
                 if (userToRemove != null)
                 {
                     _users.Remove(userToRemove);
                     StateHasChanged();
+                    isModalVisible = false;
                 }
             }
             else
             {
-                Debug.WriteLine($"Failed to delete user {userId}: {response.ReasonPhrase}");
+                Debug.WriteLine($"Failed to delete user {selectedUserId}: {response.ReasonPhrase}");
             }
         }
         catch (Exception ex)
