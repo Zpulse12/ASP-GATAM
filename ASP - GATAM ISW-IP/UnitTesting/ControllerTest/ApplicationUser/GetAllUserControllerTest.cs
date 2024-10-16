@@ -29,8 +29,18 @@ namespace UnitTesting.ControllerTest.ApplicationUser
         {
             var users = new List<UserDTO>
             {
-                new UserDTO { Username = "user1", Email = "user1@example.com" },
-                new UserDTO { Username = "user2", Email = "user2@example.com" }
+                new UserDTO
+                {
+                    Username = "user1",
+                    Email = "user1@example.com",
+                    Id = "1"
+                },
+                new UserDTO
+                {
+                    Username = "user2",
+                    Email = "user2@example.com",
+                    Id = "2"
+                }
             };
 
             mediator.Setup(m => m.Send(It.IsAny<GetAllUsersQuery>(), default))

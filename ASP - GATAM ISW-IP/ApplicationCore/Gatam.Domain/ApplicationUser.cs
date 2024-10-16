@@ -15,6 +15,8 @@ namespace Gatam.Domain
     public class ApplicationUser : IdentityUser
     {
         public ApplicationUserRoles _role { get; set; }
+        public bool IsActive { get; set; }
+
         [JsonIgnore]
         public ICollection<ApplicationTeam> OwnedApplicationTeams { get; } = new List<ApplicationTeam>();
         [JsonIgnore]

@@ -1,6 +1,7 @@
 ﻿using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,15 +27,22 @@ namespace Gatam.Infrastructure.Repositories
             return entity;
         }
 
-        public Task Delete(T entity)
+        public async Task Delete(T entity)
         {
-            throw new NotImplementedException();
+             _dbSet.Remove(entity);
+             await _context.SaveChangesAsync();
+
         }
 
         public async Task<T?> FindById(string id)
         {
             var response = await _dbSet.FindAsync(id);
             return response;
+        }
+
+        public async Task<T> FindByName(string name)
+        {
+            return (await _dbSet.FindAsync(name))!;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
@@ -52,11 +60,10 @@ namespace Gatam.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<T> Update(T entity)
+        public Task<T> Update(T entity)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
-            return entity;
+            EntityEntry<T> response = _dbSet.Update(entity);
+            return Task.FromResult(response.Entity);
         }
     }
 }
