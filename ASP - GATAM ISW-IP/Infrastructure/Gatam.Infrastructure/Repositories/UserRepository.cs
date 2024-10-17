@@ -14,13 +14,5 @@ namespace Gatam.Infrastructure.Repositories
     public class UserRepository : GenericRepository<ApplicationUser>
     {
         public UserRepository(ApplicationDbContext context) : base(context) { }
-        public async Task<ApplicationUser?> FindByName(string name)
-        {
-            return await FindByProperty("UserName", name);
-        }
-        public async Task<ApplicationUser?> FindByEmail(string email)
-        {
-            return await FindByProperty("Email", email);
-        }
     }
 }
