@@ -22,8 +22,8 @@ else
 {
     foreach (var team in teams)
     {
-        <div class="team-card">
-            <h4>@team.TeamName</h4>
+        <div class="team-card border rounded p-3 mb-4">
+            <h4>@team.TeamName.ToUpper()</h4>
             <p>Team ID: @team.Id</p>
 
             @if (team.TeamInvitations == null || !team.TeamInvitations.Any())
@@ -42,7 +42,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var invitation in team.TeamInvitations)
+                        @foreach (var invitation in team.TeamInvitations.OrderByDescending(i => i.isAccepted))
                         {
                             <tr>
                                 <td>@invitation.applicationUser.UserName</td>
