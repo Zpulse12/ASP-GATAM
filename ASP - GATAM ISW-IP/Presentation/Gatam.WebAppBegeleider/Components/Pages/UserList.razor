@@ -140,7 +140,7 @@
     private bool _hasError = false;
 
     // Boolean to control modal visibility
-    private bool isModalVisible = false;  
+    private bool isModalVisible = false;
     private string selectedUserId;
 
     private void ShowDeleteModal(string userId)
@@ -149,36 +149,8 @@
         isModalVisible = true;  // Open modal
     }
 
-    async Task Delete(string userId)
-    {
-        Debug.WriteLine(userId);
-        try
-        {
-
-            var response = await Http.DeleteAsync($"api/User/delete/{userId}");
-            if (response.IsSuccessStatusCode)
-
-            {
-                var userToRemove = _users.FirstOrDefault(u => u.Id == userId);
-                if (userToRemove != null)
-                {
-                    _users.Remove(userToRemove);
-                    StateHasChanged();
-                }
-            }
-            else
-            {
-                Debug.WriteLine($"Failed to delete user {userId}: {response.ReasonPhrase}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error deleting user: {ex.Message}");
-        }
-    }
     protected override async Task OnInitializedAsync()
     {
-
         try
         {
             var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
@@ -190,7 +162,6 @@
             {
                 _hasError = true;  // No users found or response is null
             }
-          
         }
         catch (HttpRequestException ex)
         {
@@ -222,7 +193,7 @@
                 var response = await Http.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
                 if (response.IsSuccessStatusCode)
                 {
-                    userBeingEdited = null; 
+                    userBeingEdited = null;
                     StateHasChanged();
                 }
                 else
@@ -235,12 +206,6 @@
                 Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
             }
         }
-    }
-
-    private async Task Delete(string userId)
-    {
-        selectedUserId = userId;
-        isModalVisible = true;  // Open modal
     }
 
     // Close the modal
@@ -283,10 +248,10 @@
         try
         {
             var command = new DeactivateUserCommand
-            {
-                _userId = userId,
-                IsActive = isActive
-            };
+                {
+                    _userId = userId,
+                    IsActive = isActive
+                };
             var response = await Http.PutAsJsonAsync($"api/User/deactivate/{userId}", command);
             if (response.IsSuccessStatusCode)
             {

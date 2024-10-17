@@ -19,10 +19,7 @@ internal class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<IGenericRepository<ApplicationTeam>, TeamRepository>();
-        builder.Services.AddScoped<IGenericRepository<TeamInvitation>, TeamInvitationRepository>();
-
+      
 
 
         var app = builder.Build();

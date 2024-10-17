@@ -48,6 +48,8 @@ namespace Gatam.Infrastructure.Extensions
         {
 
             services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
+            services.AddScoped<IGenericRepository<ApplicationTeam>, TeamRepository>();
+            services.AddScoped<IGenericRepository<TeamInvitation>, TeamInvitationRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.RegisterDbContext();
             return services;
