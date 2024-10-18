@@ -1,10 +1,16 @@
 @using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.Application.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
 @using Gatam.Domain
 @using Microsoft.AspNetCore.Components.QuickGrid
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+@inject TokenProvider tokenProvider
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
 @rendermode InteractiveServer
 <CustomCards>
     <div class="card-body">
@@ -34,7 +40,7 @@
                 <QuickGrid Items="_users.AsQueryable()">
                     <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
                     <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
-                    <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
+                    <PropertyColumn Property="@(u => u.Role)" Title="Rol" Sortable="true" />
                     <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
                     <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
                     <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
@@ -82,7 +88,7 @@
 
                     <div class="form-group mt-3">
                         <label for="Role">Rol</label>
-                        <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
+                        <InputSelect id="Role" @bind-Value="userBeingEdited.Role" class="form-control">
                             @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
                             {
                             <option value="@role">@role</option>
@@ -151,9 +157,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Debug.WriteLine(httpContextAccessor.HttpContext.ToString());
         try
         {
-            var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
+            var client = HttpClientFactory.CreateClient("ApiClient");
+            var response = await client.GetFromJsonAsync<List<ApplicationUser>>("winchester/api/User");
             if (response != null && response.Count > 0)
             {
                 _users = response;
@@ -190,7 +198,8 @@
         {
             try
             {
-                var response = await Http.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
+                var client = HttpClientFactory.CreateClient("ApiClient");
+                var response = await client.PutAsJsonAsync($"winchester/api/User/{userBeingEdited.Id}", userBeingEdited);
                 if (response.IsSuccessStatusCode)
                 {
                     userBeingEdited = null;
@@ -216,11 +225,11 @@
 
     async Task Delete()
     {
-        Debug.WriteLine(selectedUserId);
+        Debug.WriteLine(tokenProvider.accessToken);
         try
         {
-
-            var response = await Http.DeleteAsync($"api/User/delete/{selectedUserId}");
+            var client = HttpClientFactory.CreateClient("ApiClient");
+            var response = await client.DeleteAsync($"winchester/api/User/delete/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
@@ -252,7 +261,8 @@
                     _userId = userId,
                     IsActive = isActive
                 };
-            var response = await Http.PutAsJsonAsync($"api/User/deactivate/{userId}", command);
+            var client = HttpClientFactory.CreateClient("ApiClient");
+            var response = await client.PutAsJsonAsync($"winchester/api/User/deactivate/{userId}", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();

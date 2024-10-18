@@ -10,18 +10,21 @@ using System.Threading.Tasks;
 
 namespace Gatam.Application.Extensions
 {
-    public class TokenProvider : ITokenProvider
+    public class TokenProvider /*: ITokenProvider*/
     {
+        public string? accessToken { get; set; }
 
-        private readonly IHttpContextAccessor _httpContextAccess;
+        //public async Task<string> GetToken()
+        //{
+        //    var httpContext = _httpContextAccess.HttpContext;
 
-        public TokenProvider(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccess = httpContextAccessor;
-        }
-        public async Task<string> GetToken()
-        {
-            return await _httpContextAccess.HttpContext.GetTokenAsync("access_token");
-        }
+        //    if (httpContext == null)
+        //    {
+        //        throw new InvalidOperationException("HttpContext is not available.");
+        //    }
+
+        //    var TOKEN = await httpContext.GetTokenAsync("access_token") ?? "";
+        //    return TOKEN;
+        //}
     }
 }

@@ -7,12 +7,23 @@ using Gatam.Infrastructure.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Application.Extensions;
 using Gatam.Application.Extensions.Delegates;
+using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+          // UPDATE TO USE ENV..
+        builder.Services.AddHttpContextAccessor();
+
+
+        builder.Services.AddScoped<TokenProvider>();
+        //builder.Services.AddScoped<AuthHeaderHandler>();
+        builder.Services.AddHttpClient("ApiClient", client => { client.BaseAddress = new Uri("http://localhost:80"); });/*.AddHttpMessageHandler<AuthHeaderHandler>();*/
+
+
         builder.Services.RegisterDataProtectionEncryptionMethods();
         builder.Services.AddAntiforgery();
         builder.Services.RegisterAuth0AndCookies(builder);
@@ -20,9 +31,6 @@ internal class Program
             .AddInteractiveServerComponents()
             .AddInteractiveWebAssemblyComponents();
 
-        builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<ITokenProvider, TokenProvider>();
-        builder.Services.AddHttpClient("ApiClient").AddHttpMessageHandler<AuthHeaderHandler>();
         var app = builder.Build();
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -48,7 +56,7 @@ internal class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/") =>
+        app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/callback") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
                     .WithRedirectUri(returnUrl)
@@ -90,15 +98,17 @@ internal class Program
         });
 
 
-        app.MapGet("/callback", async (HttpContext context) =>
+        app.MapGet("/callback", async (HttpContext context, TokenProvider tokenProvider) =>
         {
             // This endpoint handles the authentication response
             var accessToken = await context.GetTokenAsync("access_token");
             var idToken = await context.GetTokenAsync("id_token");
 
             // Log tokens to see if they were retrieved
-            Console.WriteLine($"Access Token: {accessToken}");
-            Console.WriteLine($"ID Token: {idToken}");
+            Debug.WriteLine($"Access Token: {accessToken}");
+            Debug.WriteLine($"ID Token: {idToken}");
+
+            tokenProvider.accessToken = accessToken;
 
             // Redirect to another route or handle as needed
             return Results.Redirect("/");
