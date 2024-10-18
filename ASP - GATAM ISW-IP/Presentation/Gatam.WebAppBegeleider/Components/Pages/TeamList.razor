@@ -2,9 +2,10 @@
 @using Gatam.Application.CQRS
 @using Gatam.Domain
 @using System.Diagnostics
+@using Gatam.WebAppBegeleider.Components.Layout
 @inject HttpClient Http
 @rendermode InteractiveServer
-
+<CustomCards>
 <h3>Teams</h3>
 @if (isLoading)
 {
@@ -74,8 +75,10 @@ else
 
             }
         </div>
+
     }
 }
+</CustomCards>
 
 @code {
     private List<ApplicationTeam> teams = new();
