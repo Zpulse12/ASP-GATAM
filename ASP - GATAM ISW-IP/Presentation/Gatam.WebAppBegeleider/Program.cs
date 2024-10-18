@@ -84,20 +84,6 @@ internal class Program
             await httpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
             await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         });
-
-        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
-        {
-            var accessToken = await httpContext.GetTokenAsync("access_token");
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                return Results.BadRequest("Access token is not available.");
-            }
-
-            return Results.Ok(new { AccessToken = accessToken });
-        });
-
-
         app.MapGet("/callback", async (HttpContext context, TokenProvider tokenProvider) =>
         {
             // This endpoint handles the authentication response
@@ -112,9 +98,19 @@ internal class Program
 
             // Redirect to another route or handle as needed
             return Results.Redirect("/");
+        }).AllowAnonymous();
+
+        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
+        {
+            var accessToken = await httpContext.GetTokenAsync("access_token");
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return Results.BadRequest("Access token is not available.");
+            }
+
+            return Results.Ok(new { AccessToken = accessToken });
         });
-
-
 
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode()
