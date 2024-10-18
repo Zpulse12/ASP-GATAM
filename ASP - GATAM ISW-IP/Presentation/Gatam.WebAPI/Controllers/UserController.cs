@@ -20,7 +20,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "read:admin")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetUsers()
         {
 
