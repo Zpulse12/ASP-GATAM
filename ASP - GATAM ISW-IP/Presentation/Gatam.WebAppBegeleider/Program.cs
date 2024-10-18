@@ -21,7 +21,13 @@ internal class Program
                 options.Domain = builder.Configuration["Auth0:Domain"];
                 options.ClientId = builder.Configuration["Auth0:ClientId"];
                 options.Scope = "openid profile email";
-            });
+                options.ClientSecret = builder.Configuration["Auth0:ClientSecret"];
+            })
+              .WithAccessToken(options =>
+              {
+                  options.Audience = builder.Configuration["Auth0:Audience"];
+                  options.UseRefreshTokens = true; 
+              });
 
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents()
@@ -33,6 +39,7 @@ internal class Program
             options.Cookie.SameSite = SameSiteMode.Strict; // Adjust if needed
             options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Adjust for HTTPS
             options.Cookie.Name = "auth_token";
+            options.LoginPath = "/account/login";
         });
 
         var app = builder.Build();

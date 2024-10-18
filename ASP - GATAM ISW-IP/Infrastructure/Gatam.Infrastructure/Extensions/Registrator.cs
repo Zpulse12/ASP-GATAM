@@ -62,30 +62,81 @@ namespace Gatam.Infrastructure.Extensions
         }
 
         public static IServiceCollection RegisterAuth0AndCookies(this IServiceCollection services, WebApplicationBuilder builder) {
-            
+
+            string domain = builder.Configuration["Auth0:Domain"] ?? "";
+            string audience = builder.Configuration["Auth0:Audience"] ?? "";
+            string clientId = builder.Configuration["Auth0:ClientId"] ?? "";
+            string clientSecret = builder.Configuration["Auth0:ClientSecret"] ?? "";
+
+            services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie()
+            .AddOpenIdConnect("Auth0", options => {
+                options.Authority = $"https://{domain}";
+                options.ClientId = clientId;
+                options.CallbackPath = new PathString("/callback");
+                options.ClientSecret = clientSecret;
+                options.SaveTokens = true;
+                options.ResponseType = OpenIdConnectResponseType.Code;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "name"
+                };
+                options.Events = new OpenIdConnectEvents
+                {
+                    OnRedirectToIdentityProviderForSignOut = (context) =>
+                    {
+                        var logoutUri = $"https://{domain}/v2/logout?client_id={clientId}";
+
+                        var postLogoutUri = context.Properties.RedirectUri;
+                        if (!string.IsNullOrEmpty(postLogoutUri))
+                        {
+                            if (postLogoutUri.StartsWith("/"))
+                            {
+                                // transform to absolute
+                                var request = context.Request;
+                                postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
+                            }
+                            logoutUri += $"&returnTo={Uri.EscapeDataString(postLogoutUri)}";
+                        }
+
+                        context.Response.Redirect(logoutUri);
+                        context.HandleResponse();
+
+                        return Task.CompletedTask;
+
+                    },
+                    OnRedirectToIdentityProvider = context =>
+                    {
+                        context.ProtocolMessage.SetParameter("audience", audience);
+                        return Task.FromResult(0);
+                    }
+                };
+            });
             return services;
         }
         public static IServiceCollection RegisterJWTAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
         {
 
             string domain = builder.Configuration["Auth0:Domain"] ?? "";
+            string audience = builder.Configuration["Auth0:Audience"] ?? "";
             string clientId = builder.Configuration["Auth0:ClientId"] ?? "";
             string clientSecret = builder.Configuration["Auth0:ClientSecret"] ?? "";
 
-            builder.Services.AddAuth0AuthenticationClient(config =>
+            services.AddAuthentication(options =>
             {
-                config.Domain = domain;
-                config.ClientId = clientId;
-                config.ClientSecret = clientSecret;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = domain;
+                options.Audience = audience; // This should be the Identifier of your API in Auth0
             });
-            builder.Services.AddAuth0ManagementClient().AddManagementAccessToken();
-
-            services.AddAuthorization(options =>
-                options.AddPolicy("read:admin", policy => policy.Requirements.Add(
-                    new HasScopeRequirement("read:admin", domain)
-                    )
-                )
-            );
+            // Add authorization
+            services.AddAuthorization();
             return services;
         }
     }
