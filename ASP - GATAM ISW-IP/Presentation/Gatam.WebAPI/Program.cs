@@ -43,49 +43,6 @@ internal class Program {
         app.UseAuthentication();
         app.UseAuthorization();
 
-
-        app.MapGet("/secure", async (HttpContext context) =>
-        {
-            // Get the access token from the authentication properties
-            var accessToken = await context.GetTokenAsync("access_token");
-            var idToken = await context.GetTokenAsync("id_token");
-
-            if (string.IsNullOrEmpty(accessToken) && string.IsNullOrEmpty(idToken))
-            {
-                return Results.BadRequest("No tokens found.");
-            }
-
-            var handler = new JwtSecurityTokenHandler();
-
-          
-
-            var accessTokenClaims = new List<CookieMetaData>();
-            var idTokenClaims = new List<CookieMetaData>();
-
-            if (!string.IsNullOrEmpty(accessToken))
-            {
-                var jwtAccessToken = handler.ReadJwtToken(accessToken);
-                accessTokenClaims = jwtAccessToken.Claims
-                    .Select(c => new CookieMetaData { Type = c.Type, Value = c.Value })
-                    .ToList();
-            }
-
-            if (!string.IsNullOrEmpty(idToken))
-            {
-                var jwtIdToken = handler.ReadJwtToken(idToken);
-                idTokenClaims = jwtIdToken.Claims
-                    .Select(c => new CookieMetaData { Type = c.Type, Value = c.Value })
-                    .ToList();
-            }
-
-            return Results.Ok(new
-            {
-                AccessTokenClaims = accessTokenClaims,
-                IdTokenClaims = idTokenClaims
-            });
-        });
-
-
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();

@@ -19,6 +19,7 @@ using Gatam.Infrastructure.Extensions.Scopes;
 using Microsoft.AspNetCore.DataProtection;
 using StackExchange.Redis;
 using Auth0Net.DependencyInjection;
+using Auth0.AspNetCore.Authentication;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -68,54 +69,18 @@ namespace Gatam.Infrastructure.Extensions
             string clientId = builder.Configuration["Auth0:ClientId"] ?? "";
             string clientSecret = builder.Configuration["Auth0:ClientSecret"] ?? "";
 
-            services.AddAuthentication(options => {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            services.AddAuth0WebAppAuthentication(options =>
+            {
+                options.Domain = builder.Configuration["Auth0:Domain"];
+                options.ClientId = builder.Configuration["Auth0:ClientId"];
+                options.Scope = "openid profile email";
+                options.ClientSecret = builder.Configuration["Auth0:ClientSecret"];
             })
-            .AddCookie()
-            .AddOpenIdConnect("Auth0", options => {
-                options.Authority = $"https://{domain}";
-                options.ClientId = clientId;
-                options.CallbackPath = new PathString("/callback");
-                options.ClientSecret = clientSecret;
-                options.SaveTokens = true;
-                options.ResponseType = OpenIdConnectResponseType.Code;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    NameClaimType = "name"
-                };
-                options.Events = new OpenIdConnectEvents
-                {
-                    OnRedirectToIdentityProviderForSignOut = (context) =>
-                    {
-                        var logoutUri = $"https://{domain}/v2/logout?client_id={clientId}";
-
-                        var postLogoutUri = context.Properties.RedirectUri;
-                        if (!string.IsNullOrEmpty(postLogoutUri))
-                        {
-                            if (postLogoutUri.StartsWith("/"))
-                            {
-                                // transform to absolute
-                                var request = context.Request;
-                                postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
-                            }
-                            logoutUri += $"&returnTo={Uri.EscapeDataString(postLogoutUri)}";
-                        }
-
-                        context.Response.Redirect(logoutUri);
-                        context.HandleResponse();
-
-                        return Task.CompletedTask;
-
-                    },
-                    OnRedirectToIdentityProvider = context =>
-                    {
-                        context.ProtocolMessage.SetParameter("audience", audience);
-                        return Task.FromResult(0);
-                    }
-                };
-            });
+              .WithAccessToken(options =>
+              {
+                  options.Audience = builder.Configuration["Auth0:Audience"];
+                  options.UseRefreshTokens = true;
+              });
             return services;
         }
         public static IServiceCollection RegisterJWTAuthentication(this IServiceCollection services, WebApplicationBuilder builder)

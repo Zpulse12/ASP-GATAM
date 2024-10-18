@@ -11,37 +11,8 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-
-        /**
-            Cookies added by AddAuth0WebAppAuthentication.
-        */
-        builder.Services
-            .AddAuth0WebAppAuthentication(options =>
-            {
-                options.Domain = builder.Configuration["Auth0:Domain"];
-                options.ClientId = builder.Configuration["Auth0:ClientId"];
-                options.Scope = "openid profile email";
-                options.ClientSecret = builder.Configuration["Auth0:ClientSecret"];
-            })
-              .WithAccessToken(options =>
-              {
-                  options.Audience = builder.Configuration["Auth0:Audience"];
-                  options.UseRefreshTokens = true; 
-              });
-
-        builder.Services.AddRazorComponents()
-            .AddInteractiveServerComponents()
-            .AddInteractiveWebAssemblyComponents();
-
-        builder.Services.ConfigureApplicationCookie(options =>
-        {
-            options.Cookie.HttpOnly = true; // Security setting
-            options.Cookie.SameSite = SameSiteMode.Strict; // Adjust if needed
-            options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Adjust for HTTPS
-            options.Cookie.Name = "auth_token";
-            options.LoginPath = "/account/login";
-        });
-
+        builder.Services.RegisterAuth0AndCookies(builder);
+            
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
