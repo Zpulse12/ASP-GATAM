@@ -83,6 +83,11 @@ namespace Gatam.Infrastructure.Extensions
                   options.Audience = builder.Configuration["Auth0:Audience"];
                   options.UseRefreshTokens = true;
               });
+            services.AddAuthentication().AddJwtBearer(options =>
+            {
+                options.Authority = $"https://{domain}";
+                options.Audience = audience;
+            });
             services.AddAuthorization();
             return services;
         }

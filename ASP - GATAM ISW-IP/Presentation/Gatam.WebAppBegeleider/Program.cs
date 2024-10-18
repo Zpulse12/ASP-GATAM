@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.HttpOverrides;
 using Gatam.Infrastructure.Extensions;
+using Gatam.Application.Interfaces;
+using Gatam.Application.Extensions;
+using Gatam.Application.Extensions.Delegates;
 
 internal class Program
 {
@@ -17,8 +20,10 @@ internal class Program
             .AddInteractiveServerComponents()
             .AddInteractiveWebAssemblyComponents();
 
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<ITokenProvider, TokenProvider>();
+        builder.Services.AddHttpClient("ApiClient").AddHttpMessageHandler<AuthHeaderHandler>();
         var app = builder.Build();
-
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -72,16 +77,18 @@ internal class Program
             await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         });
 
-        app.MapGet("/user-claims", (HttpContext context) =>
+        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
         {
-            if (!context.User.Identity.IsAuthenticated)
+            var accessToken = await httpContext.GetTokenAsync("access_token");
+
+            if (string.IsNullOrEmpty(accessToken))
             {
-                return Results.Unauthorized();
+                return Results.BadRequest("Access token is not available.");
             }
 
-            var claims = context.User.Claims.Select(c => new { c.Type, c.Value }).ToList();
-            return Results.Ok(claims);
+            return Results.Ok(new { AccessToken = accessToken });
         });
+
 
         app.MapGet("/callback", async (HttpContext context) =>
         {
@@ -96,6 +103,8 @@ internal class Program
             // Redirect to another route or handle as needed
             return Results.Redirect("/");
         });
+
+
 
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode()
