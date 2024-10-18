@@ -10,9 +10,13 @@ internal class Program
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        builder.Services.RegisterDataProtectionEncryptionMethods();
+        builder.Services.AddAntiforgery();
         builder.Services.RegisterAuth0AndCookies(builder);
-            
+        builder.Services.AddRazorComponents()
+            .AddInteractiveServerComponents()
+            .AddInteractiveWebAssemblyComponents();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

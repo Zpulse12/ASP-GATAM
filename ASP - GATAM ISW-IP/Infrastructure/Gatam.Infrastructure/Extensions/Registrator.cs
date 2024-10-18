@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.DataProtection;
 using StackExchange.Redis;
 using Auth0Net.DependencyInjection;
 using Auth0.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -81,6 +83,7 @@ namespace Gatam.Infrastructure.Extensions
                   options.Audience = builder.Configuration["Auth0:Audience"];
                   options.UseRefreshTokens = true;
               });
+            services.AddAuthorization();
             return services;
         }
         public static IServiceCollection RegisterJWTAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
@@ -108,6 +111,17 @@ namespace Gatam.Infrastructure.Extensions
                 )
             );
 
+            return services;
+        }
+
+        public static IServiceCollection RegisterDataProtectionEncryptionMethods(this IServiceCollection services)
+        {
+            services.AddDataProtection().UseCryptographicAlgorithms(
+                new AuthenticatedEncryptorConfiguration
+                {
+                    EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
+                    ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
+                });
             return services;
         }
     }
