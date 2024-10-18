@@ -1,0 +1,146 @@
+﻿@page "/admin/teams"
+@using Gatam.Application.CQRS
+@using Gatam.Domain
+@using System.Diagnostics
+@inject HttpClient Http
+@rendermode InteractiveServer
+
+<h3>Teams</h3>
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (hasError)
+{
+    <p>Er is een fout opgetreden bij het ophalen van de teams.</p>
+}
+else if (teams == null || teams.Count == 0)
+{
+    <p>Geen teams gevonden.</p>
+}
+else
+{
+    foreach (var team in teams)
+    {
+        <div class="team-card">
+            <h4>@team.TeamName</h4>
+            <p>Team ID: @team.Id</p>
+
+            @if (team.TeamInvitations == null || !team.TeamInvitations.Any())
+            {
+                <p>Dit team heeft nog geen studenten.</p>
+            }
+            else
+            {
+                <p>Uitgenodigde studenten:</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Gebruikersnaam</th>
+                            <th>Emailadres</th>
+                            <th>Geaccepteerd</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invitation in team.TeamInvitations)
+                        {
+                            <tr>
+                                <td>@invitation.applicationUser.UserName</td>
+                                <td>@invitation.applicationUser.Email</td>
+                                <td>
+                                    @if (@invitation.isAccepted)
+                                    {
+                                        <p> Geaccepteerd </p>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-success" @onclick="() => ToggleInvitationStatus(invitation,invitation.Id, true)">
+                                            Student toevoegen
+                                        </button>
+
+
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!team.TeamInvitations.Any())
+                        {
+                            <tr>
+                                <td colspan="3">Geen uitnodigingen gevonden.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            }
+        </div>
+    }
+}
+
+@code {
+    private List<ApplicationTeam> teams = new();
+    private bool isLoading = true;
+    private bool hasError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+            if (response != null && response.Count > 0)
+            {
+                teams = response;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            hasError = true;  // Er is een fout opgetreden bij de aanvraag
+            Console.WriteLine($"Aanvraagfout: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ToggleInvitationStatus(TeamInvitation invitation, string invitationId, bool isAccepted)
+    {
+        Console.WriteLine("Button clicked. Toggling invitation status...");
+        Console.WriteLine($"Invitation ID: {invitation.Id}, Accepted: {isAccepted}");
+        invitation.isAccepted = isAccepted;
+        try
+        {
+            var command = new AcceptTeamInvitationCommand()
+                {
+                    _teaminvitationId = invitation.Id,
+                    IsAccepted = isAccepted
+                };
+
+            var response = await Http.PutAsJsonAsync($"api/invitationteam/acceptInvitation/{invitationId}", command);
+            if (response.IsSuccessStatusCode)
+            {
+                var updatedTeam = await response.Content.ReadFromJsonAsync<ApplicationTeam>();
+                if (updatedTeam != null)
+                {
+                    var invitationRequest = teams
+                        .FirstOrDefault(t => t.Id == invitation.ApplicationTeamId)
+                        .TeamInvitations.FirstOrDefault(i => i.Id == invitation.Id);
+
+                    if (invitationRequest != null)
+                    {
+                        invitationRequest.isAccepted = updatedTeam.TeamInvitations.FirstOrDefault(i => i.Id == invitation.Id).isAccepted;
+                    }
+                    StateHasChanged();
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Error updating user status: {response.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during status update: {ex.Message}");
+        }
+    }
+}

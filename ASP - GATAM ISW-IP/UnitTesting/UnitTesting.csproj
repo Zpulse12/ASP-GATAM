@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApplicationCore\Gatam.Application\Gatam.Application.csproj" />
+    <ProjectReference Include="..\ApplicationCore\Gatam.Domain\Gatam.Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj" />
     <ProjectReference Include="..\Presentation\Gatam.WebAPI\Gatam.WebAPI.csproj" />
   </ItemGroup>
