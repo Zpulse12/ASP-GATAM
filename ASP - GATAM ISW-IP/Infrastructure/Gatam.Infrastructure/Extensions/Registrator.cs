@@ -97,11 +97,17 @@ namespace Gatam.Infrastructure.Extensions
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
-                options.Authority = domain;
+                options.Authority = $"https://{domain}";
                 options.Audience = audience; // This should be the Identifier of your API in Auth0
             });
             // Add authorization
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+                options.AddPolicy("read:admin", policy => policy.Requirements.Add(
+                    new HasScopeRequirement("read:admin", domain)
+                    )
+                )
+            );
+
             return services;
         }
     }
