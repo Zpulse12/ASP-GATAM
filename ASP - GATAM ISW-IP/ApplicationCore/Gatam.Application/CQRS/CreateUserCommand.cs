@@ -15,6 +15,7 @@ namespace Gatam.Application.CQRS
     {
         public required ApplicationUser _user { get; set; }
 
+
     }
     public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
     {

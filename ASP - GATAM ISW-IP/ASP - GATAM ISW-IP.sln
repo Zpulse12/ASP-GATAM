@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.WebAppBegeleider", "P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.Authentication", "Presentation\Gatam.Authentication\Gatam.Authentication.csproj", "{85E2F652-F5EE-4D78-9F92-1ABCE7A3DDAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTesting", "UnitTesting\UnitTesting.csproj", "{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTesting", "UnitTesting\UnitTesting.csproj", "{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -140,7 +140,7 @@
     private bool _hasError = false;
 
     // Boolean to control modal visibility
-    private bool isModalVisible = false;  
+    private bool isModalVisible = false;
     private string selectedUserId;
 
     private void ShowDeleteModal(string userId)
@@ -193,7 +193,7 @@
                 var response = await Http.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
                 if (response.IsSuccessStatusCode)
                 {
-                    userBeingEdited = null; 
+                    userBeingEdited = null;
                     StateHasChanged();
                 }
                 else
@@ -206,12 +206,6 @@
                 Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
             }
         }
-    }
-
-    private async Task Delete(string userId)
-    {
-        selectedUserId = userId;
-        isModalVisible = true;  // Open modal
     }
 
     // Close the modal
@@ -254,10 +248,10 @@
         try
         {
             var command = new DeactivateUserCommand
-            {
-                _userId = userId,
-                IsActive = isActive
-            };
+                {
+                    _userId = userId,
+                    IsActive = isActive
+                };
             var response = await Http.PutAsJsonAsync($"api/User/deactivate/{userId}", command);
             if (response.IsSuccessStatusCode)
             {

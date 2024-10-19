@@ -1,4 +1,5 @@
 ﻿using Gatam.Application.Interfaces;
+using Gatam.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -50,9 +51,20 @@ namespace Gatam.Infrastructure.Repositories
             return  await _dbSet.ToListAsync();
         }
 
+        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
+        { 
+            IQueryable<T> query = _dbSet; 
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            } 
+            return await query.ToListAsync();
+        }
+
         public Task<T> Update(T entity)
         {
             EntityEntry<T> response = _dbSet.Update(entity); 
-            return Task.FromResult(response.Entity);         }
+            return Task.FromResult(response.Entity);         
+        }
     }
 }

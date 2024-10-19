@@ -1,5 +1,9 @@
 using Gatam.Application.Extensions;
+using Gatam.Application.Interfaces;
+using Gatam.Domain;
 using Gatam.Infrastructure.Extensions;
+using Gatam.Infrastructure.Repositories;
+using Gatam.Infrastructure.UOW;
 using Gatam.WebAPI.Extensions;
 internal class Program
 {
@@ -14,6 +18,9 @@ internal class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+      
+
 
         var app = builder.Build();
 
