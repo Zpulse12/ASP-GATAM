@@ -49,21 +49,39 @@ namespace Gatam.Infrastructure.Contexts
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
+            ApplicationUser lauren = new ApplicationUser()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = "Lautje",
+                NormalizedUserName = "LAUTJE",
+                Email = "lautje.doe@example.com",
+                NormalizedEmail = "LAUTJE.DOE@EXAMPLE.COM",
+                PasswordHash = hasher.HashPassword(null, "Test@1234"),
+                IsActive = false
+            };
             builder.Entity<ApplicationUser>().HasData(
-                GLOBALTESTUSER, john, jane
+                GLOBALTESTUSER, john, jane, lauren
 
             );
 
             ApplicationTeam GLOBALTESTTEAM = new ApplicationTeam()
             {
                 Id = Guid.NewGuid().ToString(),
-                TeamName = "test team",
+                TeamName = "TeamTest1",
+                TeamCreatorId = GLOBALTESTUSER.Id,
+                IsDeleted = false,
+                CreatedAt = DateTime.UnixEpoch,
+            };
+            ApplicationTeam TESTTEAM2 = new ApplicationTeam()
+            {
+                Id = Guid.NewGuid().ToString(),
+                TeamName = "TeamTest2",
                 TeamCreatorId = GLOBALTESTUSER.Id,
                 IsDeleted = false,
                 CreatedAt = DateTime.UnixEpoch,
             };
             // SETUP VAN TEAM IN DB
-            builder.Entity<ApplicationTeam>().HasData(GLOBALTESTTEAM);
+            builder.Entity<ApplicationTeam>().HasData(GLOBALTESTTEAM, TESTTEAM2);
 
             //            builder.Entity<TeamInvitation>().HasData(new TeamInvitation { ApplicationTeamId = GLOBALTESTTEAM.Id, UserId = GLOBALTESTUSER.Id});
 
@@ -86,7 +104,34 @@ namespace Gatam.Infrastructure.Contexts
                     isAccepted = false,
                     CreatedAt = DateTime.UtcNow,
                     ResponseDateTime = DateTime.UtcNow
-                }
+                },
+                 new TeamInvitation()
+                 {
+                     Id = Guid.NewGuid().ToString(),
+                     ApplicationTeamId = GLOBALTESTTEAM.Id,
+                     UserId = lauren.Id,
+                     isAccepted = true,
+                     CreatedAt = DateTime.UtcNow,
+                     ResponseDateTime = DateTime.UtcNow
+                 },
+                  new TeamInvitation()
+                  {
+                      Id = Guid.NewGuid().ToString(),
+                      ApplicationTeamId = TESTTEAM2.Id,
+                      UserId = jane.Id,
+                      isAccepted = false,
+                      CreatedAt = DateTime.UtcNow,
+                      ResponseDateTime = DateTime.UtcNow
+                  },
+                 new TeamInvitation()
+                 {
+                     Id = Guid.NewGuid().ToString(),
+                     ApplicationTeamId = TESTTEAM2.Id,
+                     UserId = lauren.Id,
+                     isAccepted = true,
+                     CreatedAt = DateTime.UtcNow,
+                     ResponseDateTime = DateTime.UtcNow
+                 }
             );
             // RELATIES
 

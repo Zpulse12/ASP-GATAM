@@ -2,9 +2,10 @@
 @using Gatam.Application.CQRS
 @using Gatam.Domain
 @using System.Diagnostics
+@using Gatam.WebAppBegeleider.Components.Layout
 @inject HttpClient Http
 @rendermode InteractiveServer
-
+<CustomCards>
 <h3>Teams</h3>
 @if (isLoading)
 {
@@ -20,68 +21,164 @@ else if (teams == null || teams.Count == 0)
 }
 else
 {
-    foreach (var team in teams)
-    {
-        <div class="team-card">
-            <h4>@team.TeamName</h4>
-            <p>Team ID: @team.Id</p>
+        @foreach (var team in teams)
+        {
+            var teamId = team.Id; // Gebruik het team-ID om unieke id's te genereren voor tabs en inhoud
 
-            @if (team.TeamInvitations == null || !team.TeamInvitations.Any())
-            {
-                <p>Dit team heeft nog geen studenten.</p>
-            }
-            else
-            {
-                <p>Uitgenodigde studenten:</p>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Gebruikersnaam</th>
-                            <th>Emailadres</th>
-                            <th>Geaccepteerd</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var invitation in team.TeamInvitations)
+            <div class="team-card border rounded p-3 mb-4">
+                <h4>@team.TeamName.ToUpper()</h4>
+                <p>Aangemaakt door: @team.TeamCreator.UserName</p>
+                <ul class="nav nav-tabs" id="myTab-@teamId" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="acceptedTeamInvite-tab-@teamId" data-bs-toggle="tab" data-bs-target="#acceptedTeamInvite-@teamId" type="button" role="tab" aria-controls="acceptedTeamInvite-@teamId" aria-selected="true">
+                            Geaccepteerde Gebruikers
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pendingTeamInvite-tab-@teamId" data-bs-toggle="tab" data-bs-target="#pendingTeamInvite-@teamId" type="button" role="tab" aria-controls="pendingTeamInvite-@teamId" aria-selected="false">
+                            In Afwachting <span class="badge" style="background-color:grey">@team.TeamInvitations.Count(invitation => !invitation.isAccepted)</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="settingTeams-tab-@teamId" data-bs-toggle="tab" data-bs-target="#settingTeams-@teamId" type="button" role="tab" aria-controls="settingTeams-@teamId" aria-selected="false">
+                            Instellingen
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="myTabContent-@teamId">
+                    <div class="tab-pane fade show active" id="acceptedTeamInvite-@teamId" role="tabpanel" aria-labelledby="acceptedTeamInvite-tab-@teamId">
+                        @if (team.TeamInvitations == null || !team.TeamInvitations.Any())
                         {
-                            <tr>
-                                <td>@invitation.applicationUser.UserName</td>
-                                <td>@invitation.applicationUser.Email</td>
-                                <td>
-                                    @if (@invitation.isAccepted)
-                                    {
-                                        <p> Geaccepteerd </p>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-success" @onclick="() => ToggleInvitationStatus(invitation,invitation.Id, true)">
-                                            Student toevoegen
-                                        </button>
-
-
-                                    }
-                                </td>
-                            </tr>
+                            <p>Dit team heeft nog geen studenten.</p>
                         }
-                        @if (!team.TeamInvitations.Any())
+                        else
                         {
-                            <tr>
-                                <td colspan="3">Geen uitnodigingen gevonden.</td>
-                            </tr>
+                            <h5 style="color:black;">Geaccepteerde studenten</h5>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Gebruikersnaam</th>
+                                        <th>Emailadres</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var invitation in team.TeamInvitations)
+                                    {
+                                        @if (invitation.isAccepted)
+                                        {
+                                            <tr>
+                                                <td>@invitation.applicationUser.UserName</td>
+                                                <td>@invitation.applicationUser.Email</td>
+                                                <td></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
                         }
-                    </tbody>
-                </table>
+                    </div>
 
-            }
-        </div>
-    }
+                    <div class="tab-pane fade" id="pendingTeamInvite-@teamId" role="tabpanel" aria-labelledby="pendingTeamInvite-tab-@teamId">
+                        @if (team.TeamInvitations == null || !team.TeamInvitations.Any())
+                        {
+                            <p>Dit team heeft nog geen studenten.</p>
+                        }
+                        else
+                        {
+                            <h5 style="color: black">Studenten in afwachting</h5>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Gebruikersnaam</th>
+                                        <th>Emailadres</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (@team.TeamInvitations.Count(invitation => !invitation.isAccepted) == 0)
+                                    {
+                                        <p>Geen studenten in afwachting.</p>
+                                    }
+                                    else{
+                                    @foreach (var invitation in team.TeamInvitations)
+                                    {
+                                       
+                                        @if (!invitation.isAccepted)
+                                        {
+                                            <tr>
+                                                <td>@invitation.applicationUser.UserName</td>
+                                                <td>@invitation.applicationUser.Email</td>
+                                                <td>
+                                                    <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold" @onclick="() => ToggleInvitationStatus(invitation,invitation.Id, true)">
+                                                        Student toevoegen
+                                                    </button>
+                                                        <button type="button" @onclick="() => ShowDeleteModal(invitation.Id)" class="btn btn-outline-danger" data-toggle="modal" data-target="#exampleModal">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                       
+                                    }
+                                }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+
+                    <div class="tab-pane fade" id="settingTeams-@teamId" role="tabpanel" aria-labelledby="settingTeams-tab-@teamId">
+                        <!-- Instellingen inhoud hier -->
+                    </div>
+                </div>
+            </div>
+        }
 }
+    @if (isModalVisible)
+    {
+        <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
+                        <button type="button" class="close" @onclick="CloseModal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Weet je zeker dat je deze gebruiker wilt weigeren in uw team?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success" @onclick="CloseModal">Annuleer</button>
+                        <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+    
+</CustomCards>
 
 @code {
     private List<ApplicationTeam> teams = new();
     private bool isLoading = true;
     private bool hasError = false;
 
+    private bool isModalVisible = false;
+    private string selectedInvitationId = " ";
+
+    private void ShowDeleteModal(string invitationId)
+    {
+        selectedInvitationId = invitationId;
+        isModalVisible = true;  
+    }
+
+    private void CloseModal()
+    {
+        isModalVisible = false;
+    }
     protected override async Task OnInitializedAsync()
     {
         try
@@ -143,4 +240,44 @@ else
             Console.WriteLine($"Error during status update: {ex.Message}");
         }
     }
-}
+
+    private async Task Delete()
+    {
+        try
+        {
+            // Make the delete request
+            var response = await Http.DeleteAsync($"api/invitationteam/delete/{selectedInvitationId}");
+
+            // Check if the response is successful
+            if (response.IsSuccessStatusCode)
+            {
+                // Find the team that contains the invitation
+                var teamContainingInvitation = teams
+                    .FirstOrDefault(t => t.TeamInvitations.Any(inv => inv.Id == selectedInvitationId));
+
+                if (teamContainingInvitation != null)
+                {
+                    // Find and remove the invitation from the team
+                    var invitationToRemove = teamContainingInvitation.TeamInvitations
+                        .FirstOrDefault(inv => inv.Id == selectedInvitationId);
+
+                    if (invitationToRemove != null)
+                    {
+                        teamContainingInvitation.TeamInvitations.Remove(invitationToRemove);
+                        StateHasChanged(); // Update the UI
+                    }
+                }
+
+                isModalVisible = false;
+            }
+            else
+            {
+                Debug.WriteLine($"Failed to delete invitation {selectedInvitationId}: {response.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error during deletion: {ex.Message}");
+        }
+    }
+} 
