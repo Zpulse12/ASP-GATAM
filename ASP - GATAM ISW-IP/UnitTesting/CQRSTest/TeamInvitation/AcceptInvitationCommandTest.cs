@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
 
 namespace UnitTesting.CQRSTest.TeamInvitation
 {
@@ -18,6 +19,8 @@ namespace UnitTesting.CQRSTest.TeamInvitation
         private Mock<IUnitOfWork> mockUnitOfWork;
         private Mock<IMapper> mockMapper;
         private IRequestHandler<AcceptTeamInvitationCommand, IEnumerable<TeamInvitationDTO>> handler;
+        private readonly IValidator<AcceptTeamInvitationCommand> _validator;
+
 
         private Gatam.Domain.TeamInvitation GLOBALTESTINVITATION;
 
@@ -38,7 +41,7 @@ namespace UnitTesting.CQRSTest.TeamInvitation
             mockUnitOfWork = new Mock<IUnitOfWork>();
             mockMapper = new Mock<IMapper>();
 
-            handler = new AcceptTeamInvitationCommandHandler(mockUnitOfWork.Object, mockMapper.Object);
+            handler = new AcceptTeamInvitationCommandHandler(mockUnitOfWork.Object, mockMapper.Object,_validator);
         }
 
         [TestMethod]

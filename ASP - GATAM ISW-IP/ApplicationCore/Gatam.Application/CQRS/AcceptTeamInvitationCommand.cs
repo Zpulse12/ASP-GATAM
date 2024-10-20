@@ -29,9 +29,9 @@ namespace Gatam.Application.CQRS
                 {
                 var invitation = await _uow.TeamInvitationRepository.FindById(invitationId);
                 if (invitation == null) return false;
-                var team = await _uow.TeamRepository.FindById(invitation.Id);
+                var team = await _uow.TeamRepository.FindById(invitation.ApplicationTeamId);
                 return team != null; })
-                .WithMessage("The user has already accepted an invitation to this team.");
+                .WithMessage("The team for this invitation does not exist.");
         }
     }
 
@@ -39,14 +39,22 @@ namespace Gatam.Application.CQRS
     {
         private readonly IUnitOfWork uow;
         private readonly IMapper mapper;
+        private readonly IValidator<AcceptTeamInvitationCommand> _validator;
 
-        public AcceptTeamInvitationCommandHandler(IUnitOfWork uow, IMapper mapper)
+
+        public AcceptTeamInvitationCommandHandler(IUnitOfWork uow, IMapper mapper,IValidator<AcceptTeamInvitationCommand> validator)
         {
             this.uow = uow;
             this.mapper = mapper;
+            _validator = validator;
         }
         public async Task<IEnumerable<TeamInvitationDTO>> Handle(AcceptTeamInvitationCommand request, CancellationToken cancellationToken)
         {
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             var invitation = await uow.TeamInvitationRepository.FindById(request._teaminvitationId);
             if (invitation == null)
             {
