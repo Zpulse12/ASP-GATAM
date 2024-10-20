@@ -1,4 +1,5 @@
-﻿using Gatam.Application.CQRS;
+﻿using FluentValidation;
+using Gatam.Application.CQRS;
 using Gatam.Application.Interfaces;
 using Moq;
 
@@ -9,13 +10,15 @@ public class DeleteUserCommandTest
     private Mock<IUnitOfWork>? _unitOfWorkMock;
     private Mock<IGenericRepository<Gatam.Domain.ApplicationUser>>? _userRepositoryMock;
     private DeleteUserCommandHandler? _handler;
+    private readonly IValidator<DeleteUserCommand> _validator;
+
     [TestInitialize]
     public void Setup()
     {
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _userRepositoryMock = new Mock<IGenericRepository<Gatam.Domain.ApplicationUser>>();
         _unitOfWorkMock.Setup(mock => mock.UserRepository).Returns(_userRepositoryMock.Object);
-        _handler = new DeleteUserCommandHandler(_userRepositoryMock.Object);
+        _handler = new DeleteUserCommandHandler(_userRepositoryMock.Object,_validator);
     }
 
     [TestMethod]
