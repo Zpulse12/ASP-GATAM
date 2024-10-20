@@ -31,7 +31,7 @@ namespace Gatam.Application.CQRS
                 if (invitation == null) return false;
                 var team = await _uow.TeamRepository.FindById(invitation.ApplicationTeamId);
                 return team != null; })
-                .WithMessage("The team for this invitation does not exist.");
+                .WithMessage("The team for this invitation does not exist");
         }
     }
 

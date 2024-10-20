@@ -27,10 +27,10 @@ namespace Gatam.Application.CQRS
                     var user = await _uow.UserRepository.FindById(userId);
                     return user != null;
                 })
-                .WithMessage("The user does not exist."); 
+                .WithMessage("The user does not exist"); 
             RuleFor(x => x.IsActive)
                 .Must(value => value == true || value == false)
-                .WithMessage("IsActive must be either true or false.");
+                .WithMessage("IsActive must be either true or false");
         }
     }
     public class DeactivateUserCommandHandler : IRequestHandler<DeactivateUserCommand, IEnumerable<UserDTO>>

@@ -29,7 +29,7 @@ namespace Gatam.Application.CQRS
                     var invitation = await _uow.TeamInvitationRepository.FindById(invitationId);
                     return invitation != null;
                 })
-                .WithMessage("The invitation does not exist.");
+                .WithMessage("The invitation does not exist");
             RuleFor(x => x.TeamInvitationId)
                 .MustAsync(async (invitationId, cancellationToken) =>
                 {
@@ -38,7 +38,7 @@ namespace Gatam.Application.CQRS
 
                     return !invitation.isAccepted; 
                 })
-                .WithMessage("Cannot delete an invitation that has already been accepted.");
+                .WithMessage("Cannot delete an invitation that has already been accepted");
             
         }
     }

@@ -22,14 +22,14 @@ namespace Gatam.Application.CQRS
         {
             _unitOfWork = unitOfWork;
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("User ID mag niet leeg zijn.");
+                .NotEmpty().WithMessage("User ID cannot be empty");
             RuleFor(x => x.UserId)
                 .MustAsync(async (userId, cancellation) =>
                 {
                     var user = await _unitOfWork.UserRepository.FindById(userId);
                     return user != null;
                 })
-                .WithMessage("De gebruiker bestaat niet.");
+                .WithMessage("The user doesnt exist");
         }
     }
     public class DeleteUserCommandHandler(IGenericRepository<ApplicationUser> userRepository, IValidator<DeleteUserCommand> validator)
