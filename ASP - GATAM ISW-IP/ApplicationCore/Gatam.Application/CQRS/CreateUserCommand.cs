@@ -26,6 +26,17 @@ namespace Gatam.Application.CQRS
             _unitOfWork = unitOfWork;
             RuleFor(validationObject => validationObject._user.Email).NotNull().WithMessage("Email mag niet null zijn");
             RuleFor(validationObject => validationObject._user.Email).NotEmpty().WithMessage("Email mag niet leeg zijn");
+            RuleFor(x => x._user.Email)
+                .MustAsync(async (email, cancellation) =>
+                {
+                    var existingUser = await _unitOfWork.UserRepository.FindByProperty("Email",email);
+                    return existingUser == null;
+                })
+                .WithMessage("Email is al in gebruik");
+
+            RuleFor(x => x._user.UserName)
+                .NotEmpty().WithMessage("Gebruikersnaam mag niet leeg zijn")
+                .MinimumLength(3).WithMessage("Gebruikersnaam moet minimaal 3 tekens bevatten");
         }
     }
 
