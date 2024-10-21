@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 
 namespace UnitTesting.CQRSTest.TeamInvitation
 {
@@ -15,14 +16,17 @@ namespace UnitTesting.CQRSTest.TeamInvitation
     {
         private Mock<IGenericRepository<Gatam.Domain.TeamInvitation>>? teamRepository;
         private DeleteTeamInvitationCommandHandler? commandHandler;
-        private readonly IValidator<DeleteTeamInvitationCommand> _validator;
+        private Mock<IValidator<DeleteTeamInvitationCommand>>? _validatorMock;
 
 
         [TestInitialize]
         public void Setup()
         {
             teamRepository = new Mock<IGenericRepository<Gatam.Domain.TeamInvitation>>();
-            commandHandler = new DeleteTeamInvitationCommandHandler(teamRepository.Object,_validator);
+            _validatorMock = new Mock<IValidator<DeleteTeamInvitationCommand>>();
+            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<DeleteTeamInvitationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
+            commandHandler = new DeleteTeamInvitationCommandHandler(teamRepository.Object,_validatorMock.Object);
         }
 
         [TestMethod]

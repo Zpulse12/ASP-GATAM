@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using FluentValidation.Results;
 using Gatam.Application.CQRS;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
@@ -12,7 +13,8 @@ public class UpdateUserCommandTest
     private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<IMapper> _mockMapper;
         private UpdateUserCommandHandler _handler;
-        private readonly IValidator<UpdateUserCommand> _validator;
+        private Mock<IValidator<UpdateUserCommand>>? _validatorMock; 
+
 
 
         [TestInitialize]
@@ -20,7 +22,10 @@ public class UpdateUserCommandTest
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockMapper = new Mock<IMapper>();
-            _handler = new UpdateUserCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object,_validator);
+            _validatorMock = new Mock<IValidator<UpdateUserCommand>>();
+            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<UpdateUserCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
+            _handler = new UpdateUserCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object,_validatorMock.Object);
         }
 
         [TestMethod]
