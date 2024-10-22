@@ -31,7 +31,7 @@ namespace Gatam.WebAPI.Controllers
         {
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
             Debug.WriteLine(result);
-            return result == null ? BadRequest(result) : Created("", result);
+            return Created("", result);        
         }
 
         [HttpPut]
@@ -61,8 +61,7 @@ namespace Gatam.WebAPI.Controllers
             return Ok(returnedUser);
         }
 
-        [HttpDelete]
-        [Route("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
            var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
@@ -71,8 +70,6 @@ namespace Gatam.WebAPI.Controllers
                return Ok(response);
            }
            return NotFound("User doesnt exists");
-
-
 
         }
     }

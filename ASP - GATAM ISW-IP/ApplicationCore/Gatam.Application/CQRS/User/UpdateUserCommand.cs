@@ -60,7 +60,7 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
         var validationCheck = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationCheck.IsValid)
         {
-            throw new ValidationException(validationCheck.Errors);
+            throw new ValidationException(validationCheck.Errors.ToList());
         }
 
         var person = await _uow.UserRepository.FindById(request.Id);
