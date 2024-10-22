@@ -37,18 +37,20 @@ namespace Gatam.Application.CQRS
     {
         private readonly IUnitOfWork uow;
         private readonly IMapper mapper;
-
-        public DeactivateUserCommandHandler()
-        {
-        }
-
-        public DeactivateUserCommandHandler(IUnitOfWork uow, IMapper mapper)
+        private readonly IValidator<DeactivateUserCommand> _validator;
+        public DeactivateUserCommandHandler(IUnitOfWork uow, IMapper mapper, IValidator<DeactivateUserCommand> validator)
         {
             this.uow = uow;
             this.mapper = mapper;
+            _validator = validator;
         }
         public async Task<IEnumerable<UserDTO>> Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
         {
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             var user = await uow.UserRepository.FindById(request._userId);
             if (user == null)
             {

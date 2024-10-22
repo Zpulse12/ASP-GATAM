@@ -39,7 +39,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut]
-        [Route("setactivestate /{id}")]
+        [Route("{id}/setactivestate")]
         public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command._userId = id;

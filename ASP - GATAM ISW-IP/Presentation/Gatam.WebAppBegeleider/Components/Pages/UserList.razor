@@ -296,7 +296,7 @@
                 _userId = userId,
                 IsActive = isActive
             };
-            var response = await Http.PutAsJsonAsync($"api/User/setactivestate /{userId}", command);
+            var response = await Http.PutAsJsonAsync($"api/User/{userId}/setactivestate", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
