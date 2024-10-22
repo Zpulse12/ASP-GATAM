@@ -63,5 +63,35 @@ namespace UnitTesting.CQRSTest.TeamInvitation
             Assert.IsFalse(result); // Verwacht dat de operatie mislukt
             teamRepository.Verify(repo => repo.Delete(It.IsAny<Gatam.Domain.TeamInvitation>()), Times.Never); // Controleer of Delete nooit is aangeroepen
         }
+         [TestMethod]
+        public async Task Handle_Should_Throw_ValidationException_When_Validation_Fails()
+        {
+            string invitationId = Guid.NewGuid().ToString();
+            var validationFailure = new ValidationFailure("TeamInvitationId", "Invalid TeamInvitationId");
+            var validationResult = new ValidationResult(new[] { validationFailure });
+            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<DeleteTeamInvitationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(validationResult); 
+            var command = new DeleteTeamInvitationCommand { TeamInvitationId = invitationId };
+            await Assert.ThrowsExceptionAsync<ValidationException>(() => commandHandler.Handle(command, CancellationToken.None));
+        }
+
+        [TestMethod]
+        public async Task Handle_CannotDeleteAcceptedInvitation()
+        {
+            string invitationId = Guid.NewGuid().ToString();
+            var invitation = new Gatam.Domain.TeamInvitation { Id = invitationId, ApplicationTeamId = "TeamID", UserId = "userID", isAccepted = true }; // Mock an accepted invitation
+
+            teamRepository.Setup(repo => repo.FindById(invitationId))
+                .ReturnsAsync(invitation); 
+            var validationFailure = new ValidationFailure("TeamInvitationId", "Cannot delete an accepted invitation");
+            var validationResult = new ValidationResult(new[] { validationFailure });
+
+            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<DeleteTeamInvitationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(validationResult); 
+
+            var command = new DeleteTeamInvitationCommand { TeamInvitationId = invitationId };
+            await Assert.ThrowsExceptionAsync<ValidationException>(() => commandHandler.Handle(command, CancellationToken.None));
+        }
     }
+    
 }

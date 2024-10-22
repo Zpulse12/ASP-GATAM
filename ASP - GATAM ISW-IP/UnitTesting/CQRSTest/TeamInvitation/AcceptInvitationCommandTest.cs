@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 
 namespace UnitTesting.CQRSTest.TeamInvitation
 {
@@ -19,7 +20,7 @@ namespace UnitTesting.CQRSTest.TeamInvitation
         private Mock<IUnitOfWork> mockUnitOfWork;
         private Mock<IMapper> mockMapper;
         private IRequestHandler<AcceptTeamInvitationCommand, IEnumerable<TeamInvitationDTO>> handler;
-        private readonly IValidator<AcceptTeamInvitationCommand> _validator;
+        private Mock<IValidator<AcceptTeamInvitationCommand>>? _validatorMock;
 
 
         private Gatam.Domain.TeamInvitation GLOBALTESTINVITATION;
@@ -40,8 +41,11 @@ namespace UnitTesting.CQRSTest.TeamInvitation
 
             mockUnitOfWork = new Mock<IUnitOfWork>();
             mockMapper = new Mock<IMapper>();
+            _validatorMock = new Mock<IValidator<AcceptTeamInvitationCommand>>();
+            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<AcceptTeamInvitationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
 
-            handler = new AcceptTeamInvitationCommandHandler(mockUnitOfWork.Object, mockMapper.Object,_validator);
+            handler = new AcceptTeamInvitationCommandHandler(mockUnitOfWork.Object, mockMapper.Object,_validatorMock.Object);
         }
 
         [TestMethod]
@@ -96,6 +100,20 @@ namespace UnitTesting.CQRSTest.TeamInvitation
             Assert.IsNull(result);
             mockUnitOfWork.Verify(u => u.TeamInvitationRepository.Update(It.IsAny<Gatam.Domain.TeamInvitation>()), Times.Never);
             mockUnitOfWork.Verify(u => u.commit(), Times.Never);
+        }
+        [TestMethod]
+        public async Task Handle_Should_Throw_ValidationException_When_Validation_Fails()
+        {
+            var command = new AcceptTeamInvitationCommand
+            {
+                _teaminvitationId = GLOBALTESTINVITATION.Id,
+                IsAccepted = true
+            };
+            var validationFailure = new ValidationFailure("IsAccepted", "Invalid value");
+            var validationResult = new ValidationResult(new List<ValidationFailure> { validationFailure });
+            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<AcceptTeamInvitationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(validationResult);
+            await Assert.ThrowsExceptionAsync<ValidationException>(() => handler.Handle(command, CancellationToken.None));
         }
     }
 }
