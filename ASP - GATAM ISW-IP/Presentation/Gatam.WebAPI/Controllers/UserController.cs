@@ -29,14 +29,18 @@ namespace Gatam.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
             Debug.WriteLine(result);
             return Created("", result);        
         }
 
         [HttpPut]
-        [Route("deactivate/{id}")]
-        public async Task<IActionResult> DeactivateUser(string id, [FromBody] DeactivateUserCommand command)
+        [Route("setactivestate /{id}")]
+        public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command._userId = id;
 

@@ -217,15 +217,24 @@
             try
             {
                 var response = await Http.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
+            
                 if (response.IsSuccessStatusCode)
                 {
                     successMessage = "Gebruiker succesvol bijgewerkt!";
-                    userBeingEdited = null;  // Close the modal
-                    StateHasChanged();  // Trigger UI update
+                    userBeingEdited = null;  // Sluit de modal
+                    StateHasChanged();  // Update de UI
                 }
                 else
                 {
-                    errorMessage = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
+                    var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+                    if (errorResponse?.Failures != null && errorResponse.Failures.Any())
+                    {
+                        errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+                    }
+                    else
+                    {
+                        errorMessage = errorResponse?.Message ?? "Er is een onbekende fout opgetreden.";
+                    }
                 }
             }
             catch (Exception ex)
@@ -234,6 +243,8 @@
             }
         }
     }
+
+
 
     private async Task Delete(string userId)
     {
@@ -253,7 +264,7 @@
         try
         {
 
-            var response = await Http.DeleteAsync($"api/User/delete/{selectedUserId}");
+            var response = await Http.DeleteAsync($"api/User/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
@@ -285,7 +296,7 @@
                 _userId = userId,
                 IsActive = isActive
             };
-            var response = await Http.PutAsJsonAsync($"api/User/deactivate/{userId}", command);
+            var response = await Http.PutAsJsonAsync($"api/User/setactivestate /{userId}", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
@@ -308,4 +319,16 @@
             Console.WriteLine($"Error during status update: {ex.Message}");
         }
     }
+    public class ValidationErrorResponse
+    {
+        public string Message { get; set; }
+        public List<ValidationFailure> Failures { get; set; }
+    }
+
+    public class ValidationFailure
+    {
+        public string PropertyName { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
 }
