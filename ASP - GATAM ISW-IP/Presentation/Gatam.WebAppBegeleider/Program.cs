@@ -2,120 +2,82 @@ using Gatam.WebAppBegeleider.Components;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.HttpOverrides;
-using Gatam.Infrastructure.Extensions;
-using Gatam.Application.Interfaces;
-using Gatam.Application.Extensions;
-using Gatam.Application.Extensions.Delegates;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Gatam.WebAppBegeleider.Interfaces;
+using Gatam.WebAppBegeleider.Extensions;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-          // UPDATE TO USE ENV..
-        builder.Services.AddHttpContextAccessor();
 
-
-        builder.Services.AddScoped<TokenProvider>();
-        //builder.Services.AddScoped<AuthHeaderHandler>();
-        builder.Services.AddHttpClient("ApiClient", client => { client.BaseAddress = new Uri("http://localhost:80"); });/*.AddHttpMessageHandler<AuthHeaderHandler>();*/
-
-
-        builder.Services.RegisterDataProtectionEncryptionMethods();
-        builder.Services.AddAntiforgery();
-        builder.Services.RegisterAuth0AndCookies(builder);
+        builder.Logging.AddDebug();
+        // Add services to the container.
         builder.Services.AddRazorComponents()
-            .AddInteractiveServerComponents()
-            .AddInteractiveWebAssemblyComponents();
+            .AddInteractiveServerComponents();
+        builder.Services.AddRazorPages();
 
+        builder.Services.AddAuth0WebAppAuthentication(options =>
+        {
+            options.Domain = "skeletonman.eu.auth0.com";
+            options.ClientId = "WI2HNZLwffVWq4IFLfL1Vs008fMYQlGc";
+            options.ClientSecret = "Gz-Lhg3d9BCPFPxetXSb05lGUSGoVdW2T5Gk1kqo1KO6435XBVP1bPDp6uBvxlwd";
+            options.Scope = "openid profile email";
+            options.CallbackPath = "/callback";
+        }).WithAccessToken(options =>
+        {
+            options.Audience = "http://localhost:5000/";
+        }); ;
+        builder.Services.Configure<CookiePolicyOptions>(options =>
+        {
+            options.MinimumSameSitePolicy = SameSiteMode.None;
+        });
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<TokenService>();
+        builder.Services.AddHttpClient<ApiClient>();
+        builder.Services.AddScoped<ApiClient>(serviceProvider =>
+        {
+            IHttpClientFactory httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+            HttpClient httpClient = httpClientFactory.CreateClient(nameof(ApiClient)); 
+            TokenService tokenService = serviceProvider.GetRequiredService<TokenService>();
+            return new ApiClient(httpClient, tokenService);
+        });
         var app = builder.Build();
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseWebAssemblyDebugging();
-        }
-        else
+        if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error", createScopeForErrors: true);
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
-
-        app.UseForwardedHeaders(new ForwardedHeadersOptions
-        {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-        });
-
         app.UseHttpsRedirection();
-
         app.UseStaticFiles();
-        app.UseAntiforgery();
+        app.MapRazorComponents<App>()
+            .AddInteractiveServerRenderMode();
+        app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
-
-        app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/callback") =>
+        app.UseAntiforgery();
+        app.MapRazorPages();
+        app.MapGet("account/login", async (HttpContext httpContext, string redirectUri = "/") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
-                    .WithRedirectUri(returnUrl)
-                    .Build();
+            .WithRedirectUri(redirectUri)
+            .Build();
 
             await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
-        });
-
-        app.MapGet("/Account/Signup", async (HttpContext httpContext, string returnUrl = "/") =>
-        {
-            var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
-                    .WithParameter("screen_hint", "signup")
-                    .WithRedirectUri(returnUrl)
-                    .Build();
-
-            await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
-        });
-
-        app.MapGet("/Account/Logout", async (httpContext) =>
+        }).AllowAnonymous();
+        app.MapGet("account/logout", async (httpContext) =>
         {
             var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
-                    .WithRedirectUri("/")
-                    .Build();
-
+                .WithRedirectUri("/")
+                .Build();
             await httpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
             await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         });
-        app.MapGet("/callback", async (HttpContext context, TokenProvider tokenProvider) =>
-        {
-            // This endpoint handles the authentication response
-            var accessToken = await context.GetTokenAsync("access_token");
-            var idToken = await context.GetTokenAsync("id_token");
-
-            // Log tokens to see if they were retrieved
-            Debug.WriteLine($"Access Token: {accessToken}");
-            Debug.WriteLine($"ID Token: {idToken}");
-
-            tokenProvider.accessToken = accessToken;
-
-            // Redirect to another route or handle as needed
-            return Results.Redirect("/");
-        }).AllowAnonymous();
-
-        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
-        {
-            var accessToken = await httpContext.GetTokenAsync("access_token");
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                return Results.BadRequest("Access token is not available.");
-            }
-
-            return Results.Ok(new { AccessToken = accessToken });
-        });
-
-        app.MapRazorComponents<App>()
-            .AddInteractiveServerRenderMode()
-            .AddInteractiveWebAssemblyRenderMode();
-
         app.Run();
     }
 }

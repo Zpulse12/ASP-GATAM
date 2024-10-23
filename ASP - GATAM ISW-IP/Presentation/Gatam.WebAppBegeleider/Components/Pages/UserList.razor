@@ -1,12 +1,13 @@
 @using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Application.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
 @using Gatam.Domain
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject IHttpClientFactory HttpClientFactory
-@inject TokenProvider tokenProvider
+@inject ApiClient apiClient
 
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor httpContextAccessor
@@ -160,8 +161,7 @@
         Debug.WriteLine(httpContextAccessor.HttpContext.ToString());
         try
         {
-            var client = HttpClientFactory.CreateClient("ApiClient");
-            var response = await client.GetFromJsonAsync<List<ApplicationUser>>("winchester/api/User");
+            var response = await apiClient.GetFromJsonAsync<List<ApplicationUser>>("/api/User");
             if (response != null && response.Count > 0)
             {
                 _users = response;
@@ -198,8 +198,7 @@
         {
             try
             {
-                var client = HttpClientFactory.CreateClient("ApiClient");
-                var response = await client.PutAsJsonAsync($"winchester/api/User/{userBeingEdited.Id}", userBeingEdited);
+                var response = await apiClient._httpClient.PutAsJsonAsync($"winchester/api/User/{userBeingEdited.Id}", userBeingEdited);
                 if (response.IsSuccessStatusCode)
                 {
                     userBeingEdited = null;
@@ -225,11 +224,9 @@
 
     async Task Delete()
     {
-        Debug.WriteLine(tokenProvider.accessToken);
         try
         {
-            var client = HttpClientFactory.CreateClient("ApiClient");
-            var response = await client.DeleteAsync($"winchester/api/User/delete/{selectedUserId}");
+            var response = await apiClient._httpClient.DeleteAsync($"winchester/api/User/delete/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
@@ -261,8 +258,7 @@
                     _userId = userId,
                     IsActive = isActive
                 };
-            var client = HttpClientFactory.CreateClient("ApiClient");
-            var response = await client.PutAsJsonAsync($"winchester/api/User/deactivate/{userId}", command);
+            var response = await apiClient._httpClient.PutAsJsonAsync($"winchester/api/User/deactivate/{userId}", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();

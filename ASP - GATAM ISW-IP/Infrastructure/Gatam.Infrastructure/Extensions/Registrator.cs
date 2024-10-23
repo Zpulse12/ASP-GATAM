@@ -22,6 +22,7 @@ using Auth0Net.DependencyInjection;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+using System.Diagnostics;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -74,24 +75,61 @@ namespace Gatam.Infrastructure.Extensions
             string clientId = builder.Configuration["Auth0:ClientId"] ?? "";
             string clientSecret = builder.Configuration["Auth0:ClientSecret"] ?? "";
 
-            services.AddAuth0WebAppAuthentication(options =>
+            services.AddAuthentication(options =>
             {
-                options.Domain = builder.Configuration["Auth0:Domain"];
-                options.ClientId = builder.Configuration["Auth0:ClientId"];
-                options.Scope = "openid profile email";
-                options.ClientSecret = builder.Configuration["Auth0:ClientSecret"];
+                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = "Auth0";
             })
-              .WithAccessToken(options =>
-              {
-                  options.Audience = builder.Configuration["Auth0:Audience"];
-                  options.UseRefreshTokens = true;
-              });
-            services.AddAuthentication().AddJwtBearer(options =>
+             .AddCookie()
+             .AddOpenIdConnect("Auth0", options =>
+             {
+                 options.Authority = $"https://{domain}";
+                 options.ClientId = clientId;
+                 options.ClientSecret = clientSecret;
+                 options.ResponseType = "code";
+                 options.SaveTokens = true;
+                 options.Scope.Clear();
+                 options.Scope.Add("openid");
+                 options.Scope.Add("profile");
+                 options.Scope.Add("email");
+                 options.CallbackPath = new PathString("/callback"); // Ensure this matches the callback
+                 options.ClaimsIssuer = "Auth0";
+
+                 options.Events = new OpenIdConnectEvents
+                 {
+                     OnMessageReceived = context =>
+                     {
+                         // Log the message and check if the state is being passed correctly
+                         var state = context.ProtocolMessage.State;
+                         Debug.WriteLine(state);
+                         return Task.CompletedTask;
+                     },
+                     OnRedirectToIdentityProvider = context =>
+                     {
+                         // Capture and log any issues during redirect
+                         return Task.CompletedTask;
+                     },
+                     OnAuthorizationCodeReceived = context =>
+                     {
+                         // Check for issues during the callback
+                         return Task.CompletedTask;
+                     }
+                 };
+
+                 // Other OpenID Connect options
+             });
+            services.ConfigureApplicationCookie(options =>
             {
-                options.Authority = $"https://{domain}";
-                options.Audience = audience;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Use Secure only in production
             });
-            services.AddAuthorization();
+#if DEBUG
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Use only in dev
+            });
+#endif
             return services;
         }
         public static IServiceCollection RegisterJWTAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
