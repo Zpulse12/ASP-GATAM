@@ -198,7 +198,7 @@
         {
             try
             {
-                var response = await apiClient._httpClient.PutAsJsonAsync($"winchester/api/User/{userBeingEdited.Id}", userBeingEdited);
+                var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
                 if (response.IsSuccessStatusCode)
                 {
                     userBeingEdited = null;
@@ -226,7 +226,7 @@
     {
         try
         {
-            var response = await apiClient._httpClient.DeleteAsync($"winchester/api/User/delete/{selectedUserId}");
+            var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
@@ -258,7 +258,7 @@
                     _userId = userId,
                     IsActive = isActive
                 };
-            var response = await apiClient._httpClient.PutAsJsonAsync($"winchester/api/User/deactivate/{userId}", command);
+            var response = await apiClient.PutAsJsonAsync($"/api/User/deactivate/{userId}", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();

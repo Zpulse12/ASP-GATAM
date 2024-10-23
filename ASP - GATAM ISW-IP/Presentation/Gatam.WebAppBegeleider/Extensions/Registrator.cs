@@ -28,16 +28,16 @@ namespace Gatam.WebAppBegeleider.Extensions
         {
             services.AddHttpContextAccessor();
             services.AddScoped<TokenService>();
+            services.AddScoped<HeaderHandler>();
             services.AddHttpClient<ApiClient>((httpClient) =>
             {
-                httpClient.BaseAddress = new Uri("http://localhost/winchester");
+                httpClient.BaseAddress = new Uri("http://webapi:8080/"); //http://localhost/winchester
 
 #if DEBUG
                 httpClient.BaseAddress = new Uri("http://localhost:5000");
 #endif
             })
             .AddHttpMessageHandler<HeaderHandler>();
-            services.AddTransient<HeaderHandler>();
             return services;
 
         }

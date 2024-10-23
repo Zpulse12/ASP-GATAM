@@ -20,11 +20,17 @@ namespace Gatam.WebAppBegeleider.Extensions
         /// <returns>String | de token of lege string</returns>
         public async Task<string> GetBearerTokenAsync()
         {
-            AuthenticateResult authenticationResult = await _contextAccessor.HttpContext.AuthenticateAsync(Auth0Constants.AuthenticationScheme);
-            if (authenticationResult.Succeeded && authenticationResult.Properties.Items.TryGetValue(".Token.access_token", out string? token)) {
-                return token ?? "";
+            if (_contextAccessor.HttpContext == null) {
+                throw new NullReferenceException("HTTP CONTEXT IS NULL. WTF");
+            } else
+            {
+
+                AuthenticateResult authenticationResult = await _contextAccessor.HttpContext.AuthenticateAsync(Auth0Constants.AuthenticationScheme);
+                if (authenticationResult.Succeeded && authenticationResult.Properties.Items.TryGetValue(".Token.access_token", out string? token)) {
+                    return token ?? "";
+                }
+                return "";
             }
-            return "";
         }
     }
 }

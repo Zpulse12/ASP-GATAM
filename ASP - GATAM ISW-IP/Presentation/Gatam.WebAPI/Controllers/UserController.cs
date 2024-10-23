@@ -20,7 +20,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> GetUsers()
         {
 

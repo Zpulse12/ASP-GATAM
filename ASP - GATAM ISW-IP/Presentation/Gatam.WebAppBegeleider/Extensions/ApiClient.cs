@@ -27,5 +27,19 @@ namespace Gatam.WebAppBegeleider.Extensions
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<T>();
         }
+
+        public async Task<HttpResponseMessage> DeleteAsync(string requestUri)
+        {
+            var response = await _httpClient.GetAsync(requestUri);
+            response.EnsureSuccessStatusCode();
+            return response;
+        }
+
+        public async Task<HttpResponseMessage> PutAsJsonAsync<T>(string requestUri, T content)
+        {
+            var response = await _httpClient.PutAsJsonAsync(requestUri, content);
+            response.EnsureSuccessStatusCode();
+            return response;
+        }
     }
 }

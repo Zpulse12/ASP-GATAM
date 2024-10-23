@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Diagnostics;
+using System.Net.Http.Headers;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {
@@ -14,10 +15,10 @@ namespace Gatam.WebAppBegeleider.Extensions
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             string token = await _tokenService.GetBearerTokenAsync();
+            Debug.WriteLine(token);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return await base.SendAsync(request, cancellationToken);
         }
-
 
     }
 }
