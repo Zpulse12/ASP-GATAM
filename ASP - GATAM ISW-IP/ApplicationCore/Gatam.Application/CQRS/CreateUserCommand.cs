@@ -28,8 +28,6 @@ namespace Gatam.Application.CQRS
             RuleFor(validationObject => validationObject._user.Email).NotEmpty().WithMessage("Email mag niet leeg zijn");
         }
     }
-
-
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, ApplicationUser>
     {
         private readonly IUnitOfWork _unitOfWork;
