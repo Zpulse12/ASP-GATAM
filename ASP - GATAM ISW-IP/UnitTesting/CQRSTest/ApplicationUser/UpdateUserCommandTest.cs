@@ -13,7 +13,6 @@ public class UpdateUserCommandTest
     private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<IMapper> _mockMapper;
         private UpdateUserCommandHandler _handler;
-        private Mock<IValidator<UpdateUserCommand>>? _validatorMock; 
 
 
 
@@ -22,10 +21,7 @@ public class UpdateUserCommandTest
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockMapper = new Mock<IMapper>();
-            _validatorMock = new Mock<IValidator<UpdateUserCommand>>();
-            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<UpdateUserCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ValidationResult());
-            _handler = new UpdateUserCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object,_validatorMock.Object);
+            _handler = new UpdateUserCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object);
         }
 
         [TestMethod]

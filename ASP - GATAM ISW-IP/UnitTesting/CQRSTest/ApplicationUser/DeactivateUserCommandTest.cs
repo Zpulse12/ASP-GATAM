@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
+using FluentValidation.TestHelper;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 
@@ -22,8 +23,6 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         private Mock<IGenericRepository<Gatam.Domain.ApplicationUser>>? _userRepositoryMock;
         private DeactivateUserCommandHandler? _handler;
         private Mock<IMapper>? _mapperMock;
-        private Mock<IValidator<DeactivateUserCommand>>? _validatorMock;
-
 
         [TestInitialize]
         public void Setup()
@@ -32,10 +31,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             _userRepositoryMock = new Mock<IGenericRepository<Gatam.Domain.ApplicationUser>>();
             _unitOfWorkMock.Setup(mock => mock.UserRepository).Returns(_userRepositoryMock.Object);
             _mapperMock = new Mock<IMapper>();
-            _validatorMock = new Mock<IValidator<DeactivateUserCommand>>();
-            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<DeactivateUserCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ValidationResult());
-           _handler= new DeactivateUserCommandHandler(_unitOfWorkMock.Object, _mapperMock.Object,_validatorMock.Object);
+           _handler= new DeactivateUserCommandHandler(_unitOfWorkMock.Object, _mapperMock.Object);
         }
 
         [TestMethod]
@@ -57,14 +53,14 @@ namespace UnitTesting.CQRSTest.ApplicationUser
 
         }
         [TestMethod]
-        public async Task Handle_Should_Throw_ValidationException_When_Validation_Fails()
+        public async Task UserIdIsNull_ShouldHaveValidationError()
         {
-            var command = new DeactivateUserCommand { _userId = "123", IsActive = false };
-            var validationFailure = new ValidationFailure("_userId", "Invalid user ID");
-            var validationResult = new ValidationResult(new List<ValidationFailure> { validationFailure });
-            _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<DeactivateUserCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(validationResult);
-            await Assert.ThrowsExceptionAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
+            var command = new DeactivateUserCommand { _userId = null, IsActive = false };
+            var validator = new DeactivateUserValidation(_unitOfWorkMock.Object);
+
+            var result = await validator.TestValidateAsync(command);
+            result.ShouldHaveValidationErrorFor(c => c._userId)
+                .WithErrorCode("NotEmptyValidator");
         }
        
 

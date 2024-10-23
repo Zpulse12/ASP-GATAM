@@ -25,7 +25,7 @@ namespace UnitTesting.CQRSTest.TeamInvitation
     namespace UnitTesting.CQRSTest.TeamInvitation
     {
         [TestClass]
-        internal class GetAllInvitationsQueryTest
+        public class GetAllInvitationsQueryTest
         {
             private Mock<IUnitOfWork> mockUnitOfWork;
             private Mock<IMapper> mockMapper;
