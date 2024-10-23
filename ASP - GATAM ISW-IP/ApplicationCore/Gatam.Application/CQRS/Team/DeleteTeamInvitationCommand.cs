@@ -43,15 +43,10 @@ namespace Gatam.Application.CQRS
         }
     }
 
-    public class DeleteTeamInvitationCommandHandler(IGenericRepository<TeamInvitation> teamRepository, IValidator<DeleteTeamInvitationCommand> validator) : IRequestHandler<DeleteTeamInvitationCommand, bool>
+    public class DeleteTeamInvitationCommandHandler(IGenericRepository<TeamInvitation> teamRepository) : IRequestHandler<DeleteTeamInvitationCommand, bool>
         {
             public async Task<bool> Handle(DeleteTeamInvitationCommand request, CancellationToken cancellationToken)
             {
-                var validationCheck = await validator.ValidateAsync(request, cancellationToken);
-                if (!validationCheck.IsValid)
-                {
-                    throw new ValidationException(validationCheck.Errors);
-                }
                 var invitation = await teamRepository.FindById(request.TeamInvitationId);
                 if (invitation == null) return false;
                 await teamRepository.Delete(invitation);

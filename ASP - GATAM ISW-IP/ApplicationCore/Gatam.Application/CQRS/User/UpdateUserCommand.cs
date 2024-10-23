@@ -45,24 +45,15 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
 {
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
-    private readonly IValidator<UpdateUserCommand> _validator;
-
-
-    public UpdateUserCommandHandler(IUnitOfWork uow, IMapper mapper, IValidator<UpdateUserCommand> validator)
+    
+    public UpdateUserCommandHandler(IUnitOfWork uow, IMapper mapper)
     {
         _uow = uow;
         _mapper = mapper;
-        _validator = validator;
     }
 
     public async Task<UserDTO> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var validationCheck = await _validator.ValidateAsync(request, cancellationToken);
-        if (!validationCheck.IsValid)
-        {
-            throw new ValidationException(validationCheck.Errors.ToList());
-        }
-
         var person = await _uow.UserRepository.FindById(request.Id);
 
         if (person == null)

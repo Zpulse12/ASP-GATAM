@@ -32,16 +32,11 @@ namespace Gatam.Application.CQRS
                 .WithMessage("The user doesnt exist");
         }
     }
-    public class DeleteUserCommandHandler(IGenericRepository<ApplicationUser> userRepository, IValidator<DeleteUserCommand> validator)
+    public class DeleteUserCommandHandler(IGenericRepository<ApplicationUser> userRepository)
         : IRequestHandler<DeleteUserCommand, bool>
     {
         public async Task<bool> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
-            var validationResult = await validator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
             var user = await userRepository.FindById(request.UserId);
             if (user == null) return false;
             await userRepository.Delete(user);

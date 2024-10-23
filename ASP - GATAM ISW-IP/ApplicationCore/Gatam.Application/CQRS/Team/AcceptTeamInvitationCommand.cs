@@ -39,22 +39,13 @@ namespace Gatam.Application.CQRS
     {
         private readonly IUnitOfWork uow;
         private readonly IMapper mapper;
-        private readonly IValidator<AcceptTeamInvitationCommand> _validator;
-
-
-        public AcceptTeamInvitationCommandHandler(IUnitOfWork uow, IMapper mapper,IValidator<AcceptTeamInvitationCommand> validator)
+        public AcceptTeamInvitationCommandHandler(IUnitOfWork uow, IMapper mapper)
         {
             this.uow = uow;
             this.mapper = mapper;
-            _validator = validator;
         }
         public async Task<IEnumerable<TeamInvitationDTO>> Handle(AcceptTeamInvitationCommand request, CancellationToken cancellationToken)
         {
-            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
             var invitation = await uow.TeamInvitationRepository.FindById(request._teaminvitationId);
             if (invitation == null)
             {
