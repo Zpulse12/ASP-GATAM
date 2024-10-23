@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HttpClient Http
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
 <CustomCards>
     <div class="card-body">
         <div class="card-header">
@@ -208,6 +209,7 @@
         userBeingEdited = null;
         errorMessage = string.Empty;
         successMessage = string.Empty;
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
     }
 
     private async Task HandleValidSubmit()
