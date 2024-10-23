@@ -50,6 +50,13 @@ h1:focus {
     border-color: #929292;
 }
 
+.team-card {
+    border: 3px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
 
 
 

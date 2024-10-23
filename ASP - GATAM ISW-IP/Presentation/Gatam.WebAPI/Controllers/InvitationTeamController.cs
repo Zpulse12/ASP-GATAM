@@ -38,7 +38,24 @@ namespace Gatam.WebAPI.Controllers
 
             return Ok(invitation);
         }
+
+        [HttpDelete]
+        [Route("delete/{id}")]
+        public async Task<IActionResult> DeleteTeamInvitation(string id)
+        {
+            var response = await _mediator.Send(new DeleteTeamInvitationCommand() { TeamInvitationId = id });
+            if (response)
+            {
+                return Ok(response);
+            }
+            return NotFound("invitation doesnt exists");
+
+        }
+
     }
 
 
 }
+
+
+
