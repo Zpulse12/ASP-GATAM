@@ -42,7 +42,7 @@ namespace UnitTesting.ControllerTest.ApplicationUser
 
             mediator.Setup(m => m.Send(It.IsAny<DeactivateUserCommand>(), default)).ReturnsAsync(user);
 
-            var result = await controller.DeactivateUser(userId, command);
+            var result = await controller.SetActiveState(userId, command);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);

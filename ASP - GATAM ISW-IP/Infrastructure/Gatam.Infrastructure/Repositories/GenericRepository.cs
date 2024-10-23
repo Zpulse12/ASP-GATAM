@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Gatam.Domain;
 
 namespace Gatam.Infrastructure.Repositories
 {
@@ -40,11 +41,11 @@ namespace Gatam.Infrastructure.Repositories
             return response;
         }
 
-        public async Task<T> FindByName(string name)
+        public async Task<T?> FindByProperty(string propertyName, string value)
         {
-            return (await _dbSet.FindAsync(name))!;
+            return await _dbSet.FirstOrDefaultAsync(u => EF.Property<string>(u, propertyName) == value);
         }
-
+        
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return  await _dbSet.ToListAsync();

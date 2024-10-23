@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.Results;
+using FluentValidation.TestHelper;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 
@@ -49,7 +52,17 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             Assert.IsNotNull(result);
 
         }
-    
+        [TestMethod]
+        public async Task UserIdIsNull_ShouldHaveValidationError()
+        {
+            var command = new DeactivateUserCommand { _userId = null, IsActive = false };
+            var validator = new DeactivateUserValidation(_unitOfWorkMock.Object);
+
+            var result = await validator.TestValidateAsync(command);
+            result.ShouldHaveValidationErrorFor(c => c._userId)
+                .WithErrorCode("NotEmptyValidator");
+        }
+       
 
     }
 
