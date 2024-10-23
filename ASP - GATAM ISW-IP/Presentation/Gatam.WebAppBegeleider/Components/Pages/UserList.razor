@@ -14,6 +14,9 @@
                 Gebruikers overzicht
             </h5>
         </div>
+        <div class="alert alert-success" role="alert" style="display: @(string.IsNullOrEmpty(successMessage) ? "none" : "block")">
+            @successMessage
+        </div>
         @if (_isLoading)
         {
         <div class="alert alert-info text-center">
