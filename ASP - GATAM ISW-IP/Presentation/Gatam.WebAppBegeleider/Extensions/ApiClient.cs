@@ -41,11 +41,5 @@ namespace Gatam.WebAppBegeleider.Extensions
             response.EnsureSuccessStatusCode();
             return response;
         }
-        public async Task<T?> GetAllUsersFromAuth0<T>(string requestUri)
-        {
-            var response = await _httpClient.GetAsync(requestUri);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<T>();
-        }
     }
 }
