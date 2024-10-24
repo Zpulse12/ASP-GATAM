@@ -5,6 +5,7 @@
 @using Gatam.WebAppBegeleider.Components.Layout
 @inject HttpClient Http
 @rendermode InteractiveServer
+@using BlazorBootstrap;
 <CustomCards>
 <h3>Teams</h3>
 @if (isLoading)
@@ -127,12 +128,64 @@ else
                             </table>
                         }
                     </div>
-
                     <div class="tab-pane fade" id="settingTeams-@teamId" role="tabpanel" aria-labelledby="settingTeams-tab-@teamId">
-                        <!-- Instellingen inhoud hier -->
+                        <Accordion>
+                            <AccordionItem>
+                                <TitleTemplate>
+                                    Toevoegen van een user
+                                </TitleTemplate>
+                                <Content>
+                                    <div class="search-container">
+                                        <input type="text" style="border-radius:5px; margin-top:15px; border-color:lightblue; box-shadow: none; padding: 10px;" @oninput="(e) => UpdateSearchQuery(teamId, e.Value.ToString())" placeholder="Zoek gebruiker op naam of e-mail" />
+                                    </div>
+                                    @if (teamFilteredUsers.ContainsKey(teamId) && teamFilteredUsers[teamId].Count > 0)
+                                    {
+
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Gebruikersnaam</th>
+                                                    <th>Emailadres</th>
+                                                    <th>Toevoegen</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var user in teamFilteredUsers[teamId])
+                                                {
+
+                                                    <tr>
+                                                        <td>@user.UserName</td>
+                                                        <td>@user.Email</td>
+                                                        <td><button class="btn" style="background-color: #4454D2; color:white; font-weight:bold" @onclick="() => InviteUserToTeam(user.Id, teamId)">Toevoegen</button></td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(searchText))
+                                    {
+                                        <p>Geen gebruikers gevonden.</p>
+                                    }
+                                    else
+                                    {
+                                    }
+                                </Content>
+                            </AccordionItem>
+                            <AccordionItem>
+                                <TitleTemplate>
+                                    Team bijwerken
+                                </TitleTemplate>
+                                <Content>
+                                   ...
+                                </Content>
+                            </AccordionItem>
+                        </Accordion>
+
+
                     </div>
                 </div>
             </div>
+
         }
 }
     @if (isModalVisible)
@@ -162,7 +215,11 @@ else
 </CustomCards>
 
 @code {
+    private string searchText = string.Empty;
     private List<ApplicationTeam> teams = new();
+    private List<ApplicationUser> users = new();
+    private List<ApplicationUser> filteredUsers = new List<ApplicationUser>();
+    private Dictionary<string, List<ApplicationUser>> teamFilteredUsers = new();
     private bool isLoading = true;
     private bool hasError = false;
 
@@ -183,10 +240,14 @@ else
     {
         try
         {
-            var response = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
-            if (response != null && response.Count > 0)
+            var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+            var allUsers = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/user");
+
+            if (teamResponse != null && teamResponse.Count > 0)
             {
-                teams = response;
+                teams = teamResponse;
+                users = allUsers;
+
             }
         }
         catch (HttpRequestException ex)
@@ -280,4 +341,54 @@ else
             Debug.WriteLine($"Error during deletion: {ex.Message}");
         }
     }
+
+    private void UpdateSearchQuery(string teamId, string searchInput)
+    {
+        searchText = searchInput;
+
+        // Initialize the filtered list for the team if not present
+        if (!teamFilteredUsers.ContainsKey(teamId))
+        {
+            teamFilteredUsers[teamId] = new List<ApplicationUser>();
+        }
+
+        // Filter users based on the search text for the specific team
+        teamFilteredUsers[teamId] = users
+            .Where(user => user.UserName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                           user.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+    private HttpResponseMessage response;
+    private TeamInvitationDTO invitation;
+    private async Task InviteUserToTeam(string userId, string teamId)
+    {
+        var user = users.Find(u => u.Id == userId);
+        var team = teams.Find(team => team.Id == teamId);
+        invitation = new TeamInvitationDTO()
+        {
+                Id = Guid.NewGuid().ToString(),
+                ApplicationTeamId = teamId,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow,
+                ResponseDateTime = DateTime.UtcNow,
+                IsAccepted = true
+        };
+
+        response = await Http.PostAsJsonAsync("api/invitationteam", invitation);
+        StateHasChanged();
+
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("User successfully invited to the team.");
+        }
+        else
+        {
+            Console.WriteLine($"Error inviting user: {response.ReasonPhrase}");
+        }
+    }
+
+
+
+
+
 } 
