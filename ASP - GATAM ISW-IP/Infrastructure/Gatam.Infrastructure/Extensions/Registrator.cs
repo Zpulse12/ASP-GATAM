@@ -1,13 +1,16 @@
 ﻿using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
-using Gatam.Infrastructure.Exceptions;
 using Gatam.Infrastructure.Repositories;
 using Gatam.Infrastructure.UOW;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+using Gatam.Application.Extensions;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -15,32 +18,11 @@ namespace Gatam.Infrastructure.Extensions
     {
         public static IServiceCollection RegisterDbContext(this IServiceCollection services)
         {
-            #if DEBUG
-            DirectoryInfo rootDirectory = VisualStudioWrapper.GetSolutionDirectoryPath();
-            string dotenvPath = Path.Combine(rootDirectory.FullName, "debug.env");
-            DotEnvLoader.Load(dotenvPath);
-            #endif
-            string SAPASSWORD = Environment.GetEnvironmentVariable("SA_PASSWORD");
-            string DATABASENAME = Environment.GetEnvironmentVariable("DATABASE_NAME");
-            string DATABASEHOST = Environment.GetEnvironmentVariable("DATABASE_HOST");
-            string DATABASEUSER = Environment.GetEnvironmentVariable("DATABASE_USER");
-
-            /// NULL CHECKS
-            if (DATABASEHOST.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(DATABASEHOST)); }
-            if (DATABASENAME.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(DATABASENAME)); }
-            if (DATABASEUSER.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(DATABASEUSER)); }
-            if (SAPASSWORD.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(SAPASSWORD)); }
-            
-            // VALID CHECKS
-            if (!DATABASEHOST.Contains(",")) { throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} missing port seperator"); }
-            string pattern = "/(,\\d{4})$/g";
-            Regex reg = new Regex(pattern, RegexOptions.IgnoreCase);
-            Match m = reg.Match(DATABASEHOST);
-            if (m.Success) {throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} Invalid port. Check your environment file...");}
-
-
+            services.AddSingleton<EnvironmentWrapper>();
+            ServiceProvider provider = services.BuildServiceProvider();
+            EnvironmentWrapper env = provider.GetService<EnvironmentWrapper>();
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer($"Server={DATABASEHOST};Database={DATABASENAME};User={DATABASEUSER};Password={SAPASSWORD};MultipleActiveResultSets=true;TrustServerCertificate=true"));
+                options.UseSqlServer($"Server={env.DATABASEHOST};Database={env.DATABASENAME};User={env.DATABASEUSER};Password={env.SAPASSWORD};MultipleActiveResultSets=true;TrustServerCertificate=true"));
 
             return services;
         }
@@ -54,5 +36,41 @@ namespace Gatam.Infrastructure.Extensions
             services.RegisterDbContext();
             return services;
         }
+        public static IServiceCollection RegisterJWTAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
+        {
+            ServiceProvider provider = services.BuildServiceProvider();
+            EnvironmentWrapper env = provider.GetService<EnvironmentWrapper>();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = $"https://{env.AUTH0DOMAIN}";
+                options.Audience = env.AUTH0AUDIENCE; // This should be the Identifier of your API in Auth0
+            });
+            // Add authorization
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireManagementRole", policy =>
+                {
+                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                });
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterDataProtectionEncryptionMethods(this IServiceCollection services)
+        {
+            services.AddDataProtection().UseCryptographicAlgorithms(
+                new AuthenticatedEncryptorConfiguration
+                {
+                    EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
+                    ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
+                });
+            return services;
+        }
     }
+
 }

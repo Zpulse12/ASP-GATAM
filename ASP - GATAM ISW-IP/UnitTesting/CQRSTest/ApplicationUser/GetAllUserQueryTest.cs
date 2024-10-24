@@ -37,7 +37,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         {
             var users = new List<Gatam.Domain.ApplicationUser>
             {
-                new Gatam.Domain.ApplicationUser { UserName = "user1", Email = "user1@example.com", PhoneNumber = "09583636", AccessFailedCount =21, _role = ApplicationUserRoles.ADMIN },
+                new Gatam.Domain.ApplicationUser { UserName = "user1", Email = "user1@example.com", PhoneNumber = "09583636", AccessFailedCount =21, Role = ApplicationUserRoles.ADMIN },
                 new Gatam.Domain.ApplicationUser { UserName = "user2", Email = "user2@example.com", PhoneNumber = "0488356346", AccessFailedCount = 11}
             };
 

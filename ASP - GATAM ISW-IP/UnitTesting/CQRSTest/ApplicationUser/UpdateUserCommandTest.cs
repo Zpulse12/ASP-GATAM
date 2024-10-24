@@ -33,7 +33,7 @@ public class UpdateUserCommandTest
                 Id = userId,
                 UserName = "OriginalUser",
                 Email = "original@example.com",
-                _role = ApplicationUserRoles.STUDENT,
+                Role = ApplicationUserRoles.STUDENT,
                 IsActive = true
             };
 
@@ -55,7 +55,7 @@ public class UpdateUserCommandTest
                 {
                     dest.UserName = src.Username;
                     dest.Email = src.Email;
-                    dest._role = src._role;
+                    dest.Role = src._role;
                     dest.IsActive = src.IsActive;
                 });
 

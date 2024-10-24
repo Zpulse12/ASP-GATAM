@@ -1,12 +1,22 @@
 @using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Application.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
 @using Gatam.Domain
 @using Microsoft.AspNetCore.Components.QuickGrid
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+@inject ApiClient apiClient
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
+
+
+@attribute [Authorize(Policy = "RequireManagementRole")]
 <CustomCards>
     <div class="card-body">
         <div class="card-header">
@@ -38,7 +48,7 @@
                 <QuickGrid Items="_users.AsQueryable()">
                     <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
                     <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
-                    <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
+                    <PropertyColumn Property="@(u => u.Role)" Title="Rol" Sortable="true" />
                     <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
                     <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
                     <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
@@ -177,9 +187,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Debug.WriteLine(httpContextAccessor.HttpContext.ToString());
         try
         {
-            var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
+            var response = await apiClient.GetFromJsonAsync<List<ApplicationUser>>("/api/User");
             if (response != null && response.Count > 0)
             {
                 _users = response;
@@ -257,7 +268,6 @@
 
     async Task Delete()
     {
-        Debug.WriteLine(selectedUserId);
         try
         {
 
