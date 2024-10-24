@@ -1,13 +1,7 @@
-﻿using AutoMapper;
-using Gatam.Application.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gatam.Application.Interfaces;
 using MediatR;
 
-namespace Gatam.Application.CQRS
+namespace Gatam.Application.CQRS.User
 {
     public class GetAllUsersQuery : IRequest<IEnumerable<UserDTO>>
     {
@@ -18,18 +12,18 @@ namespace Gatam.Application.CQRS
     }
     public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDTO>>
     {
-        private readonly IUnitOfWork _uow;
-        private readonly IMapper _mapper;
+        private readonly IManagementApi _auth0Repository;
 
-        public GetAllUsersQueryHandler(IUnitOfWork uow, IMapper mapper)
+
+        public GetAllUsersQueryHandler(IManagementApi auth0Repository)
         {
-            _uow = uow;
-            _mapper = mapper;
+            _auth0Repository = auth0Repository;
         }
 
         public async Task<IEnumerable<UserDTO>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<IEnumerable<UserDTO>>(await _uow.UserRepository.GetAllAsync());
+            var users = await _auth0Repository.GetAllUsersAsync();
+            return users;
         }
 
     }
