@@ -16,6 +16,7 @@ namespace Gatam.Application.Interfaces
         Task<T> Update(T entity);
         Task Delete(T entity);
         Task<T?> FindById(string id);
+        Task<T?> FindByProperty(string propertyName, string value);
         Task<T> FindByName(string name);
         Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate);
 
