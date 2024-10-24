@@ -1,5 +1,6 @@
 ﻿@page "/admin/teams"
 @using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.InvitationTeam
 @using Gatam.Domain
 @using System.Diagnostics
 @using Gatam.WebAppBegeleider.Components.Layout
@@ -132,19 +133,19 @@ else
                         <Accordion>
                             <AccordionItem>
                                 <TitleTemplate>
-                                    Toevoegen van een user
+                                    Toevoegen van een gebruiker
                                 </TitleTemplate>
                                 <Content>
                                     <div class="search-container">
                                         <input type="text" style="border-radius:5px; margin-top:15px; border-color:lightblue; box-shadow: none; padding: 10px;" @oninput="(e) => UpdateSearchQuery(teamId, e.Value.ToString())" placeholder="Zoek gebruiker op naam of e-mail" />
                                     </div>
-                                    @if (!string.IsNullOrEmpty(errorMessage))
+                                    @if (!string.IsNullOrEmpty(errorMessage) && showError)
                                     {
                                         <div class="alert alert-danger">
                                             @errorMessage
                                         </div>
                                     }
-                                    @if (!string.IsNullOrEmpty(successMessage))
+                                    @if (!string.IsNullOrEmpty(successMessage) && showSuccess)
                                     {
                                         <div class="alert alert-success">
                                             @successMessage
@@ -238,6 +239,8 @@ else
 
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
+    private bool showError = false;
+    private bool showSuccess = false;
 
     private bool isModalVisible = false;
     private string selectedInvitationId = " ";
@@ -265,6 +268,17 @@ else
                 users = allUsers;
 
             }
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                showError = true;
+                StartTimer(true);
+            }
+
+            if (!string.IsNullOrEmpty(successMessage))
+            {
+                showSuccess = true;
+                StartTimer(false); 
+            }
         }
         catch (HttpRequestException ex)
         {
@@ -275,6 +289,21 @@ else
         {
             isLoading = false;
         }
+    }
+    private async void StartTimer(bool isError)
+    {
+        await Task.Delay(5000); // Wacht 5 seconden
+
+        if (isError)
+        {
+            showError = false;
+        }
+        else
+        {
+            showSuccess = false;
+        }
+
+        StateHasChanged(); // Update de UI
     }
 
     private async Task ToggleInvitationStatus(TeamInvitation invitation, string invitationId, bool isAccepted)
@@ -305,6 +334,8 @@ else
                         invitationRequest.isAccepted = updatedTeam.TeamInvitations.FirstOrDefault(i => i.Id == invitation.Id).isAccepted;
                     }
                     StateHasChanged();
+                    var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+                    teams = teamResponse;
                 }
             }
             else
@@ -384,13 +415,17 @@ else
                 ResponseDateTime = DateTime.UtcNow,
                 IsAccepted = true
         };
-        
+
 
 
         response = await Http.PostAsJsonAsync("api/invitationteam", invitation);
         if (response.IsSuccessStatusCode)
         {
             successMessage = "Gebruiker succesvol bijgewerkt!";
+            var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+            teams = teamResponse;
+            showSuccess = true;
+            StartTimer(true);
             StateHasChanged();  
         }
         else
@@ -399,6 +434,8 @@ else
             if (errorResponse?.Failures != null && errorResponse.Failures.Any())
             {
                 errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+                showError = true;
+                StartTimer(true);
             }
             else
             {
