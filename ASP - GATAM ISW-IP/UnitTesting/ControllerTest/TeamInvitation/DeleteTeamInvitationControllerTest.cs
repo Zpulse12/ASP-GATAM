@@ -1,4 +1,4 @@
-﻿using Gatam.Application.CQRS; // Zorg ervoor dat deze namespace correct is
+﻿using Gatam.Application.CQRS.InvitationTeam;
 using Gatam.WebAPI.Controllers; // Zorg ervoor dat deze namespace correct is
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
