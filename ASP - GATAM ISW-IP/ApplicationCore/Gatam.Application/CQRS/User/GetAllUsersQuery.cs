@@ -14,7 +14,6 @@ namespace Gatam.Application.CQRS
         public GetAllUsersQuery()
         {
         }
-
     }
     public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDTO>>
     {

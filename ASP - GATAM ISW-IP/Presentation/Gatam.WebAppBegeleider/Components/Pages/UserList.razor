@@ -6,11 +6,8 @@
 @using System.Diagnostics
 @using Gatam.Domain
 @using Microsoft.AspNetCore.Components.QuickGrid
-@inject IHttpClientFactory HttpClientFactory
 @inject ApiClient apiClient
 
-@using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor httpContextAccessor
 
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
@@ -117,7 +114,7 @@
 
                             <div class="form-group mt-3">
                                 <label for="Role">Rol</label>
-                                <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
+                                <InputSelect id="Role" @bind-Value="userBeingEdited.Role" class="form-control">
                                     @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
                                     {
                                         <option value="@role">@role</option>
@@ -187,7 +184,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Debug.WriteLine(httpContextAccessor.HttpContext.ToString());
         try
         {
             var response = await apiClient.GetFromJsonAsync<List<ApplicationUser>>("/api/User");
@@ -232,7 +228,7 @@
         {
             try
             {
-                var response = await Http.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
+                var response = await apiClient.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
             
                 if (response.IsSuccessStatusCode)
                 {
@@ -271,7 +267,7 @@
         try
         {
 
-            var response = await Http.DeleteAsync($"api/User/{selectedUserId}");
+            var response = await apiClient.DeleteAsync($"api/User/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
@@ -303,7 +299,7 @@
                 _userId = userId,
                 IsActive = isActive
             };
-            var response = await Http.PutAsJsonAsync($"api/User/{userId}/setactivestate", command);
+            var response = await apiClient.PutAsJsonAsync($"api/User/{userId}/setactivestate", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
