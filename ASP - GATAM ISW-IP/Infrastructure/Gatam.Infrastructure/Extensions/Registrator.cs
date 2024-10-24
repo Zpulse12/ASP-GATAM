@@ -68,11 +68,12 @@ namespace Gatam.Infrastructure.Extensions
             });
             // Add authorization
             services.AddAuthorization(options =>
-                options.AddPolicy("read:admin", policy => policy.Requirements.Add(
-                    new HasScopeRequirement("read:admin", domain)
-                    )
-                )
-            );
+            {
+                options.AddPolicy("RequireManagementRole", policy =>
+                {
+                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                });
+            });
 
             return services;
         }
