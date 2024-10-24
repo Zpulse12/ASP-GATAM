@@ -28,15 +28,8 @@ namespace Gatam.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUserToTeam([FromBody] TeamInvitationDTO invitation)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var result = await _mediator.Send(new AddToTeamCommand() { _teamInvitation = invitation });
-            Debug.WriteLine(result);
-            Debug.WriteLine("invitation: " + invitation);
-            return result == null ? BadRequest(result) : Created("", result);
+            return Created("", result);
         }
 
 
