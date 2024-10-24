@@ -322,26 +322,22 @@ else
     {
         try
         {
-            // Make the delete request
             var response = await Http.DeleteAsync($"api/invitationteam/delete/{selectedInvitationId}");
 
-            // Check if the response is successful
             if (response.IsSuccessStatusCode)
             {
-                // Find the team that contains the invitation
                 var teamContainingInvitation = teams
                     .FirstOrDefault(t => t.TeamInvitations.Any(inv => inv.Id == selectedInvitationId));
 
                 if (teamContainingInvitation != null)
                 {
-                    // Find and remove the invitation from the team
                     var invitationToRemove = teamContainingInvitation.TeamInvitations
                         .FirstOrDefault(inv => inv.Id == selectedInvitationId);
 
                     if (invitationToRemove != null)
                     {
                         teamContainingInvitation.TeamInvitations.Remove(invitationToRemove);
-                        StateHasChanged(); // Update the UI
+                        StateHasChanged(); 
                     }
                 }
 
@@ -362,18 +358,17 @@ else
     {
         searchText = searchInput;
 
-        // Initialize the filtered list for the team if not present
         if (!teamFilteredUsers.ContainsKey(teamId))
         {
             teamFilteredUsers[teamId] = new List<ApplicationUser>();
         }
 
-        // Filter users based on the search text for the specific team
         teamFilteredUsers[teamId] = users
             .Where(user => user.UserName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                            user.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase))
             .ToList();
     }
+
     private HttpResponseMessage response;
     private TeamInvitationDTO invitation;
     private async Task InviteUserToTeam(string userId, string teamId)
@@ -389,22 +384,41 @@ else
                 ResponseDateTime = DateTime.UtcNow,
                 IsAccepted = true
         };
+        
+
 
         response = await Http.PostAsJsonAsync("api/invitationteam", invitation);
-        StateHasChanged();
-
         if (response.IsSuccessStatusCode)
         {
-            Console.WriteLine("User successfully invited to the team.");
+            successMessage = "Gebruiker succesvol bijgewerkt!";
+            StateHasChanged();  
         }
         else
         {
-            Console.WriteLine($"Error inviting user: {response.ReasonPhrase}");
+            var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+            if (errorResponse?.Failures != null && errorResponse.Failures.Any())
+            {
+                errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+            }
+            else
+            {
+                errorMessage = errorResponse?.Message ?? "Er is een onbekende fout opgetreden.";
+            }
+
         }
     }
 
+    public class ValidationErrorResponse
+    {
+        public string Message { get; set; }
+        public List<ValidationFailure> Failures { get; set; }
+    }
 
-
+    public class ValidationFailure
+    {
+        public string PropertyName { get; set; }
+        public string ErrorMessage { get; set; }
+    }
 
 
 } 
