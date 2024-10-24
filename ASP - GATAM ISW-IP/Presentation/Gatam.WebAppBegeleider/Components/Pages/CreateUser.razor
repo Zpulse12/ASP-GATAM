@@ -5,6 +5,7 @@
 
 @rendermode InteractiveServer
 
+@attribute [Authorize(Policy = "RequireManagementRole")]
 <div class="container mt-3">
     @if (isSuccess)
     {

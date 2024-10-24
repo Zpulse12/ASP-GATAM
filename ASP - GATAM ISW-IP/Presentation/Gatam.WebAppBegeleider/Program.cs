@@ -22,6 +22,10 @@ internal class Program
         builder.Services.AddRazorPages();
         builder.Services.RegisterAuth0Authentication();
         builder.Services.RegisterCustomApiClient();
+        builder.Services.RegisterPolicies();
+
+
+
         var app = builder.Build();
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())

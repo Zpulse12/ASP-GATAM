@@ -1,4 +1,5 @@
 ﻿using Auth0.AspNetCore.Authentication;
+using Gatam.Application.Extensions;
 using System.Net.Http.Headers;
 
 namespace Gatam.WebAppBegeleider.Extensions
@@ -40,6 +41,20 @@ namespace Gatam.WebAppBegeleider.Extensions
             .AddHttpMessageHandler<HeaderHandler>();
             return services;
 
+        }
+
+
+        public static IServiceCollection RegisterPolicies(this IServiceCollection services)
+        {
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireManagementRole", policy =>
+                {
+                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                });
+            });
+            return services;
         }
     }
 }
