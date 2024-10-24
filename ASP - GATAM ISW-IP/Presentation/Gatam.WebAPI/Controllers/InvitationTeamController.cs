@@ -1,4 +1,5 @@
 ﻿using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.InvitationTeam;
 using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
