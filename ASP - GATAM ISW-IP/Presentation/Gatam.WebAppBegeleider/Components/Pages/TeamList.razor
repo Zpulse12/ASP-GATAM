@@ -138,6 +138,19 @@ else
                                     <div class="search-container">
                                         <input type="text" style="border-radius:5px; margin-top:15px; border-color:lightblue; box-shadow: none; padding: 10px;" @oninput="(e) => UpdateSearchQuery(teamId, e.Value.ToString())" placeholder="Zoek gebruiker op naam of e-mail" />
                                     </div>
+                                    @if (!string.IsNullOrEmpty(errorMessage))
+                                    {
+                                        <div class="alert alert-danger">
+                                            @errorMessage
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(successMessage))
+                                    {
+                                        <div class="alert alert-success">
+                                            @successMessage
+                                        </div>
+                                    }
+
                                     @if (teamFilteredUsers.ContainsKey(teamId) && teamFilteredUsers[teamId].Count > 0)
                                     {
 
@@ -222,6 +235,9 @@ else
     private Dictionary<string, List<ApplicationUser>> teamFilteredUsers = new();
     private bool isLoading = true;
     private bool hasError = false;
+
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
 
     private bool isModalVisible = false;
     private string selectedInvitationId = " ";
