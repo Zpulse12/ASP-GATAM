@@ -1,6 +1,9 @@
 ﻿using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.InvitationTeam;
+using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Gatam.WebAPI.Controllers
 {
@@ -20,6 +23,13 @@ namespace Gatam.WebAPI.Controllers
         {
             var invitationsteams = await _mediator.Send(new GetAllInvitationsQuery());
             return Ok(invitationsteams);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUserToTeam([FromBody] TeamInvitationDTO invitation)
+        {
+            var result = await _mediator.Send(new AddToTeamCommand() { _teamInvitation = invitation });
+            return Created("", result);
         }
 
 

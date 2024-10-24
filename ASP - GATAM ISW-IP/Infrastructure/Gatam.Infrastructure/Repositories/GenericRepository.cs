@@ -45,7 +45,12 @@ namespace Gatam.Infrastructure.Repositories
         {
             return await _dbSet.FirstOrDefaultAsync(u => EF.Property<string>(u, propertyName) == value);
         }
-        
+
+        public async Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return  await _dbSet.ToListAsync();
