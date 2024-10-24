@@ -23,6 +23,7 @@ using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using System.Diagnostics;
+using Gatam.Application.Extensions;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -30,30 +31,11 @@ namespace Gatam.Infrastructure.Extensions
     {
         public static IServiceCollection RegisterDbContext(this IServiceCollection services)
         {
-            #if DEBUG
-            DirectoryInfo rootDirectory = SolutionWrapper.GetSolutionDirectoryPath();
-            string dotenvPath = Path.Combine(rootDirectory.FullName, "debug.env");
-            DotEnvLoader.Load(dotenvPath);
-            #endif
-            string SAPASSWORD = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? "";
-            string DATABASENAME = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "";
-            string DATABASEHOST = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "";
-            string DATABASEUSER = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "";
-
-            /// NULL CHECKS
-            if (DATABASEHOST.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(DATABASEHOST)); }
-            if (DATABASENAME.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(DATABASENAME)); }
-            if (DATABASEUSER.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(DATABASEUSER)); }
-            if (SAPASSWORD.IsNullOrEmpty()) { throw new MissingEnvironmentVariableException(nameof(SAPASSWORD)); }
-            
-            // VALID CHECKS
-            if (!DATABASEHOST.Contains(",")) { throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} missing port seperator"); }
-            Match m = DotEnvLoader.ValidateWithExpression("/(,\\d{4})$/g", DATABASEHOST);
-            if (m.Success) {throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} Invalid port. Check your environment file...");}
-
-
+            services.AddSingleton<EnvironmentWrapper>();
+            ServiceProvider provider = services.BuildServiceProvider();
+            EnvironmentWrapper env = provider.GetService<EnvironmentWrapper>();
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer($"Server={DATABASEHOST};Database={DATABASENAME};User={DATABASEUSER};Password={SAPASSWORD};MultipleActiveResultSets=true;TrustServerCertificate=true"));
+                options.UseSqlServer($"Server={env.DATABASEHOST};Database={env.DATABASENAME};User={env.DATABASEUSER};Password={env.SAPASSWORD};MultipleActiveResultSets=true;TrustServerCertificate=true"));
 
             return services;
         }
