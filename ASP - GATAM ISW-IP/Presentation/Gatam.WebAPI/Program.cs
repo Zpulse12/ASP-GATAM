@@ -19,8 +19,7 @@ internal class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-      
-
+     
 
         var app = builder.Build();
 

@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS
 {
-    public class AddToTeamCommand : IRequest<TeamInvitation>
+    public class AddToTeamCommand : IRequest<TeamInvitationDTO>
     {
-        public required TeamInvitation _teamInvitation { get; set; }
+        public required TeamInvitationDTO _teamInvitation { get; set; }
     }
     public class AddToTeamCommandValidator: AbstractValidator<AddToTeamCommand>
     {
@@ -28,16 +28,12 @@ namespace Gatam.Application.CQRS
             RuleFor(validationObject => validationObject._teamInvitation.Id).NotEmpty().WithMessage("ID mag niet leeg zijn.");
 
             //user validation
-            RuleFor(validationObject => validationObject._teamInvitation.applicationUser).NotNull().WithMessage("User mag niet null zijn");
-            RuleFor(validationObject => validationObject._teamInvitation.applicationUser).NotEmpty().WithMessage("User mag niet leeg zijn");
             RuleFor(validationObject => validationObject._teamInvitation.UserId).NotNull().WithMessage("User ID mag niet null zijn");
             RuleFor(validationObject => validationObject._teamInvitation.UserId).NotEmpty().WithMessage("User ID mag niet leeg zijn");
 
             //team validation
             RuleFor(validationObject => validationObject._teamInvitation.ApplicationTeamId).NotNull().WithMessage("Team ID mag niet null zijn");
             RuleFor(validationObject => validationObject._teamInvitation.ApplicationTeamId).NotEmpty().WithMessage("Team ID mag niet leeg zijn");
-            RuleFor(validationObject => validationObject._teamInvitation.applicationTeam).NotNull().WithMessage("Team mag niet null zijn");
-            RuleFor(validationObject => validationObject._teamInvitation.applicationTeam).NotEmpty().WithMessage("Team mag niet leeg zijn");
 
             //Gebruiker zit al in een team
             RuleFor(validationObject => validationObject._teamInvitation).MustAsync(async (invitation, cancellationToken) =>
@@ -47,18 +43,36 @@ namespace Gatam.Application.CQRS
             }).WithMessage("De gebruiker kan niet worden toegevoegd omdat hij/zij al in een team zit met een geaccepteerde uitnodiging.");
         }
     }
-    public class AddToTeamCommandHandler : IRequestHandler<AddToTeamCommand, TeamInvitation>
+    public class AddToTeamCommandHandler : IRequestHandler<AddToTeamCommand, TeamInvitationDTO>
     {
         private readonly IUnitOfWork _unitOfWork;
         public AddToTeamCommandHandler(IUnitOfWork uow)
         {
             _unitOfWork = uow;
         }
-        public async Task<TeamInvitation> Handle(AddToTeamCommand request, CancellationToken cancellationToken)
+        public async Task<TeamInvitationDTO> Handle(AddToTeamCommand request, CancellationToken cancellationToken)
         {
-            await _unitOfWork.TeamInvitationRepository.Create(request._teamInvitation);
+            var teamInvitation = new TeamInvitation()
+            {
+                Id = request._teamInvitation.Id,
+                ApplicationTeamId = request._teamInvitation.ApplicationTeamId,
+                UserId = request._teamInvitation.UserId,
+                CreatedAt = DateTime.UtcNow,
+                ResponseDateTime = DateTime.UtcNow,
+                isAccepted = true
+            };
+
+            await _unitOfWork.TeamInvitationRepository.Create(teamInvitation);
             await _unitOfWork.commit();
-            return request._teamInvitation;
+            return new TeamInvitationDTO()
+            {
+                Id = teamInvitation.Id,
+                ApplicationTeamId = teamInvitation.ApplicationTeamId,
+                UserId = teamInvitation.UserId,
+                CreatedAt = teamInvitation.CreatedAt,
+                ResponseDateTime = teamInvitation.ResponseDateTime,
+                IsAccepted = teamInvitation.isAccepted
+            };
         }
 
     }
