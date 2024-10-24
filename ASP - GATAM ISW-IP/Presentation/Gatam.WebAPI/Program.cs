@@ -19,6 +19,7 @@ internal class Program {
         builder.Services.RegisterInfrastructure();
         builder.Services.AddControllers();
         builder.Services.RegisterJWTAuthentication(builder);
+        builder.Services.RegisterPolicies();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -48,19 +49,6 @@ internal class Program {
         {
             endpoints.MapControllers();
         });
-
-
-        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
-        {
-            var accessToken = await httpContext.GetTokenAsync("access_token");
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                return Results.BadRequest("Access token is not available.");
-            }
-
-            return Results.Ok(new { AccessToken = accessToken });
-        }).RequireAuthorization();
         app.Run();
     }
 }

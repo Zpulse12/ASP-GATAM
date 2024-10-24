@@ -8,13 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gatam.Application.CQRS
+namespace Gatam.Application.CQRS.Team
 {
     public class AddToTeamCommand : IRequest<TeamInvitationDTO>
     {
         public required TeamInvitationDTO _teamInvitation { get; set; }
     }
-    public class AddToTeamCommandValidator: AbstractValidator<AddToTeamCommand>
+    public class AddToTeamCommandValidator : AbstractValidator<AddToTeamCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
 

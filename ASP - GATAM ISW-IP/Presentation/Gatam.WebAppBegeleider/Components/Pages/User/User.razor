@@ -1,0 +1,23 @@
+﻿@page "/admin/user/{Id}"
+
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+
+@inject ApiClient apiClient
+
+@attribute [Authorize(Policy = "RequireManagementRole")]
+<CustomCards>
+<h3>Bewerken van gebruiker</h3>
+
+<h4>Gebruiker : @Id</h4>
+<h5>Roles</h5>
+</CustomCards>
+
+@code {
+    [Parameter] public string Id { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+                
+    }
+}

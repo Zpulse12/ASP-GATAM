@@ -63,9 +63,9 @@
                         <button type="button" @onclick="() => ShowDeleteModal(context.Id)" class="btn btn-outline-danger" data-toggle="modal" data-target="#exampleModal">
                             <i class="bi bi-trash"></i>
                         </button>
-                        <button @onclick="() => StartEditingUser(context)" class="btn btn-outline-secondary">
+                        <a class="btn btn-outline-secondary" href="/admin/user/@(context.Id)">
                             <i class="bi bi-pencil"></i>
-                        </button>
+                        </a>
                     </TemplateColumn>
                 </QuickGrid>
 

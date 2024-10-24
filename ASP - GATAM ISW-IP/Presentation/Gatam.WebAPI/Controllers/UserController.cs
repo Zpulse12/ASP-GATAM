@@ -21,7 +21,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "STUDENT")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _mediator.Send(new GetAllUsersQuery());
@@ -75,14 +75,13 @@ namespace Gatam.WebAPI.Controllers
            }
            return NotFound("User doesnt exists");
         }
-        [HttpGet("private-scoped")]
-        [Authorize("read:admin")]
-        public IActionResult Scoped()
+
+
+        [HttpPut("update/role/{id}")]
+        public async Task<IActionResult> UpdateUserRole(string userId, [FromBody] UserDTO user)
         {
-            return Ok(new
-            {
-                Message = "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this."
-            });
+            var returnedUser = await _mediator.Send(new UpdateUserCommand() { Id = userId, User = user });
+            return Ok(returnedUser);
         }
     }
 

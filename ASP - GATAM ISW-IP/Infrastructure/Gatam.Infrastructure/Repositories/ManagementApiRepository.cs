@@ -72,5 +72,19 @@ public class ManagementApiRepository: IManagementApi
         return updatedUser;
     }
 
+    public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user, List<string> roles)
+    {
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"users/{user.Id}/roles", new { roles = roles });
+        if (response.IsSuccessStatusCode)
+        {
+            return user;
+        }
+        return null;
+    }
 
+    public async Task<IEnumerable<string>> GetRolesByUserId(string userId)
+    {
+        JsonElement response = await _httpClient.GetFromJsonAsync<JsonElement>($"/users/{userId}/roles");
+        throw new NotImplementedException();
+    }
 }
