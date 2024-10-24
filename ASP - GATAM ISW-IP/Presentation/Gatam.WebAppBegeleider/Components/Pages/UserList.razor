@@ -13,6 +13,7 @@
 @inject IHttpContextAccessor httpContextAccessor
 
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
 
 
 @attribute [Authorize(Policy = "RequireManagementRole")]
@@ -22,6 +23,9 @@
             <h5>
                 Gebruikers overzicht
             </h5>
+        </div>
+        <div class="alert alert-success" role="alert" style="display: @(string.IsNullOrEmpty(successMessage) ? "none" : "block")">
+            @successMessage
         </div>
         @if (_isLoading)
         {
@@ -71,49 +75,70 @@
                         </button>
                     </TemplateColumn>
                 </QuickGrid>
-
-                @if (userBeingEdited != null)
-                {
-                <hr />
-                <h4>Gebruiker Bewerken: @userBeingEdited.UserName</h4>
-                <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-
-                    <div class="form-group mt-3">
-                        <label for="Username">Gebruikersnaam</label>
-                        <InputText id="Username" @bind-Value="userBeingEdited.UserName" class="form-control" />
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="Email">Email</label>
-                        <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="Role">Rol</label>
-                        <InputSelect id="Role" @bind-Value="userBeingEdited.Role" class="form-control">
-                            @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
-                            {
-                            <option value="@role">@role</option>
-                            }
-                        </InputSelect>
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="IsActive">Actief</label>
-                        <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
-                    </div>
-
-                    <button type="submit" class="btn btn-primary mt-4">Opslaan</button>
-                    <button type="button" class="btn btn-secondary mt-4" @onclick="CancelEditing">Annuleren</button>
-                </EditForm>
-                }
-
             </div>
         </div>
         }
     </div>
+    @if (userBeingEdited != null)
+    {
+        <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">Gebruiker Bewerken: @userBeingEdited.UserName</h5>
+                        <button type="button" class="btn-close" @onclick="CancelEditing" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger">
+                                @errorMessage
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(successMessage))
+                        {
+                            <div class="alert alert-success">
+                                @successMessage
+                            </div>
+                        }
+                        <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="form-group mt-3">
+                                <label for="Username">Gebruikersnaam</label>
+                                <InputText id="Username" @bind-Value="userBeingEdited.UserName" class="form-control" />
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="Email">Email</label>
+                                <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="Role">Rol</label>
+                                <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
+                                    @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="IsActive">Actief</label>
+                                <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
+                            </div>
+
+                            <button type="submit" class="btn btn-outline-success">Opslaan</button>
+                            <button type="button" class="btn btn-outline-danger" @onclick="CancelEditing">Annuleren</button>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
     <!-- Modal -->
     @if (isModalVisible)
     {
@@ -148,9 +173,10 @@
     private ApplicationUser userBeingEdited = null;
     private bool _isLoading = true;
     private bool _hasError = false;
-
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
     // Boolean to control modal visibility
-    private bool isModalVisible = false;
+    private bool isModalVisible = false;  
     private string selectedUserId;
 
     private void ShowDeleteModal(string userId)
@@ -188,11 +214,16 @@
     private void StartEditingUser(ApplicationUser user)
     {
         userBeingEdited = user;
+        errorMessage = string.Empty; 
+        successMessage = string.Empty; 
     }
 
     private void CancelEditing()
     {
         userBeingEdited = null;
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
     }
 
     private async Task HandleValidSubmit()
@@ -201,20 +232,30 @@
         {
             try
             {
-                var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
+                var response = await Http.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
+            
                 if (response.IsSuccessStatusCode)
                 {
-                    userBeingEdited = null;
-                    StateHasChanged();
+                    successMessage = "Gebruiker succesvol bijgewerkt!";
+                    userBeingEdited = null;  // Sluit de modal
+                    StateHasChanged();  // Update de UI
                 }
                 else
                 {
-                    Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
+                    var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+                    if (errorResponse?.Failures != null && errorResponse.Failures.Any())
+                    {
+                        errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+                    }
+                    else
+                    {
+                        errorMessage = errorResponse?.Message ?? "Er is een onbekende fout opgetreden.";
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
+                errorMessage = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
             }
         }
     }
@@ -229,7 +270,8 @@
     {
         try
         {
-            var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
+
+            var response = await Http.DeleteAsync($"api/User/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
@@ -257,11 +299,11 @@
         try
         {
             var command = new DeactivateUserCommand
-                {
-                    _userId = userId,
-                    IsActive = isActive
-                };
-            var response = await apiClient.PutAsJsonAsync($"/api/User/deactivate/{userId}", command);
+            {
+                _userId = userId,
+                IsActive = isActive
+            };
+            var response = await Http.PutAsJsonAsync($"api/User/{userId}/setactivestate", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
@@ -284,4 +326,16 @@
             Console.WriteLine($"Error during status update: {ex.Message}");
         }
     }
+    public class ValidationErrorResponse
+    {
+        public string Message { get; set; }
+        public List<ValidationFailure> Failures { get; set; }
+    }
+
+    public class ValidationFailure
+    {
+        public string PropertyName { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
 }

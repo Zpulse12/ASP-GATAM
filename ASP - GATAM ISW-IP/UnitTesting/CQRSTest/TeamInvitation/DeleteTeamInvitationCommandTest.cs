@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace UnitTesting.CQRSTest.TeamInvitation
 {
@@ -14,6 +16,7 @@ namespace UnitTesting.CQRSTest.TeamInvitation
     {
         private Mock<IGenericRepository<Gatam.Domain.TeamInvitation>>? teamRepository;
         private DeleteTeamInvitationCommandHandler? commandHandler;
+
 
         [TestInitialize]
         public void Setup()
@@ -57,4 +60,5 @@ namespace UnitTesting.CQRSTest.TeamInvitation
             teamRepository.Verify(repo => repo.Delete(It.IsAny<Gatam.Domain.TeamInvitation>()), Times.Never); // Controleer of Delete nooit is aangeroepen
         }
     }
+    
 }
