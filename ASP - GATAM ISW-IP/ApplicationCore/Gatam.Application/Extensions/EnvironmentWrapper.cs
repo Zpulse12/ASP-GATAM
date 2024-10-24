@@ -19,6 +19,8 @@ namespace Gatam.Application.Extensions
         public string AUTH0CLIENTID { get; set; }
         public string AUTH0CLIENTSECRET { get; set; }
         public string AUTH0AUDIENCE { get; set; }
+        public string TOKEN { get; set; }
+        public string BASEURI { get; set; }
 
         public EnvironmentWrapper() {
 #if DEBUG
@@ -34,6 +36,9 @@ namespace Gatam.Application.Extensions
             AUTH0CLIENTID = Environment.GetEnvironmentVariable("AUTH0_CLIENTID") ?? "";
             AUTH0CLIENTSECRET = Environment.GetEnvironmentVariable("AUTH0_CLIENTSECRET") ?? "";
             AUTH0AUDIENCE = Environment.GetEnvironmentVariable("AUTH0_AUDIENCE") ?? "";
+            TOKEN = Environment.GetEnvironmentVariable("TOKEN") ?? "";
+            BASEURI = Environment.GetEnvironmentVariable("BASE_URI") ?? "";
+            
             /// NULL CHECKS
             if (string.IsNullOrEmpty(DATABASEHOST)) { throw new MissingEnvironmentVariableException(nameof(DATABASEHOST)); }
             if (string.IsNullOrEmpty(DATABASENAME)) { throw new MissingEnvironmentVariableException(nameof(DATABASENAME)); }
@@ -43,7 +48,8 @@ namespace Gatam.Application.Extensions
             if (string.IsNullOrEmpty(AUTH0CLIENTID)) { throw new MissingEnvironmentVariableException(nameof(AUTH0CLIENTID)); }
             if (string.IsNullOrEmpty(AUTH0CLIENTSECRET)) { throw new MissingEnvironmentVariableException(nameof(AUTH0CLIENTSECRET)); }
             if (string.IsNullOrEmpty(AUTH0AUDIENCE)) { throw new MissingEnvironmentVariableException(nameof(AUTH0AUDIENCE)); }
-
+            if (string.IsNullOrEmpty(TOKEN)) { throw new MissingEnvironmentVariableException(nameof(TOKEN)); }
+            if (string.IsNullOrEmpty(BASEURI)) { throw new MissingEnvironmentVariableException(nameof(BASEURI)); }
             // VALID CHECKS
             if (!DATABASEHOST.Contains(",")) { throw new InvalidEnvironmentVariableException($"{nameof(DATABASEHOST)} missing port seperator"); }
             Match m = DotEnvLoader.ValidateWithExpression("/(,\\d{4})$/g", DATABASEHOST);
