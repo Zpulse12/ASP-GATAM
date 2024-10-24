@@ -60,7 +60,7 @@ internal class Program {
             }
 
             return Results.Ok(new { AccessToken = accessToken });
-        });
+        }).RequireAuthorization();
         app.Run();
     }
 }

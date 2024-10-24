@@ -8,24 +8,22 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Gatam.WebAppBegeleider.Interfaces;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
+using Gatam.Application.Extensions;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
         builder.Logging.AddDebug();
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
         builder.Services.AddRazorPages();
+        builder.Services.AddSingleton<EnvironmentWrapper>();
         builder.Services.RegisterAuth0Authentication();
         builder.Services.RegisterCustomApiClient();
         builder.Services.RegisterPolicies();
-
-
-
         var app = builder.Build();
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())

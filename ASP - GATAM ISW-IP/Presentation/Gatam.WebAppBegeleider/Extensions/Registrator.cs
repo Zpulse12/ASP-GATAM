@@ -8,16 +8,19 @@ namespace Gatam.WebAppBegeleider.Extensions
     {
         public static IServiceCollection RegisterAuth0Authentication(this IServiceCollection services)
         {
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            EnvironmentWrapper env = serviceProvider.GetRequiredService<EnvironmentWrapper>();
             services.AddAuth0WebAppAuthentication(options =>
             {
-                options.Domain = "skeletonman.eu.auth0.com";
-                options.ClientId = "WI2HNZLwffVWq4IFLfL1Vs008fMYQlGc";
-                options.ClientSecret = "Gz-Lhg3d9BCPFPxetXSb05lGUSGoVdW2T5Gk1kqo1KO6435XBVP1bPDp6uBvxlwd";
+
+                options.Domain = env.AUTH0DOMAIN;
+                options.ClientId = env.AUTH0CLIENTID;
+                options.ClientSecret = env.AUTH0CLIENTSECRET;
                 options.Scope = "openid profile email";
                 options.CallbackPath = "/callback";
             }).WithAccessToken(options =>
             {
-                options.Audience = "http://localhost:5000/";
+                options.Audience = env.AUTH0AUDIENCE;
             }); ;
             services.Configure<CookiePolicyOptions>(options =>
             {

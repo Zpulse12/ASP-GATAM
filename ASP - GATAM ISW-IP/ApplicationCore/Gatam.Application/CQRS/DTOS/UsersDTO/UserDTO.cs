@@ -15,5 +15,7 @@ namespace Gatam.Application.CQRS
         public ApplicationUserRoles _role { get; set; }
         public required string Id { get; set; }
         public bool IsActive { get; set; }
+        public string Picture { get; set; }
+        
     }
 }
