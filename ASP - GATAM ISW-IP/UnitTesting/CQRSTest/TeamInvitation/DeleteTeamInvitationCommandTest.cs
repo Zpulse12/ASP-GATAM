@@ -1,5 +1,4 @@
-﻿using Gatam.Application.CQRS;
-using Gatam.Application.Interfaces;
+﻿using Gatam.Application.Interfaces;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
+using Gatam.Application.CQRS.InvitationTeam;
 
 namespace UnitTesting.CQRSTest.TeamInvitation
 {

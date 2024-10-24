@@ -104,34 +104,8 @@ namespace Gatam.Infrastructure.Contexts
                     isAccepted = false,
                     CreatedAt = DateTime.UtcNow,
                     ResponseDateTime = DateTime.UtcNow
-                },
-                 new TeamInvitation()
-                 {
-                     Id = Guid.NewGuid().ToString(),
-                     ApplicationTeamId = GLOBALTESTTEAM.Id,
-                     UserId = lauren.Id,
-                     isAccepted = true,
-                     CreatedAt = DateTime.UtcNow,
-                     ResponseDateTime = DateTime.UtcNow
-                 },
-                  new TeamInvitation()
-                  {
-                      Id = Guid.NewGuid().ToString(),
-                      ApplicationTeamId = TESTTEAM2.Id,
-                      UserId = jane.Id,
-                      isAccepted = false,
-                      CreatedAt = DateTime.UtcNow,
-                      ResponseDateTime = DateTime.UtcNow
-                  },
-                 new TeamInvitation()
-                 {
-                     Id = Guid.NewGuid().ToString(),
-                     ApplicationTeamId = TESTTEAM2.Id,
-                     UserId = lauren.Id,
-                     isAccepted = true,
-                     CreatedAt = DateTime.UtcNow,
-                     ResponseDateTime = DateTime.UtcNow
-                 }
+                }
+                
             );
             // RELATIES
 
