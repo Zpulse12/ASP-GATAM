@@ -1,28 +1,15 @@
 ﻿using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
-using Gatam.Infrastructure.Exceptions;
 using Gatam.Infrastructure.Repositories;
 using Gatam.Infrastructure.UOW;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Claims;
-using Gatam.Infrastructure.Extensions.Scopes;
 using Microsoft.AspNetCore.DataProtection;
-using StackExchange.Redis;
-using Auth0Net.DependencyInjection;
-using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
-using System.Diagnostics;
 using Gatam.Application.Extensions;
 
 namespace Gatam.Infrastructure.Extensions
@@ -51,20 +38,16 @@ namespace Gatam.Infrastructure.Extensions
         }
         public static IServiceCollection RegisterJWTAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
         {
-
-            string domain = builder.Configuration["Auth0:Domain"] ?? "";
-            string audience = builder.Configuration["Auth0:Audience"] ?? "";
-            string clientId = builder.Configuration["Auth0:ClientId"] ?? "";
-            string clientSecret = builder.Configuration["Auth0:ClientSecret"] ?? "";
-
+            ServiceProvider provider = services.BuildServiceProvider();
+            EnvironmentWrapper env = provider.GetService<EnvironmentWrapper>();
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
-                options.Authority = $"https://{domain}";
-                options.Audience = audience; // This should be the Identifier of your API in Auth0
+                options.Authority = $"https://{env.AUTH0DOMAIN}";
+                options.Audience = env.AUTH0AUDIENCE; // This should be the Identifier of your API in Auth0
             });
             // Add authorization
             services.AddAuthorization(options =>
