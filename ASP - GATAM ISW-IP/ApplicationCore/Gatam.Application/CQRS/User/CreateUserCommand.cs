@@ -24,8 +24,19 @@ namespace Gatam.Application.CQRS
         public CreateUserCommandValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            RuleFor(validationObject => validationObject._user.Email).NotNull().WithMessage("Email mag niet null zijn");
-            RuleFor(validationObject => validationObject._user.Email).NotEmpty().WithMessage("Email mag niet leeg zijn");
+            RuleFor(validationObject => validationObject._user.Email).NotNull().WithMessage("Email cannot be null");
+            RuleFor(validationObject => validationObject._user.Email).NotEmpty().WithMessage("Email cannot be empty");
+            RuleFor(x => x._user.Email)
+                .MustAsync(async (email, cancellation) =>
+                {
+                    var existingUser = await _unitOfWork.UserRepository.FindByProperty("Email",email);
+                    return existingUser == null;
+                })
+                .WithMessage("Email is already in use");
+
+            RuleFor(x => x._user.UserName)
+                .NotEmpty().WithMessage("Username cannot be empty")
+                .MinimumLength(3).WithMessage("username must contain minimal 3 letters");
         }
     }
 

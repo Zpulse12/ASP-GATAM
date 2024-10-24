@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
 using Gatam.Application.CQRS;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
@@ -11,6 +13,8 @@ public class UpdateUserCommandTest
     private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<IMapper> _mockMapper;
         private UpdateUserCommandHandler _handler;
+
+
 
         [TestInitialize]
         public void Setup()

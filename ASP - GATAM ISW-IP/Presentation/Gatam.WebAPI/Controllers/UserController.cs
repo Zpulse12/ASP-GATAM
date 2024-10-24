@@ -29,14 +29,18 @@ namespace Gatam.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
             Debug.WriteLine(result);
-            return result == null ? BadRequest(result) : Created("", result);
+            return Created("", result);        
         }
 
         [HttpPut]
-        [Route("deactivate/{id}")]
-        public async Task<IActionResult> DeactivateUser(string id, [FromBody] DeactivateUserCommand command)
+        [Route("{id}/setactivestate")]
+        public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command._userId = id;
 
@@ -61,8 +65,7 @@ namespace Gatam.WebAPI.Controllers
             return Ok(returnedUser);
         }
 
-        [HttpDelete]
-        [Route("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
            var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
@@ -71,8 +74,6 @@ namespace Gatam.WebAPI.Controllers
                return Ok(response);
            }
            return NotFound("User doesnt exists");
-
-
 
         }
     }
