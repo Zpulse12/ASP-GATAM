@@ -21,8 +21,9 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "STUDENT")]
-        public async Task<IActionResult> GetUsers()
+        [Authorize(Policy = "RequireManagementRole")]
+
+    public async Task<IActionResult> GetUsers()
         {
             var users = await _mediator.Send(new GetAllUsersQuery());
             return Ok(users);
@@ -37,7 +38,7 @@ namespace Gatam.WebAPI.Controllers
             return result == null ? BadRequest(result) : Created("", result);
         }
 
-        [HttpPut]
+        [HttpPatch]
         [Route("setactivestate/{id}")]
         public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {

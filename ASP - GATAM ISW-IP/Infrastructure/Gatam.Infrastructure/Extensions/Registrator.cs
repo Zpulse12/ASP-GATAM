@@ -61,7 +61,18 @@ namespace Gatam.Infrastructure.Extensions
 
             return services;
         }
+        public static IServiceCollection RegisterPolicies(this IServiceCollection services)
+        {
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireManagementRole", policy =>
+                {
+                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                });
+            });
+            return services;
+        }
         public static IServiceCollection RegisterDataProtectionEncryptionMethods(this IServiceCollection services)
         {
             services.AddDataProtection().UseCryptographicAlgorithms(

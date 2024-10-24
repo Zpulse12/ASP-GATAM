@@ -19,6 +19,7 @@ internal class Program {
         builder.Services.RegisterInfrastructure();
         builder.Services.AddControllers();
         builder.Services.RegisterJWTAuthentication(builder);
+        builder.Services.RegisterPolicies();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
