@@ -28,10 +28,11 @@ namespace Gatam.Infrastructure.Extensions
         }
         public static IServiceCollection RegisterInfrastructure(this IServiceCollection services)
         {
-
+            services.AddHttpClient();
             services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
             services.AddScoped<IGenericRepository<ApplicationTeam>, TeamRepository>();
             services.AddScoped<IGenericRepository<TeamInvitation>, TeamInvitationRepository>();
+            services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.RegisterDbContext();
             return services;
@@ -60,7 +61,18 @@ namespace Gatam.Infrastructure.Extensions
 
             return services;
         }
+        public static IServiceCollection RegisterPolicies(this IServiceCollection services)
+        {
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireManagementRole", policy =>
+                {
+                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                });
+            });
+            return services;
+        }
         public static IServiceCollection RegisterDataProtectionEncryptionMethods(this IServiceCollection services)
         {
             services.AddDataProtection().UseCryptographicAlgorithms(
