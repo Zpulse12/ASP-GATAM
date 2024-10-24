@@ -40,7 +40,7 @@ namespace Gatam.Application.CQRS
             {
                 var existingInvitation = await _unitOfWork.TeamInvitationRepository.FindFirstAsync(x => x.UserId == invitation.UserId && x.isAccepted);
                 return existingInvitation == null;
-            }).WithMessage("De gebruiker kan niet worden toegevoegd omdat hij/zij al in een team zit met een geaccepteerde uitnodiging.");
+            }).WithMessage("De gebruiker kan niet worden toegevoegd omdat hij/zij al in een team zit.");
         }
     }
     public class AddToTeamCommandHandler : IRequestHandler<AddToTeamCommand, TeamInvitationDTO>
