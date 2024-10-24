@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Gatam.Application.Interfaces;
-using Gatam.Domain;
 using MediatR;
 
-
-namespace Gatam.Application.CQRS
+namespace Gatam.Application.CQRS.User
 {
-    public class DeactivateUserCommand : IRequest<IEnumerable<UserDTO>>
+    public class DeactivateUserCommand : IRequest<UserDTO>
     {
         public required string _userId { get; set; }
         public bool IsActive { get; set; }
@@ -33,30 +31,28 @@ namespace Gatam.Application.CQRS
                 .WithMessage("IsActive must be either true or false");
         }
     }
-    public class DeactivateUserCommandHandler : IRequestHandler<DeactivateUserCommand, IEnumerable<UserDTO>>
+    public class DeactivateUserCommandHandler : IRequestHandler<DeactivateUserCommand, UserDTO>
     {
-        private readonly IUnitOfWork uow;
-        private readonly IMapper mapper;
-        public DeactivateUserCommandHandler(IUnitOfWork uow, IMapper mapper)
+        private readonly IManagementApi _managementApi;
+
+        public DeactivateUserCommandHandler(IManagementApi managementApi)
         {
-            this.uow = uow;
-            this.mapper = mapper;
+            _managementApi = managementApi;
         }
-        public async Task<IEnumerable<UserDTO>> Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
+
+        public async Task<UserDTO> Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
         {
-            var user = await uow.UserRepository.FindById(request._userId);
-            if (user == null)
+            var updatedUser = await _managementApi.UpdateUserStatusAsync(request._userId, request.IsActive);
+
+            if (updatedUser == null)
             {
                 return null;
             }
-            user.IsActive = request.IsActive;
-            _=uow.UserRepository.Update(user);
-            await uow.commit();
 
-            var userDTO = mapper.Map<UserDTO>(user);
-            return [userDTO];
+            return updatedUser;
         }
     }
+
 
 
 }

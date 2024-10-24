@@ -28,10 +28,11 @@ namespace Gatam.Infrastructure.Extensions
         }
         public static IServiceCollection RegisterInfrastructure(this IServiceCollection services)
         {
-
+            services.AddHttpClient();
             services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
             services.AddScoped<IGenericRepository<ApplicationTeam>, TeamRepository>();
             services.AddScoped<IGenericRepository<TeamInvitation>, TeamInvitationRepository>();
+            services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.RegisterDbContext();
             return services;
