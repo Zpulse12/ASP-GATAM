@@ -112,6 +112,66 @@
         </div>
         }
     </div>
+    @if (userBeingEdited != null)
+    {
+        <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">Gebruiker Bewerken: @userBeingEdited.UserName</h5>
+                        <button type="button" class="btn-close" @onclick="CancelEditing" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger">
+                                @errorMessage
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(successMessage))
+                        {
+                            <div class="alert alert-success">
+                                @successMessage
+                            </div>
+                        }
+                        <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="form-group mt-3">
+                                <label for="Username">Gebruikersnaam</label>
+                                <InputText id="Username" @bind-Value="userBeingEdited.UserName" class="form-control" />
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="Email">Email</label>
+                                <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="Role">Rol</label>
+                                <InputSelect id="Role" @bind-Value="userBeingEdited.Role" class="form-control">
+                                    @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="IsActive">Actief</label>
+                                <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
+                            </div>
+
+                            <button type="submit" class="btn btn-outline-success">Opslaan</button>
+                            <button type="button" class="btn btn-outline-danger" @onclick="CancelEditing">Annuleren</button>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
     <!-- Modal -->
     @if (isModalVisible)
     {
@@ -159,7 +219,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Debug.WriteLine(httpContextAccessor.HttpContext.ToString());
         try
         {
             var response = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");

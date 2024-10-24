@@ -35,12 +35,19 @@
                                 </NavLink>
 
                             </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/admin/teams" style="background-image: linear-gradient(#D9D9D9, #E0D000);color: transparent;background-clip: text;">
+                                <i class="bi bi-person-lines-fill"></i>
+                                Overzicht teams
+                            </NavLink>
+                        </li>
                             <li class="nav-item">
                             <NavLink class="nav-link" href="/admin/create" style="background-image: linear-gradient(#D9D9D9, #E0D000);color: transparent;background-clip: text;">
                                 <i class="bi bi-person-plus"></i>
                                 Gebruiker toevoegen
                                 </NavLink>
                             </li>
+
                         </ul>
                     </div>
              
@@ -49,10 +56,6 @@
        </CustomNavMenu>
     </div>
     <main class="main-content">
-        <div class="top-row px-4">
-            <LoginDisplay />
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
         <article class="article-content">
             @Body
         </article>

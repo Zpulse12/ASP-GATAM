@@ -15,8 +15,15 @@
                 <div class="text-end px-5">
                     <div class="d-flex justify-content-center mb-3">
                         <div class="btn-group rounded-pill shadow-lg" role="group">
-                            <button type="button" class="btn rounded-pill btn-left" style="background-color:#4454D2; color:#E0D000">Sign Up</button>
-                            <button type="button" class="btn rounded-pill btn-right" style="color:#4454D2">Log in</button>
+                            <AuthorizeView>
+                                <Authorized>
+                                    <a class="btn rounded-pill btn-right" style="color:#4454D2" href="account/login">Log out</a>
+                                </Authorized>
+                                <NotAuthorized>
+                                    <a class="btn rounded-pill btn-left" style="background-color:#4454D2; color:#E0D000" href="/account/sign-up">Sign Up</a>
+                                    <a class="btn rounded-pill btn-right" style="color:#4454D2" href="account/login">Log in</a>
+                                </NotAuthorized>
+                            </AuthorizeView>
                         </div>
                     </div>
                 </div>

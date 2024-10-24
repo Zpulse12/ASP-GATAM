@@ -1,10 +1,12 @@
 ﻿@page "/admin/teams"
 @using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.InvitationTeam
 @using Gatam.Domain
 @using System.Diagnostics
 @using Gatam.WebAppBegeleider.Components.Layout
 @inject HttpClient Http
 @rendermode InteractiveServer
+@using BlazorBootstrap;
 <CustomCards>
 <h3>Teams</h3>
 @if (isLoading)
@@ -127,12 +129,77 @@ else
                             </table>
                         }
                     </div>
-
                     <div class="tab-pane fade" id="settingTeams-@teamId" role="tabpanel" aria-labelledby="settingTeams-tab-@teamId">
-                        <!-- Instellingen inhoud hier -->
+                        <Accordion>
+                            <AccordionItem>
+                                <TitleTemplate>
+                                    Toevoegen van een gebruiker
+                                </TitleTemplate>
+                                <Content>
+                                    <div class="search-container">
+                                        <input type="text" style="border-radius:5px; margin-top:15px; border-color:lightblue; box-shadow: none; padding: 10px;" @oninput="(e) => UpdateSearchQuery(teamId, e.Value.ToString())" placeholder="Zoek gebruiker op naam of e-mail" />
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(errorMessage) && showError)
+                                    {
+                                        <div class="alert alert-danger">
+                                            @errorMessage
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(successMessage) && showSuccess)
+                                    {
+                                        <div class="alert alert-success">
+                                            @successMessage
+                                        </div>
+                                    }
+
+                                    @if (teamFilteredUsers.ContainsKey(teamId) && teamFilteredUsers[teamId].Count > 0)
+                                    {
+
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Gebruikersnaam</th>
+                                                    <th>Emailadres</th>
+                                                    <th>Toevoegen</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var user in teamFilteredUsers[teamId])
+                                                {
+
+                                                    <tr>
+                                                        <td>@user.UserName</td>
+                                                        <td>@user.Email</td>
+                                                        <td><button class="btn" style="background-color: #4454D2; color:white; font-weight:bold" @onclick="() => InviteUserToTeam(user.Id, teamId)">Toevoegen</button></td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(searchText))
+                                    {
+                                        <p>Geen gebruikers gevonden.</p>
+                                    }
+                                    else
+                                    {
+                                    }
+                                </Content>
+                            </AccordionItem>
+                            <AccordionItem>
+                                <TitleTemplate>
+                                    Team bijwerken
+                                </TitleTemplate>
+                                <Content>
+                                   ...
+                                </Content>
+                            </AccordionItem>
+                        </Accordion>
+
+
                     </div>
                 </div>
             </div>
+
         }
 }
     @if (isModalVisible)
@@ -162,9 +229,18 @@ else
 </CustomCards>
 
 @code {
+    private string searchText = string.Empty;
     private List<ApplicationTeam> teams = new();
+    private List<ApplicationUser> users = new();
+    private List<ApplicationUser> filteredUsers = new List<ApplicationUser>();
+    private Dictionary<string, List<ApplicationUser>> teamFilteredUsers = new();
     private bool isLoading = true;
     private bool hasError = false;
+
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+    private bool showError = false;
+    private bool showSuccess = false;
 
     private bool isModalVisible = false;
     private string selectedInvitationId = " ";
@@ -183,10 +259,25 @@ else
     {
         try
         {
-            var response = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
-            if (response != null && response.Count > 0)
+            var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+            var allUsers = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/user");
+
+            if (teamResponse != null && teamResponse.Count > 0)
             {
-                teams = response;
+                teams = teamResponse;
+                users = allUsers;
+
+            }
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                showError = true;
+                StartTimer(true);
+            }
+
+            if (!string.IsNullOrEmpty(successMessage))
+            {
+                showSuccess = true;
+                StartTimer(false); 
             }
         }
         catch (HttpRequestException ex)
@@ -198,6 +289,21 @@ else
         {
             isLoading = false;
         }
+    }
+    private async void StartTimer(bool isError)
+    {
+        await Task.Delay(5000); // Wacht 5 seconden
+
+        if (isError)
+        {
+            showError = false;
+        }
+        else
+        {
+            showSuccess = false;
+        }
+
+        StateHasChanged(); // Update de UI
     }
 
     private async Task ToggleInvitationStatus(TeamInvitation invitation, string invitationId, bool isAccepted)
@@ -228,6 +334,8 @@ else
                         invitationRequest.isAccepted = updatedTeam.TeamInvitations.FirstOrDefault(i => i.Id == invitation.Id).isAccepted;
                     }
                     StateHasChanged();
+                    var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+                    teams = teamResponse;
                 }
             }
             else
@@ -245,26 +353,22 @@ else
     {
         try
         {
-            // Make the delete request
             var response = await Http.DeleteAsync($"api/invitationteam/delete/{selectedInvitationId}");
 
-            // Check if the response is successful
             if (response.IsSuccessStatusCode)
             {
-                // Find the team that contains the invitation
                 var teamContainingInvitation = teams
                     .FirstOrDefault(t => t.TeamInvitations.Any(inv => inv.Id == selectedInvitationId));
 
                 if (teamContainingInvitation != null)
                 {
-                    // Find and remove the invitation from the team
                     var invitationToRemove = teamContainingInvitation.TeamInvitations
                         .FirstOrDefault(inv => inv.Id == selectedInvitationId);
 
                     if (invitationToRemove != null)
                     {
                         teamContainingInvitation.TeamInvitations.Remove(invitationToRemove);
-                        StateHasChanged(); // Update the UI
+                        StateHasChanged(); 
                     }
                 }
 
@@ -280,4 +384,78 @@ else
             Debug.WriteLine($"Error during deletion: {ex.Message}");
         }
     }
+
+    private void UpdateSearchQuery(string teamId, string searchInput)
+    {
+        searchText = searchInput;
+
+        if (!teamFilteredUsers.ContainsKey(teamId))
+        {
+            teamFilteredUsers[teamId] = new List<ApplicationUser>();
+        }
+
+        teamFilteredUsers[teamId] = users
+            .Where(user => user.UserName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                           user.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private HttpResponseMessage response;
+    private TeamInvitationDTO invitation;
+    private async Task InviteUserToTeam(string userId, string teamId)
+    {
+        var user = users.Find(u => u.Id == userId);
+        var team = teams.Find(team => team.Id == teamId);
+        invitation = new TeamInvitationDTO()
+        {
+                Id = Guid.NewGuid().ToString(),
+                ApplicationTeamId = teamId,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow,
+                ResponseDateTime = DateTime.UtcNow,
+                IsAccepted = true
+        };
+
+
+
+        response = await Http.PostAsJsonAsync("api/invitationteam", invitation);
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "Gebruiker succesvol bijgewerkt!";
+            var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+            teams = teamResponse;
+            showSuccess = true;
+            StartTimer(true);
+            StateHasChanged();  
+        }
+        else
+        {
+            var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+            if (errorResponse?.Failures != null && errorResponse.Failures.Any())
+            {
+                errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+                showError = true;
+                StartTimer(true);
+            }
+            else
+            {
+                errorMessage = errorResponse?.Message ?? "Er is een onbekende fout opgetreden.";
+            }
+
+        }
+    }
+
+    public class ValidationErrorResponse
+    {
+        public string Message { get; set; }
+        public List<ValidationFailure> Failures { get; set; }
+    }
+
+    public class ValidationFailure
+    {
+        public string PropertyName { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
+
 } 

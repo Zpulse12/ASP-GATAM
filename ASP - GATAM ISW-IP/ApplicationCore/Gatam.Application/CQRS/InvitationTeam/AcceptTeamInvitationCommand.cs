@@ -3,7 +3,7 @@ using Gatam.Application.Interfaces;
 using MediatR;
 using FluentValidation;
 
-namespace Gatam.Application.CQRS
+namespace Gatam.Application.CQRS.InvitationTeam
 {
     public class AcceptTeamInvitationCommand : IRequest<IEnumerable<TeamInvitationDTO>>
     {
@@ -27,10 +27,11 @@ namespace Gatam.Application.CQRS
             RuleFor(x => x._teaminvitationId)
                 .MustAsync(async (invitationId, cancellation) =>
                 {
-                var invitation = await _uow.TeamInvitationRepository.FindById(invitationId);
-                if (invitation == null) return false;
-                var team = await _uow.TeamRepository.FindById(invitation.ApplicationTeamId);
-                return team != null; })
+                    var invitation = await _uow.TeamInvitationRepository.FindById(invitationId);
+                    if (invitation == null) return false;
+                    var team = await _uow.TeamRepository.FindById(invitation.ApplicationTeamId);
+                    return team != null;
+                })
                 .WithMessage("The team for this invitation does not exist");
         }
     }
