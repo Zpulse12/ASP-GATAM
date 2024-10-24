@@ -5,6 +5,7 @@ using MediatR;
 using Gatam.Domain;
 using Gatam.WebAPI.Extensions;
 using System.Diagnostics;
+using Gatam.Application.CQRS.User;
 using Microsoft.AspNetCore.Authorization;
 namespace Gatam.WebAPI.Controllers
 {
@@ -23,7 +24,6 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> GetUsers()
         {
-
             var users = await _mediator.Send(new GetAllUsersQuery());
             return Ok(users);
         }
@@ -38,8 +38,8 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut]
-        [Route("deactivate/{id}")]
-        public async Task<IActionResult> DeactivateUser(string id, [FromBody] DeactivateUserCommand command)
+        [Route("setactivestate/{id}")]
+        public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command._userId = id;
 
