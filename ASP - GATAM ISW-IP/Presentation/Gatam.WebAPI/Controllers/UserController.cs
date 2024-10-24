@@ -5,6 +5,7 @@ using MediatR;
 using Gatam.Domain;
 using Gatam.WebAPI.Extensions;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -19,8 +20,10 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> GetUsers()
         {
+
             var users = await _mediator.Send(new GetAllUsersQuery());
             return Ok(users);
         }

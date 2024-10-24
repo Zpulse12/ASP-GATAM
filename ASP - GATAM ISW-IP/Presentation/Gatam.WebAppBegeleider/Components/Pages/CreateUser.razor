@@ -1,10 +1,11 @@
 ﻿@page "/admin/create"
-@inject HttpClient http
+@inject IHttpClientFactory HttpClientFactory
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 
 @rendermode InteractiveServer
 
+@attribute [Authorize(Policy = "RequireManagementRole")]
 <div class="container mt-3">
     @if (isSuccess)
     {
@@ -44,7 +45,7 @@
         <div class="row">
             <div class="col-md-12 mb-3">
                 <label for="Role">Rol</label>
-                <InputSelect id="Role" @bind-Value="user._role" class="form-control rounded-pill">
+                <InputSelect id="Role" @bind-Value="user.Role" class="form-control rounded-pill">
                     <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
                     <option value="@ApplicationUserRoles.MENTOR">Begeleider</option>
                     <option value="@ApplicationUserRoles.STUDENT">Student</option>
@@ -63,17 +64,18 @@
 @code {
     string response = "";
     bool isSuccess = false;
-    ApplicationUser user = new ApplicationUser() {_role = ApplicationUserRoles.STUDENT};
+    ApplicationUser user = new ApplicationUser() {Role = ApplicationUserRoles.STUDENT};
     private async Task OnFormSubmit() 
     {
-        HttpResponseMessage result = await http.PostAsJsonAsync("/api/User", user);
+        var client = HttpClientFactory.CreateClient("ApiClient");
+        HttpResponseMessage result = await client.PostAsJsonAsync("winchester/api/User", user);
 
         if(result.IsSuccessStatusCode)
         {
             response = "Gebruiker is aangemaakt";
             isSuccess = true;
 
-            user = new ApplicationUser() { _role = ApplicationUserRoles.STUDENT }; 
+            user = new ApplicationUser() { Role = ApplicationUserRoles.STUDENT }; 
         } else
         {
             response = result.Content.ToString();
