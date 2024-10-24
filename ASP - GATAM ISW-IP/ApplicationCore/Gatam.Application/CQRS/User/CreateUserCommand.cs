@@ -39,8 +39,6 @@ namespace Gatam.Application.CQRS
                 .MinimumLength(3).WithMessage("username must contain minimal 3 letters");
         }
     }
-
-
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, ApplicationUser>
     {
         private readonly IUnitOfWork _unitOfWork;

@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,5 +19,13 @@
     <ProjectReference Include="..\..\ApplicationCore\Gatam.Application\Gatam.Application.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ApplicationCore\Gatam.Application\Gatam.Application.csproj" />
+    <ProjectReference Include="..\..\ApplicationCore\Gatam.Domain\Gatam.Domain.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Gatam.Infrastructure\Gatam.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://json.schemastore.org/ava.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

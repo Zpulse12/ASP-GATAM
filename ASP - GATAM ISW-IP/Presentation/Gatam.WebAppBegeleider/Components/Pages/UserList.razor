@@ -1,11 +1,21 @@
 @using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Application.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
 @using Gatam.Domain
 @using Microsoft.AspNetCore.Components.QuickGrid
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+@inject ApiClient apiClient
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
 @rendermode InteractiveServer
+
+
+@attribute [Authorize(Policy = "RequireManagementRole")]
 @inject NavigationManager Navigation
 <CustomCards>
     <div class="card-body">
@@ -38,7 +48,7 @@
                 <QuickGrid Items="_users.AsQueryable()">
                     <PropertyColumn Property="@(u => u.UserName)" Title="Gebruikersnaam" Sortable="true" />
                     <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" />
-                    <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true" />
+                    <PropertyColumn Property="@(u => u.Role)" Title="Rol" Sortable="true" />
                     <PropertyColumn Property="@(u => u.AccessFailedCount)" Title="Mislukte pogingen" Sortable="true" />
                     <PropertyColumn Property="@(u => u.LockoutEnabled)" Title="Vergrendeld account" Sortable="true" />
                     <PropertyColumn Property="@(u => u.EmailConfirmed)" Title="Email Bevestigd" Sortable="true" />
@@ -105,15 +115,15 @@
                                 <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
                             </div>
 
-                            <div class="form-group mt-3">
-                                <label for="Role">Rol</label>
-                                <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
-                                    @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
-                                    {
-                                        <option value="@role">@role</option>
-                                    }
-                                </InputSelect>
-                            </div>
+                    <div class="form-group mt-3">
+                        <label for="Role">Rol</label>
+                        <InputSelect id="Role" @bind-Value="userBeingEdited.Role" class="form-control">
+                            @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
+                            {
+                            <option value="@role">@role</option>
+                            }
+                        </InputSelect>
+                    </div>
 
                             <div class="form-group mt-3">
                                 <label for="IsActive">Actief</label>
@@ -177,9 +187,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Debug.WriteLine(httpContextAccessor.HttpContext.ToString());
         try
         {
-            var response = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/User");
+            var response = await apiClient.GetFromJsonAsync<List<ApplicationUser>>("/api/User");
             if (response != null && response.Count > 0)
             {
                 _users = response;
@@ -221,8 +232,7 @@
         {
             try
             {
-                var response = await Http.PutAsJsonAsync($"api/User/{userBeingEdited.Id}", userBeingEdited);
-            
+                var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
                 if (response.IsSuccessStatusCode)
                 {
                     successMessage = "Gebruiker succesvol bijgewerkt!";
@@ -257,11 +267,9 @@
 
     async Task Delete()
     {
-        Debug.WriteLine(selectedUserId);
         try
         {
-
-            var response = await Http.DeleteAsync($"api/User/{selectedUserId}");
+            var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
@@ -289,11 +297,11 @@
         try
         {
             var command = new DeactivateUserCommand
-            {
-                _userId = userId,
-                IsActive = isActive
-            };
-            var response = await Http.PutAsJsonAsync($"api/User/{userId}/setactivestate", command);
+                {
+                    _userId = userId,
+                    IsActive = isActive
+                };
+            var response = await apiClient.PutAsJsonAsync($"/api/User/deactivate/{userId}", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();

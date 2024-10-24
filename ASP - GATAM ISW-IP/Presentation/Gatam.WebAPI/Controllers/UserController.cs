@@ -5,6 +5,7 @@ using MediatR;
 using Gatam.Domain;
 using Gatam.WebAPI.Extensions;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -19,8 +20,10 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "STUDENT")]
         public async Task<IActionResult> GetUsers()
         {
+
             var users = await _mediator.Send(new GetAllUsersQuery());
             return Ok(users);
         }
@@ -74,7 +77,15 @@ namespace Gatam.WebAPI.Controllers
                return Ok(response);
            }
            return NotFound("User doesnt exists");
-
+        }
+        [HttpGet("private-scoped")]
+        [Authorize("read:admin")]
+        public IActionResult Scoped()
+        {
+            return Ok(new
+            {
+                Message = "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this."
+            });
         }
     }
 

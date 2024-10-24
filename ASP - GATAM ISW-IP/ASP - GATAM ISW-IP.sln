@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		docker-compose.yml = docker-compose.yml
+		nginx.conf = nginx.conf
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.Application", "ApplicationCore\Gatam.Application\Gatam.Application.csproj", "{0B6F5E8B-3A85-458D-BBF4-92CB9D8E7C6C}"
@@ -26,8 +27,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.WebAppVolger", "Presentation\Gatam.WebAppVolger\Gatam.WebAppVolger.csproj", "{0FFEF455-F797-4E54-ABB1-15B79A1F919C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.WebAppBegeleider", "Presentation\Gatam.WebAppBegeleider\Gatam.WebAppBegeleider.csproj", "{49F7B7BF-6A22-4C49-B626-51AD269996FF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gatam.Authentication", "Presentation\Gatam.Authentication\Gatam.Authentication.csproj", "{85E2F652-F5EE-4D78-9F92-1ABCE7A3DDAE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTesting", "UnitTesting\UnitTesting.csproj", "{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}"
 EndProject
@@ -61,10 +60,6 @@ Global
 		{49F7B7BF-6A22-4C49-B626-51AD269996FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49F7B7BF-6A22-4C49-B626-51AD269996FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49F7B7BF-6A22-4C49-B626-51AD269996FF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{85E2F652-F5EE-4D78-9F92-1ABCE7A3DDAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{85E2F652-F5EE-4D78-9F92-1ABCE7A3DDAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{85E2F652-F5EE-4D78-9F92-1ABCE7A3DDAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{85E2F652-F5EE-4D78-9F92-1ABCE7A3DDAE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EB2CB42-6A8D-47C0-BCE8-8F4BB6A43CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -80,7 +75,6 @@ Global
 		{06483A2B-96DD-45E4-8602-44C052EB27B9} = {67D201B6-11E9-4961-A73D-25696575FD42}
 		{0FFEF455-F797-4E54-ABB1-15B79A1F919C} = {67D201B6-11E9-4961-A73D-25696575FD42}
 		{49F7B7BF-6A22-4C49-B626-51AD269996FF} = {67D201B6-11E9-4961-A73D-25696575FD42}
-		{85E2F652-F5EE-4D78-9F92-1ABCE7A3DDAE} = {67D201B6-11E9-4961-A73D-25696575FD42}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58AA4686-F140-4D6C-AAD0-496D4E8EDD94}

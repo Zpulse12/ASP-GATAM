@@ -1,84 +1,69 @@
-using Gatam.Infrastructure.Contexts;
-using Gatam.Domain;
 using Gatam.WebAppBegeleider.Components;
+using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Gatam.WebAppBegeleider.Interfaces;
+using Gatam.WebAppBegeleider.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 
 internal class Program
 {
-
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Logging.AddDebug();
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
+        builder.Services.AddRazorPages();
+        builder.Services.RegisterAuth0Authentication();
+        builder.Services.RegisterCustomApiClient();
+        builder.Services.RegisterPolicies();
 
-        string baseURI = "http://webapi:8080/";
-#if DEBUG
-        baseURI = "http://localhost:5000";
-#endif
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseURI) });
-        //builder.Services.AddAuthentication(options =>
-        //{
-        //    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        //    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-        //}).AddIdentityCookies();
-        //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        //builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        //    options.UseSqlServer(connectionString));
 
-        //builder.Services.AddIdentityCore<ApplicationUser>(options =>
-        //{
-        //    options.SignIn.RequireConfirmedAccount = true;
-        //}).AddEntityFrameworkStores<ApplicationDbContext>()
-        //.AddDefaultTokenProviders();
-
-        //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        //.AddCookie();
 
         var app = builder.Build();
-
-        // Middleware voor authenticatie -> omzetten naar eigen middleware file en pas na HTTPS redirect...
-        //app.Use(async (context, next) =>
-        //{
-        //    if(context.User.Identity is not null)
-        //    {
-        //        if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/login"))
-        //        {
-        //            context.Response.Redirect("/login");
-        //            return; // Stop verdere verwerking
-        //        }
-        //    }
-        //    // Controleer of de gebruiker geauthenticeerd is
-        //    await next.Invoke();
-        //});
-
-        // Configureer de HTTP-request-pijplijn.
+        // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error", createScopeForErrors: true);
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedProto
+        });
 
         app.UseHttpsRedirection();
-
         app.UseStaticFiles();
-        app.UseAntiforgery();
-        //app.UseAuthentication(); // Zorg ervoor dat authenticatie is ingesteld
-        //app.UseAuthorization();
-
         app.MapRazorComponents<App>()
-        .AddInteractiveServerRenderMode();// Registreer de Razor-pagina's
+            .AddInteractiveServerRenderMode();
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseAntiforgery();
+        app.MapRazorPages();
+        app.MapGet("account/login", async (HttpContext httpContext, string redirectUri = "/") =>
+        {
+            var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
+            .WithRedirectUri(redirectUri)
+            .Build();
 
-        // Fallback route naar de loginpagina
-        //app.MapFallbackToPage("/login");
-
+            await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+        }).AllowAnonymous();
+        app.MapGet("account/logout", async (httpContext) =>
+        {
+            var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
+                .WithRedirectUri("/")
+                .Build();
+            await httpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        });
         app.Run();
     }
 }
