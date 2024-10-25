@@ -3,7 +3,7 @@ stages:
 deploy_main:
     stage: deploy
     tags:
-    - deployment
+    - docker_deployment
     script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker-compose pull
