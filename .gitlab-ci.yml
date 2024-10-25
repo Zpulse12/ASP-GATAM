@@ -14,16 +14,15 @@ debug:
     - echo "Pipeline source $CI_PIPELINE_SOURCE"
     - echo "Commit SHA $CI_COMMIT_SHA"
     - echo "Commit TAG $CI_COMMIT_TAG"
+    - echo ${CI_PROJECT_DIR}
 
 deploy:
   stage: deploy
   tags:
     - docker_deployment
   script:
-    - echo "Current branch $CI_COMMIT_BRANCH"
-    - echo "Expected branch $BRANCH"
-    - docker --version 
-    - docker compose --version
+    - cp /etc/gatam/.env ${CI_PROJECT_DIR}/ASP - GATAM ISW-IP/.env
     - cd './ASP - GATAM ISW-IP/' && docker compose up -d --build 
   rules:
     - if: '$CI_COMMIT_TAG'
+  environment: production
