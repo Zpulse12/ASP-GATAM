@@ -45,3 +45,5 @@ msbuild.err
 msbuild.wrn
 msbuild.wrn
 /debug.env
+
+../.vs/
