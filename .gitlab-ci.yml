@@ -1,8 +1,16 @@
 stages:
+  - debug
   - deploy
 
 variables:
   BRANCH: technical-33-geautomatiseerde-deployment-omgeving
+
+debug:
+  stage: debug
+  script:
+    - echo "Current branch $CI_COMMIT_BRANCH"
+    - echo "Pipeline source $CI_PIPELINE_SOURCE"
+    - echo "Commit SHA $CI_COMMIT_SHA"
 
 deploy:
   stage: deploy
