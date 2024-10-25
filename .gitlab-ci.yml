@@ -1,31 +1,9 @@
 stages:
-  - build
   - deploy
 variables:
-  CONTAINER_REGISTRY: registry.gitlab.apstudent.be
-  IMAGE_NAME: bachelor-it/applied-software-project/24-25/team-08/asp-gatam-isw-ip/gatam
   BRANCH: technical-33-geautomatiseerde-deployment-omgeving
-build:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-      command: ["--insecure-registry=registry.gitlab.apstudent.be"]
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-  script:
-    - docker-compose build
-    - docker-compose push
-  rules:
-    - if: '$CI_COMMIT_BRANCH == $BRANCH && $CI_PIPELINE_SOURCE == "tag"'
 deploy:
   stage: deploy
-  image: docker:latest
-  services:
-    - docker:dind
-      command: ["--insecure-registry=registry.gitlab.apstudent.be"]
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
     - docker-compose up -d
   rules:
