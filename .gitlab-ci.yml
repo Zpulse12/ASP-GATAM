@@ -7,8 +7,8 @@ variables:
 deploy:
   stage: deploy
   script:
-    - echo "Current branch: $CI_COMMIT_BRANCH"
-    - echo "Expected branch: $BRANCH"
+    - echo "Current branch $CI_COMMIT_BRANCH"
+    - echo "Expected branch $BRANCH"
     - docker --version 
     - docker compose --version
     - docker compose up -d --build 
