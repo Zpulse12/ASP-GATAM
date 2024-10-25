@@ -26,8 +26,23 @@ install_docker_if_missing() {
         sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
         echo "$package has been installed."
         echo "Setting $package to start on startup + starting the deamon"
-        sudo systemctl start docker
-        sudo systemctl enable docker
+        sudo systemctl start $package
+        sudo systemctl enable $package
+    else
+        echo "$package already installed, skipping..."
+    fi
+}
+
+install_gitlab_runner() {
+    package=$1
+    sudo apt install -y $package
+     if ! command -v "$package" >/dev/null 2>&1; then
+        echo "$package not found. Installing..."
+        echo "Installing gitlab repositories"
+        curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash
+        echo "Installing $package"
+        sudo apt update
+        sudo apt install -y gitlab-runner
     else
         echo "$package already installed, skipping..."
     fi
@@ -35,6 +50,6 @@ install_docker_if_missing() {
 
 install_if_missing git
 install_docker_if_missing docker 
-
+install_gitlab_runner gitlab-runner
 
 
