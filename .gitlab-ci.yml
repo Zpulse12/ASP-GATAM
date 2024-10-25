@@ -5,8 +5,8 @@ variables:
 deploy:
   stage: deploy
   script:
-  - echo "Current branch: $CI_COMMIT_BRANCH"
-  - echo "Expected branch: $BRANCH"
-  - docker-compose up -d --build 
+    - echo "Current branch: $CI_COMMIT_BRANCH"
+    - echo "Expected branch: $BRANCH"
+    - docker-compose up -d --build 
   rules:
     - if: '$CI_COMMIT_BRANCH == $BRANCH && $CI_PIPELINE_SOURCE == "tag"'
