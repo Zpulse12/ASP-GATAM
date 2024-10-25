@@ -3,7 +3,7 @@
 project.lock.json
 .DS_Store
 *.pyc
-nupkg/
+nupkg/ 
 
 TestResults/
 # Visual Studio Code
@@ -45,5 +45,3 @@ msbuild.err
 msbuild.wrn
 msbuild.wrn
 /debug.env
-
-../.vs/

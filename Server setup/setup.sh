@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-# Used to setup a new VM or Dedicated Machine. Make sure every dependency is installed.
+# Opzetten van nieuwe machine / server. OPGELET! Dit script gaat ook een GITLAB runner starten voor de pipelines te bouwen.
 install_if_missing() {
     package=$1
 
