@@ -11,7 +11,7 @@ build:
   services:
     - docker:dind
   before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CONTAINER_REGISTRY --username "$CI_REGISTRY_USER" --password-stdin
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
     - docker-compose build
     - docker-compose push
@@ -23,7 +23,7 @@ deploy:
   services:
     - docker:dind
   before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CONTAINER_REGISTRY --username "$CI_REGISTRY_USER" --password-stdin
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
     - docker-compose up -d
   rules:
