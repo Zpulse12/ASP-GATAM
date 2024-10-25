@@ -7,6 +7,8 @@ variables:
 
 debug:
   stage: debug
+  tags:
+    - docker_deployment
   script:
     - echo "Current branch $CI_COMMIT_BRANCH"
     - echo "Pipeline source $CI_PIPELINE_SOURCE"
@@ -14,6 +16,8 @@ debug:
 
 deploy:
   stage: deploy
+  tags:
+    - docker_deployment
   script:
     - echo "Current branch $CI_COMMIT_BRANCH"
     - echo "Expected branch $BRANCH"
