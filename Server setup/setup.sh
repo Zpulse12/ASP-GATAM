@@ -43,8 +43,20 @@ install_gitlab_runner() {
         echo "Installing $package"
         sudo apt update
         sudo apt install -y gitlab-runner
+        echo "Prompting registration. Please fill in the right data"
+        sudo gitlab-runner register
+        sudo systemctl enable gitlab-runner
+        sudo systemctl start gitlab-runner
     else
         echo "$package already installed, skipping..."
+        if ! sudo gitlab-runner list | grep -q "ID:"; then
+            echo "Prompting registration. Please fill in the right data"
+            sudo gitlab-runner register
+            sudo systemctl enable gitlab-runner
+            sudo systemctl start gitlab-runner
+        else
+            echo "GitLab Runner is already registered."
+        fi
     fi
 }
 
