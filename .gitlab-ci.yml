@@ -10,6 +10,7 @@ build:
   image: docker:latest
   services:
     - docker:dind
+      command: ["--insecure-registry=registry.gitlab.apstudent.be"]
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
@@ -22,6 +23,7 @@ deploy:
   image: docker:latest
   services:
     - docker:dind
+      command: ["--insecure-registry=registry.gitlab.apstudent.be"]
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
