@@ -8,7 +8,7 @@ production-deploy:
   tags:
     - docker_deployment
   script:
-    - cp /etc/gatam/.env.production ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.staging
+    - cp /etc/gatam/.env.production ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.production
     - cd './ASP - GATAM ISW-IP/'
     - docker compose -f docker-compose.production.yml down
     - docker compose --env-file .env.production -f docker-compose.production.yml up -d --build 
