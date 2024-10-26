@@ -3,5 +3,5 @@ if ! command -v "docker" >/dev/null 2>&1; then
 else
     docker network create staging-proxy
     docker network create production-proxy
-    docker compose -f ./docker-compose.yml up -d --build
+    docker compose --env-file ./.env -f ./docker-compose.yml up -d --build
 fi
