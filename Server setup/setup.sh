@@ -46,17 +46,17 @@ install_gitlab_runner() {
         echo "Setting permissions for GITLAB RUNNER to access ENV file."
         setfacl -m u:gitlab-runner:r /etc/gatam/.env.production
         setfacl -m u:gitlab-runner:r /etc/gatam/.env.staging
-        echo "Prompting registration. Please fill in the right data"
-        sudo gitlab-runner register
         sudo systemctl enable gitlab-runner
         sudo systemctl start gitlab-runner
+        echo "Prompting registration. Please fill in the right data"
+        sudo gitlab-runner register
     else
         echo "$package already installed, skipping..."
         if ! sudo gitlab-runner list | grep -q "ID:"; then
-            echo "Prompting registration. Please fill in the right data"
-            sudo gitlab-runner register
             sudo systemctl enable gitlab-runner
             sudo systemctl start gitlab-runner
+            echo "Prompting registration. Please fill in the right data"
+            sudo gitlab-runner register
         else
             echo "GitLab Runner is already registered."
         fi
