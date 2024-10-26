@@ -35,6 +35,10 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - TOKEN=${TOKEN}
       - BASE_URI=${BASE_URI}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_CLIENTSECRET=${AUTH0_CLIENTSECRET}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
     depends_on:
       - mssql-server
     networks:
@@ -59,6 +63,10 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - TOKEN=${TOKEN}
       - BASE_URI=${BASE_URI}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_CLIENTSECRET=${AUTH0_CLIENTSECRET}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
     depends_on:
       - webapi
       - mssql-server
