@@ -1,12 +1,17 @@
-version: '3.8'
-services:
-  app:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped
+version: '3.9'
+services: 
+  nginx:
+    restart: always
+    image: nginx:1-alpine-slim
     ports:
-      - '80:80' # Public HTTP Port
-      - '443:443' # Public HTTPS Port
-      - '81:81' # Admin Web Port
+      - 80:80
     volumes:
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - production-proxy
+      - staging-proxy
+networks:
+  production-proxy:
+      driver: bridge
+  staging-proxy:
+      driver: bridge     
