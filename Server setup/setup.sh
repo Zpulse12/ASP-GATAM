@@ -44,6 +44,8 @@ install_gitlab_runner() {
         sudo apt update
         sudo apt install -y gitlab-runner
         echo "Setting permissions for GITLAB RUNNER to access ENV file."
+        setfacl -m u:gitlab-runner:r /etc/gatam/.env.production
+        setfacl -m u:gitlab-runner:r /etc/gatam/.env.staging
         echo "Prompting registration. Please fill in the right data"
         sudo gitlab-runner register
         sudo systemctl enable gitlab-runner
@@ -65,7 +67,8 @@ install_gitlab_runner() {
 echo "Creating necessary files :"
 mkdir /etc/gatam
 cd /etc/gatam
-touch .env
+touch .env.production
+touch .env.staging
 cd /
 install_if_missing git
 install_docker_if_missing docker 
