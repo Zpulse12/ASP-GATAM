@@ -70,6 +70,6 @@ volumes:
   sql_data:
 networks:
   database:
-   staging-proxy:
+  staging-proxy:
     driver: bridge 
     external: true
