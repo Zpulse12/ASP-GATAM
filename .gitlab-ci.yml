@@ -6,7 +6,7 @@ stages:
 production-deploy:
   stage: production-deployment
   tags:
-    - docker_deployment
+    - production
   script:
     - cp /etc/gatam/.env.production ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.production
     - cd './ASP - GATAM ISW-IP/'
@@ -18,7 +18,7 @@ production-deploy:
 staging-deploy:
   stage: staging-deployment
   tags:
-    - docker_deployment
+    - staging
   script:
     - cp /etc/gatam/.env.staging ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.staging
     - cd './ASP - GATAM ISW-IP/'
