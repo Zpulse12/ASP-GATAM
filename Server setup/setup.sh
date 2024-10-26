@@ -43,6 +43,7 @@ install_gitlab_runner() {
         echo "Installing $package"
         sudo apt update
         sudo apt install -y gitlab-runner
+        echo "Setting permissions for GITLAB RUNNER to access ENV file."
         echo "Prompting registration. Please fill in the right data"
         sudo gitlab-runner register
         sudo systemctl enable gitlab-runner
@@ -60,6 +61,12 @@ install_gitlab_runner() {
     fi
 }
 
+
+echo "Creating necessary files :"
+mkdir /etc/gatam
+cd /etc/gatam
+touch .env
+cd /
 install_if_missing git
 install_docker_if_missing docker 
 install_gitlab_runner gitlab-runner
