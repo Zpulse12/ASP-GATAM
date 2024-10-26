@@ -52,6 +52,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
+      - DATABASE_NAME=Gatam.${ENVIRONMENT}
       - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
       - SA_PASSWORD=${SA_PASSWORD}
       - DATABASE_HOST=${DATABASE_HOST}
