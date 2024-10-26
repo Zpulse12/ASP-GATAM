@@ -30,7 +30,7 @@ services:
       - mssql-server
     networks:
       - database
-      - proxy
+      - staging-proxy
   webappbegeleider:
     build:
       context: .
@@ -50,7 +50,7 @@ services:
       - mssql-server
     networks:
       - database
-      - proxy
+      - staging-proxy
   webappvolger:
     build:
       context: .
@@ -65,28 +65,10 @@ services:
       - mssql-server
     networks:
       - database
-      - proxy
-  nginx:
-    image: nginx:1.27.2-alpine-slim
-    container_name: reverseproxy
-    restart: always
-    volumes:
-      - ./nginx.conf.template:/etc/nginx/nginx.conf.template
-    environment:
-      - DOMAIN=${DOMAIN}
-      - WEB_PORT=${NGINX_WEBPORT}
-    command: /bin/sh -c "envsubst '\$DOMAIN \$WEB_PORT' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
-    ports:
-      - "${NGINX_PORT}:80"
-    networks: 
-      - proxy
-    depends_on:
-      - webappvolger
-      - webappbegeleider
-      - webapi
+      - staging-proxy
 volumes:
   sql_data:
 networks:
   database:
-  proxy:
+   staging-proxy:
     driver: bridge 
