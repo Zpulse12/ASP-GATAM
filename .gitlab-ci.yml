@@ -1,31 +1,30 @@
 stages:
   - debug
-  - deploy
+  - production-deployment
+  - staging-deployment
 
-variables:
-  BRANCH: technical-33-geautomatiseerde-deployment-omgeving
-
-debug:
-  stage: debug
+production-deploy:
+  stage: production-deployment
   tags:
     - docker_deployment
   script:
-    - echo "Current branch $CI_COMMIT_BRANCH"
-    - echo "Pipeline source $CI_PIPELINE_SOURCE"
-    - echo "Commit SHA $CI_COMMIT_SHA"
-    - echo "Commit TAG $CI_COMMIT_TAG"
-    - echo ${CI_PROJECT_DIR}
-
-deploy:
-  stage: deploy
-  tags:
-    - docker_deployment
-  script:
-    - cp /etc/gatam/.env.production ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.production
+    - cp /etc/gatam/.env.production ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.staging
     - cd './ASP - GATAM ISW-IP/'
-    - cat .env.production 
     - docker compose -f docker-compose.production.yml down
     - docker compose --env-file .env.production -f docker-compose.production.yml up -d --build 
   rules:
     - if: '$CI_COMMIT_TAG'
   environment: production
+staging-deploy:
+  stage: staging-deployment
+  tags:
+    - docker_deployment
+  script:
+    - cp /etc/gatam/.env.production ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.staging
+    - cd './ASP - GATAM ISW-IP/'
+    - docker compose -f docker-compose.staging.yml down
+    - docker compose --env-file .env.staging -f docker-compose.staging.yml up -d --build 
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+      when: always
+  environment: staging
