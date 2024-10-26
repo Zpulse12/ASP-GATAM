@@ -13,5 +13,7 @@ services:
 networks:
   production-proxy:
       driver: bridge
+      external: true
   staging-proxy:
-      driver: bridge     
+      driver: bridge
+      external: true     
