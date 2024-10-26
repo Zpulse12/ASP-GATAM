@@ -72,4 +72,4 @@ networks:
   database:
   staging-proxy:
     driver: bridge 
-    external: true
+    external: true 
