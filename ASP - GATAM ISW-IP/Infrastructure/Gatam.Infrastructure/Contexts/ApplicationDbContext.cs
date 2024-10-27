@@ -20,6 +20,10 @@ namespace Gatam.Infrastructure.Contexts
 
         public DbSet<TeamInvitation> TeamInvitations { get; set; }
 
+        public DbSet<ApplicationModule> Modules { get; set; }
+        public DbSet<Question> Questions { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -112,6 +116,67 @@ namespace Gatam.Infrastructure.Contexts
             builder.Entity<ApplicationUser>().HasMany(user => user.OwnedApplicationTeams).WithOne(team => team.TeamCreator).HasForeignKey(team => team.TeamCreatorId).OnDelete(DeleteBehavior.Restrict);
             builder.Entity<ApplicationTeam>().HasMany(team => team.TeamInvitations).WithOne(invitation => invitation.applicationTeam).HasForeignKey(invitation => invitation.ApplicationTeamId).OnDelete(DeleteBehavior.Restrict);
             builder.Entity<ApplicationUser>().HasMany(user => user.InvitationsRequests).WithOne(invitation => invitation.applicationUser).HasForeignKey(invitation => invitation.UserId).OnDelete(DeleteBehavior.Restrict);
+
+
+            var GLOBALMODULE = new ApplicationModule()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Title = "Solliciteren voor beginners",
+                Category = "SollicitatieTraining",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            builder.Entity<ApplicationModule>().HasData(GLOBALMODULE);
+            builder.Entity<Question>().HasData(
+                new Question()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Category = "SollicitatieTraining",
+                    ModuleId = GLOBALMODULE.Id,
+                    Type = QuestionType.TrueFalse,
+                    Text = "Is het belangrijk om jezelf goed voor te bereiden op een sollicitatiegesprek?",
+                    //Options = new List<string> { "Waar", "Onwaar" },
+                    //CorrectAnswers = new List<string> { "Waar" },
+                },
+                 new Question()
+                 {
+                     Id = Guid.NewGuid().ToString(),
+                     Category = "SollicitatieTraining",
+                     ModuleId = GLOBALMODULE.Id,
+                     Type = QuestionType.OpenText,
+                     Text = "Wat vind je belangrijk in een sollicitatiegesprek?",
+                 },
+                 new Question()
+                 {
+                     Id = Guid.NewGuid().ToString(),
+                     Category = "SollicitatieTraining",
+                     ModuleId = GLOBALMODULE.Id,
+                     Type = QuestionType.MultipleChoice,
+                     Text = "Welke vaardigheden zijn belangrijk tijdens een sollicitatiegesprek?",
+                    // Options = new List<string> { "Communicatie", "Luisteren", "Oogcontact", "Zelfvertrouwen" },
+                    // AllowsMultipleAnswers = true,
+                    // CorrectAnswers = new List<string> { "Communicatie", "Luisteren", "Zelfvertrouwen" }
+                 },
+                 new Question()
+                 {
+                     Id = Guid.NewGuid().ToString(),
+                     Category = "SollicitatieTraining",
+                     ModuleId = GLOBALMODULE.Id,
+                     Type = QuestionType.DropdownList,
+                     Text = "Wat moet je meenemen naar een sollicitatiegesprek?",
+                     //Options = new List<string> { "Cv", "Sollicitatiebrief", "Identiteitsbewijs", "Referenties" },
+                     //CorrectAnswers = new List<string> { "Cv" }
+                 }
+
+
+
+                );
+            builder.Entity<ApplicationModule>()
+                .HasMany(m => m.Questions)
+                .WithOne(q => q.Module)
+                .HasForeignKey(q => q.ModuleId);
+
+
 
 
         }
