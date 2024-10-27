@@ -175,7 +175,9 @@ namespace Gatam.Infrastructure.Contexts
                 .HasMany(m => m.Questions)
                 .WithOne(q => q.Module)
                 .HasForeignKey(q => q.ModuleId);
-
+            builder.Entity<Question>()
+             .Property(q => q.Type)
+            .HasConversion<string>();
 
 
 
