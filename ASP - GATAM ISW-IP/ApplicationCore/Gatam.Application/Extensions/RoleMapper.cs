@@ -8,12 +8,14 @@ namespace Gatam.Application.Extensions
 {
     public static class RoleMapper
     {
-        public const string Admin = "ADMIN";
-        public const string Begeleider = "MENTOR";
-        public const string Volger = "STUDENT";
+        public const string Beheerder = "BEHEERDER";
+        public const string Begeleider = "BEGELEIDER";
+        public const string Volger = "VOLGER";
+        public const string Content_Maker = "MAKER";
+
         public static List<string> GetAllRoles()
         {
-            return new List<string> { Admin, Begeleider, Volger };
+            return new List<string> { Beheerder, Begeleider, Volger, Content_Maker };
         }
     }
 }

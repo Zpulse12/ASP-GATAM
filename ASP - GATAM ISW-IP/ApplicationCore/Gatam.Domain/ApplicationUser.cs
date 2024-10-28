@@ -14,7 +14,7 @@ namespace Gatam.Domain
     // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
-        public ApplicationUserRoles Role { get; set; }
+        public List<string> Roles { get; set; } = new List<string>();
         public bool IsActive { get; set; }
 
         [JsonIgnore]

@@ -2,6 +2,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Gatam.Application.CQRS;
+using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Moq;
@@ -33,7 +34,7 @@ public class UpdateUserCommandTest
                 Id = userId,
                 UserName = "OriginalUser",
                 Email = "original@example.com",
-                Role = ApplicationUserRoles.STUDENT,
+                Roles = new List<string> { ApplicationUserRoles.STUDENT.ToString() },
                 IsActive = true
             };
 
@@ -42,7 +43,7 @@ public class UpdateUserCommandTest
                 Id = userId,
                 Username = "UpdatedUser",
                 Email = "updated@example.com",
-                _role = ApplicationUserRoles.ADMIN,
+                Roles = new List<string> { RoleMapper.Beheerder},
                 IsActive = false
             };
 
@@ -55,7 +56,7 @@ public class UpdateUserCommandTest
                 {
                     dest.UserName = src.Username;
                     dest.Email = src.Email;
-                    dest.Role = src._role;
+                    dest.Roles = src.Roles;
                     dest.IsActive = src.IsActive;
                 });
 
@@ -73,7 +74,7 @@ public class UpdateUserCommandTest
             Assert.IsNotNull(result);
             Assert.AreEqual(updatedUserDto.Username, result.Username);
             Assert.AreEqual(updatedUserDto.Email, result.Email);
-            Assert.AreEqual(updatedUserDto._role, result._role);
+            Assert.AreEqual(updatedUserDto.Roles, result.Roles);
             Assert.AreEqual(updatedUserDto.IsActive, result.IsActive);
 
             _mockUnitOfWork.Verify(uow => uow.commit(), Times.Once);

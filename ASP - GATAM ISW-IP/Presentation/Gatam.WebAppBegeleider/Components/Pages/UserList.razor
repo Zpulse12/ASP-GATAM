@@ -43,7 +43,7 @@
                     <PropertyColumn Property="@(u => u.Id)" Title="ID" Sortable="true" />
                     <PropertyColumn Property="@(u => u.Username)" Title="Gebruikersnaam" Sortable="true"/>
                     <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true"/>
-                    <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true"/>
+                    <PropertyColumn Property="@(u => u.Roles)" Title="Rol" Sortable="true"/>
                     <TemplateColumn Title="Status">
                         @if (@context.IsActive)
                         {
@@ -89,8 +89,8 @@
 
                     <div class="form-group mt-3">
                         <label for="Role">Rol</label>
-                        <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
-                            @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
+                        <InputSelect id="Role" @bind-Value="userBeingEdited.Roles" class="form-control">
+                            @foreach (var role in RoleMapper.GetAllRoles())
                             {
                             <option value="@role">@role</option>
                             }

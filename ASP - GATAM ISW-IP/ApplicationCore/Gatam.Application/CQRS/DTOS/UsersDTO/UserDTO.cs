@@ -1,3 +1,4 @@
+using Gatam.Application.Extensions;
 using Gatam.Domain;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,8 @@ namespace Gatam.Application.CQRS
     {
         public required string Username { get; set; }
         public required string Email { get; set; }
-        public ApplicationUserRoles _role { get; set; }
+        public List<string> Roles { get; set; } = RoleMapper.GetAllRoles() ;
+
         public required string Id { get; set; }
         public bool IsActive { get; set; }
         public string Picture { get; set; }

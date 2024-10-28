@@ -55,7 +55,7 @@ namespace Gatam.Infrastructure.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                    policy.RequireRole(RoleMapper.Beheerder, RoleMapper.Begeleider);
                 });
             });
 
@@ -80,7 +80,7 @@ namespace Gatam.Infrastructure.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                    policy.RequireRole(RoleMapper.Beheerder, RoleMapper.Begeleider);
                 });
             });
             return services;

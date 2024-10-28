@@ -1,4 +1,5 @@
 ﻿using Gatam.Application.CQRS;
+using Gatam.Application.Extensions;
 using Gatam.Domain;
 using Gatam.WebAPI.Controllers;
 using MediatR;
@@ -27,7 +28,7 @@ public class UpdateUserControllerTest
             Id = "1234",
             Username = "TestUser",
             Email = "testuser@example.com",
-            _role = ApplicationUserRoles.ADMIN,
+            Roles = new List<string> { RoleMapper.Beheerder},
             IsActive = true
         };
         mediator.Setup(m => m.Send(It.Is<UpdateUserCommand>(cmd => cmd.Id == userDto.Id && cmd.User == userDto), default))

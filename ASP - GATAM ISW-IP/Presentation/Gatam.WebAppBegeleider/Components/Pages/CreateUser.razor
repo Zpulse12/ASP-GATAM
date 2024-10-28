@@ -45,10 +45,11 @@
         <div class="row">
             <div class="col-md-12 mb-3">
                 <label for="Role">Rol</label>
-                <InputSelect id="Role" @bind-Value="user.Role" class="form-control rounded-pill">
-                    <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
-                    <option value="@ApplicationUserRoles.MENTOR">Begeleider</option>
-                    <option value="@ApplicationUserRoles.STUDENT">Student</option>
+                <InputSelect id="Role" @bind-Value="user.Roles" class="form-control rounded-pill">
+                    @foreach(var role in RoleMapper.GetAllRoles())
+                    {
+                        <option value="@role">@role</option>
+                    }
                 </InputSelect>
             </div>
         </div>
@@ -64,7 +65,7 @@
 @code {
     string response = "";
     bool isSuccess = false;
-    ApplicationUser user = new ApplicationUser() {Role = ApplicationUserRoles.STUDENT};
+    ApplicationUser user = new ApplicationUser() { Roles = new List<string> { RoleMapper.Volger } };
     private async Task OnFormSubmit() 
     {
         var client = HttpClientFactory.CreateClient("ApiClient");
@@ -75,10 +76,10 @@
             response = "Gebruiker is aangemaakt";
             isSuccess = true;
 
-            user = new ApplicationUser() { Role = ApplicationUserRoles.STUDENT }; 
+            user = new ApplicationUser() { Roles = new List<string> { RoleMapper.Volger } };
         } else
         {
-            response = result.Content.ToString();
+            response = await result.Content.ReadAsStringAsync();
             isSuccess = false;
         }
         StateHasChanged();
