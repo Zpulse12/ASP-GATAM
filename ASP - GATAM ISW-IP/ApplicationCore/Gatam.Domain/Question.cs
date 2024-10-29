@@ -18,9 +18,9 @@ namespace Gatam.Domain
 
         public QuestionType Type { get; set; }
         public string Text { get; set; }
-       // public List<string> Options { get; set; } =  new List<string>();
-       // public bool AllowsMultipleAnswers { get; set; }
-        //public List<string> CorrectAnswers { get; set; } = new List<string>();
+        public List<string> Options { get; set; } =  new List<string>();
+        public bool AllowsMultipleAnswers { get; set; }
+        public List<string> CorrectAnswers { get; set; } = new List<string>();
 
         public Question()
         {

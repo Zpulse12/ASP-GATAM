@@ -19,9 +19,16 @@ namespace Gatam.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllModules()
         {
-            var modules = await _mediator.Send(new GetAllModulesQuery());
-
-            return Ok(modules);
+            try
+            {
+                var modules = await _mediator.Send(new GetAllModulesQuery());
+                return Ok(modules);
+            }
+            catch (Exception ex)
+            {
+                // Log de fout hier
+                return StatusCode(500, "Er is een fout opgetreden: " + ex.Message);
+            }
         }
     }
 }

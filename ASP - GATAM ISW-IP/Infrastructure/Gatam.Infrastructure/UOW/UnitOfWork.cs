@@ -25,11 +25,13 @@ namespace Gatam.Infrastructure.UOW
                             ApplicationDbContext context, 
                             IGenericRepository<ApplicationUser> userRepository, 
                             IGenericRepository<ApplicationTeam> teamRepository,
-                            IGenericRepository<TeamInvitation> invitationTeamRepository)
+                            IGenericRepository<TeamInvitation> invitationTeamRepository,
+                            IGenericRepository<ApplicationModule> moduleRepository)
         {
             _userRepository = userRepository;
             _teamRepository = teamRepository;
             _invitationTeamRepository = invitationTeamRepository;
+            _moduleRepository = moduleRepository;
             _context = context;
         }
 

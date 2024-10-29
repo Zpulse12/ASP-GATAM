@@ -10,6 +10,10 @@ namespace Gatam.Infrastructure.Repositories
 {
     public class ModuleRepository : GenericRepository<ApplicationModule>
     {
-        public ModuleRepository(ApplicationDbContext context) : base(context) { }
+        private readonly ApplicationDbContext _context;
+
+        public ModuleRepository(ApplicationDbContext context) : base(context) {
+            _context = context;
+        }
     }
 }
