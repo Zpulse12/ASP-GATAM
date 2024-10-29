@@ -11,10 +11,7 @@ namespace Gatam.Infrastructure.Contexts
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-       : base(options)
-        {
-        }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<ApplicationTeam> ApplicationTeams { get; set; }
 
@@ -135,8 +132,8 @@ namespace Gatam.Infrastructure.Contexts
                     ModuleId = GLOBALMODULE.Id,
                     Type = QuestionType.TrueFalse,
                     Text = "Is het belangrijk om jezelf goed voor te bereiden op een sollicitatiegesprek?",
-                    //Options = new List<string> { "Waar", "Onwaar" },
-                    //CorrectAnswers = new List<string> { "Waar" },
+                    Options = new List<string> { "Waar", "Onwaar" },
+                    CorrectAnswers = new List<string> { "Waar" },
                 },
                  new Question()
                  {
@@ -153,9 +150,9 @@ namespace Gatam.Infrastructure.Contexts
                      ModuleId = GLOBALMODULE.Id,
                      Type = QuestionType.MultipleChoice,
                      Text = "Welke vaardigheden zijn belangrijk tijdens een sollicitatiegesprek?",
-                    // Options = new List<string> { "Communicatie", "Luisteren", "Oogcontact", "Zelfvertrouwen" },
-                    // AllowsMultipleAnswers = true,
-                    // CorrectAnswers = new List<string> { "Communicatie", "Luisteren", "Zelfvertrouwen" }
+                     Options = new List<string> { "Communicatie", "Luisteren", "Oogcontact", "Zelfvertrouwen" },
+                     AllowsMultipleAnswers = true,
+                     CorrectAnswers = new List<string> { "Communicatie", "Luisteren", "Zelfvertrouwen" }
                  },
                  new Question()
                  {
@@ -164,8 +161,8 @@ namespace Gatam.Infrastructure.Contexts
                      ModuleId = GLOBALMODULE.Id,
                      Type = QuestionType.DropdownList,
                      Text = "Wat moet je meenemen naar een sollicitatiegesprek?",
-                     //Options = new List<string> { "Cv", "Sollicitatiebrief", "Identiteitsbewijs", "Referenties" },
-                     //CorrectAnswers = new List<string> { "Cv" }
+                     Options = new List<string> { "Cv", "Sollicitatiebrief", "Identiteitsbewijs", "Referenties" },
+                     CorrectAnswers = new List<string> { "Cv" }
                  }
 
 
@@ -177,7 +174,7 @@ namespace Gatam.Infrastructure.Contexts
                 .HasForeignKey(q => q.ModuleId);
             builder.Entity<Question>()
              .Property(q => q.Type)
-            .HasConversion<string>();
+             .HasConversion<string>();
 
 
 
