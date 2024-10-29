@@ -36,44 +36,7 @@ else
                 <p>Category: @selectedModule.Category</p>
                 <p>Created At: @selectedModule.CreatedAt.ToString("g")</p>
             <h5>Vragen</h5>
-            <div class="card-container">
-                @foreach (var question in selectedModule.Questions)
-                {
-                    <div class="question-card">
-                        <div class="card-content">
-                                <p><strong>@question.Text</strong></p>
-                            <p><strong>Type:</strong> @question.Type</p>
-                            @if (question.Options != null && question.Options.Any())
-                            {
-                                <p><strong>Opties:</strong></p>
-                                <ul>
-                                    @foreach (var option in question.Options)
-                                    {
-                                        <li>@option</li>
-                                    }
-                                </ul>
-                            }
-                            @if (question.CorrectAnswers != null && question.CorrectAnswers.Any())
-                            {
-                                <p><strong>Correct Antwoorden:</strong></p>
-                                <ul>
-                                    @foreach (var answer in question.CorrectAnswers)
-                                    {
-                                        <li>@answer</li>
-                                    }
-                                </ul>
-                            }
-                            <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold">
-                                Bijwerken
-                            </button>
-                            <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#exampleModal">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                }
-            </div>
+           
     </div>
 }
     </div>
