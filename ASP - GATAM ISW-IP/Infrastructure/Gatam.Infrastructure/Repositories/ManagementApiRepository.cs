@@ -38,7 +38,7 @@ public class ManagementApiRepository: IManagementApi
                 Username = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
                 Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
                 IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-                Roles = await GetRolesByUserId(userId)
+                RolesIds = await GetRolesByUserId(userId)
             };
 
             userDtos.Add(userDto);
@@ -47,28 +47,13 @@ public class ManagementApiRepository: IManagementApi
         return userDtos;
     }
 
-
     public async Task<UserDTO> GetUserByIdAsync(string userId)
     {
-        var response = await _httpClient.GetFromJsonAsync<JsonElement>($"users/{userId}");
-
-        if (response.ValueKind == JsonValueKind.Object)
-        {
-            var userDto = new UserDTO
-            {
-                Id = response.GetProperty("user_id").GetString(),
-                Email = response.GetProperty("email").GetString(),
-                Username = response.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
-                Picture = response.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
-                IsActive = !response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-                Roles = await GetRolesByUserId(userId)
-            };
-
-            return userDto;
-        }
-
-        return null; // Of gooi een uitzondering, afhankelijk van je vereisten
+        var users = await GetAllUsersAsync(); // Haal alle gebruikers op
+        return users.FirstOrDefault(u => u.Id == userId); // Zoek naar de gebruiker met de opgegeven ID
     }
+
+
     public Task<bool> DeleteUserAsync(string userId)
     {
         throw new NotImplementedException();
@@ -120,9 +105,10 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user, IEnumerable<string> roles)
     {
+        var roleIds = roles.Select(role => RoleMapper.GetRoleId(role)).Where(id => id != null).ToArray();
         var payload = new
         {
-            roles
+            roles = roleIds
         };
         var response = await _httpClient.PostAsJsonAsync($"users/{user.Id}/roles", payload);
 
@@ -160,4 +146,6 @@ public class ManagementApiRepository: IManagementApi
             return new List<string>(); 
         }
     }
+
+   
 }

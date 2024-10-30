@@ -58,8 +58,8 @@
                 <GridColumn TItem="UserDTO"  HeaderText="Email" PropertyName="Email" SortString="Email" SortKeySelector="item => item.Email" >
                             @context.Email
                         </GridColumn>
-                <GridColumn TItem="UserDTO" HeaderText="Rol" PropertyName="Roles" SortString="Roles" SortKeySelector="item => string.Join(',', item.Roles)">
-                    @string.Join(", ", context.Roles)
+                <GridColumn TItem="UserDTO" HeaderText="Rol" PropertyName="Roles" SortString="Roles" SortKeySelector="item => string.Join(',', item.RolesIds)">
+                    @string.Join(", ", context.RolesIds)
                 </GridColumn>
                 <!-- Status Column -->
                 <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive">
@@ -128,7 +128,7 @@
                     </TemplateColumn>
                 </QuickGrid> *@
 
-                @if (userBeingEdited != null)
+                @* @if (userBeingEdited != null)
                 {
                 <hr />
                 <h4>Gebruiker Bewerken: @userBeingEdited.Username</h4>
@@ -163,8 +163,8 @@
 
                     <button type="submit" class="btn btn-primary mt-4">Opslaan</button>
                     <button type="button" class="btn btn-secondary mt-4" @onclick="CancelEditing">Annuleren</button>
-                </EditForm>
-                }        }
+                </EditForm> *@
+                }
     </div>
 
     <!-- Modal -->
@@ -270,7 +270,7 @@
         {
             try
             {
-                var updatedUser = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited, userBeingEdited.Roles);
+                var updatedUser = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited, userBeingEdited.RolesIds);
 
                 if (updatedUser != null)
                 {

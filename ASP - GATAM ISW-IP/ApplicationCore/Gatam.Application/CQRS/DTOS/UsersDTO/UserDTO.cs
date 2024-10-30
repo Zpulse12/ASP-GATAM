@@ -13,7 +13,7 @@ namespace Gatam.Application.CQRS
     {
         public required string Username { get; set; }
         public required string Email { get; set; }
-        public required IEnumerable<string> Roles { get; set; } = RoleMapper.GetAllRoles();
+        public required IEnumerable<string> RolesIds { get; set; } = RoleMapper.Roles.Values;
 
         public required string Id { get; set; }
         public bool IsActive { get; set; }

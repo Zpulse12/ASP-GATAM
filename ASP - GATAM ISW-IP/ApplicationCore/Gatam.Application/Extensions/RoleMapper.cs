@@ -8,16 +8,25 @@ namespace Gatam.Application.Extensions
 {
     public static class RoleMapper
     {
-        public const string Beheerder = "BEHEERDER";
-        public const string Begeleider = "BEGELEIDER";
-        public const string Volger = "VOLGER";
-        public const string Content_Maker = "MAKER";
+        public static readonly Dictionary<string, string> Roles = new Dictionary<string, string>
+        {
+            { "BEHEERDER", "rol_3BsJHRFokYkbjr5O" },
+            { "BEGELEIDER", "rol_8cLkJwwd2u2itnu3" },
+            { "VOLGER", "rol_2SgoYL1AoK9tXYXW" },
+            { "MAKER", "rol_tj8keS38380ZU4NR" }
+        };
+
+       
 
         public static List<string> GetAllRoles()
         {
-            return new List<string> { Beheerder, Begeleider, Volger, Content_Maker };
+            return Roles.Keys.ToList();
         }
 
-        
+        public static string? GetRoleId(string roleName)
+        {
+            return Roles.TryGetValue(roleName, out var roleId) ? roleId : null;
+        }
+
     }
 }

@@ -48,7 +48,7 @@
 
             <div class="form-group mt-3">
                 <label for="Role">Rol</label>
-                <InputSelect id="Role" @bind-Value="userBeingEdited.Roles" class="form-control" multiple>
+                <InputSelect id="Role" @bind-Value="userBeingEdited.RolesIds" class="form-control" multiple>
                     @foreach (var role in RoleMapper.GetAllRoles())
                     {
                         <option value="@role">@role</option>
@@ -86,26 +86,21 @@
         _isLoading = true;
         try
         {
-            var response = (await managementApiRepository.GetAllUsersAsync()).ToList(); 
-            if (response != null && response.Count > 0)
+            userBeingEdited = await managementApiRepository.GetUserByIdAsync(Id);
+            if (userBeingEdited == null)
             {
-                _users = response;
-                userBeingEdited =  _users.FirstOrDefault(u => u.Id == Id);
-                if (userBeingEdited == null)
-                {
-                    _hasError = true; 
-                }
-
-            }
-            else
-            {
-                _hasError = true;  // No users found or response is null
+                _hasError = true;
             }
         }
         catch (HttpRequestException ex)
         {
             _hasError = true;  
             Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (Exception ex) // Voeg deze catch toe voor andere mogelijke fouten
+        {
+            _hasError = true;
+            Console.WriteLine($"Error: {ex.Message}");
         }
         finally
         {
@@ -119,7 +114,12 @@
         {
             try
             {
-                var updatedUser = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited, userBeingEdited.Roles);
+                var roleIds = userBeingEdited.RolesIds
+                .Select(role => RoleMapper.GetRoleId(role))
+                .Where(id => id != null)
+                .ToArray();
+
+                var updatedUser = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited, roleIds);
 
                 if (updatedUser != null)
                 {
@@ -130,7 +130,9 @@
                     {
 
                         Console.WriteLine("Gebruiker succesvol bijgewerkt.");
-                        userBeingEdited = null;
+                        isSuccess = true;
+                        response_Msg = "Gebruiker succesvol bijgewerkt.";
+                        userBeingEdited = null; // Reset de bewerkte gebruiker
                         StateHasChanged();
                     }
                     else

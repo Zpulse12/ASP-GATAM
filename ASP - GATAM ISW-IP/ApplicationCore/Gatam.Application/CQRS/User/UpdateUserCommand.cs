@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using FluentValidation;
+using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
@@ -66,11 +67,26 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
         _mapper.Map(request.User, person);
         var updatedPerson = await _auth0Repository.UpdateUserAsync(person.Id, request.User);
 
-        if (request.User.Roles != null && request.User.Roles.Any())
+        if (request.User.RolesIds != null && request.User.RolesIds.Any())
         {
-            await _auth0Repository.UpdateUserRoleAsync(person, request.User.Roles);
+            var roleIds = GetRoleIdsByNames(request.User.RolesIds);
+            await _auth0Repository.UpdateUserRoleAsync(person, roleIds);
         }
 
         return _mapper.Map<UserDTO>(updatedPerson);
+    }
+
+    private static IEnumerable<string> GetRoleIdsByNames(IEnumerable<string> roleNames)
+    {
+        var roleIds = new List<string>();
+        foreach (var roleName in roleNames)
+        {
+            var roleId = RoleMapper.GetRoleId(roleName);
+            if (roleId != null)
+            {
+                roleIds.Add(roleId);
+            }
+        }
+        return roleIds;
     }
 }

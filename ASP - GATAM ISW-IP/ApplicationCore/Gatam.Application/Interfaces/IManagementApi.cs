@@ -11,4 +11,5 @@ public interface IManagementApi
     Task<UserDTO> UpdateUserRoleAsync(UserDTO user, IEnumerable<string> roles);
     Task<IEnumerable<string>> GetRolesByUserId(string userId);
     Task<UserDTO> GetUserByIdAsync(string userId);
+    
 }
