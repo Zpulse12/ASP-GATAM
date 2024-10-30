@@ -26,9 +26,19 @@ internal class Program
         builder.Services.RegisterAuth0Authentication();
         builder.Services.RegisterCustomApiClient();
         builder.Services.RegisterPolicies();
+
         builder.Services.AddScoped<ManagementApiRepository>();
         builder.Services.AddHttpClient<IManagementApi, ManagementApiRepository>();
+
         var app = builder.Build();
+        app.Use(async (context, next) =>
+        {
+            context.Response.Headers.CacheControl= "no-store, no-cache, must-revalidate, max-age=0";
+            context.Response.Headers.Pragma= "no-cache";
+            context.Response.Headers.Expires= "0";
+            await next();
+        });
+
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {

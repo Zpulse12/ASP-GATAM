@@ -3,6 +3,7 @@ using System.Text.Json;
 using Gatam.Application.CQRS;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 
 namespace Gatam.Infrastructure.Repositories;
@@ -37,7 +38,7 @@ public class ManagementApiRepository: IManagementApi
                 Username = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
                 Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
                 IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-                Roles = (await GetRolesByUserId(userId: userId)).ToList()
+                Roles = await GetRolesByUserId(userId)
             };
 
             userDtos.Add(userDto);
@@ -46,6 +47,28 @@ public class ManagementApiRepository: IManagementApi
         return userDtos;
     }
 
+
+    public async Task<UserDTO> GetUserByIdAsync(string userId)
+    {
+        var response = await _httpClient.GetFromJsonAsync<JsonElement>($"users/{userId}");
+
+        if (response.ValueKind == JsonValueKind.Object)
+        {
+            var userDto = new UserDTO
+            {
+                Id = response.GetProperty("user_id").GetString(),
+                Email = response.GetProperty("email").GetString(),
+                Username = response.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
+                Picture = response.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
+                IsActive = !response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
+                Roles = await GetRolesByUserId(userId)
+            };
+
+            return userDto;
+        }
+
+        return null; // Of gooi een uitzondering, afhankelijk van je vereisten
+    }
     public Task<bool> DeleteUserAsync(string userId)
     {
         throw new NotImplementedException();
@@ -62,12 +85,17 @@ public class ManagementApiRepository: IManagementApi
 
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadFromJsonAsync<UserDTO>();
+            var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
+            if (updatedUser == null)
+            {
+                Console.WriteLine("Fout bij het parsen van de gebruiker na update.");
+            }
+            return updatedUser;
         }
 
         var errorDetails = await response.Content.ReadAsStringAsync();
         Console.WriteLine($"Error updating user: {response.StatusCode} - {errorDetails}");
-        return null;
+        return user;
     }
 
     public async Task<UserDTO> UpdateUserStatusAsync(string userId, bool isActive)
@@ -92,7 +120,11 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user, IEnumerable<string> roles)
     {
-        var response = await _httpClient.PutAsJsonAsync($"users/{user.Id}/roles", roles);
+        var payload = new
+        {
+            roles
+        };
+        var response = await _httpClient.PostAsJsonAsync($"users/{user.Id}/roles", payload);
 
         if (response.IsSuccessStatusCode)
         {

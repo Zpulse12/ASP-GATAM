@@ -45,24 +45,32 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
 {
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
-    
-    public UpdateUserCommandHandler(IUnitOfWork uow, IMapper mapper)
+    private readonly IManagementApi _auth0Repository;
+
+    public UpdateUserCommandHandler(IUnitOfWork uow, IMapper mapper, IManagementApi auth0Repository)
     {
         _uow = uow;
         _mapper = mapper;
+        _auth0Repository = auth0Repository;
     }
 
     public async Task<UserDTO> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var person = await _uow.UserRepository.FindById(request.Id);
+        var person = await _auth0Repository.GetUserByIdAsync(request.Id);
 
         if (person == null)
         {
             throw new Exception($"User with ID {request.Id} was not found.");
         }
-        _mapper.Map(request.User, person); 
-        var updatedPerson = await _uow.UserRepository.Update(person);
-        await _uow.commit(); 
+
+        _mapper.Map(request.User, person);
+        var updatedPerson = await _auth0Repository.UpdateUserAsync(person.Id, request.User);
+
+        if (request.User.Roles != null && request.User.Roles.Any())
+        {
+            await _auth0Repository.UpdateUserRoleAsync(person, request.User.Roles);
+        }
+
         return _mapper.Map<UserDTO>(updatedPerson);
     }
 }

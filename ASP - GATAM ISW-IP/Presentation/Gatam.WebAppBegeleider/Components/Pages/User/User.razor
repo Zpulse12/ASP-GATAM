@@ -20,8 +20,7 @@
 </div>
 <CustomCards>
     <h3>Bewerken van gebruiker</h3>
-    <h4>Gebruiker : @Id</h4>
-    <h5>Roles</h5>
+
 
     @if (_isLoading)
     {
@@ -49,7 +48,7 @@
 
             <div class="form-group mt-3">
                 <label for="Role">Rol</label>
-                <InputSelect id="Role" @bind-Value="userBeingEdited.Roles" class="form-control">
+                <InputSelect id="Role" @bind-Value="userBeingEdited.Roles" class="form-control" multiple>
                     @foreach (var role in RoleMapper.GetAllRoles())
                     {
                         <option value="@role">@role</option>
@@ -63,6 +62,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary mt-4">Opslaan</button>
+
         </EditForm>
     }
     else
@@ -83,6 +83,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _isLoading = true;
         try
         {
             var response = (await managementApiRepository.GetAllUsersAsync()).ToList(); 
@@ -118,26 +119,23 @@
         {
             try
             {
-                // Bijwerken van de rollen
-                var result = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited, userBeingEdited.Roles);
-                if (result != null)
-                {
-                    // Bijwerken van de overige gegevens van de gebruiker
-                    var updatedUser = await managementApiRepository.UpdateUserAsync(userBeingEdited.Id, userBeingEdited);
-                    if (updatedUser != null)
-                    {
-                        response_Msg = "is aangepast";
-                        isSuccess = true;
-                        Console.WriteLine("Gebruiker succesvol bijgewerkt.");
-                        userBeingEdited = null; // Reset de userBeingEdited, indien nodig
-                        StateHasChanged(); // Herladen van de component
+                var updatedUser = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited, userBeingEdited.Roles);
 
+                if (updatedUser != null)
+                {
+                    // Update overige gebruiker-gegevens
+                    var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
+                    
+                    if (response.IsSuccessStatusCode)
+                    {
+
+                        Console.WriteLine("Gebruiker succesvol bijgewerkt.");
+                        userBeingEdited = null;
+                        StateHasChanged();
                     }
                     else
                     {
-                        Console.WriteLine("Fout bij het bijwerken van de gebruiker.");
-                        response_Msg = "Niet";
-                        isSuccess = false;
+                        Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
                     }
                 }
                 else

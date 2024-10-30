@@ -56,6 +56,11 @@ namespace Gatam.WebAPI.Controllers
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserDTO user)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (userId != user.Id)
             {
                 return BadRequest("The user ID in the URL does not match the user ID in the body.");
@@ -91,9 +96,17 @@ namespace Gatam.WebAPI.Controllers
         }
 
 
-        [HttpPut("update/role/{id}")]
+        [HttpPut("update/role/{userId}")]
+        [Authorize(Policy = "RequireManagementRole")]
+
         public async Task<IActionResult> UpdateUserRole(string userId, [FromBody] UserDTO user)
         {
+            if (userId != user.Id)
+            {
+                return BadRequest("User ID mismatch.");
+            }
+
+            // Ensure that the user roles are being sent
             var returnedUser = await _mediator.Send(new UpdateUserCommand() { Id = userId, User = user });
             return Ok(returnedUser);
         }
