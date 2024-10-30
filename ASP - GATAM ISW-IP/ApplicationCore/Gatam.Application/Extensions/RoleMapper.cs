@@ -17,5 +17,7 @@ namespace Gatam.Application.Extensions
         {
             return new List<string> { Beheerder, Begeleider, Volger, Content_Maker };
         }
+
+        
     }
 }

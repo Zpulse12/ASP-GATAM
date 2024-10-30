@@ -9,6 +9,8 @@ using Gatam.WebAppBegeleider.Interfaces;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Gatam.Application.Extensions;
+using Gatam.Application.Interfaces;
+using Gatam.Infrastructure.Repositories;
 
 internal class Program
 {
@@ -24,6 +26,8 @@ internal class Program
         builder.Services.RegisterAuth0Authentication();
         builder.Services.RegisterCustomApiClient();
         builder.Services.RegisterPolicies();
+        builder.Services.AddScoped<ManagementApiRepository>();
+        builder.Services.AddHttpClient<IManagementApi, ManagementApiRepository>();
         var app = builder.Build();
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())

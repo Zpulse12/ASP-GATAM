@@ -76,6 +76,20 @@ namespace Gatam.WebAPI.Controllers
            return NotFound("User doesnt exists");
         }
 
+        [HttpGet("{userId}/roles")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUserRoles()
+        {
+            var roles = await _mediator.Send(new GetAllUsersQuery());
+
+            if (roles == null || !roles.Any())
+            {
+                return NotFound("Geen rollen gevonden voor de opgegeven gebruiker.");
+            }
+
+            return Ok(roles);
+        }
+
 
         [HttpPut("update/role/{id}")]
         public async Task<IActionResult> UpdateUserRole(string userId, [FromBody] UserDTO user)
