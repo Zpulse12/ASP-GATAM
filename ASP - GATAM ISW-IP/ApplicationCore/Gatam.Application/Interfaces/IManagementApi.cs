@@ -8,7 +8,7 @@ public interface IManagementApi
     Task<bool> DeleteUserAsync(string userId);
     Task<UserDTO> UpdateUserAsync(string userId, UserDTO user);
     Task<UserDTO> UpdateUserStatusAsync(string userId, bool isActive);
-    Task<UserDTO> UpdateUserRoleAsync(UserDTO user, IEnumerable<string> roles);
+    Task<UserDTO> UpdateUserRoleAsync(UserDTO user);
     Task<IEnumerable<string>> GetRolesByUserId(string userId);
     Task<UserDTO> GetUserByIdAsync(string userId);
     

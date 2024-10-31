@@ -25,7 +25,7 @@ namespace Gatam.Application.Extensions
         public EnvironmentWrapper() {
 #if DEBUG
             DirectoryInfo rootDirectory = SolutionWrapper.GetSolutionDirectoryPath();
-            string dotenvPath = Path.Combine(rootDirectory.FullName, "debug.env");
+            string dotenvPath = Path.Combine(rootDirectory.FullName, ".env");
             DotEnvLoader.Load(dotenvPath);
 #endif
             SAPASSWORD = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? "";

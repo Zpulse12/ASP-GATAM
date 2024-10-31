@@ -218,7 +218,7 @@
     {
         if (_users == null)
         {
-            // Load users and their roles only once for client-side operations
+
             _users = (await managementApiRepository.GetAllUsersAsync()).ToList();
         }
         return await Task.FromResult(request.ApplyTo(_users));
@@ -270,7 +270,7 @@
         {
             try
             {
-                var updatedUser = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited, userBeingEdited.RolesIds);
+                var updatedUser = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited);
 
                 if (updatedUser != null)
                 {

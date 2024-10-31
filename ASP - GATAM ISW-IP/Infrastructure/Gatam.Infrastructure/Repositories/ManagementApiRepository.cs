@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Diagnostics;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Gatam.Application.CQRS;
 using Gatam.Application.Extensions;
@@ -29,11 +30,11 @@ public class ManagementApiRepository: IManagementApi
         {
 
             var userId = user.GetProperty("user_id").GetString();
-         
+
 
             var userDto = new UserDTO
             {
-                Id = user.GetProperty("user_id").GetString(),
+                Id = userId,
                 Email = user.GetProperty("email").GetString(),
                 Username = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
                 Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
@@ -49,8 +50,8 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> GetUserByIdAsync(string userId)
     {
-        var users = await GetAllUsersAsync(); // Haal alle gebruikers op
-        return users.FirstOrDefault(u => u.Id == userId); // Zoek naar de gebruiker met de opgegeven ID
+        var users = await GetAllUsersAsync(); 
+        return users.FirstOrDefault(u => u.Id == userId); 
     }
 
 
@@ -66,7 +67,7 @@ public class ManagementApiRepository: IManagementApi
             throw new ArgumentException("User ID mismatch.");
         }
 
-        var response = await _httpClient.PutAsJsonAsync($"users/{userId}", user);
+        var response = await _httpClient.PostAsJsonAsync($"users/{userId}", user);
 
         if (response.IsSuccessStatusCode)
         {
@@ -103,17 +104,26 @@ public class ManagementApiRepository: IManagementApi
         return updatedUser;
     }
 
-    public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user, IEnumerable<string> roles)
+    public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user)
     {
-        var roleIds = roles.Select(role => RoleMapper.GetRoleId(role)).Where(id => id != null).ToArray();
+        //var roleIds = roles.Select(role => RoleMapper.GetRoleId(role)).Where(id => id != null).ToArray();
+       
+
         var payload = new
         {
-            roles = roleIds
+            roles = user.RolesIds.ToArray()
         };
-        var response = await _httpClient.PostAsJsonAsync($"users/{user.Id}/roles", payload);
+
+        
+        Debug.WriteLine(payload);
+        string json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        Debug.WriteLine($"Payload sent to Auth0: {json}");
+        
+        var response = await _httpClient.PostAsJsonAsync($"/users/{user.Id}/roles", payload);
 
         if (response.IsSuccessStatusCode)
         {
+            Debug.WriteLine("Roles updated successfully in Auth0.");
             return user;
         }
 
@@ -126,15 +136,16 @@ public class ManagementApiRepository: IManagementApi
     {
         try
         {
-            // Auth0 API-aanroep om rollen voor de gebruiker op te halen
-            JsonElement response = await _httpClient.GetFromJsonAsync<JsonElement>($"users/{userId}/roles");
+            
+            var response = await _httpClient.GetFromJsonAsync<JsonElement>($"/users/{userId}/roles");
 
-            // Controleer of de response een array van rollen bevat
+            
             if (response.ValueKind == JsonValueKind.Array)
             {
                 return response.EnumerateArray()
                                .Select(role => role.GetProperty("name").GetString())
                                .Where(name => !string.IsNullOrEmpty(name))
+                               .Select(name => RoleMapper.Roles.FirstOrDefault(r => r.Key == name).Key)
                                .ToList();
             }
 

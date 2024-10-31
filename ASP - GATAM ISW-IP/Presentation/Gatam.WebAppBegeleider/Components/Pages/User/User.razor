@@ -4,8 +4,11 @@
 @using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Application.CQRS
 @using Gatam.Infrastructure.Repositories
+@using System.Diagnostics
 @inject ManagementApiRepository managementApiRepository
 @inject ApiClient apiClient
+
+@rendermode InteractiveServer
 
 @attribute [Authorize(Policy = "RequireManagementRole")]
 <div class="container mt-3">
@@ -28,7 +31,7 @@
     }
     else if (_hasError)
     {
-        <p>Fout bij het laden van gebruikersgegevens.</p>
+        <p>@response_Msg</p>
     }
     else if (userBeingEdited != null)
     {
@@ -48,12 +51,13 @@
 
             <div class="form-group mt-3">
                 <label for="Role">Rol</label>
-                <InputSelect id="Role" @bind-Value="userBeingEdited.RolesIds" class="form-control" multiple>
-                    @foreach (var role in RoleMapper.GetAllRoles())
+                @* <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
+                    @foreach (var role in RoleMapper.Roles)
                     {
-                        <option value="@role">@role</option>
+                        <option value="@role.Value">@role.Key</option>
                     }
-                </InputSelect>
+                </InputSelect> *@
+
             </div>
 
             <div class="form-group mt-3">
@@ -64,6 +68,15 @@
             <button type="submit" class="btn btn-primary mt-4">Opslaan</button>
 
         </EditForm>
+
+        <InputSelect  @bind-Value="selectedRoles" class="form-control" multiple>
+            @foreach (var role in RoleMapper.Roles)
+            {
+                <option value="@role.Value">@role.Key</option>
+            }
+        </InputSelect>
+        <button type="submit" onclick="@HandleValidSubmit" class="btn btn-primary mt-4">update role</button>
+
     }
     else
     {
@@ -77,29 +90,44 @@
     [Parameter] public string Id { get; set; } = "";
     private IEnumerable<UserDTO> _users = default!;
 
-    private UserDTO userBeingEdited = null;
+    private UserDTO userBeingEdited ;
+
+    private List<string> availableRoles = RoleMapper.Roles.Keys.ToList();
+
+    public string selectedRoles { get; set; } = "";
+
     private bool _hasError = false;
     private bool _isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
+
         try
         {
-            userBeingEdited = await managementApiRepository.GetUserByIdAsync(Id);
+
+            userBeingEdited = await apiClient.GetFromJsonAsync<UserDTO>($"/api/user/{Id}");
             if (userBeingEdited == null)
             {
                 _hasError = true;
+                response_Msg = "Gebruiker niet gevonden.";
+                Console.WriteLine("Gebruiker is niet gevonden.");
             }
         }
         catch (HttpRequestException ex)
         {
-            _hasError = true;  
+            _hasError = true;
+            response_Msg = $"HTTP-fout: {ex.Message}";
             Console.WriteLine($"Request error: {ex.Message}");
+            if (ex.StatusCode != null)
+            {
+                Console.WriteLine($"Status Code: {ex.StatusCode}");
+            }
         }
-        catch (Exception ex) // Voeg deze catch toe voor andere mogelijke fouten
+        catch (Exception ex) 
         {
             _hasError = true;
+            response_Msg = "Gebruiker niet gevonden3";
             Console.WriteLine($"Error: {ex.Message}");
         }
         finally
@@ -110,22 +138,29 @@
 
     private async Task HandleValidSubmit()
     {
+        if (userBeingEdited == null)
+        {
+            _hasError = true;
+            response_Msg = "Geen gebruiker om te updaten.";
+            return;
+        }
+
         if (userBeingEdited != null)
         {
             try
             {
-                var roleIds = userBeingEdited.RolesIds
-                .Select(role => RoleMapper.GetRoleId(role))
-                .Where(id => id != null)
-                .ToArray();
 
-                var updatedUser = await managementApiRepository.UpdateUserRoleAsync(userBeingEdited, roleIds);
+                userBeingEdited.RolesIds = new List<string>() {selectedRoles};
 
-                if (updatedUser != null)
+                Debug.WriteLine(userBeingEdited);
+
+                var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited); 
+
+                if (roleUpdateResponse.IsSuccessStatusCode)
                 {
-                    // Update overige gebruiker-gegevens
-                    var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
-                    
+
+                    var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
+
                     if (response.IsSuccessStatusCode)
                     {
 
@@ -138,16 +173,21 @@
                     else
                     {
                         Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
+                        response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
+
                     }
                 }
                 else
                 {
                     Console.WriteLine("Fout bij het bijwerken van de rollen.");
+                    response_Msg = "Fout bij het bijwerken van de rollen.";
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
+                response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
+
             }
         }
     }

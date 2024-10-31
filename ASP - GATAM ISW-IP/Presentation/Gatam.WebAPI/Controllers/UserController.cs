@@ -28,6 +28,19 @@ namespace Gatam.WebAPI.Controllers
             return Ok(users);
         }
 
+        [HttpGet("{userId}")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUsersById(string userId)
+        {
+            var userById = await _mediator.Send(new GetUserByIdQuery { UserId = userId });
+            if(userById == null)
+            {
+                return NotFound("user niet gevonden");
+            }
+
+            return Ok(userById);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
@@ -83,11 +96,11 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpGet("{userId}/roles")]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> GetUserRoles()
+        public async Task<IActionResult> GetUserRoles(string userId)
         {
-            var roles = await _mediator.Send(new GetAllUsersQuery());
+            var roles = await _mediator.Send(new GetUserByIdQuery { UserId = userId });
 
-            if (roles == null || !roles.Any())
+            if (roles == null)
             {
                 return NotFound("Geen rollen gevonden voor de opgegeven gebruiker.");
             }
@@ -96,18 +109,13 @@ namespace Gatam.WebAPI.Controllers
         }
 
 
-        [HttpPut("update/role/{userId}")]
+        [HttpPut("{userId}/roles")]
         [Authorize(Policy = "RequireManagementRole")]
 
         public async Task<IActionResult> UpdateUserRole(string userId, [FromBody] UserDTO user)
         {
-            if (userId != user.Id)
-            {
-                return BadRequest("User ID mismatch.");
-            }
-
-            // Ensure that the user roles are being sent
-            var returnedUser = await _mediator.Send(new UpdateUserCommand() { Id = userId, User = user });
+            
+            var returnedUser = await _mediator.Send(new UpdateUserCommand { User = user, Id = userId});
             return Ok(returnedUser);
         }
     }
