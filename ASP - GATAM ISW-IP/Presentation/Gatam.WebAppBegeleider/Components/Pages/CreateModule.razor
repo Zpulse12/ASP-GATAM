@@ -1,0 +1,114 @@
+﻿@page "/content/create"
+@inject ApiClient apiClient
+@rendermode InteractiveServer
+@using BlazorBootstrap;
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+
+<CustomCards>
+    <h3>Create Module</h3>
+
+    <div class="mb-3">
+        <label for="title">Titel</label>
+        <InputText id="title" class="form-control" @bind-Value="newModule.Title" />
+    </div>
+
+    <div class="mb-3">
+        <label for="category">Categorie</label>
+        <InputText id="category" class="form-control" @bind-Value="newModule.Category" />
+    </div>
+
+    <button style="margin:10px;" type="submit" @onclick="CreateNewModule" class="btn btn-primary">Module Aanmaken</button>
+
+    @if (!string.IsNullOrEmpty(errorMessage) && showError)
+    {
+        <div class="alert alert-danger">
+            @errorMessage
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(successMessage) && showSuccess)
+    {
+        <div class="alert alert-success">
+            @successMessage
+        </div>
+    }
+</CustomCards>
+
+@code {
+    private ApplicationModule newModule;
+    private string errorMessage = "";
+    private string successMessage ="";
+    private bool showError;
+    private bool showSuccess;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ResetForm();
+    }
+
+    private async Task CreateNewModule()
+    {
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+        showError = false;
+        showSuccess = false;
+
+        var response = await apiClient.PostAsJsonAsync("api/module", newModule);
+
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "Module is succesvol aangemaakt!";
+            showSuccess = true;
+            ResetForm();
+        }
+        else
+        {
+            var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+            if (errorResponse != null)
+            {
+                if (errorResponse.Failures != null && errorResponse.Failures.Any())
+                {
+                    errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+                    showError = true;
+                }
+                else
+                {
+                    errorMessage = errorResponse.Message;
+                    showError = true;
+                }
+                showError = true;
+            }
+            else
+            {
+                errorMessage = "Er is een onbekende fout opgetreden."; 
+            }
+
+            showError = true; 
+        }
+
+        StateHasChanged();
+    }
+
+
+    private void ResetForm()
+    {
+        newModule = new ApplicationModule
+            {
+                Title = string.Empty,
+                Category = string.Empty
+            };
+    }
+
+    public class ValidationErrorResponse
+    {
+        public string Message { get; set; }
+        public List<ValidationFailure> Failures { get; set; }
+    }
+
+    public class ValidationFailure
+    {
+        public string PropertyName { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+}

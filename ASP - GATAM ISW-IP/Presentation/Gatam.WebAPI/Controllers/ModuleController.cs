@@ -1,7 +1,10 @@
 ﻿using Gatam.Application.CQRS;
 using Gatam.Application.CQRS.Module;
+using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Gatam.WebAPI.Controllers
 {
@@ -17,18 +20,19 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> GetAllModules()
         {
-            try
-            {
                 var modules = await _mediator.Send(new GetAllModulesQuery());
                 return Ok(modules);
-            }
-            catch (Exception ex)
-            {
-                // Log de fout hier
-                return StatusCode(500, "Er is een fout opgetreden: " + ex.Message);
-            }
+        }
+
+        [HttpPost]
+        //[Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> CreateModule([FromBody] ApplicationModule module)
+        {
+            var result = await _mediator.Send(new CreateModuleCommand() { _module = module });
+            return Created("", result);
         }
     }
 }
