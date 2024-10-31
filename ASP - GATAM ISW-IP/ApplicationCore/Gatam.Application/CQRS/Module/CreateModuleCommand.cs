@@ -14,7 +14,7 @@ namespace Gatam.Application.CQRS.Module
 {
     public class CreateModuleCommand : IRequest<ApplicationModule>
     {
-        public required ApplicationModule _module { get; set; }
+        public ApplicationModule _module { get; set; }
     }
     public class CreateModuleCommandValidators : AbstractValidator<CreateModuleCommand>
     {
@@ -23,34 +23,24 @@ namespace Gatam.Application.CQRS.Module
         {
             _uow = uow;
 
-            RuleFor(x => x._module.Category)
-                 .NotEmpty()
-                 .WithMessage("Category mag niet leeg zijn");
-            RuleFor(x => x._module.Category)
-                .NotNull()
-                .WithMessage("Category mag niet null zijn");
-            RuleFor(x => x._module.Title)
-                .NotEmpty()
-                .WithMessage("Titel mag niet leeg zijn");
-            RuleFor(x => x._module.Title)
-                .NotNull()
-                .WithMessage("Titel mag niet null zijn");
+            RuleFor(x => x._module.Category).NotEmpty().WithMessage("Category mag niet leeg zijn");
+            RuleFor(x => x._module.Category).NotNull().WithMessage("Category mag niet null zijn");
+            RuleFor(x => x._module.Title).NotEmpty().WithMessage("Titel mag niet leeg zijn");
+            RuleFor(x => x._module.Title).NotNull().WithMessage("Titel mag niet null zijn");
         }
     }
 
     public class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand, ApplicationModule>
     {
-        private readonly IUnitOfWork uow;
-        private readonly IMapper mapper;
-        public CreateModuleCommandHandler(IUnitOfWork uow, IMapper mapper)
+        private readonly IUnitOfWork _uow;
+        public CreateModuleCommandHandler(IUnitOfWork uow)
         {
-            this.uow = uow;
-            this.mapper = mapper;
+            this._uow = uow;
         }
         public async Task<ApplicationModule> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
         {
-            await uow.ModuleRepository.Create(request._module);
-            await uow.commit();
+            await _uow.ModuleRepository.Create(request._module);
+            await _uow.commit();
             return request._module;
         }
     }
