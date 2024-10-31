@@ -5,6 +5,8 @@
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
+@attribute [Authorize(Policy = "RequireMakerRole")]
+
 
 <CustomCards>
     <h3>Create Module</h3>
@@ -36,7 +38,7 @@
 </CustomCards>
 
 @code {
-    private ApplicationModule newModule;
+    private ApplicationModule newModule = new ApplicationModule();
     private string errorMessage = "";
     private string successMessage ="";
     private bool showError;
@@ -53,41 +55,49 @@
         successMessage = string.Empty;
         showError = false;
         showSuccess = false;
-
-        var response = await apiClient.PostAsJsonAsync("api/module", newModule);
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            successMessage = "Module is succesvol aangemaakt!";
-            showSuccess = true;
-            ResetForm();
-        }
-        else
-        {
-            var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
-            if (errorResponse != null)
+            var response = await apiClient.PostAsJsonAsync("api/module", newModule);
+
+            if (response.IsSuccessStatusCode)
             {
-                if (errorResponse.Failures != null && errorResponse.Failures.Any())
+                successMessage = "Module is succesvol aangemaakt!";
+                showSuccess = true;
+                ResetForm();
+            }
+            else
+            {
+                var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+                if (errorResponse != null)
                 {
-                    errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+                    if (errorResponse.Failures != null && errorResponse.Failures.Any())
+                    {
+                        errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+                        showError = true;
+                    }
+                    else
+                    {
+                        errorMessage = errorResponse.Message;
+                        showError = true;
+                    }
                     showError = true;
                 }
                 else
                 {
-                    errorMessage = errorResponse.Message;
-                    showError = true;
+                    errorMessage = "Er is een onbekende fout opgetreden.";
                 }
+
                 showError = true;
             }
-            else
-            {
-                errorMessage = "Er is een onbekende fout opgetreden."; 
-            }
-
-            showError = true; 
         }
+        catch (Exception e)
+        {
+            errorMessage = "Hallow: " + e;
+            showError = true;
+        }
+      
 
-        StateHasChanged();
+      //  StateHasChanged();
     }
 
 
