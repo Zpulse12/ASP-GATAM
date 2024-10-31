@@ -11,9 +11,10 @@ namespace Gatam.Application.Extensions
         public const string Admin = "ADMIN";
         public const string Begeleider = "MENTOR";
         public const string Volger = "STUDENT";
+        public const string ContentMaker = "MAKER";
         public static List<string> GetAllRoles()
         {
-            return new List<string> { Admin, Begeleider, Volger };
+            return new List<string> { Admin, Begeleider, Volger, ContentMaker };
         }
     }
 }
