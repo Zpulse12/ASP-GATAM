@@ -5,10 +5,18 @@
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
+@attribute [Authorize(Policy = "RequireMakerRole")]
 
 
 <CustomCards>
     <h2>Modules</h2>
+    <NavLink class="nav-link" href="/content/create" >
+        <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold">
+            Module toevoegen
+        </button>
+        
+    </NavLink>
+   
     <div class="layout-container">
 @if (modules != null && modules.Count > 0)
 {
