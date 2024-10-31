@@ -12,7 +12,7 @@ namespace Gatam.Domain
         public  string Title { get; set; }
         public  string Category { get; set; }
         public DateTime CreatedAt { get; set; }
-        public ICollection<Question> Questions { get; set; } = new List<Question>();
+        //public ICollection<Question> Questions { get; set; } = new List<Question>();
         public ApplicationModule()
         {
             Id = Guid.NewGuid().ToString();

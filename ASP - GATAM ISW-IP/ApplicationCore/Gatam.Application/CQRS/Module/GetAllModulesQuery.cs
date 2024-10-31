@@ -31,7 +31,6 @@ namespace Gatam.Application.CQRS.Module
         public async Task<IEnumerable<ApplicationModule>> Handle(GetAllModulesQuery request, CancellationToken cancellationToken)
         {
             return _mapper.Map<IEnumerable<ApplicationModule>>(await _uow.ModuleRepository.GetAllAsync(
-               q => q.Questions
                 ));
         }
     }
