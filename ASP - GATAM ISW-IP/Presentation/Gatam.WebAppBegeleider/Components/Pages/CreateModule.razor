@@ -72,7 +72,7 @@
                 {
                     if (errorResponse.Failures != null && errorResponse.Failures.Any())
                     {
-                        errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}"));
+                        errorMessage = string.Join(", ", errorResponse.Failures.Select(f => $"{f.ErrorMessage}"));
                         showError = true;
                     }
                     else
