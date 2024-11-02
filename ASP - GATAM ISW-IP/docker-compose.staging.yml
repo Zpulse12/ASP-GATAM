@@ -26,6 +26,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - Logging__Loglevel__Default=Debug
       - Logging__Loglevel__Microsoft.AspNetCore=Debug
+      - DATABASE_HOST=${ENVIRONMENT}-mssql,1433
     depends_on:
       - mssql-server
     networks:
