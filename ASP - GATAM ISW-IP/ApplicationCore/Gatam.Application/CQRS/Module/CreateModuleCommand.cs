@@ -27,8 +27,16 @@ namespace Gatam.Application.CQRS.Module
             RuleFor(x => x._module.Category).NotNull().WithMessage("Category mag niet null zijn");
             RuleFor(x => x._module.Title).NotEmpty().WithMessage("Titel mag niet leeg zijn");
             RuleFor(x => x._module.Title).NotNull().WithMessage("Titel mag niet null zijn");
+            RuleFor(x => x._module.Title).MustAsync(BeUniqueTitle).WithMessage("Titel bestaat al."); ;
+
+        }
+        private async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
+        {
+            var existingModule = await _uow.ModuleRepository.FindByProperty("Title", title);
+            return existingModule == null; // true als de title uniek is
         }
     }
+
 
     public class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand, ApplicationModule>
     {
