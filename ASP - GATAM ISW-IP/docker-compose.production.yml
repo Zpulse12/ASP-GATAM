@@ -25,6 +25,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - DATABASE_HOST=${ENVIRONMENT}-mssql,1433
+      - DATABASE_NAME=Gatam.${ENVIRONMENT}
     depends_on:
       - mssql-server
     networks:
@@ -43,6 +44,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - DATABASE_HOST=${ENVIRONMENT}-mssql,1433
+      - DATABASE_NAME=Gatam.${ENVIRONMENT}
     depends_on:
       - webapi
       - mssql-server
