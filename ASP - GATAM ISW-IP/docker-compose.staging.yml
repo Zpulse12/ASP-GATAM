@@ -53,17 +53,17 @@ services:
       - staging-proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.webappbegeleider.entrypoints=http"
-      - "traefik.http.routers.webappbegeleider.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
-      - "traefik.http.middlewares.webappbegeleider-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.staging-webappbegeleider.entrypoints=http"
+      - "traefik.http.routers.staging-webappbegeleider.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
+      - "traefik.http.middlewares.staging-webappbegeleider-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.routers.webappbegeleider.middlewares=traefik-https-redirect"
-      - "traefik.http.routers.webappbegeleider-secure.entrypoints=https"
-      - "traefik.http.routers.webappbegeleider-secure.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
-      - "traefik.http.routers.webappbegeleider-secure.tls=true"
-      - "traefik.http.routers.webappbegeleider-secure.tls.certresolver=cloudflare"
-      - "traefik.http.routers.webappbegeleider-secure.tls.domains[0].main=nilsvanvaerenbergh.be"
-      - "traefik.http.routers.webappbegeleider-secure.tls.domains[0].sans=staging-gatam-beheer.nilsvanvaerenbergh.be"
+      - "traefik.http.routers.staging-webappbegeleider.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.staging-webappbegeleider-secure.entrypoints=https"
+      - "traefik.http.routers.staging-webappbegeleider-secure.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.staging-webappbegeleider-secure.tls=true"
+      - "traefik.http.routers.staging-webappbegeleider-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.staging-webappbegeleider-secure.tls.domains[0].main=nilsvanvaerenbergh.be"
+      - "traefik.http.routers.staging-webappbegeleider-secure.tls.domains[0].sans=staging-gatam-beheer.nilsvanvaerenbergh.be"
   webappvolger:
     build:
       context: .
@@ -81,17 +81,17 @@ services:
       - staging-proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.webappvolger.entrypoints=http"
-      - "traefik.http.routers.webappvolger.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
-      - "traefik.http.middlewares.webappvolger-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.staging-webappvolger.entrypoints=http"
+      - "traefik.http.routers.staging-webappvolger.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
+      - "traefik.http.middlewares.staging-webappvolger-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.routers.webappvolger.middlewares=traefik-https-redirect"
-      - "traefik.http.routers.webappvolger-secure.entrypoints=https"
-      - "traefik.http.routers.webappvolger-secure.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
-      - "traefik.http.routers.webappvolger-secure.tls=true"
-      - "traefik.http.routers.webappvolger-secure.tls.certresolver=cloudflare"
-      - "traefik.http.routers.webappvolger-secure.tls.domains[0].main=nilsvanvaerenbergh.be"
-      - "traefik.http.routers.webappvolger-secure.tls.domains[0].sans=staging-gatam.nilsvanvaerenbergh.be"
+      - "traefik.http.routers.staging-webappvolger.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.staging-webappvolger-secure.entrypoints=https"
+      - "traefik.http.routers.staging-webappvolger-secure.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.staging-webappvolger-secure.tls=true"
+      - "traefik.http.routers.staging-webappvolger-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.staging-webappvolger-secure.tls.domains[0].main=nilsvanvaerenbergh.be"
+      - "traefik.http.routers.staging-webappvolger-secure.tls.domains[0].sans=staging-gatam.nilsvanvaerenbergh.be"
 volumes:
   sql_data:
 networks:
