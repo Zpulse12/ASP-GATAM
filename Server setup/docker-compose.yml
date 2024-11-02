@@ -13,8 +13,7 @@ services:
        - ./traefik.yml:/traefik.yml:ro
        - /etc/localtime:/etc/localtime:ro
     networks:
-      - production-proxy
-      - staging-proxy
+      - proxy
     tty: true
     stdin_open: true
     environment:
@@ -23,7 +22,5 @@ services:
     security_opt:
       - no-new-privileges:true
 networks:
-  production-proxy:
-      external: true
-  staging-proxy:
-      external: true     
+  proxy:
+    external: true     

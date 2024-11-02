@@ -43,7 +43,7 @@ services:
       - mssql-server
     networks:
       - database
-      - production-proxy
+      - proxy
   webappbegeleider:
     build:
       context: .
@@ -72,7 +72,7 @@ services:
       - mssql-server
     networks:
       - database
-      - production-proxy
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.production-webappbegeleider.entrypoints=http"
@@ -100,7 +100,7 @@ services:
       - mssql-server
     networks:
       - database
-      - production-proxy
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.production-webappvolger.entrypoints=http"
@@ -118,5 +118,5 @@ volumes:
   sql_data:
 networks:
   database:
-  production-proxy:
+  proxy:
     external: true

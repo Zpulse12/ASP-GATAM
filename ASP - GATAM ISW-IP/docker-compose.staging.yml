@@ -30,7 +30,7 @@ services:
       - mssql-server
     networks:
       - database
-      - staging-proxy
+      - proxy
   webappbegeleider:
     build:
       context: .
@@ -47,7 +47,7 @@ services:
       - mssql-server
     networks:
       - database
-      - staging-proxy
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.staging-webappbegeleider.entrypoints=http"
@@ -72,7 +72,7 @@ services:
       - mssql-server
     networks:
       - database
-      - staging-proxy
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.staging-webappvolger.entrypoints=http"
@@ -90,5 +90,5 @@ volumes:
   sql_data:
 networks:
   database:
-  staging-proxy:
+  proxy:
     external: true 
