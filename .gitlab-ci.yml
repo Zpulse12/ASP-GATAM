@@ -11,7 +11,7 @@ production-deploy:
     - cp /etc/gatam/.env.production ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.production
     - cd './ASP - GATAM ISW-IP/'
     - docker compose -f docker-compose.production.yml down
-    - docker compose --env-file .env.production -f docker-compose.production.yml up -d --build 
+    - docker compose --env-file .env.production -p production -f docker-compose.production.yml up -d --build 
   rules:
     - if: '$CI_COMMIT_TAG'
   environment: production
@@ -23,7 +23,7 @@ staging-deploy:
     - cp /etc/gatam/.env.staging ${CI_PROJECT_DIR}/'ASP - GATAM ISW-IP'/.env.staging
     - cd './ASP - GATAM ISW-IP/'
     - docker compose -f docker-compose.staging.yml down
-    - docker compose --env-file .env.staging -f docker-compose.staging.yml up -d --build 
+    - docker compose --env-file .env.staging -p staging -f docker-compose.staging.yml up -d --build 
   rules:
     - if: '$CI_COMMIT_BRANCH == "technical-33-geautomatiseerde-deployment-omgeving"'
       when: always
