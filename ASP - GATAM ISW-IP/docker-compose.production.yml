@@ -1,6 +1,6 @@
 services:
   mssql-server:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/azure-sql-edge:latest
     container_name: ${ENVIRONMENT}-mssql
     restart: always
     ports: 
