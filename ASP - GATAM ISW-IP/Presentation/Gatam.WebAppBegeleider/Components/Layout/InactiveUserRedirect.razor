@@ -1,0 +1,22 @@
+﻿@using Gatam.WebAppBegeleider.Extensions
+@inject Auth0UserStateService Auth0UserStateService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            bool isInactive = await Auth0UserStateService.IsUserInactive(user);
+
+            if (isInactive && !NavigationManager.Uri.EndsWith("/inactive"))
+            {
+                NavigationManager.NavigateTo("/inactive", forceLoad: true);
+            }
+        }
+    }
+}
