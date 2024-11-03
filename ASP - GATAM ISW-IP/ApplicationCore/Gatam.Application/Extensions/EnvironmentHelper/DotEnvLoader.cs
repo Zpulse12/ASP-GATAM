@@ -6,11 +6,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Gatam.Infrastructure.Extensions
+namespace Gatam.Application.Extensions.EnvironmentHelper
 {
     public static class DotEnvLoader
     {
-        public static void Load(string filePath) {
+        public static void Load(string filePath)
+        {
             if (!File.Exists(filePath))
                 return;
 
@@ -27,7 +28,7 @@ namespace Gatam.Infrastructure.Extensions
             }
         }
 
-        public static Match ValidateWithExpression(string expression, string text) 
+        public static Match ValidateWithExpression(string expression, string text)
         {
             Regex reg = new Regex(expression, RegexOptions.IgnoreCase);
             return reg.Match(text);

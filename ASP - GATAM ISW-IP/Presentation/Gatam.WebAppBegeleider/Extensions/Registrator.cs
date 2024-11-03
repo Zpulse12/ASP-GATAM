@@ -1,5 +1,5 @@
 ﻿using Auth0.AspNetCore.Authentication;
-using Gatam.Application.Extensions;
+using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
 using System.Net.Http.Headers;
 
 namespace Gatam.WebAppBegeleider.Extensions

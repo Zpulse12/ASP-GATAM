@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Gatam.Application.Extensions;
+using Gatam.Application.Extensions.EnvironmentHelper;
 
 namespace Gatam.Infrastructure.Extensions
 {

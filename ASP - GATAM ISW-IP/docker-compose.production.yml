@@ -9,6 +9,8 @@ services:
       - ACCEPT_EULA="Y"
       - ENVIRONMENT=${ENVIRONMENT}
       - DATABASE_NAME=Gatam.${ENVIRONMENT}
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - DATABASE_USER=${DATABASE_USER}
     networks:
       - database
     hostname: mssqlserver
@@ -24,8 +26,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
+      - ENVIRONMENT=${ENVIRONMENT}
       - DATABASE_HOST=${ENVIRONMENT}-mssql,1433
       - DATABASE_NAME=Gatam.${ENVIRONMENT}
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - DATABASE_USER=${DATABASE_USER}
+      - TOKEN=${TOKEN}
+      - BASE_URI=${BASE_URI}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
     depends_on:
       - mssql-server
     networks:
@@ -43,8 +52,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - DATABASE_HOST=${ENVIRONMENT}-mssql,1433
-      - DATABASE_NAME=Gatam.${ENVIRONMENT}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_CLIENTSECRET=${AUTH0_CLIENTSECRET}
     depends_on:
       - webapi
       - mssql-server

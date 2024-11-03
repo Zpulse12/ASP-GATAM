@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Gatam.WebAppBegeleider.Interfaces;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
-using Gatam.Application.Extensions;
+using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
 
 internal class Program
 {

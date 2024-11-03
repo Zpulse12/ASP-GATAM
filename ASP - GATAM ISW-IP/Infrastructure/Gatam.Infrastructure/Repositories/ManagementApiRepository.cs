@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Gatam.Application.CQRS;
-using Gatam.Application.Extensions;
+using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 
