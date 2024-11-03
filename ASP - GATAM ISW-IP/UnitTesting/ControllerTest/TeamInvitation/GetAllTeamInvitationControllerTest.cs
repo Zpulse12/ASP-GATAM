@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gatam.Application.CQRS.User;
 
 namespace UnitTesting.ControllerTest.TeamInvitation
 {

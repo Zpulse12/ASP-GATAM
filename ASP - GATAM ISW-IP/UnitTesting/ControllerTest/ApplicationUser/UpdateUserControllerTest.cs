@@ -1,4 +1,5 @@
 ﻿using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.User;
 using Gatam.Domain;
 using Gatam.WebAPI.Controllers;
 using MediatR;
@@ -25,7 +26,7 @@ public class UpdateUserControllerTest
         var userDto = new UserDTO
         {
             Id = "1234",
-            Username = "TestUser",
+            Nickname = "TestUser",
             Email = "testuser@example.com",
             _role = ApplicationUserRoles.ADMIN,
             IsActive = true

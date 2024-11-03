@@ -32,13 +32,13 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             {
                 new UserDTO
                 {
-                    Username = "user1",
+                    Nickname = "user1",
                     Email = "user1@example.com",
                     Id = "1"
                 },
                 new UserDTO
                 {
-                    Username = "user2",
+                    Nickname = "user2",
                     Email = "user2@example.com",
                     Id = "2"
                 }
@@ -52,7 +52,16 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode);
-            Assert.AreEqual(users, okResult.Value);
+            var actualUsers = okResult.Value as List<UserDTO>;
+            Assert.IsNotNull(actualUsers);
+            Assert.AreEqual(users.Count, actualUsers.Count);
+
+            for (int i = 0; i < users.Count; i++)
+            {
+                Assert.AreEqual(users[i].Nickname, actualUsers[i].Nickname, $"Mismatch at index {i} for Nickname");
+                Assert.AreEqual(users[i].Email, actualUsers[i].Email, $"Mismatch at index {i} for Email");
+                Assert.AreEqual(users[i].Id, actualUsers[i].Id, $"Mismatch at index {i} for Id");
+            }
         }
     }
 }
