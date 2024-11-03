@@ -20,6 +20,8 @@
     <h3 style="">Maak gebruiker aan!</h3>
 
     <EditForm Model="@user" FormName="createUser" OnValidSubmit="@OnFormSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="UserName">Gebruikersnaam</label>
@@ -43,20 +45,8 @@
         </div>
 
         <div class="row">
-            <div class="col-md-12 mb-3">
-                <label for="Role">Rol</label>
-                <InputSelect id="Role" @bind-Value="SelectedRole" class="form-control rounded-pill">
-                    @foreach(var role in RoleMapper.Roles)
-                    {
-                        <option value="@role.Value">@role.Key</option>
-                    }
-                </InputSelect>
-            </div>
-        </div>
-
-        <div class="row">
             <div class="text-center">
-                <button class="w-25 btn  rounded-pill" style="background-image:linear-gradient(to right,#D9D9D9,#E0D000);color:#4454D2" type="submit">Aanmaken</button>
+                <button class="w-25 btn rounded-pill" style="background-color:#4454D2; color:white" type="submit">Aanmaken</button>
             </div>
         </div>
     </EditForm>
@@ -65,19 +55,13 @@
 @code {
     string response = "";
     bool isSuccess = false;
-    ApplicationUser user = new ApplicationUser() ;
-    string SelectedRole { get; set; } = "";
+    ApplicationUser user = new ApplicationUser()  ;
 
     private async Task OnFormSubmit() 
     {
-        if (!string.IsNullOrEmpty(SelectedRole))
-        {
-            user.Roles.Clear();
-            user.Roles.Add(SelectedRole);
-        }
-
+        
         var client = HttpClientFactory.CreateClient("ApiClient");
-        HttpResponseMessage result = await client.PostAsJsonAsync("winchester/api/User", user);
+        HttpResponseMessage result = await client.PostAsJsonAsync("/api/user", user);
 
         if(result.IsSuccessStatusCode)
         {

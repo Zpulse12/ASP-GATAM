@@ -4,6 +4,7 @@ using System.Text.Json;
 using Gatam.Application.CQRS;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
+using Gatam.Domain;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 
@@ -42,6 +43,7 @@ public class ManagementApiRepository: IManagementApi
                 RolesIds = new List<string>()
             };
 
+            userDto.RolesIds = (await GetRolesByUserId(userId)).ToList();
             userDtos.Add(userDto);
         }
 
@@ -53,7 +55,47 @@ public class ManagementApiRepository: IManagementApi
         var users = await GetAllUsersAsync(); 
         return users.FirstOrDefault(u => u.Id == userId); 
     }
+    public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
+    {
+        var payload = new
+        {
+            email = user.Email,
+            username = user.UserName,
+            password = user.PasswordHash, 
+            connection = "Username-Password-Authentication" 
+        };
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("/api/v2/users", payload);
 
+            if (response.IsSuccessStatusCode)
+            {
+                var createdUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
+
+                if (createdUser == null)
+                {
+                    Console.WriteLine("Failed to parse created user.");
+                    return null;
+                }
+
+                Console.WriteLine("User created successfully.");
+
+
+                return createdUser;
+            }
+            else
+            {
+                var errorDetails = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error creating user: {response.StatusCode} - {errorDetails}");
+                return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while creating the user: {ex.Message}");
+            return null;
+        }
+    }
 
     public Task<bool> DeleteUserAsync(string userId)
     {
@@ -156,5 +198,5 @@ public class ManagementApiRepository: IManagementApi
         }
     }
 
-   
+    
 }

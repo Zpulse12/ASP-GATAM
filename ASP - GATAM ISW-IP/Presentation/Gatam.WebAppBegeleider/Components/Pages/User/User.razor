@@ -27,7 +27,9 @@
 
     @if (_isLoading)
     {
-        <p>Loading...</p>
+        <div class="text-center">
+            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+        </div>
     }
     else if (_hasError)
     {
