@@ -13,8 +13,8 @@
 
 @rendermode InteractiveServer
 
+<InactiveUserRedirect />
 
-@attribute [Authorize(Policy = "RequireManagementRole")]
 <CustomCards>
     <div class="card-body">
         <div class="card-header">
@@ -29,33 +29,34 @@
             Loading users... Please wait.
         </div>
         }
-        else if (_hasError)
+        @if (_hasError)
         {
-        <div class="alert alert-danger text-center">
-            <i class="bi bi-exclamation-circle-fill me-2"></i>
-            <strong>Error:</strong> We encountered an issue while fetching the user list.
-        </div>
+            <div class="alert alert-danger text-center">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                <strong>Error:</strong> @errorMessage
+            </div>
         }
+
         else
         {
         <div class="table-responsive-lg">
             <div>
                 <QuickGrid Items="_users.AsQueryable()">
                     <PropertyColumn Property="@(u => u.Id)" Title="ID" Sortable="true" />
-                    <PropertyColumn Property="@(u => u.Username)" Title="Gebruikersnaam" Sortable="true"/>
+                    <PropertyColumn Property="@(u => u.Nickname)" Title="Gebruikersnaam" Sortable="true"/>
                     <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true"/>
                     <PropertyColumn Property="@(u => u._role)" Title="Rol" Sortable="true"/>
                     <TemplateColumn Title="Status">
                         @if (@context.IsActive)
                         {
                         <button class="btn btn-danger" @onclick="() => ToggleUserActiveStatus(context, context.Id, false)">
-                            Block
+                            Deactiveer
                         </button>
                         }
                         else
                         {
                         <button class="btn btn-success" @onclick="() => ToggleUserActiveStatus(context, context.Id, true)">
-                            Unblock
+                            Activeer
                         </button>
                         }
                     </TemplateColumn>
@@ -73,14 +74,14 @@
                 @if (userBeingEdited != null)
                 {
                 <hr />
-                <h4>Gebruiker Bewerken: @userBeingEdited.Username</h4>
+                <h4>Gebruiker Bewerken: @userBeingEdited.Nickname</h4>
                 <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
 
                     <div class="form-group mt-3">
                         <label for="Username">Gebruikersnaam</label>
-                        <InputText id="Username" @bind-Value="userBeingEdited.Username" class="form-control" />
+                        <InputText id="Username" @bind-Value="userBeingEdited.Nickname" class="form-control" />
                     </div>
 
                     <div class="form-group mt-3">
@@ -112,66 +113,6 @@
         </div>
         }
     </div>
-    @if (userBeingEdited != null)
-    {
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="editUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editUserModalLabel">Gebruiker Bewerken: @userBeingEdited.Username</h5>
-                    <button type="button" class="btn-close" @onclick="CancelEditing" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                    <div class="alert alert-danger">
-                        @errorMessage
-                    </div>
-                    }
-                    @if (!string.IsNullOrEmpty(successMessage))
-                    {
-                    <div class="alert alert-success">
-                        @successMessage
-                    </div>
-                    }
-                    <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
-
-                        <div class="form-group mt-3">
-                            <label for="Username">Gebruikersnaam</label>
-                            <InputText id="Username" @bind-Value="userBeingEdited.Username" class="form-control" />
-                        </div>
-
-                        <div class="form-group mt-3">
-                            <label for="Email">Email</label>
-                            <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
-                        </div>
-
-                        <div class="form-group mt-3">
-                            <label for="Role">Rol</label>
-                            <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
-                                @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
-                                {
-                                <option value="@role">@role</option>
-                                }
-                            </InputSelect>
-                        </div>
-
-                        <div class="form-group mt-3">
-                            <label for="IsActive">Actief</label>
-                            <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
-                        </div>
-
-                        <button type="submit" class="btn btn-outline-success">Opslaan</button>
-                        <button type="button" class="btn btn-outline-danger" @onclick="CancelEditing">Annuleren</button>
-                    </EditForm>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal-backdrop fade show"></div>
-    }
     <!-- Modal -->
     @if (isModalVisible)
     {
@@ -202,155 +143,151 @@
 
 
 @code {
-private List<UserDTO> _users = new List<UserDTO>();
-private UserDTO userBeingEdited = null;
-private bool _isLoading = true;
-private bool _hasError = false;
-private string errorMessage = string.Empty;
-private string successMessage = string.Empty;
+    private List<UserDTO> _users = new List<UserDTO>();
+    private UserDTO userBeingEdited = null;
+    private bool _isLoading = true;
+    private bool _hasError = false;
 
-// Boolean to control modal visibility
-private bool isModalVisible = false;
-private string selectedUserId;
+    // Boolean to control modal visibility
+    private bool isModalVisible = false;
+    private string selectedUserId;
 
-private void ShowDeleteModal(string userId)
-{
-selectedUserId = userId;
-isModalVisible = true;  // Open modal
-}
+    private void ShowDeleteModal(string userId)
+    {
+        selectedUserId = userId;
+        isModalVisible = true;  // Open modal
+    }
 
-protected override async Task OnInitializedAsync()
-{
-try
-{
-var response = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
-if (response != null && response.Count > 0)
-{
-_users = response;
-}
-else
-{
-_hasError = true;  // No users found or response is null
-}
-}
-catch (HttpRequestException ex)
-{
-_hasError = true;  // A request error occurred
-Console.WriteLine($"Request error: {ex.Message}");
-}
-finally
-{
-_isLoading = false;
-}
-}
+    private string errorMessage = string.Empty;
 
-private void StartEditingUser(UserDTO user)
-{
-userBeingEdited = user;
-}
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var auth0Users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
 
-private void CancelEditing()
-{
-userBeingEdited = null;
-}
+            if (auth0Users == null || auth0Users.Count == 0)
+            {
+                _hasError = true;
+                errorMessage = "No users found from Auth0.";
+                return;
+            }
+            _users = auth0Users;
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;
+            errorMessage = $"Request error: {ex.Message}";
+            Console.WriteLine(errorMessage);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
 
-private async Task HandleValidSubmit()
-{
-if (userBeingEdited != null)
-{
-try
-{
-var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
-if (response.IsSuccessStatusCode)
-{
-userBeingEdited = null;
-StateHasChanged();
-}
-else
-{
-Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
-}
-}
-catch (Exception ex)
-{
-Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
-}
-}
-}
 
-// Close the modal
-private void CloseModal()
-{
-isModalVisible = false;
-}
+    private void StartEditingUser(UserDTO user)
+    {
+        userBeingEdited = user;
+    }
 
-async Task Delete()
-{
-try
-{
-var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
-if (response.IsSuccessStatusCode)
-{
-var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
-if (userToRemove != null)
-{
-_users.Remove(userToRemove);
-StateHasChanged();
-isModalVisible = false;
-}
-}
-else
-{
-Debug.WriteLine($"Failed to delete user {selectedUserId}: {response.ReasonPhrase}");
-}
-}
-catch (Exception ex)
-{
-Debug.WriteLine($"Error deleting user: {ex.Message}");
-}
-}
+    private void CancelEditing()
+    {
+        userBeingEdited = null;
+    }
 
-private async Task ToggleUserActiveStatus(UserDTO user, string userId, bool isActive)
-{
-try
-{
-var command = new DeactivateUserCommand
-{
-_userId = userId,
-IsActive = isActive // Pass true to unblock, false to block
-};
+    private async Task HandleValidSubmit()
+    {
+        if (userBeingEdited != null)
+        {
+            try
+            {
+                var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
+                if (response.IsSuccessStatusCode)
+                {
+                    userBeingEdited = null;
+                    StateHasChanged();
+                }
+                else
+                {
+                    Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
+            }
+        }
+    }
 
-var response = await apiClient.PutAsJsonAsync($"/api/User/setactivestate/{userId}", command);
-Debug.WriteLine($"Request URL: users/{userId}");
-if (!response.IsSuccessStatusCode)
-{
-var errorDetails = await response.Content.ReadAsStringAsync();
-Debug.WriteLine($"Error updating user status: {response.StatusCode} - {errorDetails}");
-}
+    // Close the modal
+    private void CloseModal()
+    {
+        isModalVisible = false;
+    }
 
-if (response.IsSuccessStatusCode)
-{
-var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
-if (updatedUser != null)
-{
-// Update the local user list
-var localUser = _users.FirstOrDefault(u => u.Id == userId);
-if (localUser != null)
-{
-localUser.IsActive = updatedUser.IsActive;
-}
-StateHasChanged();
-}
-}
-else
-{
-Console.WriteLine($"Error updating user status: {response.ReasonPhrase}");
-}
-}
-catch (Exception ex)
-{
-Console.WriteLine($"Error during status update: {ex.Message}");
-}
-}
+    async Task Delete()
+    {
+        try
+        {
+            var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
+                if (userToRemove != null)
+                {
+                    _users.Remove(userToRemove);
+                    StateHasChanged();
+                    isModalVisible = false;
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"Failed to delete user {selectedUserId}: {response.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error deleting user: {ex.Message}");
+        }
+    }
+
+    private async Task ToggleUserActiveStatus(UserDTO user, string userId, bool isActive)
+    {
+        try
+        {
+            var command = new DeactivateUserCommand
+            {
+                UserId = userId,  
+                IsActive = isActive
+            };
+
+            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate/{userId}", command);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
+                if (updatedUser != null)
+                {
+                    var localUser = _users.FirstOrDefault(u => u.Id == userId);
+                    if (localUser != null)
+                    {
+                        localUser.IsActive = updatedUser.IsActive;
+                    }
+                    StateHasChanged();
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Error updating user status: {response.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during status update: {ex.Message}");
+        }
+    }
+
 
 }
