@@ -1,12 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AutoMapper;
+﻿using AutoMapper;
 using FluentValidation;
 using Gatam.Application.Interfaces;
-using Gatam.Domain;
 using MediatR;
-using ValidationException = FluentValidation.ValidationException;
 
-namespace Gatam.Application.CQRS;
+namespace Gatam.Application.CQRS.User;
 
 public class UpdateUserCommand:IRequest<UserDTO>
 {
@@ -21,7 +18,7 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     public UpdateUserCommandValidator(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
-        RuleFor(x => x.User.Username)
+        RuleFor(x => x.User.Nickname)
             .NotEmpty().WithMessage("Username cannot be empty")
             .MustAsync(async (userCommand, username, cancellationToken) =>
             {

@@ -7,7 +7,7 @@ namespace Gatam.Application.CQRS.User
 {
     public class DeactivateUserCommand : IRequest<UserDTO>
     {
-        public required string _userId { get; set; }
+        public required string UserId { get; set; }
         public bool IsActive { get; set; }
     }
     public class DeactivateUserValidation : AbstractValidator<DeactivateUserCommand>
@@ -17,9 +17,9 @@ namespace Gatam.Application.CQRS.User
         {
             _uow = uow;
 
-            RuleFor(x => x._userId).NotEmpty()
+            RuleFor(x => x.UserId).NotEmpty()
                 .WithMessage("user id cannot be empty");
-            RuleFor(x => x._userId)
+            RuleFor(x => x.UserId)
                 .MustAsync(async (userId, token) =>
                 {
                     var user = await _uow.UserRepository.FindById(userId);
@@ -33,25 +33,28 @@ namespace Gatam.Application.CQRS.User
     }
     public class DeactivateUserCommandHandler : IRequestHandler<DeactivateUserCommand, UserDTO>
     {
-        private readonly IManagementApi _managementApi;
-
-        public DeactivateUserCommandHandler(IManagementApi managementApi)
+        private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
+        public DeactivateUserCommandHandler(IUnitOfWork uow, IMapper mapper)
         {
-            _managementApi = managementApi;
+            this._uow = uow;
+            this._mapper = mapper;
         }
-
         public async Task<UserDTO> Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
         {
-            var updatedUser = await _managementApi.UpdateUserStatusAsync(request._userId, request.IsActive);
-
-            if (updatedUser == null)
+            var user = await _uow.UserRepository.FindById(request.UserId);
+            if (user == null)
             {
                 return null;
             }
+            user.IsActive = request.IsActive; 
+            await _uow.UserRepository.Update(user);
+            await _uow.commit();
 
-            return updatedUser;
+            return _mapper.Map<UserDTO>(user);
         }
     }
+
 
 
 
