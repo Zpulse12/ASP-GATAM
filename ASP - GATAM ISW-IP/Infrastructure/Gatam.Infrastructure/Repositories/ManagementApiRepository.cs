@@ -39,7 +39,7 @@ public class ManagementApiRepository: IManagementApi
                 Username = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
                 Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
                 IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-                RolesIds = await GetRolesByUserId(userId)
+                RolesIds = new List<string>()
             };
 
             userDtos.Add(userDto);
@@ -106,9 +106,7 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user)
     {
-        //var roleIds = roles.Select(role => RoleMapper.GetRoleId(role)).Where(id => id != null).ToArray();
        
-
         var payload = new
         {
             roles = user.RolesIds.ToArray()
@@ -116,10 +114,10 @@ public class ManagementApiRepository: IManagementApi
 
         
         Debug.WriteLine(payload);
-        string json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        string json = JsonSerializer.Serialize(payload);
         Debug.WriteLine($"Payload sent to Auth0: {json}");
         
-        var response = await _httpClient.PostAsJsonAsync($"/users/{user.Id}/roles", payload);
+        var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{user.Id}/roles", payload);
 
         if (response.IsSuccessStatusCode)
         {
@@ -137,7 +135,7 @@ public class ManagementApiRepository: IManagementApi
         try
         {
             
-            var response = await _httpClient.GetFromJsonAsync<JsonElement>($"/users/{userId}/roles");
+            var response = await _httpClient.GetFromJsonAsync<JsonElement>($"/api/v2/users/{userId}/roles");
 
             
             if (response.ValueKind == JsonValueKind.Array)

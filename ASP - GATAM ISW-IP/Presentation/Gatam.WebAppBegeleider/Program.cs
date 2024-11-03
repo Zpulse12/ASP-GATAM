@@ -30,6 +30,7 @@ internal class Program
         builder.Services.AddScoped<ManagementApiRepository>();
         builder.Services.AddHttpClient<IManagementApi, ManagementApiRepository>();
 
+
         var app = builder.Build();
         app.Use(async (context, next) =>
         {

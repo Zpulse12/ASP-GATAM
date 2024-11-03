@@ -39,16 +39,6 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
                 var existingUser = await _unitOfWork.UserRepository.FindByProperty("Email", email);
                 return existingUser == null || existingUser.Id == userCommand.Id;
             }).WithMessage("Email already exists.");
-        RuleFor(x => x.User.Id)
-            .NotEmpty().WithMessage("Id cannot be empty")
-            .Equal(x => x.Id)
-            .WithMessage("Id does not equal given userId");
-        RuleFor(x => x.User.RolesIds)
-            .NotEmpty().WithMessage("Role cannot be empty")
-            .NotNull().WithMessage("Role cannot be null");
-
-
-
     }
 }
 
@@ -67,23 +57,7 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
 
     public async Task<UserDTO> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-     
         var updatedPerson = await _auth0Repository.UpdateUserAsync(request.Id, request.User);
-
-        if (request.User.RolesIds != null && request.User.RolesIds.Any())
-        {
-            var roleIds = request.User.RolesIds
-                 .Select(roleName => RoleMapper.Roles.ContainsKey(roleName) ? RoleMapper.Roles[roleName] : null)
-                 .Where(roleId => roleId != null)
-                 .ToList();
-
-            // Check if there are any valid role IDs to update / validation
-            if (roleIds.Any())
-            {
-                await _auth0Repository.UpdateUserRoleAsync(request.User);
-            }
-        }
-
         return _mapper.Map<UserDTO>(updatedPerson);
     }
 

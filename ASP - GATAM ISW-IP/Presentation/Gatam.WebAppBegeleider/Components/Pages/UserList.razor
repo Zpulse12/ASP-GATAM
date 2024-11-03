@@ -204,7 +204,7 @@
     private bool _isLoading = true;
     private bool _hasError = false;
 
-    // Boolean to control modal visibility
+    // Boolean to control modal 
     private bool isModalVisible = false;
     private string selectedUserId;
 
@@ -218,7 +218,7 @@
     {
         if (_users == null)
         {
-
+            // Load users and their roles only once for client-side operations
             _users = (await managementApiRepository.GetAllUsersAsync()).ToList();
         }
         return await Task.FromResult(request.ApplyTo(_users));
