@@ -8,11 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gatam.Application.CQRS.User;
 
 namespace UnitTesting.ControllerTest.ApplicationUser
 {
     [TestClass]
-    public class GetAllUserControllerTest
+    public class GetAllTeamControllerTest
     {
         private Mock<IMediator>? mediator;
         private UserController? controller;

@@ -1,16 +1,67 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+@inject NavigationManager NavigationManager
+
+
+<div >
+    <div >
+       <CustomNavMenu>
+            <input type="checkbox" title="Navigation menu" class="navbar-toggler" hidden />
+
+            <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                        <AuthorizeView Policy="RequireManagementRole">
+                            <Authorized>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="usersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style=" color:white; font-weight:bold;">
+                                        <i class="bi bi-people-fill"></i> Gebruikers
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="usersDropdown">
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/admin/user-list">Overzicht gebruikers</NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/admin/create">Gebruiker toevoegen</NavLink>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                            </Authorized>
+                        </AuthorizeView>
+
+                        <AuthorizeView Policy="RequireMakerRole">
+                            <Authorized>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="moduleDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style=" color:white; font-weight:bold ">
+                                        <i class="bi bi-journals"></i>
+                                        Modules
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="moduleDropdown">
+                                        <li class="nav-item">
+                                            <NavLink class="dropdown-item" href="/content/modules">
+                                                Overzicht module
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/content/create">
+                                                Module aanmaken
+                                            </NavLink>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </Authorized>
+                        </AuthorizeView>
+
+                        </ul>
+                    </div>
+             
+            </div>
+            
+       </CustomNavMenu>
     </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
+    <main class="main-content">
+        <article class="article-content">
             @Body
         </article>
     </main>

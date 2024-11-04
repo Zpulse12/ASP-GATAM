@@ -1,11 +1,14 @@
 ﻿using Gatam.Application.Interfaces;
+using Gatam.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Gatam.Domain;
 
 namespace Gatam.Infrastructure.Repositories
 {
@@ -38,9 +41,14 @@ namespace Gatam.Infrastructure.Repositories
             return response;
         }
 
-        public async Task<T> FindByName(string name)
+        public async Task<T?> FindByProperty(string propertyName, string value)
         {
-            return (await _dbSet.FindAsync(name))!;
+            return await _dbSet.FirstOrDefaultAsync(u => EF.Property<string>(u, propertyName) == value);
+        }
+
+        public async Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
@@ -48,11 +56,20 @@ namespace Gatam.Infrastructure.Repositories
             return  await _dbSet.ToListAsync();
         }
 
-        public async Task<EntityEntry<T>> Update(T entity)
+        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
+        { 
+            IQueryable<T> query = _dbSet; 
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            } 
+            return await query.ToListAsync();
+        }
+
+        public Task<T> Update(T entity)
         {
-            EntityEntry<T> response = _dbSet.Update(entity);
-            return response;
-            
+            EntityEntry<T> response = _dbSet.Update(entity); 
+            return Task.FromResult(response.Entity);         
         }
     }
 }

@@ -1,48 +1,85 @@
 ﻿@page "/admin/create"
-@inject HttpClient http
+@inject IHttpClientFactory HttpClientFactory
 @using Gatam.Domain
+@using Gatam.WebAppBegeleider.Components.Layout
 
 @rendermode InteractiveServer
 
-<h3>CreateUser</h3>
+@attribute [Authorize(Policy = "RequireManagementRole")]
+<div class="container mt-3">
+    @if (isSuccess)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @response
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-<EditForm Model="@user" FormName="createUser" OnValidSubmit="OnFormSubmit">
-    <label>Gebruikersnaam</label>
-    <InputText @bind-Value="user.UserName" />
-    <label>Wachtwoord</label>
-    <InputText  @bind-Value="user.PasswordHash" />
-    <label>E-mailadres</label>
-    <InputText @bind-Value="user.Email" />
-    <label>Telefoonnummer</label>
-    <InputText @bind-Value="user.PhoneNumber" />
-    <label>Rol</label>
-    <InputSelect @bind-Value="user._role">
-        <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
-        <option value="@ApplicationUserRoles.MENTOR">
-            Begeleider
-        </option>
-        <option value="@ApplicationUserRoles.STUDENT">
-            Student
-        </option>
-    </InputSelect>
-    <button class="btn btn-primary" type="submit" value="submit">Send</button>
-</EditForm>
-<p id="response">@response</p>
+</div>
+<CustomCards>
+    <h3 style="">Maak gebruiker aan!</h3>
+
+    <EditForm Model="@user" FormName="createUser" OnValidSubmit="OnFormSubmit">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="UserName">Gebruikersnaam</label>
+                <InputText id="UserName" @bind-Value="user.UserName" class="form-control rounded-pill" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="Password">Wachtwoord</label>
+                <InputText id="Password" @bind-Value="user.PasswordHash" class="form-control rounded-pill"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="Email">E-mailadres</label>
+                <InputText id="Email" @bind-Value="user.Email" class="form-control rounded-pill"/>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="PhoneNumber">Telefoonnummer</label>
+                <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control rounded-pill"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="Role">Rol</label>
+                <InputSelect id="Role" @bind-Value="user.Role" class="form-control rounded-pill">
+                    <option value="@ApplicationUserRoles.ADMIN">Beheerder</option>
+                    <option value="@ApplicationUserRoles.MENTOR">Begeleider</option>
+                    <option value="@ApplicationUserRoles.STUDENT">Student</option>
+                </InputSelect>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="text-center">
+                <button class="w-25 btn  rounded-pill" style="background-image:linear-gradient(to right,#D9D9D9,#E0D000);color:#4454D2" type="submit">Aanmaken</button>
+            </div>
+        </div>
+    </EditForm>
+</CustomCards>
+
 @code {
     string response = "";
-    ApplicationUser user = new ApplicationUser() {_role = ApplicationUserRoles.STUDENT};
+    bool isSuccess = false;
+    ApplicationUser user = new ApplicationUser() {Role = ApplicationUserRoles.STUDENT};
     private async Task OnFormSubmit() 
     {
-        HttpResponseMessage result = await http.PostAsJsonAsync("/api/User", user);
+        var client = HttpClientFactory.CreateClient("ApiClient");
+        HttpResponseMessage result = await client.PostAsJsonAsync("winchester/api/User", user);
 
         if(result.IsSuccessStatusCode)
         {
             response = "Gebruiker is aangemaakt";
+            isSuccess = true;
 
-            user = new ApplicationUser() { _role = ApplicationUserRoles.STUDENT }; // refreshen van form.
+            user = new ApplicationUser() { Role = ApplicationUserRoles.STUDENT }; 
         } else
         {
             response = result.Content.ToString();
+            isSuccess = false;
         }
         StateHasChanged();
     }

@@ -5,6 +5,10 @@ using MediatR;
 using Gatam.Domain;
 using Gatam.WebAPI.Extensions;
 using System.Diagnostics;
+using Gatam.Application.CQRS.User;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Gatam.Application.Extensions;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -19,13 +23,16 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        [Authorize(Policy = "RequireManagementRole")]
+    public async Task<IActionResult> GetUsers()
         {
             var users = await _mediator.Send(new GetAllUsersQuery());
             return Ok(users);
         }
 
+
         [HttpPost]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
         {
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
@@ -33,9 +40,10 @@ namespace Gatam.WebAPI.Controllers
             return result == null ? BadRequest(result) : Created("", result);
         }
 
-        [HttpPut]
-        [Route("deactivate/{id}")]
-        public async Task<IActionResult> DeactivateUser(string id, [FromBody] DeactivateUserCommand command)
+        [HttpPatch]
+        [Route("setactivestate/{id}")]
+        [Authorize(Roles = RoleMapper.Admin)]
+        public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command._userId = id;
 
@@ -43,13 +51,27 @@ namespace Gatam.WebAPI.Controllers
 
             if (user == null)
             {
-                return NotFound("User betsaat niet");
+                return NotFound("User bestaat niet");
             }
 
             return Ok(user);
         }
+
+        [HttpPut("{userId}")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserDTO user)
+        {
+            if (userId != user.Id)
+            {
+                return BadRequest("The user ID in the URL does not match the user ID in the body.");
+            }
+            var returnedUser = await _mediator.Send(new UpdateUserCommand() { Id = userId, User = user });
+            return Ok(returnedUser);
+        }
+
         [HttpDelete]
         [Route("delete/{id}")]
+        [Authorize(Roles = RoleMapper.Admin)]
         public async Task<IActionResult> DeleteUser(string id)
         {
            var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
@@ -58,9 +80,15 @@ namespace Gatam.WebAPI.Controllers
                return Ok(response);
            }
            return NotFound("User doesnt exists");
-
-
-
+        }
+        [HttpGet("private-scoped")]
+        [Authorize("read:admin")]
+        public IActionResult Scoped()
+        {
+            return Ok(new
+            {
+                Message = "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this."
+            });
         }
     }
 

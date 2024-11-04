@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gatam.Application.CQRS.User;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace UnitTesting.ControllerTest.ApplicationUser
@@ -40,9 +41,9 @@ namespace UnitTesting.ControllerTest.ApplicationUser
                 }
             };
 
-            mediator.Setup(m => m.Send(It.IsAny<DeactivateUserCommand>(), default)).ReturnsAsync(user);
+            //mediator.Setup(m => m.Send(It.IsAny<DeactivateUserCommand>(), default)).ReturnsAsync(user);
 
-            var result = await controller.DeactivateUser(userId, command);
+            var result = await controller.SetActiveState(userId, command);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
