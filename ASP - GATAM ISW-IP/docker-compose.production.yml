@@ -48,7 +48,7 @@ services:
     ports:
       - "8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - ENVIRONMENT=${ENVIRONMENT}
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
@@ -62,17 +62,17 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.production-webappbegeleider.entrypoints=http"
-      - "traefik.http.routers.production-webappbegeleider.rule=Host(`production-gatam-beheer.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.production-webappbegeleider-http.entrypoints=http"
+      - "traefik.http.routers.production-webappbegeleider-http.rule=Host(`production-gatam-beheer.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.production-webappbegeleider-http.middlewares=production-webappbegeleider-redirect-to-https"
       - "traefik.http.middlewares.production-webappbegeleider-redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.production-webappbegeleider.middlewares=production-webappbegeleider-redirect-to-https"
-      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.production-webappbegeleider-secure.entrypoints=https"
       - "traefik.http.routers.production-webappbegeleider-secure.rule=Host(`production-gatam-beheer.nilsvanvaerenbergh.be`)"
       - "traefik.http.routers.production-webappbegeleider-secure.tls=true"
       - "traefik.http.routers.production-webappbegeleider-secure.tls.certresolver=cloudflare"
       - "traefik.http.routers.production-webappbegeleider-secure.tls.domains[0].main=production-gatam-beheer.nilsvanvaerenbergh.be"
-      - "traefik.http.services.app.loadbalancer.server.port=8080"
+      - "traefik.http.routers.production-webappbegeleider-secure.middlewares=sslheader"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
   webappvolger:
     build:
       context: .
@@ -89,17 +89,17 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.production-webappvolger.entrypoints=http"
-      - "traefik.http.routers.production-webappvolger.rule=Host(`production-gatam.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.production-webappvolger-http.entrypoints=http"
+      - "traefik.http.routers.production-webappvolger-http.rule=Host(`production-gatam.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.production-webappvolger-http.middlewares=production-webappvolger-redirect-to-https"
       - "traefik.http.middlewares.production-webappvolger-redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.production-webappvolger.middlewares=production-webappvolger-redirect-to-https"
-      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.production-webappvolger-secure.entrypoints=https"
       - "traefik.http.routers.production-webappvolger-secure.rule=Host(`production-gatam.nilsvanvaerenbergh.be`)"
       - "traefik.http.routers.production-webappvolger-secure.tls=true"
       - "traefik.http.routers.production-webappvolger-secure.tls.certresolver=cloudflare"
       - "traefik.http.routers.production-webappvolger-secure.tls.domains[0].main=production-gatam.nilsvanvaerenbergh.be"
-      - "traefik.http.services.app.loadbalancer.server.port=8080"
+      - "traefik.http.routers.production-webappvolger-secure.middlewares=sslheader"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
 volumes:
   sql_data:
 networks:

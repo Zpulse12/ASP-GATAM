@@ -62,17 +62,17 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.staging-webappbegeleider.entrypoints=http"
-      - "traefik.http.routers.staging-webappbegeleider.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.staging-webappbegeleider-http.entrypoints=http"
+      - "traefik.http.routers.staging-webappbegeleider-http.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.staging-webappbegeleider-http.middlewares=staging-webappbegeleider-redirect-to-https"
       - "traefik.http.middlewares.staging-webappbegeleider-redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.staging-webappbegeleider.middlewares=staging-webappbegeleider-redirect-to-https"
-      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.staging-webappbegeleider-secure.entrypoints=https"
       - "traefik.http.routers.staging-webappbegeleider-secure.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
       - "traefik.http.routers.staging-webappbegeleider-secure.tls=true"
       - "traefik.http.routers.staging-webappbegeleider-secure.tls.certresolver=cloudflare"
       - "traefik.http.routers.staging-webappbegeleider-secure.tls.domains[0].main=staging-gatam-beheer.nilsvanvaerenbergh.be"
-      - "traefik.http.services.app.loadbalancer.server.port=8080"
+      - "traefik.http.routers.staging-webappbegeleider-secure.middlewares=sslheader"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
   webappvolger:
     build:
       context: .
@@ -89,17 +89,17 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.staging-webappvolger.entrypoints=http"
-      - "traefik.http.routers.staging-webappvolger.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.staging-webappvolger-http.entrypoints=http"
+      - "traefik.http.routers.staging-webappvolger-http.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
+      - "traefik.http.routers.staging-webappvolger-http.middlewares=staging-webappvolger-redirect-to-https"
       - "traefik.http.middlewares.staging-webappvolger-redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.staging-webappvolger.middlewares=staging-webappvolger-redirect-to-https"
-      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.staging-webappvolger-secure.entrypoints=https"
       - "traefik.http.routers.staging-webappvolger-secure.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
       - "traefik.http.routers.staging-webappvolger-secure.tls=true"
       - "traefik.http.routers.staging-webappvolger-secure.tls.certresolver=cloudflare"
       - "traefik.http.routers.staging-webappvolger-secure.tls.domains[0].main=staging-gatam.nilsvanvaerenbergh.be"
-      - "traefik.http.services.app.loadbalancer.server.port=8080"
+      - "traefik.http.routers.staging-webappvolger-secure.middlewares=sslheader"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
 volumes:
   sql_data:
 networks:
