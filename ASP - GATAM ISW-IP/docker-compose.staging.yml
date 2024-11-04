@@ -25,7 +25,6 @@ services:
       - "443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
       - ENVIRONMENT=${ENVIRONMENT}
       - DATABASE_HOST=${ENVIRONMENT}-mssql,1433
       - DATABASE_NAME=Gatam.${ENVIRONMENT}
@@ -52,7 +51,6 @@ services:
       - "443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
       - ENVIRONMENT=${ENVIRONMENT}
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
