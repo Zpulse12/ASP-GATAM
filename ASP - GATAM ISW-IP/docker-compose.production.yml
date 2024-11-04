@@ -73,6 +73,7 @@ services:
       - "traefik.http.routers.production-webappbegeleider-secure.tls.domains[0].main=production-gatam-beheer.nilsvanvaerenbergh.be"
       - "traefik.http.routers.production-webappbegeleider-secure.middlewares=sslheader"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.services.production-webappbegeleider.loadbalancer.server.port=8080"
   webappvolger:
     build:
       context: .
@@ -100,6 +101,7 @@ services:
       - "traefik.http.routers.production-webappvolger-secure.tls.domains[0].main=production-gatam.nilsvanvaerenbergh.be"
       - "traefik.http.routers.production-webappvolger-secure.middlewares=sslheader"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.services.production-webappbegeleider.loadbalancer.server.port=8080"
 volumes:
   sql_data:
 networks:
