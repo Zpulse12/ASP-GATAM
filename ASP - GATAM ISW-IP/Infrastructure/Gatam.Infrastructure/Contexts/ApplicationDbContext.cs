@@ -11,14 +11,15 @@ namespace Gatam.Infrastructure.Contexts
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-       : base(options)
-        {
-        }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<ApplicationTeam> ApplicationTeams { get; set; }
 
         public DbSet<TeamInvitation> TeamInvitations { get; set; }
+
+        public DbSet<ApplicationModule> Modules { get; set; }
+       // public DbSet<Question> Questions { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -112,6 +113,18 @@ namespace Gatam.Infrastructure.Contexts
             builder.Entity<ApplicationUser>().HasMany(user => user.OwnedApplicationTeams).WithOne(team => team.TeamCreator).HasForeignKey(team => team.TeamCreatorId).OnDelete(DeleteBehavior.Restrict);
             builder.Entity<ApplicationTeam>().HasMany(team => team.TeamInvitations).WithOne(invitation => invitation.applicationTeam).HasForeignKey(invitation => invitation.ApplicationTeamId).OnDelete(DeleteBehavior.Restrict);
             builder.Entity<ApplicationUser>().HasMany(user => user.InvitationsRequests).WithOne(invitation => invitation.applicationUser).HasForeignKey(invitation => invitation.UserId).OnDelete(DeleteBehavior.Restrict);
+
+
+            var GLOBALMODULE = new ApplicationModule()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Title = "Solliciteren voor beginners",
+                Category = "SollicitatieTraining",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            builder.Entity<ApplicationModule>().HasData(GLOBALMODULE);
+            
 
 
         }

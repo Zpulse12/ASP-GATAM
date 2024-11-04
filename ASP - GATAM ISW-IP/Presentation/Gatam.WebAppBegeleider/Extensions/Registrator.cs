@@ -62,6 +62,10 @@ namespace Gatam.WebAppBegeleider.Extensions
                     policy.RequireRole(requiredRoles.ToArray());
 
                 });
+                options.AddPolicy("RequireMakerRole", policy =>
+                {
+                    policy.RequireRole(RoleMapper.Admin, RoleMapper.ContentMaker); 
+                });
             });
             return services;
         }

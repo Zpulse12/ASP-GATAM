@@ -4742,6 +4742,7 @@ textarea.form-control-lg {
     border: var(--bs-card-border-width) solid var(--bs-card-border-color);
     border-radius: var(--bs-card-border-radius);
     box-shadow: var(--bs-card-box-shadow);
+    padding: 5px;
 }
 
     .card > hr {
@@ -12777,3 +12778,8 @@ footer.footer {
     font-size: 2.25rem;
     box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.1);
 }
+
+.card-content{
+    border: 5px solid black;
+}
+

@@ -4,7 +4,8 @@
 @using Gatam.Domain
 @using System.Diagnostics
 @using Gatam.WebAppBegeleider.Components.Layout
-@inject HttpClient Http
+@using Gatam.WebAppBegeleider.Extensions
+@inject ApiClient apiClient
 @rendermode InteractiveServer
 @using BlazorBootstrap;
 <CustomCards>
@@ -33,7 +34,7 @@ else
                 <ul class="nav nav-tabs" id="myTab-@teamId" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="acceptedTeamInvite-tab-@teamId" data-bs-toggle="tab" data-bs-target="#acceptedTeamInvite-@teamId" type="button" role="tab" aria-controls="acceptedTeamInvite-@teamId" aria-selected="true">
-                            Geaccepteerde Gebruikers
+                            Mijn team
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -133,11 +134,11 @@ else
                         <Accordion>
                             <AccordionItem>
                                 <TitleTemplate>
-                                    Toevoegen van een gebruiker
+                                    Toevoegen van een student
                                 </TitleTemplate>
                                 <Content>
                                     <div class="search-container">
-                                        <input type="text" style="border-radius:5px; margin-top:15px; border-color:lightblue; box-shadow: none; padding: 10px;" @oninput="(e) => UpdateSearchQuery(teamId, e.Value.ToString())" placeholder="Zoek gebruiker op naam of e-mail" />
+                                        <input type="text" style="border-radius:5px; margin-top:15px; border-color:lightblue; box-shadow: none; padding: 10px;" @oninput="(e) => UpdateSearchQuery(teamId, e.Value.ToString())" placeholder="Zoek student op naam of e-mail" />
                                     </div>
                                     @if (!string.IsNullOrEmpty(errorMessage) && showError)
                                     {
@@ -214,7 +215,7 @@ else
                         </button>
                     </div>
                     <div class="modal-body">
-                        Weet je zeker dat je deze gebruiker wilt weigeren in uw team?
+                        Weet je zeker dat je deze student wilt weigeren in uw team?
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-success" @onclick="CloseModal">Annuleer</button>
@@ -259,8 +260,8 @@ else
     {
         try
         {
-            var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
-            var allUsers = await Http.GetFromJsonAsync<List<ApplicationUser>>("api/user");
+            var teamResponse = await apiClient.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+            var allUsers = await apiClient.GetFromJsonAsync<List<ApplicationUser>>("api/user");
 
             if (teamResponse != null && teamResponse.Count > 0)
             {
@@ -319,7 +320,7 @@ else
                     IsAccepted = isAccepted
                 };
 
-            var response = await Http.PutAsJsonAsync($"api/invitationteam/acceptInvitation/{invitationId}", command);
+            var response = await apiClient.PutAsJsonAsync($"api/invitationteam/acceptInvitation/{invitationId}", command);
             if (response.IsSuccessStatusCode)
             {
                 var updatedTeam = await response.Content.ReadFromJsonAsync<ApplicationTeam>();
@@ -334,7 +335,7 @@ else
                         invitationRequest.isAccepted = updatedTeam.TeamInvitations.FirstOrDefault(i => i.Id == invitation.Id).isAccepted;
                     }
                     StateHasChanged();
-                    var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+                    var teamResponse = await apiClient.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
                     teams = teamResponse;
                 }
             }
@@ -353,7 +354,7 @@ else
     {
         try
         {
-            var response = await Http.DeleteAsync($"api/invitationteam/delete/{selectedInvitationId}");
+            var response = await apiClient.DeleteAsync($"api/invitationteam/delete/{selectedInvitationId}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -418,11 +419,10 @@ else
 
 
 
-        response = await Http.PostAsJsonAsync("api/invitationteam", invitation);
+        response = await apiClient.PostAsJsonAsync("api/invitationteam", invitation);
         if (response.IsSuccessStatusCode)
         {
-            successMessage = "Gebruiker succesvol bijgewerkt!";
-            var teamResponse = await Http.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
+            var teamResponse = await apiClient.GetFromJsonAsync<List<ApplicationTeam>>("api/team");
             teams = teamResponse;
             showSuccess = true;
             StartTimer(true);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +21,13 @@ namespace Gatam.Application.Extensions
         public static List<string> GetAllRoles()
         {
             return Roles.Keys.ToList();
+        public const string Admin = "BEHEERDER";
+        public const string Begeleider = "BEGELEIDER";
+        public const string Volger = "VOLGER";
+        public const string ContentMaker = "MAKER";
+        public static List<string> GetAllRoles()
+        {
+            return new List<string> { Admin, Begeleider, Volger, ContentMaker };
         }
 
         public static string? GetRoleId(string roleName)

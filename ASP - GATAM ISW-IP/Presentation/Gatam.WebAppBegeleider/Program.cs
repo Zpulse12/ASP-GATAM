@@ -82,6 +82,14 @@ internal class Program
 
             await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
         }).AllowAnonymous();
+        app.MapGet("account/sign-up", async (HttpContext httpContext, string redirectUri = "/") =>
+        {
+            var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
+            .WithRedirectUri(redirectUri).WithParameter("screen_hint", "signup")
+            .Build();
+
+            await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+        }).AllowAnonymous();
         app.MapGet("account/logout", async (httpContext) =>
         {
             var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()

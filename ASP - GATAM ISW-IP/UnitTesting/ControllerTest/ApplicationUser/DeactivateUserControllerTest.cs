@@ -9,6 +9,18 @@
 //using System.Text;
 //using System.Threading.Tasks;
 //using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+﻿using Gatam.Application.CQRS;
+using Gatam.WebAPI.Controllers;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Gatam.Application.CQRS.User;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 //namespace UnitTesting.ControllerTest.ApplicationUser
 //{
@@ -41,6 +53,7 @@
 //            };
 
 //            mediator.Setup(m => m.Send(It.IsAny<DeactivateUserCommand>(), default)).ReturnsAsync(user);
+            //mediator.Setup(m => m.Send(It.IsAny<DeactivateUserCommand>(), default)).ReturnsAsync(user);
 
 //            var result = await controller.SetActiveState(userId, command);
 
