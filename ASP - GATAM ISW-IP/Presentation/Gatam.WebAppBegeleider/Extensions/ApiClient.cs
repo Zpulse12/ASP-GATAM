@@ -23,7 +23,6 @@ namespace Gatam.WebAppBegeleider.Extensions
         public async Task<HttpResponseMessage> PatchAsJsonAsync<T>(string requestUri, T content)
         {
             var response = await _httpClient.PatchAsJsonAsync(requestUri, content);
-            response.EnsureSuccessStatusCode();
             return response;
         }
         public async Task<T?> GetFromJsonAsync<T>(string requestUri)
