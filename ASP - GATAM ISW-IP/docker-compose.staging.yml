@@ -68,13 +68,14 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.staging-webappbegeleider.entrypoints=http"
       - "traefik.http.routers.staging-webappbegeleider.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.staging-webappbegeleider.middlewares=redirect-to-https"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.staging-webappbegeleider-secure.entrypoints=https"
       - "traefik.http.routers.staging-webappbegeleider-secure.rule=Host(`staging-gatam-beheer.nilsvanvaerenbergh.be`)"
       - "traefik.http.routers.staging-webappbegeleider-secure.tls=true"
       - "traefik.http.routers.staging-webappbegeleider-secure.tls.certresolver=cloudflare"
-      - "traefik.http.routers.staging-webappbegeleider-secure.tls.domains[0].main=nilsvanvaerenbergh.be"
-      - "traefik.http.routers.staging-webappbegeleider-secure.tls.domains[0].sans=staging-gatam-beheer.nilsvanvaerenbergh.be"
+      - "traefik.http.routers.staging-webappbegeleider-secure.tls.domains[0].main=staging-gatam-beheer.nilsvanvaerenbergh.be"
   webappvolger:
     build:
       context: .
@@ -91,13 +92,14 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.staging-webappvolger.entrypoints=http"
       - "traefik.http.routers.staging-webappvolger.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.staging-webappvolger.middlewares=redirect-to-https"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.staging-webappvolger-secure.entrypoints=https"
       - "traefik.http.routers.staging-webappvolger-secure.rule=Host(`staging-gatam.nilsvanvaerenbergh.be`)"
       - "traefik.http.routers.staging-webappvolger-secure.tls=true"
       - "traefik.http.routers.staging-webappvolger-secure.tls.certresolver=cloudflare"
-      - "traefik.http.routers.staging-webappvolger-secure.tls.domains[0].main=nilsvanvaerenbergh.be"
-      - "traefik.http.routers.staging-webappvolger-secure.tls.domains[0].sans=staging-gatam.nilsvanvaerenbergh.be"
+      - "traefik.http.routers.staging-webappvolger-secure.tls.domains[0].main=staging-gatam.nilsvanvaerenbergh.be"
 volumes:
   sql_data:
 networks:
