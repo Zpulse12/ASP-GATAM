@@ -35,9 +35,12 @@ namespace Gatam.WebAppBegeleider.Extensions
             services.AddHttpContextAccessor();
             services.AddScoped<TokenService>();
             services.AddScoped<HeaderHandler>();
+
+            string _host = $"http://${env.ENVIRONMENT}-api:8080/";
+
             services.AddHttpClient<ApiClient>((httpClient) =>
             {
-                httpClient.BaseAddress = new Uri($"http://${env.ENVIRONMENT}-api:8080/");
+                httpClient.BaseAddress = new Uri(_host);
 
 #if DEBUG
                 httpClient.BaseAddress = new Uri("http://localhost:5000");
