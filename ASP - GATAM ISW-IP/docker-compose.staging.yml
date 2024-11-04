@@ -74,6 +74,7 @@ services:
       - "traefik.http.routers.staging-webappbegeleider-secure.tls=true"
       - "traefik.http.routers.staging-webappbegeleider-secure.tls.certresolver=cloudflare"
       - "traefik.http.routers.staging-webappbegeleider-secure.tls.domains[0].main=staging-gatam-beheer.nilsvanvaerenbergh.be"
+      - "traefik.http.services.app.loadbalancer.server.port=8080"
   webappvolger:
     build:
       context: .
@@ -98,6 +99,7 @@ services:
       - "traefik.http.routers.staging-webappvolger-secure.tls=true"
       - "traefik.http.routers.staging-webappvolger-secure.tls.certresolver=cloudflare"
       - "traefik.http.routers.staging-webappvolger-secure.tls.domains[0].main=staging-gatam.nilsvanvaerenbergh.be"
+      - "traefik.http.services.app.loadbalancer.server.port=8080"
 volumes:
   sql_data:
 networks:
