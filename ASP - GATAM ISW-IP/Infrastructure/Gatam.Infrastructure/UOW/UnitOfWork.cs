@@ -15,6 +15,8 @@ namespace Gatam.Infrastructure.UOW
         private readonly IGenericRepository<ApplicationUser> _userRepository;
         private readonly IGenericRepository<ApplicationTeam> _teamRepository;
         private readonly IGenericRepository<TeamInvitation> _invitationTeamRepository;
+        private readonly IGenericRepository<ApplicationModule> _moduleRepository;
+
 
 
         private readonly ApplicationDbContext _context;
@@ -23,11 +25,13 @@ namespace Gatam.Infrastructure.UOW
                             ApplicationDbContext context, 
                             IGenericRepository<ApplicationUser> userRepository, 
                             IGenericRepository<ApplicationTeam> teamRepository,
-                            IGenericRepository<TeamInvitation> invitationTeamRepository)
+                            IGenericRepository<TeamInvitation> invitationTeamRepository,
+                            IGenericRepository<ApplicationModule> moduleRepository)
         {
             _userRepository = userRepository;
             _teamRepository = teamRepository;
             _invitationTeamRepository = invitationTeamRepository;
+            _moduleRepository = moduleRepository;
             _context = context;
         }
 
@@ -36,6 +40,7 @@ namespace Gatam.Infrastructure.UOW
         public IGenericRepository<ApplicationTeam> TeamRepository => _teamRepository;
 
         public IGenericRepository<TeamInvitation> TeamInvitationRepository => _invitationTeamRepository;
+        public IGenericRepository<ApplicationModule> ModuleRepository => _moduleRepository;
 
         public async Task commit()
         {

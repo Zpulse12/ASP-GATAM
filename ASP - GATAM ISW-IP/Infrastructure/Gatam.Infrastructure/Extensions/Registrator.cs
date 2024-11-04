@@ -33,6 +33,7 @@ namespace Gatam.Infrastructure.Extensions
             services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
             services.AddScoped<IGenericRepository<ApplicationTeam>, TeamRepository>();
             services.AddScoped<IGenericRepository<TeamInvitation>, TeamInvitationRepository>();
+            services.AddScoped<IGenericRepository<ApplicationModule>, ModuleRepository>();
             services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.RegisterDbContext();
@@ -51,14 +52,6 @@ namespace Gatam.Infrastructure.Extensions
                 options.Authority = $"https://{env.AUTH0DOMAIN}";
                 options.Audience = env.AUTH0AUDIENCE; // This should be the Identifier of your API in Auth0
             });
-            // Add authorization
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("RequireManagementRole", policy =>
-                {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
-                });
-            });
 
             return services;
         }
@@ -70,6 +63,10 @@ namespace Gatam.Infrastructure.Extensions
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
                     policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                });
+                options.AddPolicy("RequireMakerRole", policy =>
+                {
+                    policy.RequireRole(RoleMapper.Admin, RoleMapper.ContentMaker);
                 });
             });
             return services;

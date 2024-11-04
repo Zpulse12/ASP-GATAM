@@ -1,0 +1,74 @@
+﻿@page "/content/modules"
+@inject ApiClient apiClient
+@rendermode InteractiveServer
+@using BlazorBootstrap;
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@attribute [Authorize(Policy = "RequireMakerRole")]
+
+
+<CustomCards>
+    <h2>Modules</h2>
+    <NavLink class="nav-link" href="/content/create" >
+        <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold; margin-bottom:10px;">
+            Module toevoegen
+        </button>
+        
+    </NavLink>
+   
+    <div class="layout-container">
+@if (modules != null && modules.Count > 0)
+{
+    <nav>
+        <ul class="module-navbar">
+            @foreach (var module in modules.OrderBy(m => m.Title))
+            {
+                    <li style="list-style-type: none">
+                    <a @onclick="() => OpenModuleDetails(module.Id)">@module.Title</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+else
+{
+    <p>Geen modules gevonden.</p>
+}
+
+@if (selectedModule != null)
+{
+           
+    <div class="module-details">
+                <h3>@selectedModule.Title</h3>
+                <p>Category: @selectedModule.Category</p>
+                <p>Created At: @selectedModule.CreatedAt.ToString("g")</p>
+            <h5>Vragen</h5>
+           
+    </div>
+}
+    </div>
+</CustomCards>
+
+
+@code {
+    
+    private List<ApplicationModule> modules = new();
+    private ApplicationModule selectedModule;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var modulesResponse = await apiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module");
+        if (modulesResponse != null && modulesResponse.Count > 0)
+        {
+            modules = modulesResponse;
+        }
+    }
+
+    private void OpenModuleDetails(string moduleId)
+    {
+        selectedModule = modules.FirstOrDefault(m => m.Id == moduleId);
+    }
+
+}

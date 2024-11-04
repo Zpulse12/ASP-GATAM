@@ -63,9 +63,79 @@ h1:focus {
 }
 
 
+.card-content {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    margin: 5px;
+}
+.layout-container {
+    display: flex; /* Flexbox gebruiken */
+}
+.module-navbar {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+}
 
+.module-details {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-left: 10px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
+.navbar-nav .dropdown-menu {
+    border: none;
+    min-width: 180px;
+}
 
+.navbar-nav .dropdown-item {
+    color: white; /* Witte tekstkleur */
+    font-weight: 500; /* Maakt de tekst iets dikker voor betere leesbaarheid */
+}
 
+    .navbar-nav .dropdown-item:hover {
+        background-color: #7d85c5; /* Lichte blauwe kleur bij hover */
+        color: white; /* Witte tekstkleur blijft behouden */
+    }
 
+.nav-link {
+    background-clip: text;  font-weight:bold;
+}
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+    background-color: #232B6C;
+    margin-top: 0; /* Zorg dat het menu netjes aansluit */
+}
 
+.nav-item.dropdown .dropdown-toggle::after {
+    display: none;
+}
+.navbar .navbar-nav .dropdown-menu {
+    background-color: #232B6C !important;
+    border: none;
+}
+
+.navbar .navbar-nav .dropdown-item:hover {
+    background-color: #7d85c5 !important;
+    color: white !important;
+}
+
+.nav-link.dropdown-toggle .bi-caret-down-fill {
+    margin-left: 5px; /* Ruimte tussen de tekst en het pijltje */
+    color: white; /* Kleur van het pijltje */
+}
+@media (max-width: 768px) {
+    .navbar-nav {
+        /* Bijvoorbeeld: geen marge of padding voor nav items in kleine schermen */
+        padding: 0;
+    }
+
+        .navbar-nav .dropdown-menu {
+            min-width: 100%; /* Zorg ervoor dat het dropdown-menu breed genoeg is */
+        }
