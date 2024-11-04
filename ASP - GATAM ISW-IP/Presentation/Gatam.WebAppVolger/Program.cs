@@ -32,7 +32,7 @@ internal class Program
 
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
-            ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+            ForwardedHeaders = ForwardedHeaders.XForwardedProto
         });
 
 
