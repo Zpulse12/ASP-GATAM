@@ -3,7 +3,7 @@
 
 <div >
     <div >
-        <nav class="navbar navbar-expand-lg navbar-light bg-light " style="background-image:linear-gradient(to right,#D9D9D9, #232B6C)">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light " style="background-image:linear-gradient(to right,#7d85c5, #232B6C)">
             <a class="navbar-brand px-4" href="">
                 <img src="/images/logo.png" alt="Alternate Text" style="width:35%;" />
             </a>
@@ -12,16 +12,16 @@
             </button>
             <div class="collapse navbar-collapse text-center" id="navbarNav">
                 @ChildContent
-                <div class="text-end px-5">
+                <div class="ms-auto text-end px-5">
                     <div class="d-flex justify-content-center mb-3">
                         <div class="btn-group rounded-pill shadow-lg" role="group">
                             <AuthorizeView>
                                 <Authorized>
-                                    <a class="btn rounded-pill btn-right" style="color:#4454D2" href="account/login">Log out</a>
+                                    <a class="btn rounded-pill btn-right" style="color: white; margin-top:10px;  background-color: rgba(239, 241, 255, 0.5);   padding: 8px 16px; text-decoration: none; " href="account/login">Log out</a>
                                 </Authorized>
                                 <NotAuthorized>
-                                    <a class="btn rounded-pill btn-left" style="background-color:#4454D2; color:#E0D000" href="/account/sign-up">Sign Up</a>
-                                    <a class="btn rounded-pill btn-right" style="color:#4454D2" href="account/login">Log in</a>
+                                    <a class="btn rounded-pill btn-left" style="background-color:#4454D2; color:white" href="/account/sign-up">Sign Up</a>
+                                    <a class="btn rounded-pill btn-right" style="color:white" href="account/login">Log in</a>
                                 </NotAuthorized>
                             </AuthorizeView>
                         </div>
