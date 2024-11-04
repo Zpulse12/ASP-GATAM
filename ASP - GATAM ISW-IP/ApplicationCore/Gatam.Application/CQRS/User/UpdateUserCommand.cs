@@ -19,10 +19,10 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     {
         _unitOfWork = unitOfWork;
         RuleFor(x => x.User.Nickname)
-            .NotEmpty().WithMessage("Username cannot be empty")
-            .MustAsync(async (userCommand, username, cancellationToken) =>
+            .NotEmpty().WithMessage("Nickname cannot be empty")
+            .MustAsync(async (userCommand, nickname, cancellationToken) =>
             {
-                var existingUser = await _unitOfWork.UserRepository.FindByProperty("UserName", username);
+                var existingUser = await _unitOfWork.UserRepository.FindByProperty("Nickname", nickname);
                 return existingUser == null || existingUser.Id == userCommand.Id;
             }).WithMessage("Username already exists.");
 
