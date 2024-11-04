@@ -95,7 +95,7 @@ services:
       - "traefik.http.routers.production-webappvolger-secure.tls.domains[0].main=volger-pg.nilsvanvaerenbergh.be"
       - "traefik.http.routers.production-webappvolger-secure.middlewares=sslheader"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.services.production-webappbegeleider.loadbalancer.server.port=8080"
+      - "traefik.http.services.production-webappvolger.loadbalancer.server.port=8080"
 volumes:
   sql_data:
 networks:
