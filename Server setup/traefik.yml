@@ -22,7 +22,7 @@ certificatesResolvers:
     acme:
       email: vaerenberghnils@hotmail.com #add your email
       storage: acme.json
-      tlsChallenge: true
+      # tlsChallenge: true
       caServer: https://acme-staging-v02.api.letsencrypt.org/directory  # Use staging server
       dnsChallenge:
         provider: cloudflare
