@@ -14,6 +14,8 @@ namespace Gatam.WebAppBegeleider.Extensions.EnvironmentHelper
         public string AUTH0CLIENTID { get; set; }
         public string AUTH0CLIENTSECRET { get; set; }
         public string AUTH0AUDIENCE { get; set; }
+
+        public string ENVIRONMENT { get; set; }
         public EnvironmentWrapper()
         {
 #if DEBUG
@@ -25,12 +27,14 @@ namespace Gatam.WebAppBegeleider.Extensions.EnvironmentHelper
             AUTH0CLIENTID = Environment.GetEnvironmentVariable("AUTH0_CLIENTID") ?? "";
             AUTH0CLIENTSECRET = Environment.GetEnvironmentVariable("AUTH0_CLIENTSECRET") ?? "";
             AUTH0AUDIENCE = Environment.GetEnvironmentVariable("AUTH0_AUDIENCE") ?? "";
+            ENVIRONMENT = Environment.GetEnvironmentVariable("ENVIRONMENT") ?? "";
 
             /// NULL CHECKS
             if (string.IsNullOrEmpty(AUTH0DOMAIN)) { throw new MissingEnvironmentVariableException(nameof(AUTH0DOMAIN)); }
             if (string.IsNullOrEmpty(AUTH0CLIENTID)) { throw new MissingEnvironmentVariableException(nameof(AUTH0CLIENTID)); }
             if (string.IsNullOrEmpty(AUTH0CLIENTSECRET)) { throw new MissingEnvironmentVariableException(nameof(AUTH0CLIENTSECRET)); }
             if (string.IsNullOrEmpty(AUTH0AUDIENCE)) { throw new MissingEnvironmentVariableException(nameof(AUTH0AUDIENCE)); }
+            if (string.IsNullOrEmpty(ENVIRONMENT)) { throw new MissingEnvironmentVariableException(nameof(ENVIRONMENT)); }
         }
     }
 }

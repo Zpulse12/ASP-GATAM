@@ -30,12 +30,14 @@ namespace Gatam.WebAppBegeleider.Extensions
         }
         public static IServiceCollection RegisterCustomApiClient(this IServiceCollection services) 
         {
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            EnvironmentWrapper env = serviceProvider.GetRequiredService<EnvironmentWrapper>();
             services.AddHttpContextAccessor();
             services.AddScoped<TokenService>();
             services.AddScoped<HeaderHandler>();
             services.AddHttpClient<ApiClient>((httpClient) =>
             {
-                httpClient.BaseAddress = new Uri("http://webapi:8080/"); //http://localhost/winchester
+                httpClient.BaseAddress = new Uri($"http://${env.ENVIRONMENT}-api:8080/");
 
 #if DEBUG
                 httpClient.BaseAddress = new Uri("http://localhost:5000");

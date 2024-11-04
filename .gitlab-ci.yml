@@ -25,6 +25,6 @@ staging-deploy:
     - docker compose -f docker-compose.staging.yml down
     - docker compose --env-file .env.staging -p staging -f docker-compose.staging.yml up -d --build 
   rules:
-    - if: '$CI_COMMIT_BRANCH == "staging"'
+    - if: '$CI_COMMIT_BRANCH == "technical-33-geautomatiseerde-deployment-omgeving"'
       when: always
   environment: staging
