@@ -22,11 +22,10 @@ namespace Gatam.WebAPI.Controllers
             _mediator = mediator;
         }
 
+
         [HttpGet]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
-
-    public async Task<IActionResult> GetUsers()
 
         {
             var users = await _mediator.Send(new GetAllUsersQuery());

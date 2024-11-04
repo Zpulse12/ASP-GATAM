@@ -85,24 +85,6 @@ namespace Gatam.Infrastructure.Extensions
                 });
             return services;
         }
-
-        public static IServiceCollection RegisterPolicies(this IServiceCollection services)
-        {
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("RequireManagementRole", policy =>
-                {
-                    var requiredRoles = RoleMapper.Roles.Keys
-                .Where(role => role == "BEHEERDER" || role == "BEGELEIDER")
-                .ToList();
-
-                    // Gebruik de rol-namen direct
-                    policy.RequireRole(requiredRoles.ToArray());
-                });
-            });
-            return services;
-        }
     }
 
 }

@@ -16,11 +16,7 @@ namespace Gatam.Application.Extensions
             { "MAKER", "rol_tj8keS38380ZU4NR" }
         };
 
-       
-
-        public static List<string> GetAllRoles()
-        {
-            return Roles.Keys.ToList();
+     
         public const string Admin = "BEHEERDER";
         public const string Begeleider = "BEGELEIDER";
         public const string Volger = "VOLGER";
