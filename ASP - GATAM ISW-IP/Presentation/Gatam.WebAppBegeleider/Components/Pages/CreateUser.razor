@@ -2,8 +2,8 @@
 @inject IHttpClientFactory HttpClientFactory
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
-
 @rendermode InteractiveServer
+@attribute [Authorize(Policy = "RequireManagementRole")]
 <InactiveUserRedirect />
 <div class="container mt-3">
     @if (isSuccess)
