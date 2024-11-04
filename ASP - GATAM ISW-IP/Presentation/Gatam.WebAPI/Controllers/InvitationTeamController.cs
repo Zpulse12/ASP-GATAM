@@ -4,6 +4,7 @@ using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Gatam.Application.CQRS.User;
 
 namespace Gatam.WebAPI.Controllers
 {
