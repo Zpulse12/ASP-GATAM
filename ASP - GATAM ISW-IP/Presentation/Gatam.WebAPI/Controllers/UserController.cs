@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Gatam.Application.CQRS.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Gatam.Application.Extensions;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -70,7 +71,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpDelete]
         [Route("delete/{id}")]
-        [Authorize(Roles = "BEHEERDER")]
+        [Authorize(Roles = RoleMapper.Admin)]
         public async Task<IActionResult> DeleteUser(string id)
         {
            var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
