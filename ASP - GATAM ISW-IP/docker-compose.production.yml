@@ -22,7 +22,6 @@ services:
     container_name: ${ENVIRONMENT}-api
     ports:
       - "8080"
-      - "443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ENVIRONMENT=${ENVIRONMENT}
@@ -48,7 +47,6 @@ services:
     container_name: ${ENVIRONMENT}-webappbegeleider
     ports:
       - "8080"
-      - "443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ENVIRONMENT=${ENVIRONMENT}
@@ -83,7 +81,6 @@ services:
     container_name: ${ENVIRONMENT}-webappvolger
     ports:
       - "8080"
-      - "443"
     depends_on:
       - webapi
       - mssql-server
