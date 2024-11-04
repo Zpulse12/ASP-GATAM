@@ -79,7 +79,7 @@ services:
       dockerfile: ./Presentation/Gatam.WebAppVolger/Dockerfile
     restart: always
     container_name: ${ENVIRONMENT}-webappvolger
-    port:
+    ports:
       - "8080"
     depends_on:
       - webapi
