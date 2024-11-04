@@ -37,7 +37,7 @@ internal class Program
             ForwardedHeaders = ForwardedHeaders.XForwardedProto
         });
 
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();

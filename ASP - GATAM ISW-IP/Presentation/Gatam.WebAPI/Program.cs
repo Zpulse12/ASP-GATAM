@@ -40,7 +40,7 @@ internal class Program {
         }
         app.UseErrorHandlingMiddleware();
 
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
