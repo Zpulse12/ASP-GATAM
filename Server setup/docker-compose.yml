@@ -21,6 +21,8 @@ services:
       - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     security_opt:
       - no-new-privileges:true
+    labels:
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 networks:
   proxy:
     external: true     
