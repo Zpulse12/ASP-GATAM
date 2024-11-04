@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Infrastructure.Repositories;
+using BlazorBootstrap;
 
 internal class Program
 {
@@ -30,6 +31,7 @@ internal class Program
         builder.Services.AddScoped<ManagementApiRepository>();
         builder.Services.AddHttpClient<IManagementApi, ManagementApiRepository>();
 
+        builder.Services.AddBlazorBootstrap();
 
         var app = builder.Build();
         app.Use(async (context, next) =>

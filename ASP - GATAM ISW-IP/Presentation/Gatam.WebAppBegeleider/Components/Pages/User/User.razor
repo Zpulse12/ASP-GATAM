@@ -57,8 +57,26 @@
             </div>
 
         </EditForm>
-
-        <div class="form-group mt-3">
+       
+        <Callout Color="CalloutColor.Info" Heading="Berlangrijk">
+            <p><strong>@userBeingEdited.Username heeft momenteel volgende rol(len):</strong></p>
+                <ul>
+                    @if (userRolesMap.TryGetValue(userBeingEdited?.Id, out var roles))
+                    {
+                        foreach (var role in roles)
+                        {
+                            <li>@role</li>
+                        }
+                    }
+                    else
+                    {
+                        <li>Geen rollen gevonden</li>
+                    }
+                </ul>
+    
+            <hr/>
+        </Callout>
+    <div class="form-group mt-3">
             <label for="Role">Rol Toewijzen</label>
             <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
                 @foreach (var role in RoleMapper.Roles)
@@ -76,6 +94,11 @@
 </CustomCards>
 
 @code {
+    private List<UserDTO> _users = new();
+    private HashSet<UserDTO> selectedUsers = new();
+    private Dictionary<string, List<string>> userRolesMap = new();
+    private UserDTO selectedUser;
+
     string response_Msg = "";
     bool isSuccess = false;
     [Parameter] public string Id { get; set; } = "";
@@ -89,6 +112,8 @@
     {
         _isLoading = true;
 
+
+
         try
         {
 
@@ -98,6 +123,9 @@
                 _hasError = true;
                 response_Msg = "Gebruiker niet gevonden.";
             }
+            var roles = await managementApiRepository.GetRolesByUserId(userBeingEdited.Id);
+            userRolesMap[userBeingEdited.Id] = roles.ToList();
+            
         }
         catch (HttpRequestException ex)
         {
@@ -113,6 +141,8 @@
         {
             _isLoading = false;
         }
+
+        
     }
 
     private async Task HandleValidSubmit()
@@ -132,12 +162,13 @@
                 userBeingEdited.RolesIds = new List<string>() {selectedRoles};
 
                 Debug.WriteLine(userBeingEdited);
+                
 
                 var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited); 
-
+                
                 if (roleUpdateResponse.IsSuccessStatusCode)
                 {
-
+                    
                     var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
 
                     if (response.IsSuccessStatusCode)
