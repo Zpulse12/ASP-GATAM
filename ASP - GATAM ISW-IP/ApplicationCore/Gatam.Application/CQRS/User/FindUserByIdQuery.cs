@@ -1,4 +1,5 @@
-﻿using Gatam.Application.Interfaces;
+﻿using FluentValidation;
+using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
 
@@ -11,6 +12,14 @@ public class FindUserByIdQuery : IRequest<ApplicationUser>
     public FindUserByIdQuery(string auth0UserId)
     {
         Auth0UserId = auth0UserId;
+    }
+    public class FindUserByIdQueryValidator : AbstractValidator<FindUserByIdQuery>
+    {
+        public FindUserByIdQueryValidator()
+        {
+            RuleFor(x => x.Auth0UserId)
+                .NotEmpty().WithMessage("Auth0 User ID is required.");
+        }
     }
     public class FindUserByIdQueryHandler : IRequestHandler<FindUserByIdQuery, ApplicationUser>
     {
