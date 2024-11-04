@@ -7,6 +7,8 @@ using Gatam.WebAPI.Extensions;
 using System.Diagnostics;
 using Gatam.Application.CQRS.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Gatam.Application.Extensions;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -21,7 +23,8 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        [Authorize(Policy = "RequireManagementRole")]
+    public async Task<IActionResult> GetUsers()
         {
             try
             {
@@ -86,6 +89,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
         {
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
@@ -94,6 +98,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPatch]
         [Route("setactivestate/{id}")]
+        [Authorize(Roles = RoleMapper.Admin)]
         public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command.UserId = id;
@@ -129,6 +134,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("{userId}")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserDTO user)
         {
             if (userId != user.Id)
@@ -141,6 +147,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpDelete]
         [Route("delete/{id}")]
+        [Authorize(Roles = RoleMapper.Admin)]
         public async Task<IActionResult> DeleteUser(string id)
         {
            var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
