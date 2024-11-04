@@ -20,8 +20,6 @@ services:
       dockerfile: ./Presentation/Gatam.WebAPI/Dockerfile
     restart: always
     container_name: ${ENVIRONMENT}-api
-    ports:
-      - "8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ENVIRONMENT=${ENVIRONMENT}
@@ -45,8 +43,6 @@ services:
       dockerfile: ./Presentation/Gatam.WebAppBegeleider/Dockerfile
     restart: always
     container_name: ${ENVIRONMENT}-webappbegeleider
-    ports:
-      - "8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ENVIRONMENT=${ENVIRONMENT}
@@ -80,8 +76,6 @@ services:
       dockerfile: ./Presentation/Gatam.WebAppVolger/Dockerfile
     restart: always
     container_name: ${ENVIRONMENT}-webappvolger
-    ports:
-      - "8080"
     depends_on:
       - webapi
       - mssql-server
