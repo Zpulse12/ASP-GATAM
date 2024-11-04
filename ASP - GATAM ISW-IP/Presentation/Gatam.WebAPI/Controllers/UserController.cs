@@ -24,69 +24,17 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpGet] 
         [Authorize(Policy = "RequireManagementRole")]
-    public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            try
-            {
-                var auth0Users = await _mediator.Send(new GetAllUsersQuery());
-
-                var usersWithLocalStatus = new List<UserDTO>();
-        
-                foreach (var auth0User in auth0Users)
-                {
-                    var localUser = await _mediator.Send(new FindUserByIdQuery(auth0User.Id));
-
-                    if (localUser == null)
-                    {
-                        var newUser = new ApplicationUser
-                        {
-                            Id = auth0User.Id,
-                            IsActive = true
-                        };
-                        await _mediator.Send(new CreateUserCommand { _user = newUser });
-                        auth0User.IsActive = true;
-                    }
-                    else
-                    {
-                        auth0User.IsActive = localUser.IsActive;
-                    }
-            
-                    usersWithLocalStatus.Add(auth0User);
-                }
-
-                return Ok(usersWithLocalStatus);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error synchronizing users: {ex.Message}");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+            var usersWithLocalStatus = await _mediator.Send(new GetUsersWithSyncQuery());
+            return Ok(usersWithLocalStatus);
         }
-
-
-
-
 
         [HttpGet("findbyid/{auth0UserId}")]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> FindById(string auth0UserId)
         {
-            try
-            {
-                var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
-
-                if (user == null) 
-                {
-                    return NotFound($"User with Auth0 ID '{auth0UserId}' not found.");
-                }
-
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error fetching user with Auth0 ID '{auth0UserId}': {ex.Message}");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+            return Ok(await _mediator.Send(new FindUserByIdQuery(auth0UserId)));
         }
 
         [HttpPost]
@@ -103,36 +51,14 @@ namespace Gatam.WebAPI.Controllers
         public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command.UserId = id;
-
-            var user = await _mediator.Send(new DeactivateUserCommand() { UserId = id, IsActive = command.IsActive });
-
-            if (user == null)
-            {
-                return NotFound("User bestaat niet");
-            }
-
-            return Ok(user);
+            return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = id, IsActive = command.IsActive }));
         }
         [HttpGet("status/{auth0UserId}")]
         [Authorize(Roles = RoleMapper.Admin)]
         public async Task<IActionResult> GetUserStatus(string auth0UserId)
         {
-            try
-            {
-                var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
-
-                if (user == null)
-                {
-                    return NotFound("User does not exist");
-                }
-
-                return Ok(new { IsActive = user.IsActive });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error fetching user with Auth0 ID '{auth0UserId}': {ex.Message}");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+            var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
+            return Ok(new { IsActive = user.IsActive });
         }
 
         [HttpPut("{userId}")]
