@@ -42,7 +42,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPatch]
         [Route("setactivestate/{id}")]
-        [Authorize(Roles = "BEHEERDER")]
+        [Authorize(Roles = RoleMapper.Admin)]
         public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command._userId = id;
