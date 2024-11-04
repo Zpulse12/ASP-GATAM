@@ -73,7 +73,7 @@ services:
       - "traefik.http.routers.staging-webappbegeleider-secure.tls.domains[0].main=begeleider-sg.nilsvanvaerenbergh.be"
       - "traefik.http.routers.staging-webappbegeleider-secure.middlewares=sslheader"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.services.staging-webappbegeleider.loadbalancer.server.port=443"
+      - "traefik.http.services.staging-webappbegeleider.loadbalancer.server.port=8080"
   webappvolger:
     build:
       context: .
@@ -101,7 +101,7 @@ services:
       - "traefik.http.routers.staging-webappvolger-secure.tls.domains[0].main=volger-sg.nilsvanvaerenbergh.be"
       - "traefik.http.routers.staging-webappvolger-secure.middlewares=sslheader"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.services.staging-webappvolger.loadbalancer.server.port=443"
+      - "traefik.http.services.staging-webappvolger.loadbalancer.server.port=8080"
 volumes:
   sql_data:
 networks:
