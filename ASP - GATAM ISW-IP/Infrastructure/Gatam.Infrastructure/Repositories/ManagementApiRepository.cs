@@ -52,7 +52,6 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> GetUserByIdAsync(string userId)
     {
-        //var users = await GetAllUsersAsync();
         var _response = await _httpClient.GetFromJsonAsync<JsonElement>($"users/{userId}");
         UserDTO _user = new UserDTO
         {
