@@ -2,10 +2,6 @@ using Gatam.WebAppBegeleider.Components;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Gatam.WebAppBegeleider.Interfaces;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
@@ -23,8 +19,17 @@ internal class Program
         builder.Services.AddSingleton<EnvironmentWrapper>();
         builder.Services.RegisterAuth0Authentication();
         builder.Services.RegisterCustomApiClient();
+        builder.Services.AddScoped<Auth0UserStateService>();
         builder.Services.RegisterPolicies();
+
+        builder.Services.AddScoped<ManagementApiRepository>();
+        builder.Services.AddHttpClient<IManagementApi, ManagementApiRepository>();
+
+        builder.Services.AddBlazorBootstrap();
+
         var app = builder.Build();
+        
+
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
@@ -47,6 +52,17 @@ internal class Program
         app.UseAuthorization();
         app.UseAntiforgery();
         app.MapRazorPages();
+        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
+        {
+            var accessToken = await httpContext.GetTokenAsync("access_token");
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return Results.BadRequest("Access token is not available.");
+            }
+
+            return Results.Ok(new { AccessToken = accessToken });
+        });
         app.MapGet("account/login", async (HttpContext httpContext, string redirectUri = "/") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()

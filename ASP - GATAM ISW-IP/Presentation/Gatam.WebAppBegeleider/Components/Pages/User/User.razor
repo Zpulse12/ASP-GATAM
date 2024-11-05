@@ -1,0 +1,202 @@
+﻿@page "/admin/user/{Id}"
+
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Application.CQRS
+@using Gatam.Infrastructure.Repositories
+@using System.Diagnostics
+@inject ManagementApiRepository managementApiRepository
+@inject ApiClient apiClient
+
+@rendermode InteractiveServer
+
+@attribute [Authorize(Policy = "RequireManagementRole")]
+<div class="container mt-3">
+    @if (isSuccess)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @response_Msg
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+</div>
+<CustomCards>
+    <h3>Bewerken van gebruiker</h3>
+
+
+    @if (_isLoading)
+    {
+        <div class="text-center">
+            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+        </div>
+    }
+    else if (_hasError)
+    {
+        <p>@response_Msg</p>
+    }
+    else if (userBeingEdited != null)
+    {
+
+        <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group mt-3">
+                <label for="Username">Gebruikersnaam</label>
+                <InputText id="Username" @bind-Value="userBeingEdited.Nickname" class="form-control" />
+            </div>
+
+            <div class="form-group mt-3">
+                <label for="Email">Email</label>
+                <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+            </div>
+            <div class="form-group mt-3">
+                <label for="IsActive">Actief</label>
+                <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
+            </div>
+
+        </EditForm>
+       
+        <Callout Color="CalloutColor.Info" Heading="Berlangrijk">
+            <p><strong>@userBeingEdited.Nickname heeft momenteel volgende rol(len):</strong></p>
+                <ul>
+                    @if (userRolesMap.TryGetValue(userBeingEdited?.Id, out var roles))
+                    {
+                        foreach (var role in roles)
+                        {
+                            <li>@role</li>
+                        }
+                    }
+                    else
+                    {
+                        <li>Geen rollen gevonden</li>
+                    }
+                </ul>
+    
+            <hr/>
+        </Callout>
+    <div class="form-group mt-3">
+            <label for="Role">Rol Toewijzen</label>
+            <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
+                @foreach (var role in RoleMapper.Roles)
+                {
+                    <option value="@role.Value">@role.Key</option>
+                }
+            </InputSelect>
+        </div>
+        <button type="submit" onclick="@HandleValidSubmit" class="btn btn-primary mt-4">Opslaan</button>
+    }
+    else
+    {
+        <p>Gebruiker niet gevonden.</p>
+    }
+</CustomCards>
+
+@code {
+    private List<UserDTO> _users = new();
+    private HashSet<UserDTO> selectedUsers = new();
+    private Dictionary<string, List<string>> userRolesMap = new();
+    private UserDTO selectedUser;
+
+    string response_Msg = "";
+    bool isSuccess = false;
+    [Parameter] public string Id { get; set; } = "";
+    private UserDTO userBeingEdited ;
+    public string selectedRoles { get; set; } = "";
+
+    private bool _hasError = false;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+
+
+
+        try
+        {
+
+            userBeingEdited = await apiClient.GetFromJsonAsync<UserDTO>($"/api/user/{Id}");
+            if (userBeingEdited == null)
+            {
+                _hasError = true;
+                response_Msg = "Gebruiker niet gevonden.";
+            }
+            var roles = await managementApiRepository.GetRolesByUserId(userBeingEdited.Id);
+            userRolesMap[userBeingEdited.Id] = roles.ToList();
+            
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;
+            response_Msg = $"HTTP-fout: {ex.Message}";
+            
+        }
+        catch (Exception ex) 
+        {
+            _hasError = true;
+            response_Msg = "Gebruiker niet gevonden3";
+        }finally
+        {
+            _isLoading = false;
+        }
+
+        
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (userBeingEdited == null)
+        {
+            _hasError = true;
+            response_Msg = "Geen gebruiker om te updaten.";
+            return;
+        }
+
+        if (userBeingEdited != null)
+        {
+            try
+            {
+
+                userBeingEdited.RolesIds = new List<string>() {selectedRoles};
+
+                Debug.WriteLine(userBeingEdited);
+                
+
+                var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited); 
+                
+                if (roleUpdateResponse.IsSuccessStatusCode)
+                {
+                    
+                    var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+
+                        Console.WriteLine("Gebruiker succesvol bijgewerkt.");
+                        isSuccess = true;
+                        response_Msg = "Gebruiker succesvol bijgewerkt.";
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
+                    }
+                }
+                else
+                {
+                    response_Msg = "Fout bij het bijwerken van de rollen.";
+                }
+            }
+            catch (Exception ex)
+            {
+                response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
+
+            }
+        }
+    }
+
+    
+
+}
