@@ -104,11 +104,7 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> UpdateUserAsync(string userId, UserDTO user)
     {
-        if (userId != user.Id)
-        {
-            throw new ArgumentException("User ID mismatch.");
-        }
-
+        
         var response = await _httpClient.PostAsJsonAsync($"users/{userId}", user);
 
         if (response.IsSuccessStatusCode)

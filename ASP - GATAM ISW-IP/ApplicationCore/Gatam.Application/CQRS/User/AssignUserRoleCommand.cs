@@ -19,11 +19,9 @@ namespace Gatam.Application.CQRS.User
 
     public class AssignUserRoleCommandValidator : AbstractValidator<AssignUserRoleCommand>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public AssignUserRoleCommandValidator(IUnitOfWork unitOfWork)
+       
+        public AssignUserRoleCommandValidator()
         {
-            _unitOfWork = unitOfWork;
             RuleFor(x => x.User.Id)
                 .NotEmpty().WithMessage("Id cannot be empty")
                 .Equal(x => x.Id)
@@ -36,13 +34,11 @@ namespace Gatam.Application.CQRS.User
 
     public class AssignUserRoleCommandHandler : IRequestHandler<AssignUserRoleCommand, UserDTO>
     {
-        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly IManagementApi _auth0Repository;
 
-        public AssignUserRoleCommandHandler(IUnitOfWork uow, IMapper mapper, IManagementApi auth0Repository)
+        public AssignUserRoleCommandHandler(IMapper mapper, IManagementApi auth0Repository)
         {
-            _uow = uow;
             _mapper = mapper;
             _auth0Repository = auth0Repository;
         }

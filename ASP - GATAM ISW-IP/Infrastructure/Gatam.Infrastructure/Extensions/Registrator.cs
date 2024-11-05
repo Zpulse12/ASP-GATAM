@@ -61,20 +61,24 @@ namespace Gatam.Infrastructure.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    var requiredRoles = RoleMapper.Roles.Keys
-                .Where(role => role == "BEHEERDER" || role == "BEGELEIDER")
-                .ToList();
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
+                    policy.RequireRole(requiredRoleIds);
 
-                    // Gebruik de rol-namen direct
-                    policy.RequireRole(requiredRoles.ToArray());
                 });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.ContentMaker);
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
+                    policy.RequireRole(requiredRoleIds);
+                });
+                options.AddPolicy("RequireAdminRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
+                    policy.RequireRole(requiredRoleIds);
                 });
             });
             return services;
         }
+
         public static IServiceCollection RegisterDataProtectionEncryptionMethods(this IServiceCollection services)
         {
             services.AddDataProtection().UseCryptographicAlgorithms(

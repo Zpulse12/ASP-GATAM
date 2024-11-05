@@ -9,7 +9,7 @@
 //using System.Text;
 //using System.Threading.Tasks;
 //using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
-?using Gatam.Application.CQRS;
+using Gatam.Application.CQRS;
 using Gatam.WebAPI.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

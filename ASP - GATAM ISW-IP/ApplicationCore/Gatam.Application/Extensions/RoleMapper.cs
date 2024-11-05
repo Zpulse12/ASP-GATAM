@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,19 +17,14 @@ namespace Gatam.Application.Extensions
             { "MAKER", "rol_tj8keS38380ZU4NR" }
         };
 
-     
-        public const string Admin = "BEHEERDER";
-        public const string Begeleider = "BEGELEIDER";
-        public const string Volger = "VOLGER";
-        public const string ContentMaker = "MAKER";
-        public static List<string> GetAllRoles()
-        {
-            return new List<string> { Admin, Begeleider, Volger, ContentMaker };
-        }
 
-        public static string? GetRoleId(string roleName)
+
+        public static string[] GetRoleValues(params string[] roleNames)
         {
-            return Roles.TryGetValue(roleName, out var roleId) ? roleId : null;
+            return Roles
+                .Where(role => roleNames.Contains(role.Key))
+                .Select(role => role.Value)
+                .ToArray();
         }
 
     }

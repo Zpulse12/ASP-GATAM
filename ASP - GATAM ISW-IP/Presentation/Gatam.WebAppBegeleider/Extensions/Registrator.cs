@@ -54,17 +54,19 @@ namespace Gatam.WebAppBegeleider.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    var requiredRoles = RoleMapper.Roles.Keys
-                 .Where(role => role == "BEHEERDER" || role == "BEGELEIDER")
-                 .ToList();
-
-                    // Gebruik de rol-namen direct
-                    policy.RequireRole(requiredRoles.ToArray());
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
+                    policy.RequireRole(requiredRoleIds);
 
                 });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.ContentMaker); 
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
+                    policy.RequireRole(requiredRoleIds);
+                });
+                options.AddPolicy("RequireAdminRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
+                    policy.RequireRole(requiredRoleIds);
                 });
             });
             return services;

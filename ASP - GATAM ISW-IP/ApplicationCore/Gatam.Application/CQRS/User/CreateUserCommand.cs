@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;

@@ -56,14 +56,14 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPatch]
         [Route("setactivestate/{id}")]
-        [Authorize(Roles = RoleMapper.Admin)]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command.UserId = id;
             return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = id, IsActive = command.IsActive }));
         }
         [HttpGet("status/{auth0UserId}")]
-        [Authorize(Roles = RoleMapper.Admin)]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> GetUserStatus(string auth0UserId)
         {
             var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
@@ -89,7 +89,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpDelete]
         [Route("delete/{id}")]
-        [Authorize(Roles = RoleMapper.Admin)]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> DeleteUser(string id)
         {
            var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
