@@ -42,7 +42,6 @@ namespace Gatam.WebAppBegeleider.Extensions
         public async Task<HttpResponseMessage> PutAsJsonAsync<T>(string requestUri, T content)
         {
             var response = await _httpClient.PutAsJsonAsync(requestUri, content);
-            response.EnsureSuccessStatusCode();
             return response;
         }
     }

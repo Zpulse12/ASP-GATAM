@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authentication;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Gatam.Application.Extensions;
+using Gatam.Application.Interfaces;
+using Gatam.Infrastructure.Repositories;
+using BlazorBootstrap;
 
 
 internal class Program
@@ -22,7 +25,15 @@ internal class Program
         builder.Services.RegisterCustomApiClient();
         builder.Services.AddScoped<Auth0UserStateService>();
         builder.Services.RegisterPolicies();
+
+        builder.Services.AddScoped<ManagementApiRepository>();
+        builder.Services.AddHttpClient<IManagementApi, ManagementApiRepository>();
+
+        builder.Services.AddBlazorBootstrap();
+
         var app = builder.Build();
+        
+
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
@@ -44,6 +55,17 @@ internal class Program
         app.UseAuthorization();
         app.UseAntiforgery();
         app.MapRazorPages();
+        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
+        {
+            var accessToken = await httpContext.GetTokenAsync("access_token");
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return Results.BadRequest("Access token is not available.");
+            }
+
+            return Results.Ok(new { AccessToken = accessToken });
+        });
         app.MapGet("account/login", async (HttpContext httpContext, string redirectUri = "/") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()

@@ -49,19 +49,6 @@ internal class Program {
         {
             endpoints.MapControllers();
         });
-
-
-        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
-        {
-            var accessToken = await httpContext.GetTokenAsync("access_token");
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                return Results.BadRequest("Access token is not available.");
-            }
-
-            return Results.Ok(new { AccessToken = accessToken });
-        }).RequireAuthorization();
         app.Run();
     }
 }

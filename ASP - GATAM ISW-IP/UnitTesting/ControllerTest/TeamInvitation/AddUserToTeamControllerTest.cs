@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.Team;
 using Gatam.Application.Interfaces;
 using Gatam.WebAPI.Controllers;
 using MediatR;

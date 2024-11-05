@@ -22,20 +22,29 @@ namespace Gatam.WebAPI.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet] 
+
+        [HttpGet]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
+
         {
             var usersWithLocalStatus = await _mediator.Send(new GetUsersWithSyncQuery());
             return Ok(usersWithLocalStatus);
         }
 
-        [HttpGet("findbyid/{auth0UserId}")]
+        [HttpGet("{userId}")]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> FindById(string auth0UserId)
+        public async Task<IActionResult> GetUsersById(string userId)
         {
-            return Ok(await _mediator.Send(new FindUserByIdQuery(auth0UserId)));
+            var userById = await _mediator.Send(new GetUserByIdQuery { UserId = userId });
+            if(userById == null)
+            {
+                return NotFound("user niet gevonden");
+            }
+
+            return Ok(userById);
         }
+
 
         [HttpPost]
         [Authorize(Policy = "RequireManagementRole")]
@@ -47,14 +56,14 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPatch]
         [Route("setactivestate/{id}")]
-        [Authorize(Roles = RoleMapper.Admin)]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
             command.UserId = id;
             return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = id, IsActive = command.IsActive }));
         }
         [HttpGet("status/{auth0UserId}")]
-        [Authorize(Roles = RoleMapper.Admin)]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> GetUserStatus(string auth0UserId)
         {
             var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
@@ -65,6 +74,11 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserDTO user)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (userId != user.Id)
             {
                 return BadRequest("The user ID in the URL does not match the user ID in the body.");
@@ -75,7 +89,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpDelete]
         [Route("delete/{id}")]
-        [Authorize(Roles = RoleMapper.Admin)]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> DeleteUser(string id)
         {
            var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });
@@ -85,14 +99,30 @@ namespace Gatam.WebAPI.Controllers
            }
            return NotFound("User doesnt exists");
         }
-        [HttpGet("private-scoped")]
-        [Authorize("read:admin")]
-        public IActionResult Scoped()
+
+        [HttpGet("{userId}/roles")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUserRoles(string userId)
         {
-            return Ok(new
+            var roles = await _mediator.Send(new GetUserByIdQuery { UserId = userId });
+
+            if (roles == null)
             {
-                Message = "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this."
-            });
+                return NotFound("Geen rollen gevonden voor de opgegeven gebruiker.");
+            }
+
+            return Ok(roles);
+        }
+
+
+        [HttpPut("{userId}/roles")]
+        [Authorize(Policy = "RequireManagementRole")]
+
+        public async Task<IActionResult> AssignUserRole(string userId, [FromBody] UserDTO user)
+        {
+            
+            var returnedUser = await _mediator.Send(new AssignUserRoleCommand { User = user, Id = userId});
+            return Ok(returnedUser);
         }
     }
 
