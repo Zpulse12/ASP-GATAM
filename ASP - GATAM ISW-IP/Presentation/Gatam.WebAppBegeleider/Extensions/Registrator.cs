@@ -36,7 +36,7 @@ namespace Gatam.WebAppBegeleider.Extensions
             services.AddScoped<TokenService>();
             services.AddScoped<HeaderHandler>();
 
-            string _host = $"http://${env.ENVIRONMENT}-api:8080/";
+            string _host = $"http://{env.ENVIRONMENT}-api:8080/";
 
             services.AddHttpClient<ApiClient>((httpClient) =>
             {
