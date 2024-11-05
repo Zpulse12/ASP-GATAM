@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-# Opzetten van nieuwe machine / server. OPGELET! Dit script gaat ook een GITLAB runner starten voor de pipelines te bouwen.
+# Opzetten van nieuwe machine / server. OPGELET!
 install_if_missing() {
     package=$1
 
@@ -48,15 +48,13 @@ install_gitlab_runner() {
         setfacl -m u:gitlab-runner:r /etc/gatam/.env.staging
         sudo systemctl enable gitlab-runner
         sudo systemctl start gitlab-runner
-        echo "Prompting registration. Please fill in the right data"
-        sudo gitlab-runner register
+        echo "Setup finished. Create your gitlab runner."
     else
         echo "$package already installed, skipping..."
         if ! sudo gitlab-runner list | grep -q "ID:"; then
             sudo systemctl enable gitlab-runner
             sudo systemctl start gitlab-runner
-            echo "Prompting registration. Please fill in the right data"
-            sudo gitlab-runner register
+            echo "Setup finished. Create your gitlab runner."
         else
             echo "GitLab Runner is already registered."
         fi

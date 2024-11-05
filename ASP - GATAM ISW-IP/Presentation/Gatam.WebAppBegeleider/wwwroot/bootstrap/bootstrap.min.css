@@ -6250,7 +6250,7 @@ textarea.form-control-lg {
     --bs-tooltip-max-width: 200px;
     --bs-tooltip-padding-x: 0.5rem;
     --bs-tooltip-padding-y: 0.25rem;
-    --bs-tooltip-margin:;
+    --bs-tooltip-margin: ;
     --bs-tooltip-font-size: 0.875rem;
     --bs-tooltip-color: #fff;
     --bs-tooltip-bg: #000;
@@ -6368,7 +6368,7 @@ textarea.form-control-lg {
     --bs-popover-header-padding-x: 1rem;
     --bs-popover-header-padding-y: 0.5rem;
     --bs-popover-header-font-size: 1rem;
-    --bs-popover-header-color:;
+    --bs-popover-header-color: ;
     --bs-popover-header-bg: #f0f0f0;
     --bs-popover-body-padding-x: 1rem;
     --bs-popover-body-padding-y: 1rem;
