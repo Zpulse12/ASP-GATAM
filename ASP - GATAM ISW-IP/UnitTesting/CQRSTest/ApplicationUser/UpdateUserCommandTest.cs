@@ -2,6 +2,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.User;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Moq;
@@ -40,7 +41,7 @@ public class UpdateUserCommandTest
             var updatedUserDto = new UserDTO
             {
                 Id = userId,
-                Username = "UpdatedUser",
+                Nickname = "UpdatedUser",
                 Email = "updated@example.com",
                 _role = ApplicationUserRoles.ADMIN,
                 IsActive = false
@@ -53,7 +54,7 @@ public class UpdateUserCommandTest
             _mockMapper.Setup(m => m.Map(updatedUserDto, user))
                 .Callback<UserDTO, Gatam.Domain.ApplicationUser>((src, dest) =>
                 {
-                    dest.UserName = src.Username;
+                    dest.UserName = src.Nickname;
                     dest.Email = src.Email;
                     dest.Role = src._role;
                     dest.IsActive = src.IsActive;
@@ -71,7 +72,7 @@ public class UpdateUserCommandTest
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(updatedUserDto.Username, result.Username);
+            Assert.AreEqual(updatedUserDto.Nickname, result.Nickname);
             Assert.AreEqual(updatedUserDto.Email, result.Email);
             Assert.AreEqual(updatedUserDto._role, result._role);
             Assert.AreEqual(updatedUserDto.IsActive, result.IsActive);

@@ -2,13 +2,10 @@ using Gatam.WebAppBegeleider.Components;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Gatam.WebAppBegeleider.Interfaces;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Gatam.Application.Extensions;
+
 
 internal class Program
 {
@@ -23,6 +20,7 @@ internal class Program
         builder.Services.AddSingleton<EnvironmentWrapper>();
         builder.Services.RegisterAuth0Authentication();
         builder.Services.RegisterCustomApiClient();
+        builder.Services.AddScoped<Auth0UserStateService>();
         builder.Services.RegisterPolicies();
         var app = builder.Build();
         // Configure the HTTP request pipeline.

@@ -30,7 +30,7 @@ public class ManagementApiRepository: IManagementApi
             {
                 Id = user.GetProperty("user_id").GetString(),
                 Email = user.GetProperty("email").GetString(),
-                Username = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
+                Nickname = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
                 Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
                 IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean()
 
