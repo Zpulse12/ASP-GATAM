@@ -3,10 +3,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Gatam.Application.CQRS;
 using Gatam.Application.Extensions.EnvironmentHelper;
+using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Configuration;
 
 namespace Gatam.Infrastructure.Repositories;
 
