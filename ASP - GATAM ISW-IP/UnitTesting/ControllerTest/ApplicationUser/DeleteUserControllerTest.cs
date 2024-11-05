@@ -1,8 +1,9 @@
-﻿//using Gatam.Application.CQRS;
-//using Gatam.WebAPI.Controllers;
-//using MediatR;
-//using Microsoft.AspNetCore.Mvc;
-//using Moq;
+﻿using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.User;
+using Gatam.WebAPI.Controllers;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 
 //namespace UnitTesting.ControllerTest.ApplicationUser; 
 //    [TestClass]

@@ -28,8 +28,8 @@ namespace Gatam.WebAPI.Controllers
         public async Task<IActionResult> GetUsers()
 
         {
-            var users = await _mediator.Send(new GetAllUsersQuery());
-            return Ok(users);
+            var usersWithLocalStatus = await _mediator.Send(new GetUsersWithSyncQuery());
+            return Ok(usersWithLocalStatus);
         }
 
         [HttpGet("{userId}")]
@@ -51,7 +51,6 @@ namespace Gatam.WebAPI.Controllers
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
         {
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
-            Debug.WriteLine(result);
             return result == null ? BadRequest(result) : Created("", result);
         }
 
@@ -60,16 +59,15 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Roles = RoleMapper.Admin)]
         public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
         {
-            command._userId = id;
-
-            var user = await _mediator.Send(new DeactivateUserCommand() { _userId = id, IsActive = command.IsActive });
-
-            if (user == null)
-            {
-                return NotFound("User bestaat niet");
-            }
-
-            return Ok(user);
+            command.UserId = id;
+            return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = id, IsActive = command.IsActive }));
+        }
+        [HttpGet("status/{auth0UserId}")]
+        [Authorize(Roles = RoleMapper.Admin)]
+        public async Task<IActionResult> GetUserStatus(string auth0UserId)
+        {
+            var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
+            return Ok(new { IsActive = user.IsActive });
         }
 
         [HttpPut("{userId}")]

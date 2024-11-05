@@ -1,15 +1,9 @@
-﻿using Gatam.Application.Interfaces;
+﻿using FluentValidation;
+using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentValidation;
 
-namespace Gatam.Application.CQRS
+namespace Gatam.Application.CQRS.User
 {
     public class DeleteUserCommand : IRequest<bool>
     {

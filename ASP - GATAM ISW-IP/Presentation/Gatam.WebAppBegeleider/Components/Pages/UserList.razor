@@ -12,18 +12,14 @@
 
 @inject ManagementApiRepository managementApiRepository
 @inject ApiClient apiClient
-
-
-@inject ApiClient apiClient
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor httpContextAccessor
 
 
 @rendermode InteractiveServer
-
-
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
+<InactiveUserRedirect />
 <CustomCards>
     <div class="card-body">
         <div class="card-header">
@@ -37,12 +33,13 @@
                 <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
         </div>
         }
-        else if (_hasError)
+        @if (_hasError)
         {
             <Callout Color="CalloutColor.Danger" >
                 <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van de gebruikerslijst.
            </Callout>
         }
+
         else
         {
                <Grid TItem="UserDTO"
@@ -381,31 +378,23 @@
         }
     }
 
-
-    private async Task ToggleUserActiveStatus(string userId, bool isActive)
+    private async Task ToggleUserActiveStatus(UserDTO user, string userId, bool isActive)
     {
         try
         {
             var command = new DeactivateUserCommand
             {
-                _userId = userId,
-                IsActive = isActive // Pass true to unblock, false to block
+                UserId = userId,  
+                IsActive = isActive
             };
 
-            var response = await apiClient.PutAsJsonAsync($"/api/User/setactivestate/{userId}", command);
-            Debug.WriteLine($"Request URL: users/{userId}");
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorDetails = await response.Content.ReadAsStringAsync();
-                Debug.WriteLine($"Error updating user status: {response.StatusCode} - {errorDetails}");
-            }
+            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate/{userId}", command);
 
             if (response.IsSuccessStatusCode)
             {
                 var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
                 if (updatedUser != null)
                 {
-                    // Update the local user list
                     var localUser = _users.FirstOrDefault(u => u.Id == userId);
                     if (localUser != null)
                     {
@@ -424,6 +413,7 @@
             Console.WriteLine($"Error during status update: {ex.Message}");
         }
     }
+
 
 }
 
