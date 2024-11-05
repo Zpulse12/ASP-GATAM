@@ -1,7 +1,6 @@
 @using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
-@using Gatam.Application.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
 @using Gatam.Application.CQRS.User
@@ -10,7 +9,6 @@
 
 @using Gatam.Infrastructure.Repositories
 
-@inject ManagementApiRepository managementApiRepository
 @inject ApiClient apiClient
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor httpContextAccessor
@@ -120,74 +118,6 @@
                 </div>
             </div>
         }
-    
-    @* @if (userBeingEdited != null)
-    {
-        <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="editUserModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editUserModalLabel">Gebruiker Bewerken: @userBeingEdited.Username</h5>
-                        <button type="button" class="btn-close" @onclick="CancelEditing" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        @if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                        <div class="alert alert-danger">
-                            @errorMessage
-                        </div>
-                        }
-                        @if (!string.IsNullOrEmpty(successMessage))
-                        {
-                        <div class="alert alert-success">
-                            @successMessage
-                        </div>
-                        }
-                        <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
-
-                            <div class="form-group mt-3">
-                                <label for="Username">Gebruikersnaam</label>
-                                <InputText id="Username" @bind-Value="userBeingEdited.Username" class="form-control" />
-                            </div>
-
-                            <div class="form-group mt-3">
-                                <label for="Email">Email</label>
-                                <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
-                            </div>
-
-                            <div class="form-group mt-3">
-                                <label for="Role">Rol</label>
-                                <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
-                                    @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
-                                    {
-                                    <option value="@role">@role</option>
-                                    }
-                                </InputSelect>
-                            </div>
-
-                            <div class="form-group mt-3">
-                                <label for="IsActive">Actief</label>
-                                <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
-                            </div>
-
-                            <button type="submit" class="btn btn-outline-success">Opslaan</button>
-                            <button type="button" class="btn btn-outline-danger" @onclick="CancelEditing">Annuleren</button>
-                        </EditForm>
-                    </div>
-                </div>
-                <div class="modal-backdrop fade show"></div>
-            }
-            
-        
-        </div>
-   
-                        </div>
-                        
-     } *@
-     
-
     @* <!-- Modal -->
         </div>
     </div>
@@ -243,9 +173,9 @@
     // Boolean to control modal 
     private bool isModalVisible = false;
     private string selectedUserId;
-    
 
-   
+
+
     private void ShowDeleteModal(string userId)
     {
         selectedUserId = userId;
@@ -279,11 +209,8 @@
     private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
     {
         selectedUser = args.Item;
-
-        var roles = await managementApiRepository.GetRolesByUserId(selectedUser.Id);
-        userRolesMap[selectedUser.Id] = roles.ToList();
+        userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
         isModalVisible = true;
-
     }
 
 
@@ -308,41 +235,6 @@
         } finally
         {
             _isLoading = false; 
-        }
-    }
-
-    private void StartEditingUser(UserDTO user)
-    {
-        userBeingEdited = user;
-    }
-
-    private void CancelEditing()
-    {
-        userBeingEdited = null;
-    }
-
-
-    private async Task HandleValidSubmit()
-    {
-        if (userBeingEdited != null)
-        {
-            try
-            {
-                var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
-                if (response.IsSuccessStatusCode)
-                {
-                    userBeingEdited = null;
-                    StateHasChanged();
-                }
-                else
-                {
-                    Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
-            }
         }
     }
 

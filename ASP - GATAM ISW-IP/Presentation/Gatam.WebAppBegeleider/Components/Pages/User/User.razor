@@ -5,7 +5,6 @@
 @using Gatam.Application.CQRS
 @using Gatam.Infrastructure.Repositories
 @using System.Diagnostics
-@inject ManagementApiRepository managementApiRepository
 @inject ApiClient apiClient
 
 @rendermode InteractiveServer
@@ -33,7 +32,9 @@
     }
     else if (_hasError)
     {
-        <p>@response_Msg</p>
+        <Callout Color="CalloutColor.Danger">
+            <strong>Error:</strong> @response_Msg
+        </Callout>
     }
     else if (userBeingEdited != null)
     {
@@ -58,7 +59,7 @@
 
         </EditForm>
        
-        <Callout Color="CalloutColor.Info" Heading="Berlangrijk">
+        <Callout Color="CalloutColor.Info">
             <p><strong>@userBeingEdited.Nickname heeft momenteel volgende rol(len):</strong></p>
                 <ul>
                     @if (userRolesMap.TryGetValue(userBeingEdited?.Id, out var roles))
@@ -94,6 +95,8 @@
 </CustomCards>
 
 @code {
+    [Parameter] public string Id { get; set; } = "";
+
     private List<UserDTO> _users = new();
     private HashSet<UserDTO> selectedUsers = new();
     private Dictionary<string, List<string>> userRolesMap = new();
@@ -101,8 +104,7 @@
 
     string response_Msg = "";
     bool isSuccess = false;
-    [Parameter] public string Id { get; set; } = "";
-    private UserDTO userBeingEdited ;
+    private UserDTO userBeingEdited;
     public string selectedRoles { get; set; } = "";
 
     private bool _hasError = false;
@@ -123,8 +125,8 @@
                 _hasError = true;
                 response_Msg = "Gebruiker niet gevonden.";
             }
-            var roles = await managementApiRepository.GetRolesByUserId(userBeingEdited.Id);
-            userRolesMap[userBeingEdited.Id] = roles.ToList();
+            var roles = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{userBeingEdited.Id}/roles");
+            userRolesMap[userBeingEdited.Id] = roles;
             
         }
         catch (HttpRequestException ex)
@@ -136,7 +138,7 @@
         catch (Exception ex) 
         {
             _hasError = true;
-            response_Msg = "Gebruiker niet gevonden3";
+            response_Msg = ex.Message + " STACK: " + ex.StackTrace;
         }finally
         {
             _isLoading = false;
@@ -195,8 +197,5 @@
 
             }
         }
-    }
-
-    
-
+    }  
 }

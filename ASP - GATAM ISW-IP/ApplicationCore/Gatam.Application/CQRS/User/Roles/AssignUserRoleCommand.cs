@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gatam.Application.CQRS.User
+namespace Gatam.Application.CQRS.User.Roles
 {
     public class AssignUserRoleCommand : IRequest<UserDTO>
     {
@@ -19,7 +19,7 @@ namespace Gatam.Application.CQRS.User
 
     public class AssignUserRoleCommandValidator : AbstractValidator<AssignUserRoleCommand>
     {
-       
+
         public AssignUserRoleCommandValidator()
         {
             RuleFor(x => x.User.Id)

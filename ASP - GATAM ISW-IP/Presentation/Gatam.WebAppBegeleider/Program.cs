@@ -5,15 +5,12 @@ using Microsoft.AspNetCore.Authentication;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
-using Gatam.Infrastructure.Repositories;
-using Gatam.Application.Interfaces;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Logging.AddDebug();
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
@@ -23,9 +20,6 @@ internal class Program
         builder.Services.RegisterCustomApiClient();
         builder.Services.AddScoped<Auth0UserStateService>();
         builder.Services.RegisterPolicies();
-
-        builder.Services.AddScoped<ManagementApiRepository>();
-        builder.Services.AddHttpClient<IManagementApi, ManagementApiRepository>();
 
         builder.Services.AddBlazorBootstrap();
 

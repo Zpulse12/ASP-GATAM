@@ -15,6 +15,7 @@ services:
     build:
       context: .
       dockerfile: ./Presentation/Gatam.WebAPI/Dockerfile
+    container_name: ${ENVIRONMENT}-api
     restart: always
     ports:
       - "5000:8080"
@@ -28,13 +29,14 @@ services:
       - mssql-server
     networks:
       - database
-      - proxy
+      - public
     env_file:
       - .env
   webappbegeleider:
     build:
       context: .
       dockerfile: ./Presentation/Gatam.WebAppBegeleider/Dockerfile
+    container_name: ${ENVIRONMENT}-webappbegeleider
     restart: always
     ports:
       - "5002:8080"
@@ -51,11 +53,12 @@ services:
       - mssql-server
     networks:
       - database
-      - proxy
+      - public
   webappvolger:
     build:
       context: .
       dockerfile: ./Presentation/Gatam.WebAppVolger/Dockerfile
+    container_name: ${ENVIRONMENT}-webappvolger
     restart: always
     ports:
       - "8080"
@@ -65,24 +68,10 @@ services:
       - mssql-server
     networks:
       - database
-      - proxy
-  nginx:
-    image: nginx:1.27.2-alpine-slim
-    container_name: reverseproxy
-    restart: always
-    ports:
-      - 80:80
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    networks: 
-      - proxy
-    depends_on:
-      - webappvolger
-      - webappbegeleider
-      - webapi
+      - public
 volumes:
   sql_data:
 networks:
   database:
-  proxy:
+  public:
     driver: bridge 

@@ -23,5 +23,10 @@ namespace Gatam.WebAppBegeleider.Extensions
                 .ToArray();
         }
 
+        public static List<string> GetKeysBasedOnValues(params string[] values)
+        {
+            return Roles.Where(role => values.Contains(role.Value)).Select(role => role.Key).ToList();
+        }
+
     }
 }
