@@ -63,7 +63,7 @@
                                 <div class="text-center">
                                     <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
                                     @onclick="() => ToggleUserActiveStatus(context,context.Id, !context.IsActive)" @onclick:stopPropagation>
-                                        @(context.IsActive ? "Activeer" : "Deactiveer")
+                                        @(context.IsActive ? "Deactiveer" : "Activeer")
                                     </button>
                                 </div>
                             </GridColumn>

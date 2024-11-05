@@ -23,7 +23,7 @@ namespace Gatam.Application.Extensions
         {
             return Roles
                 .Where(role => roleNames.Contains(role.Key))
-                .Select(role => role.Value)
+                .Select(role => role.Key)
                 .ToArray();
         }
 
