@@ -29,7 +29,7 @@ public class GetUsersWithSyncQueryHandler : IRequestHandler<GetUsersWithSyncQuer
                 await _mediator.Send(new CreateUserCommand { _user = new ApplicationUser
                 {
                     Id = auth0User.Id,
-                    IsActive = true
+                    IsActive = true,
                 } });
                 auth0User.IsActive = true;
             }
