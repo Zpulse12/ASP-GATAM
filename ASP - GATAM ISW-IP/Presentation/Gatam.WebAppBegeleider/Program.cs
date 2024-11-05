@@ -48,17 +48,7 @@ internal class Program
         app.UseAuthorization();
         app.UseAntiforgery();
         app.MapRazorPages();
-        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
-        {
-            var accessToken = await httpContext.GetTokenAsync("access_token");
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                return Results.BadRequest("Access token is not available.");
-            }
-
-            return Results.Ok(new { AccessToken = accessToken });
-        });
+        
         app.MapGet("account/login", async (HttpContext httpContext, string redirectUri = "/") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()

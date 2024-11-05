@@ -113,9 +113,6 @@
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
-
-
-
         try
         {
 
@@ -129,17 +126,13 @@
             userRolesMap[userBeingEdited.Id] = roles;
             
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex)
         {
             _hasError = true;
-            response_Msg = $"HTTP-fout: {ex.Message}";
+            response_Msg = $"Fout bij het ophalen van de gebruiker";
             
         }
-        catch (Exception ex) 
-        {
-            _hasError = true;
-            response_Msg = ex.Message + " STACK: " + ex.StackTrace;
-        }finally
+        finally
         {
             _isLoading = false;
         }
@@ -156,46 +149,40 @@
             return;
         }
 
-        if (userBeingEdited != null)
+        try
         {
-            try
+            userBeingEdited.RolesIds = new List<string>() {selectedRoles};
+            var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited); 
+            if (roleUpdateResponse.IsSuccessStatusCode)
             {
+                isSuccess = true;
+                response_Msg = "Gebruiker succesvol bijgewerkt.";
+                StateHasChanged();
 
-                userBeingEdited.RolesIds = new List<string>() {selectedRoles};
-
-                Debug.WriteLine(userBeingEdited);
-                
-
-                var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited); 
-                
-                if (roleUpdateResponse.IsSuccessStatusCode)
-                {
-                    
-                    var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-
-                        Console.WriteLine("Gebruiker succesvol bijgewerkt.");
-                        isSuccess = true;
-                        response_Msg = "Gebruiker succesvol bijgewerkt.";
-                        StateHasChanged();
-                    }
-                    else
-                    {
-                        response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
-                    }
-                }
-                else
-                {
-                    response_Msg = "Fout bij het bijwerken van de rollen.";
-                }
+                // (Nils - 05/11/2024) Update hier is geen scope van mij om deployment omgeving te laten werken. Snelle debug geeft geen resultaat voor een mogelijke fix. Tony omdat je issue toch update user data is kan jij dit bekijken?
+                // var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
+                // if (response.IsSuccessStatusCode)
+                // {
+                //     isSuccess = true;
+                //     response_Msg = "Gebruiker succesvol bijgewerkt.";
+                //     StateHasChanged();
+                // }
+                // else
+                // {
+                //     response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
+                //     _hasError = true;
+                // }
             }
-            catch (Exception ex)
+            else
             {
-                response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
-
+                response_Msg = "Fout bij het bijwerken van de rollen.";
+                _hasError = true;
             }
+        }
+        catch (Exception ex)
+        {
+            response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
+            _hasError = true;
         }
     }  
 }

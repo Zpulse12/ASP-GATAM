@@ -19,7 +19,6 @@ namespace Gatam.Application.CQRS.User.Roles
 
     public class AssignUserRoleCommandValidator : AbstractValidator<AssignUserRoleCommand>
     {
-
         public AssignUserRoleCommandValidator()
         {
             RuleFor(x => x.User.Id)
@@ -31,32 +30,19 @@ namespace Gatam.Application.CQRS.User.Roles
                 .NotNull().WithMessage("Role cannot be null");
         }
     }
-
     public class AssignUserRoleCommandHandler : IRequestHandler<AssignUserRoleCommand, UserDTO>
     {
-        private readonly IMapper _mapper;
         private readonly IManagementApi _auth0Repository;
 
-        public AssignUserRoleCommandHandler(IMapper mapper, IManagementApi auth0Repository)
+        public AssignUserRoleCommandHandler(IManagementApi auth0Repository)
         {
-            _mapper = mapper;
             _auth0Repository = auth0Repository;
         }
 
         public async Task<UserDTO> Handle(AssignUserRoleCommand request, CancellationToken cancellationToken)
         {
-
-
-            if (request.User.RolesIds != null && request.User.RolesIds.Any())
-            {
-
-                await _auth0Repository.UpdateUserRoleAsync(request.User);
-
-            }
-
-            return _mapper.Map<UserDTO>(request.User);
-
+            await _auth0Repository.UpdateUserRoleAsync(request.User);
+            return request.User;
         }
-
     }
 }
