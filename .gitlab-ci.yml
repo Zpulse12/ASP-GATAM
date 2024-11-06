@@ -9,20 +9,16 @@ testing:
   tags: 
     - global
   script:
-    - cd './ASP - GATAM ISW-IP/Presentation'
+    - cd './ASP - GATAM ISW-IP/'
     - |
-      for dockerfile in $(find . -name "Dockerfile.test"); do
-        echo "Building Docker image for $dockerfile..."
-        image_name="test:$(basename $(dirname $dockerfile))"
-        docker build -t $image_name -f $dockerfile ../.
+        docker build -t test:gatam -f Dockerfile.test .
         if [ $? -eq 0 ]; then
           echo "Removing Docker image $image_name..."
-          docker rmi $image_name
+          docker rmi test:gatam 
         else
           echo "Docker build failed for $dockerfile. Skipping image removal."
           exit 1
         fi
-      done
   # only:
   #   - merge_requests
   # rules:
