@@ -1,5 +1,5 @@
 ﻿using Auth0.AspNetCore.Authentication;
-using Gatam.Application.Extensions;
+using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
 using System.Net.Http.Headers;
 
 namespace Gatam.WebAppBegeleider.Extensions
@@ -30,12 +30,17 @@ namespace Gatam.WebAppBegeleider.Extensions
         }
         public static IServiceCollection RegisterCustomApiClient(this IServiceCollection services) 
         {
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            EnvironmentWrapper env = serviceProvider.GetRequiredService<EnvironmentWrapper>();
             services.AddHttpContextAccessor();
             services.AddScoped<TokenService>();
             services.AddScoped<HeaderHandler>();
+
+            string _host = $"http://{env.ENVIRONMENT}-api:8080/";
+
             services.AddHttpClient<ApiClient>((httpClient) =>
             {
-                httpClient.BaseAddress = new Uri("http://webapi:8080/"); //http://localhost/winchester
+                httpClient.BaseAddress = new Uri(_host);
 
 #if DEBUG
                 httpClient.BaseAddress = new Uri("http://localhost:5000");

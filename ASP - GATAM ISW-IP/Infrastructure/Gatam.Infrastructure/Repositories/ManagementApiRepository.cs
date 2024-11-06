@@ -2,11 +2,11 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Gatam.Application.CQRS;
+using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Configuration;
+using Auth0.ManagementApi.Models;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -52,8 +52,17 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> GetUserByIdAsync(string userId)
     {
-        var users = await GetAllUsersAsync(); 
-        return users.FirstOrDefault(u => u.Id == userId); 
+        var _response = await _httpClient.GetFromJsonAsync<JsonElement>($"users/{userId}");
+        UserDTO _user = new UserDTO
+        {
+            Id = userId,
+            Email = _response.GetProperty("email").GetString(),
+            Nickname = _response.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
+            Picture = _response.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
+            IsActive = !_response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
+            RolesIds = new List<string>()
+        };
+        return _user; 
     }
     public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
     {

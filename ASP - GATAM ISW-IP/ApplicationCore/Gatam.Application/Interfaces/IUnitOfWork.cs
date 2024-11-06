@@ -10,8 +10,6 @@ namespace Gatam.Application.Interfaces
     public interface IUnitOfWork
     {
         public IGenericRepository<ApplicationUser> UserRepository { get; }
-        public IGenericRepository<ApplicationTeam> TeamRepository { get; }
-        public IGenericRepository<TeamInvitation> TeamInvitationRepository { get; }
         public IGenericRepository<ApplicationModule> ModuleRepository { get; }
         Task commit();
     }

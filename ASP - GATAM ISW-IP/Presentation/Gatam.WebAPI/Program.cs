@@ -8,6 +8,7 @@ using Gatam.Infrastructure.UOW;
 using Gatam.WebAPI.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.IdentityModel.Tokens.Jwt;
 internal class Program {
     private static void Main(string[] args)
@@ -38,9 +39,16 @@ internal class Program {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+        });
+
+
         app.UseErrorHandlingMiddleware();
 
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
