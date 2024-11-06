@@ -1,16 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS test
 
 WORKDIR /source
-
 COPY *.sln . 
-COPY ApplicationCore/Gatam.Application/*.csproj ./ApplicationCore/Gatam.Application/
-COPY ApplicationCore/Gatam.Domain/*.csproj ./ApplicationCore/Gatam.Domain/
-COPY Infrastructure/Gatam.Infrastructure/*.csproj ./Infrastructure/Gatam.Infrastructure/
-COPY Presentation/Gatam.WebAPI/*.csproj ./Presentation/Gatam.WebAPI/
-COPY UnitTesting/UnitTesting.csproj ./UnitTesting/
-
-RUN dotnet restore 'ASP\ -\ GATAM\ ISW-IP.sln'
-
 COPY . .
-
-RUN dotnet test --verbosity normal
+RUN dotnet test --verbosity quiet
