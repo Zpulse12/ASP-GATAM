@@ -35,8 +35,7 @@ build:
   stage: build
   tags: 
     - global
-  needs: 
-    - test
+  needs: [testing]
   script:
     - cd './ASP - GATAM ISW-IP/Presentation'
     - |
