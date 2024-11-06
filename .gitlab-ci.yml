@@ -19,13 +19,10 @@ testing:
           echo "Docker build failed for $dockerfile. Skipping image removal."
           exit 1
         fi
-  # only:
-  #   - merge_requests
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  only:
+    - merge_requests
   rules:
-    - if: '$CI_COMMIT_BRANCH == "32-technische-taak-merges-getest-worden-voor-we-deze-effectief-kunnen-mergen"'
-      when: always
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   allow_failure: false 
 build:
   stage: build
@@ -47,13 +44,10 @@ build:
           exit 1
         fi
       done
-  # only:
-  #   - merge_requests
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  only:
+    - merge_requests
   rules:
-    - if: '$CI_COMMIT_BRANCH == "32-technische-taak-merges-getest-worden-voor-we-deze-effectief-kunnen-mergen"'
-      when: always
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   allow_failure: false 
 production-deploy:
   stage: production-deployment
