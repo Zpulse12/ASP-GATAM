@@ -14,7 +14,7 @@ testing:
       for dockerfile in $(find . -name "Dockerfile.test"); do
         echo "Building Docker image for $dockerfile..."
         image_name="test:$(basename $(dirname $dockerfile))"
-        docker build --target test -t $image_name -f $dockerfile .
+        docker build --target test -t $image_name -f $dockerfile ../.
         if [ $? -eq 0 ]; then
           echo "Removing Docker image $image_name..."
           docker rmi $image_name
