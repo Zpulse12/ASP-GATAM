@@ -19,8 +19,6 @@ testing:
           echo "Docker build failed for $dockerfile. Skipping image removal."
           exit 1
         fi
-  only:
-    - merge_requests
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   allow_failure: false 
@@ -44,8 +42,6 @@ build:
           exit 1
         fi
       done
-  only:
-    - merge_requests
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   allow_failure: false 
