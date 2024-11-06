@@ -7,7 +7,6 @@ COPY ApplicationCore/Gatam.Application/*.csproj ./ApplicationCore/Gatam.Applicat
 COPY ApplicationCore/Gatam.Domain/*.csproj ./ApplicationCore/Gatam.Domain/
 COPY Infrastructure/Gatam.Infrastructure/*.csproj ./Infrastructure/Gatam.Infrastructure/
 COPY Presentation/${APP}/*.csproj ./Presentation/${APP}/
-COPY ./${APP}/${APP}.csproj ./Presentation/${APP}/
 RUN dotnet restore ./Presentation/${APP}/${APP}.csproj 
 COPY . .
 RUN dotnet test --no-restore --verbosity normal
