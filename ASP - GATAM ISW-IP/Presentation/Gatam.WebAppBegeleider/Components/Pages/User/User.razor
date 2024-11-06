@@ -37,26 +37,63 @@
     }
     else if (userBeingEdited != null)
     {
+        <div>
+            <span>@userBeingEdited.Nickname</span>
+            <button class="btn btn-primary mt-4" @onclick='() => ShowEditModal("Username")'>Bewerken</button>
+            @if (isEditUsernameModalVisible)
+            {
+                <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Bewerken</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="edit-field">
+                                    <EditForm Model="userBeingEdited" OnValidSubmit="HandleUsernameUpdate">
+                                        <label for="Username">Gebruikersnaam</label>
+                                        <InputText @bind-Value="userBeingEdited.Nickname" class="form-control" />
+                                        <button type="submit" class="btn btn-outline-success">Opslaan</button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
+                                    </EditForm>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            }
 
-        <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+        </div>
 
-            <div class="form-group mt-3">
-                <label for="Username">Gebruikersnaam</label>
-                <InputText id="Username" @bind-Value="userBeingEdited.Nickname" class="form-control" />
-            </div>
-
-            <div class="form-group mt-3">
-                <label for="Email">Email</label>
-                <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
-            </div>
-            <div class="form-group mt-3">
-                <label for="IsActive">Actief</label>
-                <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
-            </div>
-
-        </EditForm>
+        <div>
+            <span>@userBeingEdited.Email</span>
+            <button class="btn btn-primary mt-4" @onclick='() => ShowEditModal("Email")'>Bewerken</button>
+            @if (isEditEmailModalVisible)
+            {
+                <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Bewerken</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="edit-field">
+                                    <EditForm Model="userBeingEdited" OnValidSubmit="HandleEmailUpdate">
+                                        <InputText @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+                                        <label for="Email">Email</label>
+                                        <button type="submit" class="btn btn-outline-success">Opslaan</button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
+                                    </EditForm>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            }
+        </div>
        
         <Callout Color="CalloutColor.Info" Heading="Berlangrijk">
             <p><strong>@userBeingEdited.Nickname heeft momenteel volgende rol(len):</strong></p>
@@ -93,7 +130,12 @@
     }
 </CustomCards>
 
+
 @code {
+    [Parameter] public string Id { get; set; } = "";
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
     private List<UserDTO> _users = new();
     private HashSet<UserDTO> selectedUsers = new();
     private Dictionary<string, List<string>> userRolesMap = new();
@@ -101,19 +143,19 @@
 
     string response_Msg = "";
     bool isSuccess = false;
-    [Parameter] public string Id { get; set; } = "";
     private UserDTO userBeingEdited ;
     public string selectedRoles { get; set; } = "";
 
     private bool _hasError = false;
     private bool _isLoading = true;
 
+    private bool isEditUsernameModalVisible = false;
+    private bool isEditEmailModalVisible = false;
+
+
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
-
-
-
         try
         {
 
@@ -125,13 +167,12 @@
             }
             var roles = await managementApiRepository.GetRolesByUserId(userBeingEdited.Id);
             userRolesMap[userBeingEdited.Id] = roles.ToList();
-            
         }
         catch (HttpRequestException ex)
         {
             _hasError = true;
             response_Msg = $"HTTP-fout: {ex.Message}";
-            
+
         }
         catch (Exception ex) 
         {
@@ -142,7 +183,7 @@
             _isLoading = false;
         }
 
-        
+
     }
 
     private async Task HandleValidSubmit()
@@ -153,50 +194,117 @@
             response_Msg = "Geen gebruiker om te updaten.";
             return;
         }
-
-        if (userBeingEdited != null)
+        try
         {
-            try
+
+            userBeingEdited.RolesIds = new List<string>() { selectedRoles };
+
+
+            var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited);
+
+            if (roleUpdateResponse.IsSuccessStatusCode)
             {
 
-                userBeingEdited.RolesIds = new List<string>() {selectedRoles};
+                isSuccess = true;
+                response_Msg = "Gebruiker succesvol bijgewerkt";
+                StateHasChanged();
+                //var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
 
-                Debug.WriteLine(userBeingEdited);
-                
+                // if (response.IsSuccessStatusCode)
+                // {
 
-                var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited); 
-                
-                if (roleUpdateResponse.IsSuccessStatusCode)
-                {
-                    
-                    var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
+                //     Console.WriteLine("Gebruiker succesvol bijgewerkt.");
+                //     isSuccess = true;
+                //     response_Msg = "Gebruiker succesvol bijgewerkt.";
+                //     StateHasChanged();
+                // }
+                // else
+                // {
+                //     isSuccess = true;
+                //     response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
+                // }
 
-                    if (response.IsSuccessStatusCode)
-                    {
 
-                        Console.WriteLine("Gebruiker succesvol bijgewerkt.");
-                        isSuccess = true;
-                        response_Msg = "Gebruiker succesvol bijgewerkt.";
-                        StateHasChanged();
-                    }
-                    else
-                    {
-                        response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
-                    }
-                }
-                else
-                {
-                    response_Msg = "Fout bij het bijwerken van de rollen.";
-                }
             }
-            catch (Exception ex)
+            else
             {
-                response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
-
+                response_Msg = "Fout bij het bijwerken van de rollen.";
             }
+        }
+        catch (Exception ex)
+        {
+            response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
+
         }
     }
 
-    
+    private void ShowEditModal(string field)
+    {
+        if (field == "Username")
+        {
+            isEditUsernameModalVisible = true;
+        }
+        if (field == "Email")
+        {
+            isEditEmailModalVisible = true;
+        }
+        StateHasChanged(); 
+    }
 
+    private void CloseModal()
+    {
+        isEditUsernameModalVisible = false;
+        isEditEmailModalVisible = false;
+        StateHasChanged(); 
+    }
+
+    private async Task HandleUsernameUpdate()
+    {
+        try
+        {
+            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
+
+            if (response.IsSuccessStatusCode)
+            {
+                response_Msg = "Gebruikersnaam succesvol bijgewerkt.";
+                isEditUsernameModalVisible = false;
+                StateHasChanged();
+            }
+            else
+            {
+                response_Msg = "Fout bij het bijwerken van de gebruikersnaam.";
+            }
+        }
+        catch (Exception ex)
+        {
+            response_Msg = $"Error updating username: {ex.Message}";
+        }
+    }
+
+    private async Task HandleEmailUpdate()
+    {
+        try
+        {
+            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
+
+            if (response.IsSuccessStatusCode)
+            {
+                response_Msg = "Email succesvol bijgewerkt.";
+                isEditEmailModalVisible = false;
+                StateHasChanged();
+            }
+            else
+            {
+                response_Msg = "Fout bij het bijwerken van de email.";
+            }
+        }
+        catch (Exception ex)
+        {
+            response_Msg = $"Error updating email: {ex.Message}";
+        }
+    }
+
+   
+
+        
 }

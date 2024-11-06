@@ -105,7 +105,7 @@ public class ManagementApiRepository: IManagementApi
     public async Task<UserDTO> UpdateUserAsync(string userId, UserDTO user)
     {
         
-        var response = await _httpClient.PostAsJsonAsync($"users/{userId}", user);
+        var response = await _httpClient.PostAsJsonAsync($"api/v2/users/{userId}", user);
 
         if (response.IsSuccessStatusCode)
         {
