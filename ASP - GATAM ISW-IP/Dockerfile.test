@@ -3,4 +3,4 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS test
 WORKDIR /source
 COPY *.sln . 
 COPY . .
-RUN dotnet test --verbosity quiet -p:NoWarn="CS8618,CS8600,CS8603,CS8625"
+RUN dotnet test --verbosity quiet 
