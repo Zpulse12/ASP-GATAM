@@ -1,7 +1,50 @@
 stages:
+  - test
+  - build
   - production-deployment
   - staging-deployment
 
+testing:
+  stage: test
+  tags: 
+    - global
+  script:
+    - cd './ASP - GATAM ISW-IP/'
+    - dotnet test --no-restore --verbosity normal
+  # only:
+  #   - merge_requests
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "32-technische-taak-merges-getest-worden-voor-we-deze-effectief-kunnen-mergen"'
+      when: always
+  allow_failure: false 
+build:
+  stage: build
+  tags: 
+    - global
+  script:
+    - |
+      for dockerfile in $(find . -name "Dockerfile"); do
+        echo "Building Docker image for $dockerfile..."
+        image_name="build:$(basename $(dirname $dockerfile))"
+        docker build --target build -t $image_name -f $dockerfile $(dirname $dockerfile)
+        if [ $? -eq 0 ]; then
+          echo "Removing Docker image $image_name..."
+          docker rmi $image_name
+        else
+          echo "Docker build failed for $dockerfile. Skipping image removal."
+          exit 1
+        fi
+      done
+  # only:
+  #   - merge_requests
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "32-technische-taak-merges-getest-worden-voor-we-deze-effectief-kunnen-mergen"'
+      when: always
+  allow_failure: false 
 production-deploy:
   stage: production-deployment
   tags:
