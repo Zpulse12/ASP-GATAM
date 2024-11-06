@@ -1,5 +1,5 @@
 ﻿using Auth0.AspNetCore.Authentication;
-using Gatam.Application.Extensions;
+using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
 using System.Net.Http.Headers;
 
 namespace Gatam.WebAppBegeleider.Extensions
@@ -30,12 +30,17 @@ namespace Gatam.WebAppBegeleider.Extensions
         }
         public static IServiceCollection RegisterCustomApiClient(this IServiceCollection services) 
         {
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            EnvironmentWrapper env = serviceProvider.GetRequiredService<EnvironmentWrapper>();
             services.AddHttpContextAccessor();
             services.AddScoped<TokenService>();
             services.AddScoped<HeaderHandler>();
+
+            string _host = $"http://{env.ENVIRONMENT}-api:8080/";
+
             services.AddHttpClient<ApiClient>((httpClient) =>
             {
-                httpClient.BaseAddress = new Uri("http://webapi:8080/"); //http://localhost/winchester
+                httpClient.BaseAddress = new Uri(_host);
 
 #if DEBUG
                 httpClient.BaseAddress = new Uri("http://localhost:5000");
@@ -54,11 +59,19 @@ namespace Gatam.WebAppBegeleider.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
+                    policy.RequireRole(requiredRoleIds);
+
                 });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.ContentMaker); 
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
+                    policy.RequireRole(requiredRoleIds);
+                });
+                options.AddPolicy("RequireAdminRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
+                    policy.RequireRole(requiredRoleIds);
                 });
             });
             return services;

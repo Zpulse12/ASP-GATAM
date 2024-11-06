@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Gatam.Application.Extensions;
+using Gatam.Application.Extensions.EnvironmentHelper;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -30,8 +31,6 @@ namespace Gatam.Infrastructure.Extensions
         {
             services.AddHttpClient();
             services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
-            services.AddScoped<IGenericRepository<ApplicationTeam>, TeamRepository>();
-            services.AddScoped<IGenericRepository<TeamInvitation>, TeamInvitationRepository>();
             services.AddScoped<IGenericRepository<ApplicationModule>, ModuleRepository>();
             services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -61,15 +60,24 @@ namespace Gatam.Infrastructure.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.Begeleider);
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
+                    policy.RequireRole(requiredRoleIds);
+
                 });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
-                    policy.RequireRole(RoleMapper.Admin, RoleMapper.ContentMaker);
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
+                    policy.RequireRole(requiredRoleIds);
+                });
+                options.AddPolicy("RequireAdminRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
+                    policy.RequireRole(requiredRoleIds);
                 });
             });
             return services;
         }
+
         public static IServiceCollection RegisterDataProtectionEncryptionMethods(this IServiceCollection services)
         {
             services.AddDataProtection().UseCryptographicAlgorithms(

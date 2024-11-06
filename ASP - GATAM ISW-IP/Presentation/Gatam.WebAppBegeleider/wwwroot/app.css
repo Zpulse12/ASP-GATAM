@@ -1,6 +1,7 @@
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
+
 
 a, .btn-link {
     color: #006bb7;
@@ -130,12 +131,18 @@ h1:focus {
     margin-left: 5px; /* Ruimte tussen de tekst en het pijltje */
     color: white; /* Kleur van het pijltje */
 }
+.custom-header {
+    background-color: #4454D2 !important;
+    color: white !important;
+    border-bottom: 0 !important;
+}
 @media (max-width: 768px) {
     .navbar-nav {
         /* Bijvoorbeeld: geen marge of padding voor nav items in kleine schermen */
         padding: 0;
     }
 
-        .navbar-nav .dropdown-menu {
-            min-width: 100%; /* Zorg ervoor dat het dropdown-menu breed genoeg is */
-        }
+    .navbar-nav .dropdown-menu {
+        min-width: 100%; /* Zorg ervoor dat het dropdown-menu breed genoeg is */
+    }
+}

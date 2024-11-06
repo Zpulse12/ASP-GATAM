@@ -1,13 +1,5 @@
-﻿using Gatam.Application.Interfaces;
-using Gatam.Infrastructure.Contexts;
+﻿using Gatam.Infrastructure.Contexts;
 using Gatam.Domain;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gatam.Infrastructure.Repositories
 {

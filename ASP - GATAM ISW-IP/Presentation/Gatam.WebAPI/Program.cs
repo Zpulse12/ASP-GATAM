@@ -8,6 +8,7 @@ using Gatam.Infrastructure.UOW;
 using Gatam.WebAPI.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.IdentityModel.Tokens.Jwt;
 internal class Program {
     private static void Main(string[] args)
@@ -38,9 +39,16 @@ internal class Program {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+        });
+
+
         app.UseErrorHandlingMiddleware();
 
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
@@ -49,19 +57,6 @@ internal class Program {
         {
             endpoints.MapControllers();
         });
-
-
-        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
-        {
-            var accessToken = await httpContext.GetTokenAsync("access_token");
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                return Results.BadRequest("Access token is not available.");
-            }
-
-            return Results.Ok(new { AccessToken = accessToken });
-        }).RequireAuthorization();
         app.Run();
     }
 }
