@@ -9,8 +9,20 @@ testing:
   tags: 
     - global
   script:
-    - cd './ASP - GATAM ISW-IP/'
-    - dotnet test --no-restore --verbosity normal
+    - cd './ASP - GATAM ISW-IP/Presentation'
+    - |
+      for dockerfile in $(find . -name "Dockerfile.test"); do
+        echo "Building Docker image for $dockerfile..."
+        image_name="test:$(basename $(dirname $dockerfile))"
+        docker build --target test -t $image_name -f $dockerfile $(dirname $dockerfile)
+        if [ $? -eq 0 ]; then
+          echo "Removing Docker image $image_name..."
+          docker rmi $image_name
+        else
+          echo "Docker build failed for $dockerfile. Skipping image removal."
+          exit 1
+        fi
+      done
   # only:
   #   - merge_requests
   # rules:
@@ -24,6 +36,7 @@ build:
   tags: 
     - global
   script:
+    - cd './ASP - GATAM ISW-IP/Presentation'
     - |
       for dockerfile in $(find . -name "Dockerfile"); do
         echo "Building Docker image for $dockerfile..."
