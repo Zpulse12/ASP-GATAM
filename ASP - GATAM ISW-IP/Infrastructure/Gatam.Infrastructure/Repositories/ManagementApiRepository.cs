@@ -102,26 +102,85 @@ public class ManagementApiRepository: IManagementApi
         throw new NotImplementedException();
     }
 
-    public async Task<UserDTO> UpdateUserAsync(string userId, UserDTO user)
+    public async Task<UserDTO> UpdateUserAsync(UserDTO user)
     {
-        
-        var response = await _httpClient.PostAsJsonAsync($"api/v2/users/{userId}", user);
+        var payload = new
+        {
+            nickname = user.Nickname,
+            email=user.Email,
+            username = user.Nickname
+
+        };
+
+        var _userId = user.Id;
+
+        var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
+
+        string json = JsonSerializer.Serialize(payload);
+        Debug.WriteLine($"Payload sent to Auth0: {json}");
 
         if (response.IsSuccessStatusCode)
         {
-            var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
-            if (updatedUser == null)
-            {
-                Console.WriteLine("Fout bij het parsen van de gebruiker na update.");
-            }
-            return updatedUser;
+            Debug.WriteLine("updated successfully in Auth0.");
+            return user;
+            
         }
 
         var errorDetails = await response.Content.ReadAsStringAsync();
         Console.WriteLine($"Error updating user: {response.StatusCode} - {errorDetails}");
-        return user;
+        return null;
     }
 
+    public async Task<UserDTO> UpdateUserNicknameAsync(UserDTO user)
+    {
+        var payload = new
+        {
+            nickname = user.Nickname,
+            username = user.Nickname,  
+        };
+
+        var _userId = user.Id;
+
+        var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
+
+        string json = JsonSerializer.Serialize(payload);
+        Debug.WriteLine($"Payload sent to Auth0: {json}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            Debug.WriteLine("Nickname updated successfully in Auth0.");
+            return user;
+        }
+
+        var errorDetails = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Error updating nickname: {response.StatusCode} - {errorDetails}");
+        return null;
+    }
+
+    public async Task<UserDTO> UpdateUserEmailAsync(UserDTO user)
+    {
+        var payload = new
+        {
+            email = user.Email,  
+        };
+
+        var _userId = user.Id;
+
+        var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
+
+        string json = JsonSerializer.Serialize(payload);
+        Debug.WriteLine($"Payload sent to Auth0: {json}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            Debug.WriteLine("Email updated successfully in Auth0.");
+            return user;
+        }
+
+        var errorDetails = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Error updating email: {response.StatusCode} - {errorDetails}");
+        return null;
+    }
     public async Task<UserDTO> UpdateUserStatusAsync(string userId, bool isActive)
     {
         var payload = new 

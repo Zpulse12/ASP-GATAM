@@ -29,11 +29,11 @@ namespace Gatam.Infrastructure.Contexts
             // Seeding users
             var hasher = new PasswordHasher<ApplicationUser>();
             // SETUP VAN USER IN DB
-            ApplicationUser GLOBALTESTUSER = new ApplicationUser() { UserName = "admin", Email = "admin@app.com", PasswordHash = hasher.HashPassword(null, "root") };
+            ApplicationUser GLOBALTESTUSER = new ApplicationUser() { Nickname = "admin", Email = "admin@app.com", PasswordHash = hasher.HashPassword(null, "root") };
             ApplicationUser john = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "JohnDoe",
+                Nickname = "JohnDoe",
                 NormalizedUserName = "JOHNDOE",
                 Email = "john.doe@example.com",
                 NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
@@ -43,7 +43,7 @@ namespace Gatam.Infrastructure.Contexts
             ApplicationUser jane = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "JaneDoe",
+                Nickname = "JaneDoe",
                 NormalizedUserName = "JANEDOE",
                 Email = "jane.doe@example.com",
                 NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
@@ -53,7 +53,7 @@ namespace Gatam.Infrastructure.Contexts
             ApplicationUser lauren = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "Lautje",
+                Nickname = "Lautje",
                 NormalizedUserName = "LAUTJE",
                 Email = "lautje.doe@example.com",
                 NormalizedEmail = "LAUTJE.DOE@EXAMPLE.COM",

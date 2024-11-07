@@ -11,10 +11,10 @@ namespace Gatam.Domain
         MENTOR,
         STUDENT
     }
-    // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
         public bool IsActive { get; set; }
+        public  string? Nickname { get; set; }
 
         [JsonIgnore]
         public ICollection<ApplicationTeam> OwnedApplicationTeams { get; } = new List<ApplicationTeam>();

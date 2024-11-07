@@ -39,7 +39,7 @@
     {
         <div>
             <span>@userBeingEdited.Nickname</span>
-            <button class="btn btn-primary mt-4" @onclick='() => ShowEditModal("Username")'>Bewerken</button>
+            <button class="btn btn-primary mt-4" @onclick='() => ShowEditModal("Nickname")'>Bewerken</button>
             @if (isEditUsernameModalVisible)
             {
                 <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
@@ -51,11 +51,13 @@
                             </div>
                             <div class="modal-body">
                                 <div class="edit-field">
-                                    <EditForm Model="userBeingEdited" OnValidSubmit="HandleUsernameUpdate">
+                                    <EditForm Model="userBeingEdited" OnValidSubmit="HandleNicknameUpdate">
                                         <label for="Username">Gebruikersnaam</label>
                                         <InputText @bind-Value="userBeingEdited.Nickname" class="form-control" />
-                                        <button type="submit" class="btn btn-outline-success">Opslaan</button>
-                                        <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-outline-success">Opslaan</button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
+                                        </div>
                                     </EditForm>
                                 </div>
                             </div>
@@ -133,18 +135,15 @@
 
 @code {
     [Parameter] public string Id { get; set; } = "";
-    [Parameter] public bool IsVisible { get; set; }
-    [Parameter] public EventCallback OnClose { get; set; }
 
-    private List<UserDTO> _users = new();
-    private HashSet<UserDTO> selectedUsers = new();
     private Dictionary<string, List<string>> userRolesMap = new();
     private UserDTO selectedUser;
+    public string selectedRoles { get; set; } = "";
 
     string response_Msg = "";
     bool isSuccess = false;
     private UserDTO userBeingEdited ;
-    public string selectedRoles { get; set; } = "";
+
 
     private bool _hasError = false;
     private bool _isLoading = true;
@@ -208,23 +207,7 @@
                 isSuccess = true;
                 response_Msg = "Gebruiker succesvol bijgewerkt";
                 StateHasChanged();
-                //var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
-
-                // if (response.IsSuccessStatusCode)
-                // {
-
-                //     Console.WriteLine("Gebruiker succesvol bijgewerkt.");
-                //     isSuccess = true;
-                //     response_Msg = "Gebruiker succesvol bijgewerkt.";
-                //     StateHasChanged();
-                // }
-                // else
-                // {
-                //     isSuccess = true;
-                //     response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
-                // }
-
-
+          
             }
             else
             {
@@ -240,7 +223,7 @@
 
     private void ShowEditModal(string field)
     {
-        if (field == "Username")
+        if (field == "Nickname")
         {
             isEditUsernameModalVisible = true;
         }
@@ -258,21 +241,42 @@
         StateHasChanged(); 
     }
 
-    private async Task HandleUsernameUpdate()
+    private async Task HandleNicknameUpdate()
     {
+        if (userBeingEdited == null)
+        {
+            _hasError = true;
+            response_Msg = "Geen gebruiker om te updaten.";
+            return;
+        }
         try
         {
-            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
+            var payload = new
+            {
+                nickname = userBeingEdited.Nickname,
+                email = userBeingEdited.Email,
+                username = userBeingEdited.Nickname,
+                rolesIds = userBeingEdited.RolesIds,
+                picture = userBeingEdited.Picture,
+                id = userBeingEdited.Id
+               
+            };
+
+            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", payload);
+            Debug.WriteLine(response.ToString());
 
             if (response.IsSuccessStatusCode)
             {
+                isSuccess=true;
                 response_Msg = "Gebruikersnaam succesvol bijgewerkt.";
                 isEditUsernameModalVisible = false;
                 StateHasChanged();
             }
             else
             {
-                response_Msg = "Fout bij het bijwerken van de gebruikersnaam.";
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"Response content: {responseContent}");
+                response_Msg = $"Fout bij het bijwerken van de gebruikersnaam: {response.StatusCode}";
             }
         }
         catch (Exception ex)
@@ -283,18 +287,39 @@
 
     private async Task HandleEmailUpdate()
     {
+        if (userBeingEdited == null)
+        {
+            _hasError = true;
+            response_Msg = "Geen gebruiker om te updaten.";
+            return;
+        }
+
         try
         {
-            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
+            var payload = new
+            {
+                nickname = userBeingEdited.Nickname,
+                email = userBeingEdited.Email,
+                rolesIds = userBeingEdited.RolesIds,
+                picture = userBeingEdited.Picture,
+                id = userBeingEdited.Id
+
+            };
+
+            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", payload);
+            Debug.WriteLine(response.ToString());
 
             if (response.IsSuccessStatusCode)
             {
+                isSuccess=true;
                 response_Msg = "Email succesvol bijgewerkt.";
                 isEditEmailModalVisible = false;
                 StateHasChanged();
             }
             else
             {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"Response content: {responseContent}");
                 response_Msg = "Fout bij het bijwerken van de email.";
             }
         }
