@@ -74,10 +74,11 @@
                     </div>
                 </div>
             }
+
             <div class="row">
                 <div class="col-md-12 text-right">
                     <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="ResetForm">Verwijder data</Button>
-                    <Button Type="ButtonType.Submit" Color="ButtonColor.Success" Class="float-end me-2" Disabled="@isLoading">
+                    <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@isLoading">
                         @if(isLoading)
                         {
                             <Spinner Type="SpinnerType.Dots" />
@@ -115,6 +116,7 @@
     {
         editContext = new EditContext(newQuestion);
         newQuestion.QuestionAnswer = "OPEN";
+        newQuestion.QuestionType = selectedOption;
         base.OnInitialized();
     }
 
@@ -123,12 +125,14 @@
         isLoading = true;
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
+        newQuestion.QuestionType = selectedOption;
 
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {
             newQuestion.CreatedUserId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             try
             {
+                Debug.WriteLine(newQuestion.QuestionAnswer);
                 HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", newQuestion);
 
                 if (createQuestionResponse.IsSuccessStatusCode)
@@ -138,7 +142,6 @@
                 }
                 else
                 {
-                    Debug.WriteLine(createQuestionResponse.Content);
                     _toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", $"api: {createQuestionResponse.ReasonPhrase}"));
                 }
             }

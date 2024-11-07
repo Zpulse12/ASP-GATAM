@@ -14,7 +14,7 @@ namespace Gatam.Infrastructure.Contexts
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<ApplicationModule> Modules { get; set; }
-       // public DbSet<Question> Questions { get; set; }
+       public DbSet<Question> Questions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -71,9 +71,16 @@ namespace Gatam.Infrastructure.Contexts
             };
 
             builder.Entity<ApplicationModule>().HasData(GLOBALMODULE);
-            
 
+            Question GLOBALQUESTION = new Question()
+            {
+                QuestionType = QuestionType.OPEN,
+                QuestionTitle = "Wat wil je later bereiken? ",
+                ApplicationModules = new List<ApplicationModule> { GLOBALMODULE },
+                QuestionAnswer = "OPEN"
+            };
 
+            builder.Entity<Question>().HasData(GLOBALQUESTION);
         }
     }
 }
