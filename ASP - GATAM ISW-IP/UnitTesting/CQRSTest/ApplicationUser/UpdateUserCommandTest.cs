@@ -36,7 +36,7 @@ public class UpdateUserCommandTest
         var originalUser = new Gatam.Domain.ApplicationUser
         {
             Id = userId,
-            Nickname = "OldNickname", // Oud Nickname
+            UserName = "OldNickname", // Oud Nickname
             Email = "user@example.com",
             IsActive = true
         };
@@ -86,7 +86,7 @@ public class UpdateUserCommandTest
         var originalUser = new Gatam.Domain.ApplicationUser
         {
             Id = userId,
-            Nickname = "OldNickname",
+            UserName = "OldNickname",
             Email = "user@example.com", // Oude Email
             IsActive = true
         };
@@ -94,7 +94,7 @@ public class UpdateUserCommandTest
         var updatedUserDto = new UserDTO
         {
             Id = userId,
-            Nickname = originalUser.Nickname,
+            Nickname = originalUser.UserName,
             Email = "newemail@example.com",  // Nieuwe Email
             IsActive = true,
             RolesIds = new List<string> { RoleMapper.Roles["BEHEERDER"] },
@@ -124,7 +124,7 @@ public class UpdateUserCommandTest
         // Assert
         Assert.IsNotNull(result, "De return waarde van de handler is null.");
         Assert.AreEqual(updatedUserDto.Email, result.Email, "De email is niet goed geüpdatet.");
-        Assert.AreEqual(originalUser.Nickname, result.Nickname, "De nickname zou niet veranderd moeten zijn.");
+        Assert.AreEqual(originalUser.UserName, result.Nickname, "De nickname zou niet veranderd moeten zijn.");
     }
 
 
