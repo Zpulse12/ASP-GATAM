@@ -22,7 +22,7 @@
 
 </div>
 <CustomCards>
-    <h3>Bewerken van gebruiker</h3>
+    <h3 class="fw-bold text-muted me-2">Bewerken van gebruiker</h3>
 
 
     @if (_isLoading)
@@ -37,69 +37,72 @@
     }
     else if (userBeingEdited != null)
     {
-        <div>
-            <span>@userBeingEdited.Nickname</span>
-            <button class="btn btn-primary mt-4" @onclick='() => ShowEditModal("Nickname")'>Bewerken</button>
+        <div class="user-info-section">
+            <div class="d-flex align-items-center mb-3">
+                <span class="fw-bold text-muted me-2">@userBeingEdited.Nickname</span>
+                <button class="btn btn-sm btn-custom" style="background-color:#4454D2; color:white" @onclick='() => ShowEditModal("Nickname")'>
+                    <i class="bi bi-pencil-square me-1"></i> Bewerken
+                </button>
+            </div>
             @if (isEditUsernameModalVisible)
             {
                 <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">Bewerken</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="edit-field">
-                                    <EditForm Model="userBeingEdited" OnValidSubmit="HandleNicknameUpdate">
-                                        <label for="Username">Gebruikersnaam</label>
+                                <EditForm Model="userBeingEdited" OnValidSubmit="HandleNicknameUpdate">
+                                    <div class="mb-3">
+                                        <label for="Username" class="form-label">Gebruikersnaam</label>
                                         <InputText @bind-Value="userBeingEdited.Nickname" class="form-control" />
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-outline-success">Opslaan</button>
-                                            <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
-                                        </div>
-                                    </EditForm>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> 
-            }
-
-        </div>
-
-        <div>
-            <span>@userBeingEdited.Email</span>
-            <button class="btn btn-primary mt-4" @onclick='() => ShowEditModal("Email")'>Bewerken</button>
-            @if (isEditEmailModalVisible)
-            {
-                <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Bewerken</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="edit-field">
-                                    <EditForm Model="userBeingEdited" OnValidSubmit="HandleEmailUpdate">
-                                        <InputText @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
-                                        <label for="Email">Email</label>
+                                    </div>
+                                    <div class="modal-footer">
                                         <button type="submit" class="btn btn-outline-success">Opslaan</button>
                                         <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
-                                    </EditForm>
-                                </div>
+                                    </div>
+                                </EditForm>
                             </div>
                         </div>
                     </div>
                 </div>
-                
             }
-        </div>
-       
-        <Callout Color="CalloutColor.Info" Heading="Berlangrijk">
-            <p><strong>@userBeingEdited.Nickname heeft momenteel volgende rol(len):</strong></p>
-                <ul>
+
+            <div class="d-flex align-items-center mb-3">
+                <span class="fw-bold text-muted me-2">@userBeingEdited.Email</span>
+                <button class="btn btn-sm btn-custom" style="background-color:#4454D2; color:white"  @onclick='() => ShowEditModal("Email")'>
+                    <i class="bi bi-pencil-square me-1"></i> Bewerken
+                </button>
+            </div>
+            @if (isEditEmailModalVisible)
+            {
+                <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" >Bewerken</h5>
+                            </div>
+                            <div class="modal-body">
+                                <EditForm Model="userBeingEdited" OnValidSubmit="HandleEmailUpdate">
+                                    <div class="mb-3">
+                                        <label for="Email" class="form-label">Email</label>
+                                        <InputText @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-outline-success">Opslaan</button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <Callout Color="CalloutColor.Info" Heading="Belangrijk">
+                <p><strong>@userBeingEdited.Nickname heeft momenteel volgende rol(len):</strong></p>
+                <ul class="roles-list">
                     @if (userRolesMap.TryGetValue(userBeingEdited?.Id, out var roles))
                     {
                         foreach (var role in roles)
@@ -112,19 +115,21 @@
                         <li>Geen rollen gevonden</li>
                     }
                 </ul>
-    
-            <hr/>
-        </Callout>
-    <div class="form-group mt-3">
-            <label for="Role">Rol Toewijzen</label>
-            <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
-                @foreach (var role in RoleMapper.Roles)
-                {
-                    <option value="@role.Value">@role.Key</option>
-                }
-            </InputSelect>
+                <hr />
+            </Callout>
+
+            <div class="form-group mt-3">
+                <label for="Role" class="fw-bold text-muted">Rol Toewijzen</label>
+                <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
+                    @foreach (var role in RoleMapper.Roles)
+                    {
+                        <option value="@role.Value">@role.Key</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit" onclick="@HandleValidSubmit" class="btn btn-sm btn-custom mt-4" style="background-color:#4454D2; color:white"><i class="bi bi-plus me-1"></i>Toewijzen</button>
         </div>
-        <button type="submit" onclick="@HandleValidSubmit" class="btn btn-primary mt-4">Opslaan</button>
+
     }
     else
     {
