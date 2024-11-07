@@ -1,13 +1,11 @@
 @using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
-@using Gatam.Application.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
 
 @using Gatam.Infrastructure.Repositories
 
-@inject ManagementApiRepository managementApiRepository
 @inject ApiClient apiClient
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor httpContextAccessor
@@ -166,9 +164,9 @@
     // Boolean to control modal 
     private bool isModalVisible = false;
     private string selectedUserId;
-    
 
-   
+
+
     private void ShowDeleteModal(string userId)
     {
         selectedUserId = userId;
@@ -204,9 +202,7 @@
     private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
     {
         selectedUser = args.Item;
-
-        var roles = await managementApiRepository.GetRolesByUserId(selectedUser.Id);
-        userRolesMap[selectedUser.Id] = roles.ToList();
+        userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
         isModalVisible = true;
 
     }

@@ -28,14 +28,12 @@ namespace Gatam.WebAppBegeleider.Extensions
         public async Task<T?> GetFromJsonAsync<T>(string requestUri)
         {
             var response = await _httpClient.GetAsync(requestUri);
-            response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<T>();
         }
 
         public async Task<HttpResponseMessage> DeleteAsync(string requestUri)
         {
             var response = await _httpClient.GetAsync(requestUri);
-            response.EnsureSuccessStatusCode();
             return response;
         }
 

@@ -1,0 +1,104 @@
+services:
+  mssql-server:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: ${ENVIRONMENT}-mssql
+    restart: always
+    ports: 
+      - "1433"
+    environment:
+      - ACCEPT_EULA="Y"
+      - ENVIRONMENT=${ENVIRONMENT}
+      - DATABASE_NAME=Gatam.${ENVIRONMENT}
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - DATABASE_USER=${DATABASE_USER}
+    networks:
+      - database
+    hostname: mssqlserver
+  webapi:
+    build:
+      context: .
+      dockerfile: ./Presentation/Gatam.WebAPI/Dockerfile
+    restart: always
+    container_name: ${ENVIRONMENT}-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ENVIRONMENT=${ENVIRONMENT}
+      - DATABASE_HOST=${ENVIRONMENT}-mssql,1433
+      - DATABASE_NAME=Gatam.${ENVIRONMENT}
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - DATABASE_USER=${DATABASE_USER}
+      - SA_PASSWORD=${SA_PASSWORD}
+      - TOKEN=${TOKEN}
+      - BASE_URI=${BASE_URI}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+    depends_on:
+      - mssql-server
+    networks:
+      - database
+      - proxy
+  webappbegeleider:
+    build:
+      context: .
+      dockerfile: ./Presentation/Gatam.WebAppBegeleider/Dockerfile
+    restart: always
+    container_name: ${ENVIRONMENT}-webappbegeleider
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ENVIRONMENT=${ENVIRONMENT}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_CLIENTSECRET=${AUTH0_CLIENTSECRET}
+    depends_on:
+      - webapi
+      - mssql-server
+    networks:
+      - database
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.production-webappbegeleider-http.entrypoints=http"
+      - "traefik.http.routers.production-webappbegeleider-http.rule=Host(`${ADMIN_DOMAIN}`)"
+      - "traefik.http.routers.production-webappbegeleider-http.middlewares=production-webappbegeleider-redirect-to-https"
+      - "traefik.http.middlewares.production-webappbegeleider-redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.production-webappbegeleider-secure.entrypoints=https"
+      - "traefik.http.routers.production-webappbegeleider-secure.rule=Host(`${ADMIN_DOMAIN}`)"
+      - "traefik.http.routers.production-webappbegeleider-secure.tls=true"
+      - "traefik.http.routers.production-webappbegeleider-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.production-webappbegeleider-secure.tls.domains[0].main=${ADMIN_DOMAIN}"
+      - "traefik.http.routers.production-webappbegeleider-secure.middlewares=sslheader"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.services.production-webappbegeleider.loadbalancer.server.port=8080"
+  webappvolger:
+    build:
+      context: .
+      dockerfile: ./Presentation/Gatam.WebAppVolger/Dockerfile
+    restart: always
+    container_name: ${ENVIRONMENT}-webappvolger
+    depends_on:
+      - webapi
+      - mssql-server
+    networks:
+      - database
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.production-webappvolger-http.entrypoints=http"
+      - "traefik.http.routers.production-webappvolger-http.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.production-webappvolger-http.middlewares=production-webappvolger-redirect-to-https"
+      - "traefik.http.middlewares.production-webappvolger-redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.production-webappvolger-secure.entrypoints=https"
+      - "traefik.http.routers.production-webappvolger-secure.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.production-webappvolger-secure.tls=true"
+      - "traefik.http.routers.production-webappvolger-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.production-webappvolger-secure.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.production-webappvolger-secure.middlewares=sslheader"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.services.production-webappvolger.loadbalancer.server.port=8080"
+volumes:
+  sql_data:
+networks:
+  database:
+  proxy:
+    external: true

@@ -4,18 +4,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
-using Gatam.Application.Extensions;
-using Gatam.Application.Interfaces;
-using Gatam.Infrastructure.Repositories;
-using BlazorBootstrap;
-
+using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Logging.AddDebug();
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
@@ -25,9 +20,6 @@ internal class Program
         builder.Services.RegisterCustomApiClient();
         builder.Services.AddScoped<Auth0UserStateService>();
         builder.Services.RegisterPolicies();
-
-        builder.Services.AddScoped<ManagementApiRepository>();
-        builder.Services.AddHttpClient<IManagementApi, ManagementApiRepository>();
 
         builder.Services.AddBlazorBootstrap();
 
@@ -46,6 +38,7 @@ internal class Program
             ForwardedHeaders = ForwardedHeaders.XForwardedProto
         });
 
+
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.MapRazorComponents<App>()
@@ -55,17 +48,7 @@ internal class Program
         app.UseAuthorization();
         app.UseAntiforgery();
         app.MapRazorPages();
-        app.MapGet("/Account/GetAccessToken", async (HttpContext httpContext) =>
-        {
-            var accessToken = await httpContext.GetTokenAsync("access_token");
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                return Results.BadRequest("Access token is not available.");
-            }
-
-            return Results.Ok(new { AccessToken = accessToken });
-        });
+        
         app.MapGet("account/login", async (HttpContext httpContext, string redirectUri = "/") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()

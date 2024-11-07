@@ -38,7 +38,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule
                 .ReturnsAsync(modules);
 
             _mapperMock.Setup(m => m.Map<IEnumerable<Gatam.Domain.ApplicationModule>>(It.IsAny<IEnumerable<Gatam.Domain.ApplicationModule>>()))
-                .Returns((IEnumerable<Gatam.Domain.ApplicationModule> source) => source); 
+                .Returns((IEnumerable<Gatam.Domain.ApplicationModule> source) => source);
 
             var query = new GetAllModulesQuery();
 
