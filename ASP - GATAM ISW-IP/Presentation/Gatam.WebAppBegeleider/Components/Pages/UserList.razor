@@ -238,10 +238,6 @@
                     StateHasChanged();
                 }
             }
-            else
-            {
-                Debug.WriteLine($"Failed to delete user {selectedUserId}: {response.ReasonPhrase}");
-            }
         }
         catch (Exception ex)
         {
@@ -256,7 +252,7 @@
         {
             var command = new { UserId = userId, IsActive = isActive };
 
-            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate/{userId}",command);
+            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate",command);
 
             if (response.IsSuccessStatusCode)
             {

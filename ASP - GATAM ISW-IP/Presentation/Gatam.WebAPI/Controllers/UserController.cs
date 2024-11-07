@@ -51,7 +51,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPatch]
-        [Route("setactivestate/{id}")]
+        [Route("setactivestate")]
         [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> SetActiveState([FromBody] DeactivateUserCommand command)
         {
