@@ -53,7 +53,7 @@ namespace Gatam.WebAPI.Controllers
         [HttpPatch]
         [Route("setactivestate/{id}")]
         [Authorize(Policy = "RequireAdminRole")]
-        public async Task<IActionResult> SetActiveState(string id,[FromBody] DeactivateUserCommand command)
+        public async Task<IActionResult> SetActiveState([FromBody] DeactivateUserCommand command)
         {
             return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = command.UserId, IsActive = command.IsActive }));
         }
