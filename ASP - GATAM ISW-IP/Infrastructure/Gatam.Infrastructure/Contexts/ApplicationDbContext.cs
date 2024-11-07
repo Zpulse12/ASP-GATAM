@@ -13,10 +13,6 @@ namespace Gatam.Infrastructure.Contexts
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<ApplicationTeam> ApplicationTeams { get; set; }
-
-        public DbSet<TeamInvitation> TeamInvitations { get; set; }
-
         public DbSet<ApplicationModule> Modules { get; set; }
        // public DbSet<Question> Questions { get; set; }
 
@@ -64,56 +60,7 @@ namespace Gatam.Infrastructure.Contexts
                 GLOBALTESTUSER, john, jane, lauren
 
             );
-
-            ApplicationTeam GLOBALTESTTEAM = new ApplicationTeam()
-            {
-                Id = Guid.NewGuid().ToString(),
-                TeamName = "TeamTest1",
-                TeamCreatorId = GLOBALTESTUSER.Id,
-                IsDeleted = false,
-                CreatedAt = DateTime.UnixEpoch,
-            };
-            ApplicationTeam TESTTEAM2 = new ApplicationTeam()
-            {
-                Id = Guid.NewGuid().ToString(),
-                TeamName = "TeamTest2",
-                TeamCreatorId = GLOBALTESTUSER.Id,
-                IsDeleted = false,
-                CreatedAt = DateTime.UnixEpoch,
-            };
-            // SETUP VAN TEAM IN DB
-            builder.Entity<ApplicationTeam>().HasData(GLOBALTESTTEAM, TESTTEAM2);
-
-            //            builder.Entity<TeamInvitation>().HasData(new TeamInvitation { ApplicationTeamId = GLOBALTESTTEAM.Id, UserId = GLOBALTESTUSER.Id});
-
-            // Seeding team invitations for John Doe and Jane Doe
-            builder.Entity<TeamInvitation>().HasData(
-                new TeamInvitation()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    ApplicationTeamId = GLOBALTESTTEAM.Id,
-                    UserId = john.Id,
-                    isAccepted = true,
-                    CreatedAt = DateTime.UtcNow,
-                    ResponseDateTime = DateTime.UtcNow,
-                },
-                new TeamInvitation()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    ApplicationTeamId = GLOBALTESTTEAM.Id,
-                    UserId = jane.Id,
-                    isAccepted = false,
-                    CreatedAt = DateTime.UtcNow,
-                    ResponseDateTime = DateTime.UtcNow
-                }
-                
-            );
-            // RELATIES
-
-            builder.Entity<ApplicationUser>().HasMany(user => user.OwnedApplicationTeams).WithOne(team => team.TeamCreator).HasForeignKey(team => team.TeamCreatorId).OnDelete(DeleteBehavior.Restrict);
-            builder.Entity<ApplicationTeam>().HasMany(team => team.TeamInvitations).WithOne(invitation => invitation.applicationTeam).HasForeignKey(invitation => invitation.ApplicationTeamId).OnDelete(DeleteBehavior.Restrict);
-            builder.Entity<ApplicationUser>().HasMany(user => user.InvitationsRequests).WithOne(invitation => invitation.applicationUser).HasForeignKey(invitation => invitation.UserId).OnDelete(DeleteBehavior.Restrict);
-
+         
 
             var GLOBALMODULE = new ApplicationModule()
             {

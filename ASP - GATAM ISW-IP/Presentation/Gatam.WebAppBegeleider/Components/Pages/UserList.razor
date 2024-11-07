@@ -1,7 +1,6 @@
 @using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
-@using Gatam.Application.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
 @using Gatam.Application.CQRS.User
@@ -10,7 +9,6 @@
 
 @using Gatam.Infrastructure.Repositories
 
-@inject ManagementApiRepository managementApiRepository
 @inject ApiClient apiClient
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor httpContextAccessor
@@ -145,9 +143,9 @@
 
     private bool isModalVisible = false;
     private string selectedUserId;
-    
 
-   
+
+
     private void ShowDeleteModal(string userId)
     {
         selectedUserId = userId;
@@ -207,48 +205,10 @@
     private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
     {
         selectedUser = args.Item;
-
-        var roles = await managementApiRepository.GetRolesByUserId(selectedUser.Id);
-        userRolesMap[selectedUser.Id] = roles.ToList();
+        userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
         isModalVisible = true;
-
     }
 
-
-    private void StartEditingUser(UserDTO user)
-    {
-        userBeingEdited = user;
-    }
-
-    private void CancelEditing()
-    {
-        userBeingEdited = null;
-    }
-
-
-    private async Task HandleValidSubmit()
-    {
-        if (userBeingEdited != null)
-        {
-            try
-            {
-                var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
-                if (response.IsSuccessStatusCode)
-                {
-                    userBeingEdited = null;
-                    StateHasChanged();
-                }
-                else
-                {
-                    Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
-            }
-        }
-    }
 
     private void CloseModal()
     {

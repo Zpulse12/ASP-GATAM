@@ -1,14 +1,10 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Gatam.Application.CQRS;
 using MediatR;
 using Gatam.Domain;
-using Gatam.WebAPI.Extensions;
-using System.Diagnostics;
 using Gatam.Application.CQRS.User;
+using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Gatam.Application.Extensions;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -98,7 +94,7 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
-            var roles = await _mediator.Send(new GetUserByIdQuery { UserId = userId });
+            List<string> roles = await _mediator.Send(new GetUserRolesQuery { UserId = userId });
 
             if (roles == null)
             {
