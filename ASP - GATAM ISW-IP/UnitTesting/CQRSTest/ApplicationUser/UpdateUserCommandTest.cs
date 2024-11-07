@@ -47,7 +47,7 @@ public class UpdateUserCommandTest
             Nickname = "NewNickname",  // Nieuwe Nickname
             Email = originalUser.Email,
             IsActive = true,
-            RolesIds = new List<string> { "role1", "role2" }
+            RolesIds = new List<string> { RoleMapper.Roles["BEHEERDER"] }
         };
 
         //  ophalen van de originele gebruiker
@@ -97,7 +97,7 @@ public class UpdateUserCommandTest
             Nickname = originalUser.Nickname,
             Email = "newemail@example.com",  // Nieuwe Email
             IsActive = true,
-            RolesIds = new List<string> { "role1", "role2" }
+            RolesIds = new List<string> { RoleMapper.Roles["BEHEERDER"] },
         };
 
         //ophalen van de originele gebruiker
