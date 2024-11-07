@@ -1,0 +1,178 @@
+﻿@page "/questions"
+
+@using Gatam.WebAppBegeleider.Components.Layout
+@using System.ComponentModel.DataAnnotations
+@using Gatam.Domain
+@using WebAppBegeleider.Extensions
+@using System.Diagnostics
+
+@inject ApiClient apiClient
+@inject AuthenticationStateProvider authenticationStateProvider
+
+@rendermode InteractiveServer
+
+
+@* @attribute [Authorize(Policy = "RequireMakerRole")] *@
+
+<style>
+    .valid.modified:not([type=checkbox]) {
+        outline: 1px solid #26b050;
+    }
+
+    .invalid {
+        outline: 1px solid red;
+    }
+
+    .validation-message {
+        color: red;
+    }
+</style>
+
+<Modal @ref="modal" Title="Nieuwe vraag aanmaken.">
+    <BodyTemplate>
+        <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit" novalidate>
+            <DataAnnotationsValidator />
+
+            <div class="form-group row mb-3">
+                <label class="col-md-2 col-form-label">Vraag: <span class="text-danger">*</span></label>
+                <div class="col-md-10">
+                    <InputText class="form-control" @bind-Value="newQuestion.QuestionTitle" Placeholder="Wie zou je zijn zonder angsten?" />
+                    <ValidationMessage For="@(() => newQuestion.QuestionTitle)" />
+                </div>
+            </div>
+            <div class="form-group row mb-3">
+                <label class="col-md-2 col-form-label">Type vraag:<span class="text-danger">*</span></label>
+                <div class="col-md-10">
+                    <InputSelect @bind-Value="selectedOption" class="form-control">
+                        <option value="@QuestionType.MULTIPLE_CHOICE">Meerkeuzevraag</option>
+                        <option value="@QuestionType.CHOICE_LIST">Keuzevraag</option>
+                        <option value="@QuestionType.OPEN">Open vraag</option>
+                        <option value="@QuestionType.TRUE_OR_FALSE">Waar / onwaar vraag</option>
+                    </InputSelect>
+                </div>
+            </div>
+            <hr />
+
+            @if(selectedOption == QuestionType.OPEN)
+            {
+                <div class="form-group row mb-3">
+                    <p class="text-center">Je hebt gekozen voor een open vraag. Je moet geen mogelijke antwoorden meegeven.</p>
+                </div>
+                <input type="text" value="OPEN" hidden bind-Value="@newQuestion.QuestionAnswer"/>
+                <ValidationMessage For="@(() => newQuestion.QuestionAnswer)" />
+            }
+            @if (selectedOption == QuestionType.TRUE_OR_FALSE)
+            {
+                <div class="form-group row mb-3">
+                    <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                    <div class="col-md-10">
+                        <InputSelect @bind-Value="newQuestion.QuestionAnswer" class="form-control">
+                            <option value="true">Waar</option>
+                            <option value="false">Onwaar</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => newQuestion.QuestionAnswer)" />
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-md-12 text-right">
+                    <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="ResetForm">Verwijder data</Button>
+                    <Button Type="ButtonType.Submit" Color="ButtonColor.Success" Class="float-end me-2" Disabled="@isLoading">
+                        @if(isLoading)
+                        {
+                            <Spinner Type="SpinnerType.Dots" />
+                        } else
+                        {
+                            <span>Aanmaken</span>
+                        }
+                    </Button>
+                </div>
+            </div>
+        </EditForm>
+    </BodyTemplate>
+</Modal>
+<CustomCards>
+    <div class="d-flex p-2 justify-content-between">
+        <h3>Vragen</h3>
+        <Button Color="ButtonColor.Primary" @onclick="OnShowModalClick">
+            <Icon Name="IconName.Plus"/>
+            Nieuwe vraag
+        </Button>    
+    </div>
+</CustomCards>
+
+
+@code {
+    private Modal? modal;
+    private EditContext editContext;
+    private Question newQuestion = new Question();
+    private QuestionType selectedOption = QuestionType.OPEN;
+    private bool isLoading = false;
+
+    [Inject] protected ToastService _toastService { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(newQuestion);
+        newQuestion.QuestionAnswer = "OPEN";
+        base.OnInitialized();
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        isLoading = true;
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            newQuestion.CreatedUserId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            try
+            {
+                HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", newQuestion);
+
+                if (createQuestionResponse.IsSuccessStatusCode)
+                {
+                    _toastService.Notify(new(ToastType.Success, "Je vraag is succesvol aangemaakt", $"Vraag gemaakt op {newQuestion.CreatedAt}"));
+                    ResetForm();
+                }
+                else
+                {
+                    Debug.WriteLine(createQuestionResponse.Content);
+                    _toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", $"api: {createQuestionResponse.ReasonPhrase}"));
+                }
+            }
+            catch (Exception e)
+            {
+                _toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", e.Message));
+            }
+            finally
+            {
+                Thread.Sleep(200);
+                isLoading = false;
+            }
+        } else
+        {
+            isLoading = false;
+            _toastService.Notify(new(ToastType.Danger, "Geen gebruiker gevonden in de huidige context. Ben je ingelogd?", "Geen gebruiker id gevonden."));
+            return; 
+        }
+    }
+
+    private void ResetForm()
+    {
+        newQuestion = new Question();
+        editContext = new EditContext(newQuestion);
+        selectedOption = QuestionType.OPEN;
+        newQuestion.QuestionAnswer = "OPEN";
+    }
+    private async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
+}

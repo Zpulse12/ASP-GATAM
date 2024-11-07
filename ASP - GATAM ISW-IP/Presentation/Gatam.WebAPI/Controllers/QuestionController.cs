@@ -11,6 +11,11 @@ namespace Gatam.WebAPI.Controllers
     {
         private readonly IMediator _mediator;
 
+        public QuestionController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllQuestions()
         {

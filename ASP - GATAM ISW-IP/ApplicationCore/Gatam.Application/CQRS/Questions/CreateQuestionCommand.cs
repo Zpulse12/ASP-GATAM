@@ -22,8 +22,6 @@ namespace Gatam.Application.CQRS.Questions
         public CreateQuestionCommandValidator() 
         {
             RuleFor(q => q.question.QuestionTitle).NotEmpty().WithMessage("Je moet een vraag meegeven");
-            RuleFor(q => q.question.QuestionAnswer).NotEmpty().WithMessage("je moet antwoorden meegeven");
-            RuleFor(q => q.question.QuestionTitle).NotNull().WithMessage("Je moet een vraag meegeven");
             RuleFor(q => q.question.QuestionTitle).NotNull().WithMessage("Je moet een vraag meegeven");
             RuleFor(q => q.question.QuestionTitle).MinimumLength(_minimumQuestionLength).WithMessage($"Je vraag is te kort. Je vraag moet minstens {_minimumQuestionLength} tekens bevatten");
             RuleFor(q => q.question.QuestionTitle).MinimumLength(_maximumQuestionLength).WithMessage($"Je vraag is te lang. Je vraag mag maximaal {_maximumQuestionLength} tekens bevatten");
