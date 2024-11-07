@@ -33,7 +33,7 @@ namespace Gatam.WebAppBegeleider.Extensions
 
         public async Task<HttpResponseMessage> DeleteAsync(string requestUri)
         {
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await _httpClient.DeleteAsync(requestUri);
             return response;
         }
 

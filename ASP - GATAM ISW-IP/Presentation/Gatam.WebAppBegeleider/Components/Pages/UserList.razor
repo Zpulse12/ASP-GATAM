@@ -79,7 +79,7 @@
                       </Grid>
         }
     </div>
-        @if (isModalVisible)
+        @if (isRolesModalVisible)
         {
             <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -109,20 +109,20 @@
                             </a>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" @onclick="CloseModal">Sluiten</button>
+                            <button type="button" class="btn btn-danger" @onclick="@(() => CloseModal("Role"))">Sluiten</button>
                         </div>
                     </div>
                 </div>
             </div>
         }
-    @if (isModalVisible)
+    @if (isDeleteModalVisible)
     {
     <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
-                    <button type="button" class="close" @onclick="CloseModal" aria-label="Close">
+                    <button type="button" class="close" @onclick="@(() => CloseModal("Delete"))" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -130,7 +130,7 @@
                     Weet je zeker dat je deze gebruiker wilt verwijderen?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-success" @onclick="CloseModal">Annuleer</button>
+                    <button type="button" class="btn btn-outline-success" @onclick="@(() => CloseModal("Delete"))">Annuleer</button>
                     <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
                 </div>
             </div>
@@ -150,7 +150,6 @@
 
     private UserDTO userBeingEdited = null;
 
-    private HashSet<UserDTO> selectedUsers = new();
     private UserDTO selectedUser;
 
     private Dictionary<string, List<string>> userRolesMap = new();
@@ -158,11 +157,9 @@
     private bool _isLoading = true;
     private bool _hasError = false;
 
-    private string errorMessage = string.Empty;
-    private string successMessage = string.Empty;
-
     // Boolean to control modal 
-    private bool isModalVisible = false;
+    private bool isDeleteModalVisible = false;
+    private bool isRolesModalVisible = false;
     private string selectedUserId;
 
 
@@ -170,7 +167,7 @@
     private void ShowDeleteModal(string userId)
     {
         selectedUserId = userId;
-        isModalVisible = true;  
+        isDeleteModalVisible = true;  
     }
 
     private async Task<GridDataProviderResult<UserDTO>> CustomersDataProvider(GridDataProviderRequest<UserDTO> request)
@@ -203,18 +200,26 @@
     {
         selectedUser = args.Item;
         userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
-        isModalVisible = true;
-
+        isRolesModalVisible = true; 
     }
 
 
 
 
-    private void CloseModal()
+    private void CloseModal(string modalType)
     {
-        isModalVisible = false;
-        selectedUser = null;
+        if (modalType == "Delete")
+        {
+            isDeleteModalVisible = false;
+            selectedUserId = null;
+        }
+        else if (modalType == "Role")
+        {
+            isRolesModalVisible = false;
+            selectedUser = null;
+        }
     }
+
 
     async Task Delete()
     {
@@ -223,14 +228,13 @@
             var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
-                // Verwijder de gebruiker uit de lijst
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
                 if (userToRemove != null)
                 {
                     _users.Remove(userToRemove);
-                    selectedUser = null; // Reset selectedUser na verwijdering
+                    selectedUser = null; 
                     selectedUserId = null;
-                    CloseModal();
+                    CloseModal("Delete");
                     StateHasChanged();
                 }
             }
