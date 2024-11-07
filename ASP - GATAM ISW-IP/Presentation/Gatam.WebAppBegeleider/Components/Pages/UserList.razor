@@ -62,7 +62,7 @@
                             <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive" >
                                 <div class="text-center">
                                     <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
-                                    @onclick="() => ToggleUserActiveStatus(context,context.Id, !context.IsActive)" @onclick:stopPropagation>
+                                    @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
                                         @(context.IsActive ? "Deactiveer" : "Activeer")
                                     </button>
                                 </div>
@@ -97,7 +97,7 @@
                             <p><strong>E-mail:</strong> @selectedUser?.Email</p>
                             <p><strong>Rollen:</strong></p>
                             <ul>
-                                @if (userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
+                                @if (selectedUser?.Id != null && userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
                                 {
                                     foreach (var role in roles)
                                     {
@@ -120,80 +120,6 @@
                 </div>
             </div>
         }
-    
-    @* @if (userBeingEdited != null)
-    {
-        <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="editUserModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editUserModalLabel">Gebruiker Bewerken: @userBeingEdited.Username</h5>
-                        <button type="button" class="btn-close" @onclick="CancelEditing" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        @if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                        <div class="alert alert-danger">
-                            @errorMessage
-                        </div>
-                        }
-                        @if (!string.IsNullOrEmpty(successMessage))
-                        {
-                        <div class="alert alert-success">
-                            @successMessage
-                        </div>
-                        }
-                        <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
-
-                            <div class="form-group mt-3">
-                                <label for="Username">Gebruikersnaam</label>
-                                <InputText id="Username" @bind-Value="userBeingEdited.Username" class="form-control" />
-                            </div>
-
-                            <div class="form-group mt-3">
-                                <label for="Email">Email</label>
-                                <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
-                            </div>
-
-                            <div class="form-group mt-3">
-                                <label for="Role">Rol</label>
-                                <InputSelect id="Role" @bind-Value="userBeingEdited._role" class="form-control">
-                                    @foreach (var role in Enum.GetValues(typeof(ApplicationUserRoles)))
-                                    {
-                                    <option value="@role">@role</option>
-                                    }
-                                </InputSelect>
-                            </div>
-
-                            <div class="form-group mt-3">
-                                <label for="IsActive">Actief</label>
-                                <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
-                            </div>
-
-                            <button type="submit" class="btn btn-outline-success">Opslaan</button>
-                            <button type="button" class="btn btn-outline-danger" @onclick="CancelEditing">Annuleren</button>
-                        </EditForm>
-                    </div>
-                </div>
-                <div class="modal-backdrop fade show"></div>
-            }
-            
-        
-        </div>
-   
-                        </div>
-                        
-     } *@
-     
-
-    @* <!-- Modal -->
-        </div>
-    </div>
-    <div class="modal-backdrop fade show"></div>
-    }
-    <!-- Modal -->
     @if (isModalVisible)
     {
     <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -217,7 +143,7 @@
     </div>
     <div class="modal-backdrop fade show"></div>
 
-    } *@
+    }
 
 </CustomCards>
 
@@ -249,45 +175,10 @@
     private void ShowDeleteModal(string userId)
     {
         selectedUserId = userId;
-        isModalVisible = false;  
+        isModalVisible = true;  
     }
 
     private async Task<GridDataProviderResult<UserDTO>> CustomersDataProvider(GridDataProviderRequest<UserDTO> request)
-    {
-        if (!_users.Any())
-        {
-            try
-            {
-                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/users");
-            }
-            catch (HttpRequestException ex)
-            {
-                _hasError = true;
-                Console.WriteLine($"Request error: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                _hasError = true;
-                Console.WriteLine($"An error occurred: {ex.Message}");
-            }
-
-        }
-        return await Task.FromResult(request.ApplyTo(_users));
-    }
-
-
-    private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
-    {
-        selectedUser = args.Item;
-
-        var roles = await managementApiRepository.GetRolesByUserId(selectedUser.Id);
-        userRolesMap[selectedUser.Id] = roles.ToList();
-        isModalVisible = true;
-
-    }
-
-
-    protected override async Task OnInitializedAsync()
     {
         _isLoading = true; 
 
@@ -309,42 +200,22 @@
         {
             _isLoading = false; 
         }
+        return await Task.FromResult(request.ApplyTo(_users));
     }
 
-    private void StartEditingUser(UserDTO user)
+
+    private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
     {
-        userBeingEdited = user;
+        selectedUser = args.Item;
+
+        var roles = await managementApiRepository.GetRolesByUserId(selectedUser.Id);
+        userRolesMap[selectedUser.Id] = roles.ToList();
+        isModalVisible = true;
+
     }
 
-    private void CancelEditing()
-    {
-        userBeingEdited = null;
-    }
 
 
-    private async Task HandleValidSubmit()
-    {
-        if (userBeingEdited != null)
-        {
-            try
-            {
-                var response = await apiClient.PutAsJsonAsync($"/api/User/{userBeingEdited.Id}", userBeingEdited);
-                if (response.IsSuccessStatusCode)
-                {
-                    userBeingEdited = null;
-                    StateHasChanged();
-                }
-                else
-                {
-                    Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Fout bij het bijwerken van de gebruiker: {ex.Message}");
-            }
-        }
-    }
 
     private void CloseModal()
     {
@@ -359,12 +230,15 @@
             var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
+                // Verwijder de gebruiker uit de lijst
                 var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
                 if (userToRemove != null)
                 {
                     _users.Remove(userToRemove);
+                    selectedUser = null; // Reset selectedUser na verwijdering
+                    selectedUserId = null;
+                    CloseModal();
                     StateHasChanged();
-                    isModalVisible = false;
                 }
             }
             else
@@ -378,17 +252,14 @@
         }
     }
 
-    private async Task ToggleUserActiveStatus(UserDTO user, string userId, bool isActive)
+
+    private async Task ToggleUserActiveStatus( string userId, bool isActive)
     {
         try
         {
-            var command = new DeactivateUserCommand
-            {
-                UserId = userId,  
-                IsActive = isActive
-            };
+            var command = new { UserId = userId, IsActive = isActive };
 
-            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate/{userId}", command);
+            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate/{userId}",command);
 
             if (response.IsSuccessStatusCode)
             {
