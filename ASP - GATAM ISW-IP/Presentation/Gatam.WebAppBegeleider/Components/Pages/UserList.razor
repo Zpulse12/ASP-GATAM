@@ -3,9 +3,6 @@
 @using Gatam.WebAppBegeleider.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
-@using Gatam.Application.CQRS.User
-@using Gatam.Domain
-@using Microsoft.AspNetCore.Components.QuickGrid
 
 @using Gatam.Infrastructure.Repositories
 
@@ -60,7 +57,7 @@
                             <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive" >
                                 <div class="text-center">
                                     <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
-                                    @onclick="() => ToggleUserActiveStatus(context,context.Id, !context.IsActive)" @onclick:stopPropagation>
+                                    @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
                                         @(context.IsActive ? "Deactiveer" : "Activeer")
                                     </button>
                                 </div>
@@ -82,7 +79,7 @@
                       </Grid>
         }
     </div>
-        @if (isModalVisible)
+        @if (isRolesModalVisible)
         {
             <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -95,7 +92,7 @@
                             <p><strong>E-mail:</strong> @selectedUser?.Email</p>
                             <p><strong>Rollen:</strong></p>
                             <ul>
-                                @if (userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
+                                @if (selectedUser?.Id != null && userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
                                 {
                                     foreach (var role in roles)
                                     {
@@ -112,26 +109,20 @@
                             </a>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" @onclick="CloseModal">Sluiten</button>
+                            <button type="button" class="btn btn-danger" @onclick="@(() => CloseModal("Role"))">Sluiten</button>
                         </div>
                     </div>
                 </div>
             </div>
         }
-    @* <!-- Modal -->
-        </div>
-    </div>
-    <div class="modal-backdrop fade show"></div>
-    }
-    <!-- Modal -->
-    @if (isModalVisible)
+    @if (isDeleteModalVisible)
     {
     <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
-                    <button type="button" class="close" @onclick="CloseModal" aria-label="Close">
+                    <button type="button" class="close" @onclick="@(() => CloseModal("Delete"))" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -139,7 +130,7 @@
                     Weet je zeker dat je deze gebruiker wilt verwijderen?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-success" @onclick="CloseModal">Annuleer</button>
+                    <button type="button" class="btn btn-outline-success" @onclick="@(() => CloseModal("Delete"))">Annuleer</button>
                     <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
                 </div>
             </div>
@@ -147,7 +138,7 @@
     </div>
     <div class="modal-backdrop fade show"></div>
 
-    } *@
+    }
 
 </CustomCards>
 
@@ -159,7 +150,6 @@
 
     private UserDTO userBeingEdited = null;
 
-    private HashSet<UserDTO> selectedUsers = new();
     private UserDTO selectedUser;
 
     private Dictionary<string, List<string>> userRolesMap = new();
@@ -167,11 +157,9 @@
     private bool _isLoading = true;
     private bool _hasError = false;
 
-    private string errorMessage = string.Empty;
-    private string successMessage = string.Empty;
-
     // Boolean to control modal 
-    private bool isModalVisible = false;
+    private bool isDeleteModalVisible = false;
+    private bool isRolesModalVisible = false;
     private string selectedUserId;
 
 
@@ -179,42 +167,10 @@
     private void ShowDeleteModal(string userId)
     {
         selectedUserId = userId;
-        isModalVisible = false;  
+        isDeleteModalVisible = true;  
     }
 
     private async Task<GridDataProviderResult<UserDTO>> CustomersDataProvider(GridDataProviderRequest<UserDTO> request)
-    {
-        if (!_users.Any())
-        {
-            try
-            {
-                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/users");
-            }
-            catch (HttpRequestException ex)
-            {
-                _hasError = true;
-                Console.WriteLine($"Request error: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                _hasError = true;
-                Console.WriteLine($"An error occurred: {ex.Message}");
-            }
-
-        }
-        return await Task.FromResult(request.ApplyTo(_users));
-    }
-
-
-    private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
-    {
-        selectedUser = args.Item;
-        userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
-        isModalVisible = true;
-    }
-
-
-    protected override async Task OnInitializedAsync()
     {
         _isLoading = true; 
 
@@ -236,13 +192,34 @@
         {
             _isLoading = false; 
         }
+        return await Task.FromResult(request.ApplyTo(_users));
     }
 
-    private void CloseModal()
+
+    private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
     {
-        isModalVisible = false;
-        selectedUser = null;
+        selectedUser = args.Item;
+        userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
+        isRolesModalVisible = true; 
     }
+
+
+
+
+    private void CloseModal(string modalType)
+    {
+        if (modalType == "Delete")
+        {
+            isDeleteModalVisible = false;
+            selectedUserId = null;
+        }
+        else if (modalType == "Role")
+        {
+            isRolesModalVisible = false;
+            selectedUser = null;
+        }
+    }
+
 
     async Task Delete()
     {
@@ -255,13 +232,11 @@
                 if (userToRemove != null)
                 {
                     _users.Remove(userToRemove);
+                    selectedUser = null; 
+                    selectedUserId = null;
+                    CloseModal("Delete");
                     StateHasChanged();
-                    isModalVisible = false;
                 }
-            }
-            else
-            {
-                Debug.WriteLine($"Failed to delete user {selectedUserId}: {response.ReasonPhrase}");
             }
         }
         catch (Exception ex)
@@ -270,17 +245,14 @@
         }
     }
 
-    private async Task ToggleUserActiveStatus(UserDTO user, string userId, bool isActive)
+
+    private async Task ToggleUserActiveStatus( string userId, bool isActive)
     {
         try
         {
-            var command = new DeactivateUserCommand
-            {
-                UserId = userId,  
-                IsActive = isActive
-            };
+            var command = new { UserId = userId, IsActive = isActive };
 
-            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate/{userId}", command);
+            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate",command);
 
             if (response.IsSuccessStatusCode)
             {
