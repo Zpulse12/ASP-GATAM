@@ -106,9 +106,10 @@ public class ManagementApiRepository: IManagementApi
         }
     }
 
-    public Task<bool> DeleteUserAsync(string userId)
-    {
-        throw new NotImplementedException();
+    public async Task<bool> DeleteUserAsync(string userId)
+    {        
+       var response = await _httpClient.DeleteAsync($"/api/v2/users/{userId}");
+       return response.IsSuccessStatusCode;
     }
 
     public async Task<UserDTO> UpdateUserAsync(UserDTO user)
