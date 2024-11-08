@@ -47,7 +47,7 @@ namespace Gatam.Application.CQRS.Module
         public async Task<ApplicationModule> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
         {
             await _uow.ModuleRepository.Create(request._module);
-            await _uow.commit();
+            await _uow.Commit();
             return request._module;
         }
     }

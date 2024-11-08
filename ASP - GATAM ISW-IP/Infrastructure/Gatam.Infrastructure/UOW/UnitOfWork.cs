@@ -27,7 +27,7 @@ namespace Gatam.Infrastructure.UOW
         public IGenericRepository<ApplicationUser> UserRepository => _userRepository;
         public IGenericRepository<ApplicationModule> ModuleRepository => _moduleRepository;
 
-        public async Task commit()
+        public async Task Commit()
         {
             await _context.SaveChangesAsync();
         }

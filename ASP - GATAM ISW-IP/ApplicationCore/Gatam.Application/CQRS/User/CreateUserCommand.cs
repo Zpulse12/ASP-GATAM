@@ -36,7 +36,7 @@ namespace Gatam.Application.CQRS.User
         public async Task<ApplicationUser> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             await _unitOfWork.UserRepository.Create(request._user);
-            await _unitOfWork.commit();
+            await _unitOfWork.Commit();
             var createUser = await _auth0Repository.CreateUserAsync(request._user);
             return _mapper.Map<ApplicationUser>(createUser);
 

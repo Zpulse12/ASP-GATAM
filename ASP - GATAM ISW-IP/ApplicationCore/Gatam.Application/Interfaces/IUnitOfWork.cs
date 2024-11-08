@@ -11,6 +11,6 @@ namespace Gatam.Application.Interfaces
     {
         public IGenericRepository<ApplicationUser> UserRepository { get; }
         public IGenericRepository<ApplicationModule> ModuleRepository { get; }
-        Task commit();
+        Task Commit();
     }
 }
