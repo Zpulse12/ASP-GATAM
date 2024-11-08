@@ -1,9 +1,7 @@
-﻿using Gatam.Application.CQRS;
-using Gatam.Application.CQRS.Module;
+﻿using Gatam.Application.CQRS.Module;
 using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Gatam.WebAPI.Controllers

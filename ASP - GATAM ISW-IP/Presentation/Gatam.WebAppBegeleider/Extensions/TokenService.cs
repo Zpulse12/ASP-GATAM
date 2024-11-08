@@ -1,8 +1,6 @@
 ﻿using Auth0.AspNetCore.Authentication;
 using Gatam.WebAppBegeleider.Interfaces;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {

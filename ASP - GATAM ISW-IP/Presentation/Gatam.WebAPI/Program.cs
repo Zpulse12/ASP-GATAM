@@ -1,15 +1,9 @@
 using Gatam.Application.Extensions;
-using Gatam.Application.Interfaces;
-using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
 using Gatam.Infrastructure.Extensions;
-using Gatam.Infrastructure.Repositories;
-using Gatam.Infrastructure.UOW;
 using Gatam.WebAPI.Extensions;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
-using System.IdentityModel.Tokens.Jwt;
+
 internal class Program {
     private static void Main(string[] args)
     {

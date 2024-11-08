@@ -1,7 +1,6 @@
 ﻿using Gatam.Application.Interfaces;
 using Gatam.Infrastructure.Contexts;
 using Gatam.Domain;
-using Gatam.Infrastructure.Repositories;
 
 namespace Gatam.Infrastructure.UOW
 {

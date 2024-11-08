@@ -1,7 +1,4 @@
-﻿
-using FluentValidation;
-using FluentValidation.Results;
-using Gatam.Application.CQRS;
+﻿using Gatam.Application.CQRS;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.Interfaces;
 using Moq;

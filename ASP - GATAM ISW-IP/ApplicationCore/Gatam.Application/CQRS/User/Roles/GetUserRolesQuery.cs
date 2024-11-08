@@ -1,11 +1,5 @@
 ﻿using Gatam.Application.Interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS.User.Roles
 {

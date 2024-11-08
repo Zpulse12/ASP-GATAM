@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
-using System.Reflection.Emit;
 using System.Reflection;
-using Microsoft.Extensions.Options;
 
 namespace Gatam.Infrastructure.Contexts
 {

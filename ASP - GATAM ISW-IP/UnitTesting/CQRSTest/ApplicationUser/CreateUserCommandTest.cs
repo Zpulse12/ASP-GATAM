@@ -1,13 +1,5 @@
-﻿using FluentValidation.TestHelper;
-using Gatam.Application.Interfaces;
-using Gatam.Infrastructure.Repositories;
+﻿using Gatam.Application.Interfaces;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Gatam.Application.CQRS.User;
 
 namespace UnitTesting.CQRSTest.ApplicationUser
 {
