@@ -69,18 +69,12 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserDTO user)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (userId != user.Id)
-            {
-                return BadRequest("The user ID in the URL does not match the user ID in the body.");
-            }
-            var returnedUser = await _mediator.Send(new UpdateUserCommand() { Id = userId, User = user });
+            
+            var returnedUser = await _mediator.Send(new UpdateUserCommand() {User = user, Id = userId });
             return Ok(returnedUser);
         }
+
+        
 
         [HttpDelete]
         [Route("delete/{id}")]

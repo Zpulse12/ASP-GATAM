@@ -15,6 +15,7 @@
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
 <InactiveUserRedirect />
+
 <CustomCards>
     <div class="card-body">
         <div class="card-header">
@@ -44,27 +45,27 @@
                           DataProvider="CustomersDataProvider"
                           AllowPaging="true"
                           PageSize="5"
-                  HeaderRowCssClass="custom-header"
+                          HeaderRowCssClass="custom-header"
                           OnRowClick="OnRowClick"
                           Responsive="true">
                         <GridColumns>
-                            <GridColumn TItem="UserDTO" HeaderText="Username" PropertyName="Username" SortString="Username" SortKeySelector="item => item.Nickname">
+                    <GridColumn TItem="UserDTO" HeaderText="Nickname" PropertyName="Nickname" SortString="Nickname" SortKeySelector="item => item.Nickname">
                                 @context.Nickname
                             </GridColumn>
                             <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email" SortString="Email" SortKeySelector="item => item.Email">
                                 @context.Email
                             </GridColumn>
                             <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive" >
-                                <div class="text-center">
+                                <div class="">
                                     <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
                                     @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
                                         @(context.IsActive ? "Deactiveer" : "Activeer")
                                     </button>
                                 </div>
                             </GridColumn>
-                            <!-- Actie Column -->
-                            <GridColumn TItem="UserDTO" HeaderText="Actie">
-                                <div>
+                            <!-- Acties Column -->
+                            <GridColumn TItem="UserDTO" HeaderText="Acties">
+                                <div class="">
                                     <button type="button" @onclick="() => ShowDeleteModal(context.Id)"
                                             class="btn btn-outline-danger"
                                     data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>

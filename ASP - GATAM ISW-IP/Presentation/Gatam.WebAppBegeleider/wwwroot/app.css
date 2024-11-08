@@ -131,6 +131,35 @@ h1:focus {
     margin-left: 5px; /* Ruimte tussen de tekst en het pijltje */
     color: white; /* Kleur van het pijltje */
 }
+
+.user-info-section {
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-custom {
+    background-color: #4454D2;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-custom:hover {
+        background-color: #3b48b2;
+    }
+
+.roles-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    .roles-list li {
+        margin: 0.5rem 0;
+    }
+
+
 .custom-header {
     background-color: #4454D2 !important;
     color: white !important;

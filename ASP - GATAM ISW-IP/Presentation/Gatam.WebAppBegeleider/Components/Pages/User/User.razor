@@ -21,7 +21,7 @@
 
 </div>
 <CustomCards>
-    <h3>Bewerken van gebruiker</h3>
+    <h3 class="fw-bold text-muted me-2">Bewerken van gebruiker</h3>
 
 
     @if (_isLoading)
@@ -38,30 +38,72 @@
     }
     else if (userBeingEdited != null)
     {
-
-        <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="form-group mt-3">
-                <label for="Username">Gebruikersnaam</label>
-                <InputText id="Username" @bind-Value="userBeingEdited.Nickname" class="form-control" />
+        <div class="user-info-section">
+            <div class="d-flex align-items-center mb-3">
+                <span class="fw-bold text-muted me-2">@userBeingEdited.Nickname</span>
+                <button class="btn btn-sm btn-custom" style="background-color:#4454D2; color:white" @onclick='() => ShowEditModal("Nickname")'>
+                    <i class="bi bi-pencil-square me-1"></i> Bewerken
+                </button>
             </div>
+            @if (isEditUsernameModalVisible)
+            {
+                <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Bewerken</h5>
+                            </div>
+                            <div class="modal-body">
+                                <EditForm Model="userBeingEdited" OnValidSubmit="HandleNicknameUpdate">
+                                    <div class="mb-3">
+                                        <label for="Username" class="form-label">Gebruikersnaam</label>
+                                        <InputText @bind-Value="userBeingEdited.Nickname" class="form-control" />
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-outline-success">Opslaan</button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
 
-            <div class="form-group mt-3">
-                <label for="Email">Email</label>
-                <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+            <div class="d-flex align-items-center mb-3">
+                <span class="fw-bold text-muted me-2">@userBeingEdited.Email</span>
+                <button class="btn btn-sm btn-custom" style="background-color:#4454D2; color:white"  @onclick='() => ShowEditModal("Email")'>
+                    <i class="bi bi-pencil-square me-1"></i> Bewerken
+                </button>
             </div>
-            <div class="form-group mt-3">
-                <label for="IsActive">Actief</label>
-                <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
-            </div>
+            @if (isEditEmailModalVisible)
+            {
+                <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" >Bewerken</h5>
+                            </div>
+                            <div class="modal-body">
+                                <EditForm Model="userBeingEdited" OnValidSubmit="HandleEmailUpdate">
+                                    <div class="mb-3">
+                                        <label for="Email" class="form-label">Email</label>
+                                        <InputText @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-outline-success">Opslaan</button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="CloseModal">Annuleren</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
 
-        </EditForm>
-       
-        <Callout Color="CalloutColor.Info">
-            <p><strong>@userBeingEdited.Nickname heeft momenteel volgende rol(len):</strong></p>
-                <ul>
+            <Callout Color="CalloutColor.Info" Heading="Belangrijk">
+                <p><strong>@userBeingEdited.Nickname heeft momenteel volgende rol(len):</strong></p>
+                <ul class="roles-list">
                     @if (userRolesMap.TryGetValue(userBeingEdited?.Id, out var roles))
                     {
                         foreach (var role in roles)
@@ -74,19 +116,21 @@
                         <li>Geen rollen gevonden</li>
                     }
                 </ul>
-    
-            <hr/>
-        </Callout>
-    <div class="form-group mt-3">
-            <label for="Role">Rol Toewijzen</label>
-            <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
-                @foreach (var role in RoleMapper.Roles)
-                {
-                    <option value="@role.Value">@role.Key</option>
-                }
-            </InputSelect>
+                <hr />
+            </Callout>
+
+            <div class="form-group mt-3">
+                <label for="Role" class="fw-bold text-muted">Rol Toewijzen</label>
+                <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
+                    @foreach (var role in RoleMapper.Roles)
+                    {
+                        <option value="@role.Value">@role.Key</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit" onclick="@HandleValidSubmit" class="btn btn-sm btn-custom mt-4" style="background-color:#4454D2; color:white"><i class="bi bi-plus me-1"></i>Toewijzen</button>
         </div>
-        <button type="submit" onclick="@HandleValidSubmit" class="btn btn-primary mt-4">Opslaan</button>
+
     }
     else
     {
@@ -94,21 +138,25 @@
     }
 </CustomCards>
 
+
 @code {
     [Parameter] public string Id { get; set; } = "";
 
-    private List<UserDTO> _users = new();
-    private HashSet<UserDTO> selectedUsers = new();
     private Dictionary<string, List<string>> userRolesMap = new();
     private UserDTO selectedUser;
+    private string selectedRoles { get; set; } = "";
 
     string response_Msg = "";
     bool isSuccess = false;
-    private UserDTO userBeingEdited;
-    public string selectedRoles { get; set; } = "";
+    private UserDTO userBeingEdited ;
+
 
     private bool _hasError = false;
     private bool _isLoading = true;
+
+    private bool isEditUsernameModalVisible = false;
+    private bool isEditEmailModalVisible = false;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -137,7 +185,7 @@
             _isLoading = false;
         }
 
-        
+
     }
 
     private async Task HandleValidSubmit()
@@ -148,41 +196,121 @@
             response_Msg = "Geen gebruiker om te updaten.";
             return;
         }
-
         try
         {
-            userBeingEdited.RolesIds = new List<string>() {selectedRoles};
-            var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited); 
+
+            userBeingEdited.RolesIds = new List<string>() { selectedRoles };
+
+
+            var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited);
+
             if (roleUpdateResponse.IsSuccessStatusCode)
             {
-                isSuccess = true;
-                response_Msg = "Gebruiker succesvol bijgewerkt.";
-                StateHasChanged();
 
-                // (Nils - 05/11/2024) Update hier is geen scope van mij om deployment omgeving te laten werken. Snelle debug geeft geen resultaat voor een mogelijke fix. Tony omdat je issue toch update user data is kan jij dit bekijken?
-                // var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
-                // if (response.IsSuccessStatusCode)
-                // {
-                //     isSuccess = true;
-                //     response_Msg = "Gebruiker succesvol bijgewerkt.";
-                //     StateHasChanged();
-                // }
-                // else
-                // {
-                //     response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
-                //     _hasError = true;
-                // }
+                isSuccess = true;
+                response_Msg = "Gebruiker succesvol bijgewerkt";
+                StateHasChanged();
+          
             }
             else
             {
                 response_Msg = "Fout bij het bijwerken van de rollen.";
-                _hasError = true;
             }
         }
         catch (Exception ex)
         {
             response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
-            _hasError = true;
+
         }
-    }  
+    }
+
+    private void ShowEditModal(string field)
+    {
+        if (field == "Nickname")
+        {
+            isEditUsernameModalVisible = true;
+        }
+        if (field == "Email")
+        {
+            isEditEmailModalVisible = true;
+        }
+        StateHasChanged(); 
+    }
+
+    private void CloseModal()
+    {
+        isEditUsernameModalVisible = false;
+        isEditEmailModalVisible = false;
+        StateHasChanged(); 
+    }
+
+    private async Task UpdateUserPropertyAsync(string successMessage, string errorMessage, bool isModalVisible, Action onSuccess)
+    {
+        if (userBeingEdited == null)
+        {
+            _hasError = true;
+            response_Msg = "Geen gebruiker om te updaten.";
+            return;
+        }
+
+        try
+        {
+            var payload = new
+            {
+                nickname = userBeingEdited.Nickname,
+                email = userBeingEdited.Email,
+                username = userBeingEdited.Nickname,
+                rolesIds = userBeingEdited.RolesIds,
+                picture = userBeingEdited.Picture,
+                id = userBeingEdited.Id
+            };
+
+            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", payload);
+            Debug.WriteLine(response.ToString());
+
+            if (response.IsSuccessStatusCode)
+            {
+                isSuccess = true;
+                response_Msg = successMessage;
+                isModalVisible = false;
+                onSuccess?.Invoke();
+                StateHasChanged();
+            }
+            else
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"Response content: {responseContent}");
+                response_Msg = $"{errorMessage}: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            response_Msg = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task HandleNicknameUpdate()
+    {
+        await UpdateUserPropertyAsync(
+            "Gebruikersnaam succesvol bijgewerkt.",
+            "Fout bij het bijwerken van de gebruikersnaam",
+            isEditUsernameModalVisible,
+            () => isEditUsernameModalVisible = false
+        );
+    }
+
+    private async Task HandleEmailUpdate()
+    {
+        await UpdateUserPropertyAsync(
+            "Email succesvol bijgewerkt.",
+            "Fout bij het bijwerken van de email",
+            isEditEmailModalVisible,
+            () => isEditEmailModalVisible = false
+        );
+    }
+
+
+   
+
+        
 }
