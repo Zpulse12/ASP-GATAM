@@ -10,7 +10,8 @@ COPY ApplicationCore/Gatam.Application/*.csproj ./ApplicationCore/Gatam.Applicat
 COPY ApplicationCore/Gatam.Domain/*.csproj ./ApplicationCore/Gatam.Domain/
 COPY Infrastructure/Gatam.Infrastructure/*.csproj ./Infrastructure/Gatam.Infrastructure/
 COPY Presentation/${APP}/*.csproj ./Presentation/${APP}/
-RUN dotnet restore ./Presentation/${APP}/${APP}.csproj # Restore dependencies voor het project dat gaat runnen.
+# Restore dependencies voor het project dat gaat runnen.
+RUN dotnet restore ./Presentation/${APP}/${APP}.csproj 
 # copy code
 COPY . .
 RUN dotnet build ./Presentation/${APP}/${APP}.csproj --configuration Release # Build project in release mode
