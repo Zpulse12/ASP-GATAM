@@ -8,7 +8,7 @@ namespace Gatam.Application.CQRS.User
 {
     public class CreateUserCommand: IRequest<ApplicationUser>
     {
-        public required ApplicationUser _user { get; set; }
+        public required ApplicationUser User { get; set; }
 
 
     }
@@ -35,9 +35,9 @@ namespace Gatam.Application.CQRS.User
         }
         public async Task<ApplicationUser> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            await _unitOfWork.UserRepository.Create(request._user);
+            await _unitOfWork.UserRepository.Create(request.User);
             await _unitOfWork.Commit();
-            var createUser = await _auth0Repository.CreateUserAsync(request._user);
+            var createUser = await _auth0Repository.CreateUserAsync(request.User);
             return _mapper.Map<ApplicationUser>(createUser);
 
 
