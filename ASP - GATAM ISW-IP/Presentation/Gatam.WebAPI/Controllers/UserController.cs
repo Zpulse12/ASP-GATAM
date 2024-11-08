@@ -5,6 +5,8 @@ using Gatam.Domain;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
+using Gatam.Application.CQRS.Module;
+using Gatam.Application.CQRS.User.BegeleiderAssignment;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -113,13 +115,22 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPut("{userId}/roles")]
         [Authorize(Policy = "RequireManagementRole")]
-
         public async Task<IActionResult> AssignUserRole(string userId, [FromBody] UserDTO user)
         {
             
             var returnedUser = await _mediator.Send(new AssignUserRoleCommand { User = user, Id = userId});
             return Ok(returnedUser);
         }
+
+
+        [HttpGet("AssignUsersToBegeleider")]
+        public async Task<IActionResult> GetAllUsersWithBegeleiderId()
+        {
+            var assignUsersToBegeleider = await _mediator.Send(new GetAllUsersWithBegeleiderIdQuery());
+            return Ok(assignUsersToBegeleider);
+        }
+
+        
     }
 
 }
