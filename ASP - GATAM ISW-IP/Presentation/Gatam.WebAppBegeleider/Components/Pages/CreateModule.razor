@@ -67,7 +67,7 @@
             }
             else
             {
-                var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+                var errorResponse = await response.Content.ReadFromJsonAsync<ValidationException>();
                 if (errorResponse != null)
                 {
                     if (errorResponse.Failures != null && errorResponse.Failures.Any())
@@ -77,7 +77,7 @@
                     }
                     else
                     {
-                        errorMessage = errorResponse.Message;
+                        errorMessage = errorResponse.Title;
                         showError = true;
                     }
                     showError = true;
@@ -108,17 +108,5 @@
                 Title = string.Empty,
                 Category = string.Empty
             };
-    }
-
-    public class ValidationErrorResponse
-    {
-        public string Message { get; set; }
-        public List<ValidationFailure> Failures { get; set; }
-    }
-
-    public class ValidationFailure
-    {
-        public string PropertyName { get; set; }
-        public string ErrorMessage { get; set; }
     }
 }

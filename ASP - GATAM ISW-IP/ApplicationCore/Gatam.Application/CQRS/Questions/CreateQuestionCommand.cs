@@ -13,7 +13,7 @@ namespace Gatam.Application.CQRS.Questions
 {
     public class CreateQuestionCommand : IRequest<Question>
     {
-        public required Question question { get; set; }
+        public Question question { get; set; }
     }
     public class CreateQuestionCommandValidator : AbstractValidator<CreateQuestionCommand>
     {
@@ -36,7 +36,7 @@ namespace Gatam.Application.CQRS.Questions
         public async Task<Question> Handle(CreateQuestionCommand request, CancellationToken cancellationToken)
         {
 
-            request.question.QuestionTitle = HandleTitleUniformEntry(request.question.QuestionTitle);
+            // request.question.QuestionTitle = HandleTitleUniformEntry(request.question.QuestionTitle);
             await _uow.QuestionRepository.Create(request.question);
             await _uow.commit();
             return request.question;

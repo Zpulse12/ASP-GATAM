@@ -18,17 +18,16 @@ namespace Gatam.Domain
     public class Question
     {
         public string Id { get; set; }
-        [Required(ErrorMessage = "Je moet een vraagtype meegeven")]
-        public QuestionType QuestionType { get; set; }
+        public short QuestionType { get; set; }
 
-        [Required(ErrorMessage = "Je moet een vraag meegeven")]
         public string QuestionTitle { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedUserId { get; set; }
         public DateTime LastUpdatedAt { get; set; }
         public string LastUpdatedUserId { get; set; }
-        public ICollection<ApplicationModule> ApplicationModules { get; set; } = new List<ApplicationModule>();
-        [Required(ErrorMessage = "Je moet een antwoord meegeven")]
+        public string? ApplicationModuleId { get; set; }
+        [JsonIgnore]
+        public ApplicationModule? ApplicationModule { get; set; }
         public string QuestionAnswer { get; set; }
         public Question()
         {

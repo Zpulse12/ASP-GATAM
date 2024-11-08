@@ -10,11 +10,11 @@ namespace Gatam.Infrastructure.Contexts
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<ApplicationModule> Modules { get; set; }
+        public DbSet<Question> Questions { get; set; }
+
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
-        public DbSet<ApplicationModule> Modules { get; set; }
-       public DbSet<Question> Questions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -74,13 +74,19 @@ namespace Gatam.Infrastructure.Contexts
 
             Question GLOBALQUESTION = new Question()
             {
-                QuestionType = QuestionType.OPEN,
+                QuestionType = (short)QuestionType.OPEN,
                 QuestionTitle = "Wat wil je later bereiken? ",
-                ApplicationModules = new List<ApplicationModule> { GLOBALMODULE },
-                QuestionAnswer = "OPEN"
+                QuestionAnswer = "OPEN",
+                CreatedUserId = "123",
+                LastUpdatedUserId = "123",
             };
 
             builder.Entity<Question>().HasData(GLOBALQUESTION);
+
+            builder.Entity<ApplicationModule>()
+            .HasMany(am => am.Questions)
+            .WithOne(q => q.ApplicationModule)
+            .HasForeignKey(q => q.ApplicationModuleId).IsRequired(false);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿@page "/questions"
 
 @using Gatam.WebAppBegeleider.Components.Layout
-@using System.ComponentModel.DataAnnotations
 @using Gatam.Domain
 @using WebAppBegeleider.Extensions
 @using System.Diagnostics
@@ -116,7 +115,7 @@
     {
         editContext = new EditContext(newQuestion);
         newQuestion.QuestionAnswer = "OPEN";
-        newQuestion.QuestionType = selectedOption;
+        newQuestion.QuestionType = (short)selectedOption;
         base.OnInitialized();
     }
 
@@ -124,15 +123,20 @@
     {
         isLoading = true;
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+
         var user = authState.User;
-        newQuestion.QuestionType = selectedOption;
+        newQuestion.QuestionType = (short)selectedOption;
 
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {
-            newQuestion.CreatedUserId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            string _userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            newQuestion.CreatedUserId = _userId;
+            newQuestion.LastUpdatedUserId = _userId;
             try
             {
-                Debug.WriteLine(newQuestion.QuestionAnswer);
+
+                newQuestion.LastUpdatedUserId = "123";
+                newQuestion.ApplicationModuleId = null;
                 HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", newQuestion);
 
                 if (createQuestionResponse.IsSuccessStatusCode)
@@ -142,7 +146,9 @@
                 }
                 else
                 {
-                    _toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", $"api: {createQuestionResponse.ReasonPhrase}"));
+                    var errorResponse = await createQuestionResponse.Content.ReadFromJsonAsync<ValidationException>();
+
+                    _toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", errorResponse.Title ?? createQuestionResponse.ReasonPhrase));
                 }
             }
             catch (Exception e)
