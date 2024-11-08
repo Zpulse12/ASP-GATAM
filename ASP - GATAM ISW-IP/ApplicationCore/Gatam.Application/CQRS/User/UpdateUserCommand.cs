@@ -55,17 +55,10 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
 
     public async Task<UserDTO> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrEmpty(request.User.Nickname))
-        {
             await _auth0Repository.UpdateUserNicknameAsync(request.User);
-        }
-
-        if (!string.IsNullOrEmpty(request.User.Email))
-        {
             await _auth0Repository.UpdateUserEmailAsync(request.User);
-        }
-
-        return _mapper.Map<UserDTO>(request.User);
+      
+            return request.User;
     }
 
     

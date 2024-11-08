@@ -125,12 +125,9 @@ public class ManagementApiRepository: IManagementApi
 
         var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
 
-        string json = JsonSerializer.Serialize(payload);
-        Debug.WriteLine($"Payload sent to Auth0: {json}");
 
         if (response.IsSuccessStatusCode)
         {
-            Debug.WriteLine("updated successfully in Auth0.");
             return user;
             
         }
@@ -152,12 +149,9 @@ public class ManagementApiRepository: IManagementApi
 
         var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
 
-        string json = JsonSerializer.Serialize(payload);
-        Debug.WriteLine($"Payload sent to Auth0: {json}");
 
         if (response.IsSuccessStatusCode)
         {
-            Debug.WriteLine("Nickname updated successfully in Auth0.");
             return user;
         }
 
@@ -177,12 +171,9 @@ public class ManagementApiRepository: IManagementApi
 
         var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
 
-        string json = JsonSerializer.Serialize(payload);
-        Debug.WriteLine($"Payload sent to Auth0: {json}");
 
         if (response.IsSuccessStatusCode)
         {
-            Debug.WriteLine("Email updated successfully in Auth0.");
             return user;
         }
 
@@ -219,15 +210,11 @@ public class ManagementApiRepository: IManagementApi
         };
 
         
-        Debug.WriteLine(payload);
-        string json = JsonSerializer.Serialize(payload);
-        Debug.WriteLine($"Payload sent to Auth0: {json}");
         
         var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{user.Id}/roles", payload);
 
         if (response.IsSuccessStatusCode)
         {
-            Debug.WriteLine("Roles updated successfully in Auth0.");
             return user;
         }
 

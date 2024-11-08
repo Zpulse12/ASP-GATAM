@@ -144,7 +144,7 @@
 
     private Dictionary<string, List<string>> userRolesMap = new();
     private UserDTO selectedUser;
-    public string selectedRoles { get; set; } = "";
+    private string selectedRoles { get; set; } = "";
 
     string response_Msg = "";
     bool isSuccess = false;
@@ -244,7 +244,7 @@
         StateHasChanged(); 
     }
 
-    private async Task HandleNicknameUpdate()
+    private async Task UpdateUserPropertyAsync(string successMessage, string errorMessage, bool isModalVisible, Action onSuccess)
     {
         if (userBeingEdited == null)
         {
@@ -252,6 +252,7 @@
             response_Msg = "Geen gebruiker om te updaten.";
             return;
         }
+
         try
         {
             var payload = new
@@ -262,7 +263,6 @@
                 rolesIds = userBeingEdited.RolesIds,
                 picture = userBeingEdited.Picture,
                 id = userBeingEdited.Id
-               
             };
 
             var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", payload);
@@ -270,67 +270,45 @@
 
             if (response.IsSuccessStatusCode)
             {
-                isSuccess=true;
-                response_Msg = "Gebruikersnaam succesvol bijgewerkt.";
-                isEditUsernameModalVisible = false;
+                isSuccess = true;
+                response_Msg = successMessage;
+                isModalVisible = false;
+                onSuccess?.Invoke();
                 StateHasChanged();
             }
             else
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
                 Debug.WriteLine($"Response content: {responseContent}");
-                response_Msg = $"Fout bij het bijwerken van de gebruikersnaam: {response.StatusCode}";
+                response_Msg = $"{errorMessage}: {response.StatusCode}";
             }
         }
         catch (Exception ex)
         {
-            response_Msg = $"Error updating username: {ex.Message}";
+            response_Msg = $"Error: {ex.Message}";
         }
+    }
+
+    private async Task HandleNicknameUpdate()
+    {
+        await UpdateUserPropertyAsync(
+            "Gebruikersnaam succesvol bijgewerkt.",
+            "Fout bij het bijwerken van de gebruikersnaam",
+            isEditUsernameModalVisible,
+            () => isEditUsernameModalVisible = false
+        );
     }
 
     private async Task HandleEmailUpdate()
     {
-        if (userBeingEdited == null)
-        {
-            _hasError = true;
-            response_Msg = "Geen gebruiker om te updaten.";
-            return;
-        }
-
-        try
-        {
-            var payload = new
-            {
-                nickname = userBeingEdited.Nickname,
-                email = userBeingEdited.Email,
-                rolesIds = userBeingEdited.RolesIds,
-                picture = userBeingEdited.Picture,
-                id = userBeingEdited.Id
-
-            };
-
-            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", payload);
-            Debug.WriteLine(response.ToString());
-
-            if (response.IsSuccessStatusCode)
-            {
-                isSuccess=true;
-                response_Msg = "Email succesvol bijgewerkt.";
-                isEditEmailModalVisible = false;
-                StateHasChanged();
-            }
-            else
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                Debug.WriteLine($"Response content: {responseContent}");
-                response_Msg = "Fout bij het bijwerken van de email.";
-            }
-        }
-        catch (Exception ex)
-        {
-            response_Msg = $"Error updating email: {ex.Message}";
-        }
+        await UpdateUserPropertyAsync(
+            "Email succesvol bijgewerkt.",
+            "Fout bij het bijwerken van de email",
+            isEditEmailModalVisible,
+            () => isEditEmailModalVisible = false
+        );
     }
+
 
    
 

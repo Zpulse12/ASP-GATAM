@@ -68,8 +68,7 @@ public class UpdateUserCommandTest
             User = updatedUserDto
         };
 
-        var handler = new UpdateUserCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object, _mockAuth0Repository.Object);
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.IsNotNull(result, "De return waarde van de handler is null.");
@@ -118,8 +117,7 @@ public class UpdateUserCommandTest
             User = updatedUserDto
         };
 
-        var handler = new UpdateUserCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object, _mockAuth0Repository.Object);
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.IsNotNull(result, "De return waarde van de handler is null.");
