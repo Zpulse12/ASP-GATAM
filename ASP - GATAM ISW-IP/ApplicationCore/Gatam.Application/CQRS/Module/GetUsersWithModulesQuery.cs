@@ -6,9 +6,9 @@ using Gatam.Application.CQRS.DTOS;
 namespace Gatam.Application.CQRS.User
 {
     public class GetUsersWithModulesQuery : IRequest<List<UserDTO>> { }
-    public class GetUserModulesQueryValidator : AbstractValidator<GetUserModulesQuery>
+    public class GetUsersModulesQueryValidator : AbstractValidator<GetUserModulesQuery>
     {
-        public GetUserModulesQueryValidator()
+        public GetUsersModulesQueryValidator()
         {
             RuleFor(query => query.UserId)
                 .NotEmpty()
