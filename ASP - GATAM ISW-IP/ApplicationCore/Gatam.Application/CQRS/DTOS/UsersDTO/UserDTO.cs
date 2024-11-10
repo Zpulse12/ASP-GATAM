@@ -9,6 +9,8 @@ namespace Gatam.Application.CQRS
         public required string Id { get; set; }
         public bool IsActive { get; set; }
         public string Picture { get; set; }
+        public List<string> Modules { get; set; }
+
         
     }
 }
