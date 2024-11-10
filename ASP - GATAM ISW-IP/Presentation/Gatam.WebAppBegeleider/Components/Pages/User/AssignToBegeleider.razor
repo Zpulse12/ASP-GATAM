@@ -1,0 +1,105 @@
+﻿@page "/AssignToBegeleider"
+@inject ApiClient apiClient
+@rendermode InteractiveServer
+@using Gatam.Application.CQRS
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@inject AuthenticationStateProvider authStateProvider
+<CustomCards>
+    <h3>Mijn trajectvolgers</h3>
+    <Grid TItem="ApplicationUser"
+          Class="table table-hover"
+          Data="@usersWithBegeleiderId"
+          AllowPaging="true"
+          PageSize="5"
+          HeaderRowCssClass="custom-header"
+          Responsive="true">
+        <GridColumns>
+            <GridColumn TItem="ApplicationUser" HeaderText="Username">
+                @context.UserName
+            </GridColumn>
+            <GridColumn TItem="ApplicationUser" HeaderText="Email">
+                @context.Email
+            </GridColumn>
+            <GridColumn TItem="ApplicationUser" HeaderText="Verwijderen Toewijzing">
+                <button type="button" class="btn btn-outline-danger" >Verwijder</button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
+
+    <h3>Niet toegewezen trajectvolgers</h3>
+    <Grid TItem="ApplicationUser"
+          Class="table table-hover"
+          Data="@usersWithoutBegeleiderId"
+          AllowPaging="true"
+          PageSize="5"
+          HeaderRowCssClass="custom-header"
+          Responsive="true">
+        <GridColumns>
+            <GridColumn TItem="ApplicationUser" HeaderText="Username">
+                @context.UserName
+            </GridColumn>
+            <GridColumn TItem="ApplicationUser" HeaderText="Email">
+                @context.Email
+            </GridColumn>
+            <GridColumn TItem="ApplicationUser" HeaderText="Toewijzen">
+                <button class="btn btn-primary" @onclick="() => AssignVolgerToBegeleider(context)">
+                    Toewijzen
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
+
+</CustomCards>
+
+
+@code {
+    private List<ApplicationUser> usersWithBegeleiderId = new();
+    private List<ApplicationUser> usersWithoutBegeleiderId = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usersResponse = await apiClient.GetFromJsonAsync<List<ApplicationUser>>("api/user/AssignUsersToBegeleider");
+        var authState = await authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (usersResponse != null && usersResponse.Count > 0)
+        {
+            usersWithBegeleiderId = usersResponse
+                .Where(u => u.BegeleiderId == userId)
+                .ToList();
+
+            usersWithoutBegeleiderId = usersResponse
+                .Where(u => string.IsNullOrEmpty(u.BegeleiderId))
+                .ToList();
+        }
+    }
+
+    private async Task AssignVolgerToBegeleider(ApplicationUser user)
+    {
+        var authState = await authStateProvider.GetAuthenticationStateAsync();
+        var currentUser = authState.User;
+        var begeleiderId = currentUser.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        user.BegeleiderId = begeleiderId;
+        var response = await apiClient.PutAsJsonAsync($"api/user/AssignUsersToBegeleider/{begeleiderId}", user);
+
+        if (response.IsSuccessStatusCode)
+        {
+            usersWithoutBegeleiderId.Remove(user);
+            usersWithBegeleiderId.Add(user);
+            user.BegeleiderId = begeleiderId; 
+
+            usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
+            usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
+            await InvokeAsync(StateHasChanged);
+
+            StateHasChanged();
+        }
+
+    }
+   
+
+
+}

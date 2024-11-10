@@ -5,10 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using System.Reflection.Emit;
 using System.Reflection;
 using Microsoft.Extensions.Options;
-using Gatam.Application.Interfaces;
-using System.Net;
-using Auth0.ManagementApi.Models;
-using Gatam.Application.CQRS;
 
 namespace Gatam.Infrastructure.Contexts
 {
@@ -16,10 +12,9 @@ namespace Gatam.Infrastructure.Contexts
     {
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-        public DbSet<ApplicationUser> Users { get; set; }
 
         public DbSet<ApplicationModule> Modules { get; set; }
-       // public DbSet<Question> Questions { get; set; }
+        // public DbSet<Question> Questions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -29,6 +24,46 @@ namespace Gatam.Infrastructure.Contexts
 
             // Seeding users
             var hasher = new PasswordHasher<ApplicationUser>();
+            // SETUP VAN USER IN DB
+            ApplicationUser GLOBALTESTUSER = new ApplicationUser() { UserName = "admin", Email = "admin@app.com", BegeleiderId = null, PasswordHash = hasher.HashPassword(null, "root") };
+            ApplicationUser john = new ApplicationUser()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = "JohnDoe",
+                NormalizedUserName = "JOHNDOE",
+                BegeleiderId = null,
+                Email = "john.doe@example.com",
+                NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
+                PasswordHash = hasher.HashPassword(null, "Test@1234"),
+                IsActive = false// A hashed password
+            };
+            ApplicationUser jane = new ApplicationUser()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = "JaneDoe",
+                NormalizedUserName = "JANEDOE",
+                BegeleiderId = null,
+                Email = "jane.doe@example.com",
+                NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
+                PasswordHash = hasher.HashPassword(null, "Test@1234"),
+                IsActive = false
+            };
+            ApplicationUser lauren = new ApplicationUser()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = "Lautje",
+                NormalizedUserName = "LAUTJE",
+                BegeleiderId = null,
+                Email = "lautje.doe@example.com",
+                NormalizedEmail = "LAUTJE.DOE@EXAMPLE.COM",
+                PasswordHash = hasher.HashPassword(null, "Test@1234"),
+                IsActive = false
+            };
+            builder.Entity<ApplicationUser>().HasData(
+                GLOBALTESTUSER, john, jane, lauren
+
+            );
+
 
             var GLOBALMODULE = new ApplicationModule()
             {
@@ -39,55 +74,11 @@ namespace Gatam.Infrastructure.Contexts
             };
 
             builder.Entity<ApplicationModule>().HasData(GLOBALMODULE);
-            
+
+
+
 
 
         }
-
-        public async Task SyncUsersFromAuth0Async(IManagementApi managementApi)
-        {
-            var auth0Users = new List<UserDTO>(); // De lijst van Auth0-gebruikers die je ophaalt
-
-            int retryCount = 3; // Aantal pogingen om de gebruikers op te halen
-            int delay = 5000; // Vertraging tussen pogingen in milliseconden
-
-            for (int attempt = 0; attempt < retryCount; attempt++)
-            {
-                try
-                {
-                    auth0Users = (List<UserDTO>)await managementApi.GetAllUsersAsync(); // Haal de gebruikers op van Auth0
-                    break; // Stop met proberen als het lukt
-                }
-                catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
-                {
-                    if (attempt == retryCount - 1)
-                    {
-                        throw; // Als dit de laatste poging is, gooi de uitzondering opnieuw
-                    }
-
-                    await Task.Delay(delay); // Wacht 5 seconden voor de volgende poging
-                }
-            }
-
-            var existingUserIds = await Users.Select(u => u.Id).ToListAsync(); // Haal bestaande gebruikers op uit de database
-
-            foreach (var auth0User in auth0Users)
-            {
-                if (!existingUserIds.Contains(auth0User.Id)) // Als de gebruiker nog niet bestaat
-                {
-                    var newUser = new ApplicationUser
-                    {
-                        Id = auth0User.Id, // Zet de ID van de gebruiker van Auth0
-                        BegeleiderId = null // Zet BegeleiderId op null
-                    };
-
-                    Users.Add(newUser); // Voeg de nieuwe gebruiker toe aan de database
-                }
-            }
-
-            await SaveChangesAsync(); // Sla de wijzigingen op in de database
-        }
-
-
     }
 }

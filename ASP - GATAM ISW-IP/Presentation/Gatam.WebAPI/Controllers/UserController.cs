@@ -71,18 +71,12 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserDTO user)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (userId != user.Id)
-            {
-                return BadRequest("The user ID in the URL does not match the user ID in the body.");
-            }
-            var returnedUser = await _mediator.Send(new UpdateUserCommand() { Id = userId, User = user });
+            
+            var returnedUser = await _mediator.Send(new UpdateUserCommand() {User = user, Id = userId });
             return Ok(returnedUser);
         }
+
+        
 
         [HttpDelete]
         [Route("delete/{id}")]
@@ -123,6 +117,8 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpGet("AssignUsersToBegeleider")]
+        [Authorize(Policy = "RequireManagementRole")]
+
         public async Task<IActionResult> GetAllUsersWithBegeleiderId()
         {
             var assignUsersToBegeleider = await _mediator.Send(new GetAllUsersWithBegeleiderIdQuery());
@@ -130,7 +126,8 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("AssignUsersToBegeleider/{id}")]
-        public async Task<IActionResult> AssignUsersToBegeleider([FromBody] UserDTO user, string id)
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> AssignUsersToBegeleider([FromBody] ApplicationUser user, string id)
         {
             var volger = await _mediator.Send(new FindUserByIdQuery(id));
             if(volger != null)
@@ -141,6 +138,8 @@ namespace Gatam.WebAPI.Controllers
             }
             return NotFound();
         }
+
+      
 
 
 
