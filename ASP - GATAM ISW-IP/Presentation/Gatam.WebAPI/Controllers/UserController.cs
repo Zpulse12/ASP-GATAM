@@ -129,7 +129,21 @@ namespace Gatam.WebAPI.Controllers
             return Ok(assignUsersToBegeleider);
         }
 
-        
+        [HttpPut("AssignUsersToBegeleider/{id}")]
+        public async Task<IActionResult> AssignUsersToBegeleider([FromBody] UserDTO user, string id)
+        {
+            var volger = await _mediator.Send(new FindUserByIdQuery(id));
+            if(volger != null)
+            {
+                var updateBegeleiderId = await _mediator.Send(new AssignUserToBegeleiderCommand() { VolgerId = user.Id, BegeleiderId = id});
+                return Ok(updateBegeleiderId);
+
+            }
+            return NotFound();
+        }
+
+
+
     }
 
 }
