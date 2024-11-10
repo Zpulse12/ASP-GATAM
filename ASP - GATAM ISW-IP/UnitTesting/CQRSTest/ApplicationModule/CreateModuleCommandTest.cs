@@ -31,7 +31,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule
 
             _unitOfWorkMock.Setup(uow => uow.ModuleRepository.Create(module)).ReturnsAsync(module);
             _unitOfWorkMock.Setup(uow => uow.commit()).Returns(Task.CompletedTask);
-            
+
             var result = await _handler.Handle(command, CancellationToken.None);
 
             _unitOfWorkMock.Verify(uow => uow.ModuleRepository.Create(module), Times.Once);

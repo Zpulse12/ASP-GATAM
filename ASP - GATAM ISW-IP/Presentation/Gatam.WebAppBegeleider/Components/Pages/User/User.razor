@@ -6,6 +6,7 @@
 @using Gatam.Infrastructure.Repositories
 @using System.Diagnostics
 @inject ApiClient apiClient
+@attribute [Authorize(Policy = "RequireManagementRole")]
 
 @rendermode InteractiveServer
 

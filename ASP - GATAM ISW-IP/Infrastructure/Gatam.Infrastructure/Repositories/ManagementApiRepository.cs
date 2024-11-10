@@ -10,7 +10,7 @@ using Auth0.ManagementApi.Models;
 
 namespace Gatam.Infrastructure.Repositories;
 
-public class ManagementApiRepository: IManagementApi
+public class ManagementApiRepository : IManagementApi
 {
     private readonly HttpClient _httpClient;
     private readonly EnvironmentWrapper _environmentWrapper;
@@ -62,7 +62,7 @@ public class ManagementApiRepository: IManagementApi
             IsActive = !_response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
             RolesIds = new List<string>()
         };
-        return _user; 
+        return _user;
     }
     public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
     {
@@ -70,8 +70,8 @@ public class ManagementApiRepository: IManagementApi
         {
             email = user.Email,
             username = user.UserName,
-            password = user.PasswordHash, 
-            connection = "Username-Password-Authentication" 
+            password = user.PasswordHash,
+            connection = "Username-Password-Authentication"
         };
         try
         {
@@ -107,14 +107,14 @@ public class ManagementApiRepository: IManagementApi
     }
 
     public async Task<bool> DeleteUserAsync(string userId)
-    {        
-       var response = await _httpClient.DeleteAsync($"/api/v2/users/{userId}");
-       return response.IsSuccessStatusCode;
+    {
+        var response = await _httpClient.DeleteAsync($"/api/v2/users/{userId}");
+        return response.IsSuccessStatusCode;
     }
 
     public async Task<UserDTO> UpdateUserAsync(string userId, UserDTO user)
     {
-        
+
         var response = await _httpClient.PostAsJsonAsync($"users/{userId}", user);
 
         if (response.IsSuccessStatusCode)
@@ -134,11 +134,11 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> UpdateUserStatusAsync(string userId, bool isActive)
     {
-        var payload = new 
+        var payload = new
         {
             blocked = !isActive
         };
-        
+
         var response = await _httpClient.PutAsJsonAsync($"users/{userId}", payload);
 
         if (!response.IsSuccessStatusCode)
@@ -154,17 +154,17 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user)
     {
-       
+
         var payload = new
         {
             roles = user.RolesIds.ToArray()
         };
 
-        
+
         Debug.WriteLine(payload);
         string json = JsonSerializer.Serialize(payload);
         Debug.WriteLine($"Payload sent to Auth0: {json}");
-        
+
         var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{user.Id}/roles", payload);
 
         if (response.IsSuccessStatusCode)
@@ -182,10 +182,10 @@ public class ManagementApiRepository: IManagementApi
     {
         try
         {
-            
+
             var response = await _httpClient.GetFromJsonAsync<JsonElement>($"/api/v2/users/{userId}/roles");
 
-            
+
             if (response.ValueKind == JsonValueKind.Array)
             {
                 return response.EnumerateArray()
@@ -195,14 +195,14 @@ public class ManagementApiRepository: IManagementApi
                                .ToList();
             }
 
-            return new List<string>(); 
+            return new List<string>();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching roles for user {userId}: {ex.Message}");
-            return new List<string>(); 
+            return new List<string>();
         }
     }
 
-    
+
 }
