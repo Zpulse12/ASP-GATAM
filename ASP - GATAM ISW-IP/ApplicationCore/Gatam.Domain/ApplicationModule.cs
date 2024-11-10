@@ -7,6 +7,8 @@
         public  string Category { get; set; }
         public DateTime CreatedAt { get; set; }
         //public ICollection<Question> Questions { get; set; } = new List<Question>();
+        public ICollection<UserModule> UserModules { get; set; } = new List<UserModule>();
+
         public ApplicationModule()
         {
             Id = Guid.NewGuid().ToString();
