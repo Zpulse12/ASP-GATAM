@@ -1,82 +1,49 @@
-﻿// using AutoMapper;
-// using FluentValidation;
-// using FluentValidation.Results;
-// using Gatam.Application.CQRS;
-// using Gatam.Application.CQRS.User;
-// using Gatam.Application.Interfaces;
-// using Gatam.Domain;
-// using Moq;
-//
-// namespace UnitTesting.CQRSTest.ApplicationUser;
-// [TestClass]
-// public class UpdateUserCommandTest
-// {
-//     private Mock<IUnitOfWork> _mockUnitOfWork;
-//     private Mock<IMapper> _mockMapper;
-//     private UpdateUserCommandHandler _handler;
-//     private Mock<IManagementApi> _mockAuth0Api;
-//
-//
-//     [TestInitialize]
-//     public void Setup()
-//     {
-//         _mockUnitOfWork = new Mock<IUnitOfWork>();
-//         _mockMapper = new Mock<IMapper>();
-//         _mockAuth0Api = new Mock<IManagementApi>();
-//         _handler = new UpdateUserCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object, _mockAuth0Api.Object);
-//     }
-//
-//     [TestMethod]
-//     public async Task Handle_ShouldUpdateUser_WhenUserExists()
-//     {
-//         var userId = "12345";
-//         var user = new Gatam.Domain.ApplicationUser
-//         {
-//             Id = userId,
-//             UserName = "OriginalUser",
-//             Email = "original@example.com",
-//             IsActive = true
-//         };
-//
-//         var updatedUserDto = new UserDTO
-//         {
-//             Id = userId,
-//             Nickname = "UpdatedUser",
-//             Email = "updated@example.com",
-//             RolesIds = new List<string>(),
-//             IsActive = false
-//         };
-//
-//         _mockUnitOfWork.Setup(uow => uow.UserRepository.FindById(userId))
-//             .ReturnsAsync(user);
-//         _mockUnitOfWork.Setup(uow => uow.UserRepository.Update(It.IsAny<Gatam.Domain.ApplicationUser>()))
-//             .ReturnsAsync(user);
-//         _mockMapper.Setup(m => m.Map(updatedUserDto, user))
-//             .Callback<UserDTO, Gatam.Domain.ApplicationUser>((src, dest) =>
-//             {
-//                 dest.UserName = src.Nickname;
-//                 dest.Email = src.Email;
-//                 dest.IsActive = src.IsActive;
-//             });
-//
-//         _mockMapper.Setup(m => m.Map<UserDTO>(It.IsAny<Gatam.Domain.ApplicationUser>()))
-//             .Returns(updatedUserDto);
-//
-//         var command = new UpdateUserCommand()
-//         {
-//             Id = userId,
-//             User = updatedUserDto
-//         };
-//
-//         var result = await _handler.Handle(command, CancellationToken.None);
-//
-//         Assert.IsNotNull(result);
-//         Assert.AreEqual(updatedUserDto.Nickname, result.Nickname);
-//         Assert.AreEqual(updatedUserDto.Email, result.Email);
-//         Assert.AreEqual(updatedUserDto.RolesIds, result.RolesIds);
-//         Assert.AreEqual(updatedUserDto.IsActive, result.IsActive);
-//
-//         _mockUnitOfWork.Verify(uow => uow.commit(), Times.Once);
-//         _mockUnitOfWork.Verify(uow => uow.UserRepository.Update(It.IsAny<Gatam.Domain.ApplicationUser>()), Times.Once);
-//     }
-// }
+﻿using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.User;
+using Gatam.Application.Extensions;
+using Gatam.Domain;
+using Gatam.WebAPI.Controllers;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+
+namespace UnitTesting.ControllerTest.ApplicationUser;
+[TestClass]
+public class UpdateUserControllerTest
+{
+    private Mock<IMediator>? mediator;
+    private UserController? controller;
+
+    [TestInitialize]
+    public void Setup()
+    {
+        mediator = new Mock<IMediator>();
+        controller = new UserController(mediator.Object);
+    }
+
+    [TestMethod]
+    public async Task UpdateUser_ShouldReturnOk_WhenUserIsUpdatedSuccessfully()
+    { // Arrange
+        var userDto = new UserDTO
+        {
+            Id = "1234",
+            Nickname = "TestUser",
+            Email = "testuser@example.com",
+            RolesIds = new List<string> { RoleMapper.Roles["BEHEERDER"] },
+            IsActive = true
+        };
+
+        mediator.Setup(m => m.Send(It.Is<UpdateUserCommand>(cmd => cmd.Id == userDto.Id && cmd.User == userDto), default))
+            .ReturnsAsync(userDto);
+        // Act
+        var result = await controller.UpdateUser(userDto.Id, userDto);
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(200, okResult.StatusCode);
+        Assert.AreEqual(userDto, okResult.Value);
+    }
+
+
+}
