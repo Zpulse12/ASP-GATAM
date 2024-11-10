@@ -1,4 +1,4 @@
-﻿namespace Gatam.Application.CQRS.DTOS;
+﻿namespace Gatam.Application.CQRS.DTOS.ModulesDTO;
 public class UserWithModulesDTO
 {
     public string Id { get; set; }
