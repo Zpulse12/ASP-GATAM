@@ -6,7 +6,6 @@ using Gatam.Domain;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
-using Gatam.Application.CQRS.Module;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
 namespace Gatam.WebAPI.Controllers
 {

@@ -1,12 +1,7 @@
 ﻿using FluentValidation;
 using Gatam.Application.CQRS.Module;
 using Gatam.Application.Interfaces;
-using Gatam.Domain;
-using MediatR;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace UnitTesting.CQRSTest.ApplicationModule
 {
@@ -30,12 +25,12 @@ namespace UnitTesting.CQRSTest.ApplicationModule
             var command = new CreateModuleCommand { _module = module };
 
             _unitOfWorkMock.Setup(uow => uow.ModuleRepository.Create(module)).ReturnsAsync(module);
-            _unitOfWorkMock.Setup(uow => uow.commit()).Returns(Task.CompletedTask);
+            _unitOfWorkMock.Setup(uow => uow.Commit()).Returns(Task.CompletedTask);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             _unitOfWorkMock.Verify(uow => uow.ModuleRepository.Create(module), Times.Once);
-            _unitOfWorkMock.Verify(uow => uow.commit(), Times.Once);
+            _unitOfWorkMock.Verify(uow => uow.Commit(), Times.Once);
             Assert.AreEqual(module, result);
         }
 
@@ -59,7 +54,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule
             var command = new CreateModuleCommand { _module = module };
 
             _unitOfWorkMock.Setup(uow => uow.ModuleRepository.Create(module)).ReturnsAsync(module);
-            _unitOfWorkMock.Setup(uow => uow.commit()).Returns(Task.CompletedTask);
+            _unitOfWorkMock.Setup(uow => uow.Commit()).Returns(Task.CompletedTask);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 

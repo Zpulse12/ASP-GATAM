@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
 using Gatam.Application.Interfaces;
-using Gatam.Application.CQRS.DTOS;
 
 namespace Gatam.Application.CQRS.User
 {

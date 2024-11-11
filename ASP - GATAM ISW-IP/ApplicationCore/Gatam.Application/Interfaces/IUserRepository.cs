@@ -1,5 +1,4 @@
-﻿using Gatam.Application.CQRS.DTOS;
-using Gatam.Domain;
+﻿using Gatam.Domain;
 
 namespace Gatam.Application.Interfaces;
 

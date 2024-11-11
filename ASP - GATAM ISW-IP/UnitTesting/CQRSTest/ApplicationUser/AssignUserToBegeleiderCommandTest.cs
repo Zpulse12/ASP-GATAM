@@ -1,12 +1,7 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
 using Gatam.Application.Interfaces;
-using Gatam.Domain;
 using Moq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTesting.CQRSTest.ApplicationUser
 {
@@ -83,7 +78,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             Assert.IsNotNull(result);
             Assert.AreEqual(command.BegeleiderId, result.BegeleiderId);  
             _uowMock.Verify(u => u.UserRepository.Update(user), Times.Once); 
-            _uowMock.Verify(u => u.commit(), Times.Once);  
+            _uowMock.Verify(u => u.Commit(), Times.Once);  
         }
 
        

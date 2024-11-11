@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
-using Gatam.Domain;
 using Gatam.WebAPI.Controllers;
 using MediatR;
 

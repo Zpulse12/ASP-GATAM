@@ -29,7 +29,7 @@ public class AssignUserToModuleCommand
                 UserModules = new List<UserModule>()
             };
 
-            var module = new ApplicationModule
+            var module = new Gatam.Domain.ApplicationModule
             {
                 Id = moduleId
             };
@@ -66,7 +66,7 @@ public class AssignUserToModuleCommand
                 .ReturnsAsync((Gatam.Domain.ApplicationUser)null);
 
             _mockUnitOfWork.Setup(uow => uow.ModuleRepository.FindById(It.IsAny<string>()))
-                .ReturnsAsync((ApplicationModule)null);
+                .ReturnsAsync((Gatam.Domain.ApplicationModule)null);
             var validationResult = await validator.ValidateAsync(command);
             Assert.IsFalse(validationResult.IsValid);
             Assert.IsTrue(validationResult.Errors.Exists(e => e.ErrorMessage == "The user does not exist"));
