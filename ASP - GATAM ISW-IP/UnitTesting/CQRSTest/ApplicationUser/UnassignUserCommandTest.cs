@@ -55,7 +55,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             _uowMock.Verify(u => u.UserRepository.Update(It.Is<Gatam.Domain.ApplicationUser>(x => x.BegeleiderId == null)), Times.Once);
 
             // Verifieer of commit werd aangeroepen
-            _uowMock.Verify(u => u.commit(), Times.Once);
+            _uowMock.Verify(u => u.Commit(), Times.Once);
         }
 
 

@@ -29,7 +29,7 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
             var user = await _uow.UserRepository.FindById(request.VolgerId);
             user.BegeleiderId = null;
             await _uow.UserRepository.Update(user);
-            await _uow.commit();
+            await _uow.Commit();
             return user;
         }
     }
