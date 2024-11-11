@@ -26,7 +26,7 @@ public class GetUsersWithSyncQueryHandler : IRequestHandler<GetUsersWithSyncQuer
 
             if (localUser == null)
             {
-                await _mediator.Send(new CreateUserCommand { _user = new ApplicationUser
+                await _mediator.Send(new CreateUserCommand { _user = new UserDTO
                 {
                     Id = auth0User.Id,
                     IsActive = true,

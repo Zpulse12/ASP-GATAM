@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Identity;
 using System.Reflection.Emit;
 using System.Reflection;
 using Microsoft.Extensions.Options;
+using Gatam.Application.Extensions;
+using Auth0.ManagementApi.Models;
 
 namespace Gatam.Infrastructure.Contexts
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : DbContext
     {
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
@@ -25,37 +27,59 @@ namespace Gatam.Infrastructure.Contexts
             // Seeding users
             var hasher = new PasswordHasher<ApplicationUser>();
             // SETUP VAN USER IN DB
-            ApplicationUser GLOBALTESTUSER = new ApplicationUser() { UserName = "admin", Email = "admin@app.com", PasswordHash = hasher.HashPassword(null, "root") };
+            ApplicationUser GLOBALTESTUSER = new ApplicationUser() {
+                Id = Guid.NewGuid().ToString(),
+                Name = "admin",
+                Surname = "Suradmin",
+                Username = "admin" + "Suradmin",
+                PhoneNumber = "09966554411",
+                Email = "admin@app.com",
+                RolesIds =  new List<string> { RoleMapper.Roles["BEHEERDER"] },
+                PasswordHash = hasher.HashPassword(null, "root")
+                
+
+            };
+
             ApplicationUser john = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "JohnDoe",
-                NormalizedUserName = "JOHNDOE",
+                Name = "JohnDoe",
+                Surname = "JOHNDOE",
+                Username = "JohnDoe" + "JOHNDOE",
+                PhoneNumber = "0456789166",
                 Email = "john.doe@example.com",
-                NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
+                RolesIds =  new List<string> { RoleMapper.Roles["VOLGER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
-                IsActive = false// A hashed password
+                IsActive = false
             };
+
             ApplicationUser jane = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "JaneDoe",
-                NormalizedUserName = "JANEDOE",
+                Name = "JaneDoe",
+                Surname = "JANEDOE",
+                Username = "JaneDoe" + "JANEDOE",
+                PhoneNumber = "0568779633",
                 Email = "jane.doe@example.com",
-                NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
+                RolesIds =  new List<string> { RoleMapper.Roles["MAKER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
+           
+
             ApplicationUser lauren = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "Lautje",
-                NormalizedUserName = "LAUTJE",
+                Name = "Lautje",
+                Surname = "LAUTJE",
+                Username = "Lautje" + "LAUTJE",
+                PhoneNumber = "07896544336",
                 Email = "lautje.doe@example.com",
-                NormalizedEmail = "LAUTJE.DOE@EXAMPLE.COM",
+                RolesIds =  new List<string> { RoleMapper.Roles["MAKER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
+
             builder.Entity<ApplicationUser>().HasData(
                 GLOBALTESTUSER, john, jane, lauren
 

@@ -1,8 +1,16 @@
 ﻿@page "/admin/create"
 @inject IHttpClientFactory HttpClientFactory
 @using Gatam.Domain
+@using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Infrastructure.Repositories
+
 @rendermode InteractiveServer
+
+@inject ApiClient apiClient
+
+
 @attribute [Authorize(Policy = "RequireManagementRole")]
 <InactiveUserRedirect />
 <div class="container mt-3">
@@ -23,44 +31,72 @@
         <ValidationSummary />
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="UserName">Gebruikersnaam</label>
-                <InputText id="UserName" @bind-Value="user.UserName" class="form-control rounded-pill" />
+                <label for="Name">Naam</label>
+                <InputText id="Name" @bind-Value="user.Name" class="form-control rounded-pill" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="Password">Wachtwoord</label>
-                <InputText id="Password" @bind-Value="user.PasswordHash" class="form-control rounded-pill"/>
+                <label for="Surname">Achternaam</label>
+                <InputText id="Surname" @bind-Value="user.Surname" class="form-control rounded-pill" />
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="Email">E-mailadres</label>
-                <InputText id="Email" @bind-Value="user.Email" class="form-control rounded-pill"/>
+                <InputText id="Email" @bind-Value="user.Email" class="form-control rounded-pill" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="PhoneNumber">Telefoonnummer</label>
-                <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control rounded-pill"/>
+                <label for="Username">Gebruikersnaam</label>
+                <InputText id="Username" @bind-Value="user.Name" class="form-control rounded-pill" />
             </div>
         </div>
 
         <div class="row">
-            <div class="text-center">
-                <button class="w-25 btn rounded-pill" style="background-color:#4454D2; color:white" type="submit">Aanmaken</button>
+            <div class="col-md-6 mb-3">
+                <label for="Password">Wachtwoord</label>
+                <InputText id="Password" @bind-Value="user.PasswordHash" class="form-control rounded-pill" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="PhoneNumber">Gsm-nummer</label>
+                <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control rounded-pill" />
             </div>
         </div>
+
+        
+
     </EditForm>
+
+    @* <div class="form-group mt-3">
+        <label for="Role" class="fw-bold text-muted">Rol Toewijzen</label>
+        <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
+            @foreach (var role in RoleMapper.Roles)
+            {
+                <option value="@role.Value">@role.Key</option>
+            }
+        </InputSelect>
+    </div>
+    <button type="submit" onclick="@HandleValidSubmit" class="btn btn-sm btn-custom mt-4" style="background-color:#4454D2; color:white"><i class="bi bi-plus me-1"></i>Toewijzen</button>
+    <div class="row">
+        <div class="text-center">
+            <button class="w-25 btn rounded-pill" style="background-color:#4454D2; color:white" type="submit" onclick="@OnFormSubmit">Aanmaken</button>
+        </div>
+
+    </div> *@
 </CustomCards>
 
 @code {
     string response = "";
     bool isSuccess = false;
+    private string selectedRoles { get; set; } = "";
+    private UserDTO roleToUser;
     ApplicationUser user = new ApplicationUser()  ;
 
     private async Task OnFormSubmit() 
     {
-        
-        var client = HttpClientFactory.CreateClient("ApiClient");
-        HttpResponseMessage result = await client.PostAsJsonAsync("/api/user", user);
+
+        //user.Username = $"{user.Name}{user.Surname}";
+       
+        HttpResponseMessage result = await apiClient.PostAsJsonAsync("/api/user", user);
 
         if(result.IsSuccessStatusCode)
         {
@@ -70,9 +106,45 @@
             user = new ApplicationUser();
         } else
         {
+            response = "Niet goed";
             response = await result.Content.ReadAsStringAsync();
             isSuccess = false;
         }
         StateHasChanged();
+    }
+    private async Task HandleValidSubmit()
+    {
+        if (roleToUser == null)
+        {
+            isSuccess = true;
+            response = "Geen gebruiker om te updaten.";
+            return;
+        }
+        try
+        {
+
+            roleToUser.RolesIds = new List<string>() { selectedRoles };
+
+
+            var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{roleToUser.Id}/roles", roleToUser);
+
+            if (roleUpdateResponse.IsSuccessStatusCode)
+            {
+
+                isSuccess = true;
+                response = "Gebruiker succesvol bijgewerkt";
+                StateHasChanged();
+
+            }
+            else
+            {
+                response = "Fout bij het bijwerken van de rollen.";
+            }
+        }
+        catch (Exception ex)
+        {
+            response = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
+
+        }
     }
 }

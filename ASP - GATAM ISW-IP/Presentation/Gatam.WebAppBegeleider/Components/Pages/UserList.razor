@@ -49,12 +49,18 @@
                           OnRowClick="OnRowClick"
                           Responsive="true">
                         <GridColumns>
-                    <GridColumn TItem="UserDTO" HeaderText="Nickname" PropertyName="Nickname" SortString="Nickname" SortKeySelector="item => item.Nickname">
-                                @context.Nickname
+                    <GridColumn TItem="UserDTO" HeaderText="Naam" PropertyName="Name" SortString="Name" SortKeySelector="item => item.Name">
+                                @context.Name
                             </GridColumn>
+                    <GridColumn TItem="UserDTO" HeaderText="Achternaam" PropertyName="Surname" SortString="Surname" SortKeySelector="item => item.Surname">
+                        @context.Surname
+                    </GridColumn> 
                             <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email" SortString="Email" SortKeySelector="item => item.Email">
                                 @context.Email
                             </GridColumn>
+                    <GridColumn TItem="UserDTO" HeaderText="Gsm-nummer" PropertyName="PhoneNumber" SortString="PhoneNumber" SortKeySelector="item => item.PhoneNumber">
+                        @context.PhoneNumber
+                    </GridColumn>
                             <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive" >
                                 <div class="">
                                     <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
@@ -89,7 +95,7 @@
                             <h4 class="modal-title" id="userDetailsModalLabel">Gebruikersgegevens</h4>
                         </div>
                         <div class="modal-body">
-                            <p><strong>Gebruikersnaam:</strong> @selectedUser?.Nickname</p>
+                            <p><strong>Gebruikersnaam:</strong> @selectedUser?.Username</p>
                             <p><strong>E-mail:</strong> @selectedUser?.Email</p>
                             <p><strong>Rollen:</strong></p>
                             <ul>

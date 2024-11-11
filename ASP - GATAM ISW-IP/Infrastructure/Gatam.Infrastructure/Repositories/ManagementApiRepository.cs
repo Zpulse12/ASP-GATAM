@@ -7,6 +7,7 @@ using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Auth0.ManagementApi.Models;
+using Azure;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -36,10 +37,13 @@ public class ManagementApiRepository: IManagementApi
             var userDto = new UserDTO
             {
                 Id = userId,
+                Name = user.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
+                Surname = user.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
+                Username = user.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
                 Email = user.GetProperty("email").GetString(),
-                Nickname = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
-                Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
+                PhoneNumber=user.GetProperty("phoneNumber").GetString(),
                 IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
+                Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
                 RolesIds = new List<string>()
             };
 
@@ -57,7 +61,10 @@ public class ManagementApiRepository: IManagementApi
         {
             Id = userId,
             Email = _response.GetProperty("email").GetString(),
-            Nickname = _response.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
+            Name = _response.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
+            Surname = _response.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
+            Username = _response.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
+            PhoneNumber=_response.GetProperty("phoneNumber").GetString(),
             Picture = _response.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
             IsActive = !_response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
             RolesIds = new List<string>()
@@ -66,12 +73,21 @@ public class ManagementApiRepository: IManagementApi
     }
     public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
     {
-        var payload = new
+        
+        
+
+        var payload = new 
         {
+            
+            name = user.Name,
+            surname=user.Surname,
+            username = user.Username,
+            phonenumber= user.PhoneNumber,
             email = user.Email,
-            username = user.UserName,
+            roleIds = user.RolesIds,
             password = user.PasswordHash, 
             connection = "Username-Password-Authentication" 
+
         };
         try
         {
@@ -116,9 +132,9 @@ public class ManagementApiRepository: IManagementApi
     {
         var payload = new
         {
-            nickname = user.Nickname,
+            name = user.Username,
             email=user.Email,
-            username = user.Nickname
+            username = user.Username
 
         };
 
@@ -142,8 +158,8 @@ public class ManagementApiRepository: IManagementApi
     {
         var payload = new
         {
-            nickname = user.Nickname,
-            username = user.Nickname,  
+            nickname = user.Username,
+            username = user.Username,  
         };
 
         var _userId = user.Id;
