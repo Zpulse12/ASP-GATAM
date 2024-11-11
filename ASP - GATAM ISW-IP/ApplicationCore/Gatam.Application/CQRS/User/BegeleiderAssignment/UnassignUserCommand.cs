@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
@@ -13,6 +14,15 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
     public class UnassignUserCommand : IRequest<ApplicationUser>
     {
         public required string VolgerId { get; set; }
+    }
+
+    public class UnassignUserCommandValidator : AbstractValidator<AssignUserToBegeleiderCommand>
+    {
+        public UnassignUserCommandValidator()
+        {
+            RuleFor(x => x.VolgerId)
+                .NotEmpty().WithMessage("VolgerId cannot be empty");
+        }
     }
 
     public class UnassignUserCommandHandler : IRequestHandler<UnassignUserCommand, ApplicationUser>
