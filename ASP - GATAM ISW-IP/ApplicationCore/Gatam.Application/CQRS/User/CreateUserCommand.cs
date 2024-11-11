@@ -12,6 +12,7 @@ namespace Gatam.Application.CQRS.User
     public class CreateUserCommand: IRequest<UserDTO>
     {
         public required UserDTO _user { get; set; }
+        
 
 
     }
@@ -41,8 +42,8 @@ namespace Gatam.Application.CQRS.User
         public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
 
-            string usernameForAuth0 = $"{request._user.Name}_{request._user.Surname}";
-            request._user.Username = usernameForAuth0;
+            //string usernameForAuth0 = $"{request._user.Name}_{request._user.Surname}";
+            //request._user.Username = usernameForAuth0;
 
             //request._user.Name = AESProvider.Encrypt(request._user.Name, _environmentWrapper.KEY);
             //request._user.Surname = AESProvider.Encrypt(request._user.Surname, _environmentWrapper.KEY);
@@ -53,10 +54,16 @@ namespace Gatam.Application.CQRS.User
             var createUser = await _auth0Repository.CreateUserAsync(_mapper.Map<ApplicationUser>(request._user));
            if(createUser!=null)
             {
-                await _unitOfWork.UserRepository.Create(_mapper.Map<ApplicationUser>(request._user));
+                UserDTO user = _mapper.Map<UserDTO>(createUser);
+                var volgerRoleId = RoleMapper.Roles["VOLGER"];
+                user.RolesIds = new List<string> { volgerRoleId }; 
+
+                await _auth0Repository.UpdateUserRoleAsync(user);
+                await _unitOfWork.UserRepository.Create(_mapper.Map<ApplicationUser>(user));
                 await _unitOfWork.commit();
 
             }
+
 
             return request._user;
 

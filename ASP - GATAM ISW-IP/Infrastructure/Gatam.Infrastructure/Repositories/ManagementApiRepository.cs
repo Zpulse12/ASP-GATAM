@@ -73,40 +73,55 @@ public class ManagementApiRepository: IManagementApi
     }
     public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
     {
-        
-        
-
-        var payload = new 
+    
+        var payload = new
         {
-            
+
             name = user.Name,
-            surname=user.Surname,
+            nickname = user.Surname,
             username = user.Username,
-            phonenumber= user.PhoneNumber,
             email = user.Email,
-            roleIds = user.RolesIds,
-            password = user.PasswordHash, 
-            connection = "Username-Password-Authentication" 
+            password = user.PasswordHash,
+            connection = "Username-Password-Authentication",
+            user_metadata = new
+            {
+                phonenumber = user.PhoneNumber,
+                picture = user.Picture,
+                
+            },
 
         };
+        
         try
         {
             var response = await _httpClient.PostAsJsonAsync("/api/v2/users", payload);
 
             if (response.IsSuccessStatusCode)
             {
-                var createdUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
+                var createdUser = await response.Content.ReadFromJsonAsync<Auth0ResponseUsers>();
+
 
                 if (createdUser == null)
                 {
                     Console.WriteLine("Failed to parse created user.");
                     return null;
                 }
-
+                var applicationUser = new ApplicationUser
+                {
+                    Id = createdUser.Userid,  
+                    Name = createdUser.Name,
+                    Surname = createdUser.Nickname,
+                    Username = createdUser.Username,
+                    Email = createdUser.Email,
+                    PhoneNumber = createdUser.UserMetadata.PhoneNumber,
+                    Picture = createdUser.UserMetadata.Picture,
+                    RolesIds = new List<string>() { RoleMapper.Roles["VOLGER"] },
+                    IsActive = true 
+                };
                 Console.WriteLine("User created successfully.");
 
 
-                return createdUser;
+                return applicationUser;
             }
             else
             {
