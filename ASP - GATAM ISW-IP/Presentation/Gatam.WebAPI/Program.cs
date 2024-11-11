@@ -25,7 +25,7 @@ internal class Program {
         {
             ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             dbContext.Database.EnsureCreated();
-        } 
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

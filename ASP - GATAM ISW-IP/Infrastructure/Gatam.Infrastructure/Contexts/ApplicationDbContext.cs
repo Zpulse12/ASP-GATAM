@@ -23,12 +23,13 @@ namespace Gatam.Infrastructure.Contexts
             // Seeding users
             var hasher = new PasswordHasher<ApplicationUser>();
             // SETUP VAN USER IN DB
-            ApplicationUser GLOBALTESTUSER = new ApplicationUser() { UserName = "admin", Email = "admin@app.com", PasswordHash = hasher.HashPassword(null, "root") };
+            ApplicationUser GLOBALTESTUSER = new ApplicationUser() { UserName = "admin", Email = "admin@app.com", BegeleiderId = null, PasswordHash = hasher.HashPassword(null, "root") };
             ApplicationUser john = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
                 UserName = "JohnDoe",
                 NormalizedUserName = "JOHNDOE",
+                BegeleiderId = null,
                 Email = "john.doe@example.com",
                 NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
@@ -39,6 +40,7 @@ namespace Gatam.Infrastructure.Contexts
                 Id = Guid.NewGuid().ToString(),
                 UserName = "JaneDoe",
                 NormalizedUserName = "JANEDOE",
+                BegeleiderId = null,
                 Email = "jane.doe@example.com",
                 NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
@@ -49,6 +51,7 @@ namespace Gatam.Infrastructure.Contexts
                 Id = Guid.NewGuid().ToString(),
                 UserName = "Lautje",
                 NormalizedUserName = "LAUTJE",
+                BegeleiderId = null,
                 Email = "lautje.doe@example.com",
                 NormalizedEmail = "LAUTJE.DOE@EXAMPLE.COM",
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
@@ -81,6 +84,8 @@ namespace Gatam.Infrastructure.Contexts
                 .HasOne(um => um.Module)
                 .WithMany(m => m.UserModules)
                 .HasForeignKey(um => um.ModuleId);
+
+
 
 
         }

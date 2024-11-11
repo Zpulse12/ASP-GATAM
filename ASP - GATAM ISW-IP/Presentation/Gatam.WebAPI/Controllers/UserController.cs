@@ -6,6 +6,8 @@ using Gatam.Domain;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
+using Gatam.Application.CQRS.Module;
+using Gatam.Application.CQRS.User.BegeleiderAssignment;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -132,13 +134,41 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPut("{userId}/roles")]
         [Authorize(Policy = "RequireManagementRole")]
-
         public async Task<IActionResult> AssignUserRole(string userId, [FromBody] UserDTO user)
         {
             
             var returnedUser = await _mediator.Send(new AssignUserRoleCommand { User = user, Id = userId});
             return Ok(returnedUser);
         }
+
+
+        [HttpGet("AssignUsersToBegeleider")]
+        [Authorize(Policy = "RequireManagementRole")]
+
+        public async Task<IActionResult> GetAllUsersWithBegeleiderId()
+        {
+            var assignUsersToBegeleider = await _mediator.Send(new GetAllUsersWithBegeleiderIdQuery());
+            return Ok(assignUsersToBegeleider);
+        }
+
+        [HttpPut("AssignUsersToBegeleider/{id}")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> AssignUsersToBegeleider([FromBody] ApplicationUser user, string id)
+        {
+            var volger = await _mediator.Send(new FindUserByIdQuery(id));
+            if(volger != null)
+            {
+                var updateBegeleiderId = await _mediator.Send(new AssignUserToBegeleiderCommand() { VolgerId = user.Id, BegeleiderId = id});
+                return Ok(updateBegeleiderId);
+
+            }
+            return NotFound();
+        }
+
+      
+
+
+
     }
 
 }
