@@ -19,7 +19,8 @@ namespace Gatam.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllQuestions()
         {
-            return Ok("YES");
+            IEnumerable<Question> questions = await _mediator.Send(new GetAllQuestionsQuery());
+            return Ok(questions);
         }
 
         [HttpPost]
