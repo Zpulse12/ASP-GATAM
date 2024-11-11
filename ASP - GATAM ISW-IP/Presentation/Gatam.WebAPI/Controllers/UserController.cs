@@ -139,7 +139,20 @@ namespace Gatam.WebAPI.Controllers
             return NotFound();
         }
 
-      
+        [HttpPut("UnassignUsersToBegeleider/{id}")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> UnassignUsersToBegeleider(string id)
+        {
+            var volger = await _mediator.Send(new FindUserByIdQuery(id));
+            if (volger != null)
+            {
+                var updateBegeleiderId = await _mediator.Send(new UnassignUserCommand() { VolgerId = id });
+                return Ok(updateBegeleiderId);
+
+            }
+            return NotFound();
+        }
+
 
 
 
