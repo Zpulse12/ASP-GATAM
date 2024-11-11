@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using MediatR;
-using System.Diagnostics;
 
 namespace Gatam.Application.CQRS.User;
 

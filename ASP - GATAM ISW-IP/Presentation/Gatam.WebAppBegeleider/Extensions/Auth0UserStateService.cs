@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Json;
-using Microsoft.AspNetCore.Components;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {

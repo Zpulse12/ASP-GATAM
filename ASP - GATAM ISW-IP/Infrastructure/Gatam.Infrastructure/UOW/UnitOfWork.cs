@@ -1,13 +1,12 @@
 ﻿using Gatam.Application.Interfaces;
 using Gatam.Infrastructure.Contexts;
 using Gatam.Domain;
-using Gatam.Infrastructure.Repositories;
 
 namespace Gatam.Infrastructure.UOW
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly IGenericRepository<ApplicationUser> _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IGenericRepository<ApplicationModule> _moduleRepository;
 
 
@@ -16,7 +15,7 @@ namespace Gatam.Infrastructure.UOW
 
         public UnitOfWork(
                             ApplicationDbContext context, 
-                            IGenericRepository<ApplicationUser> userRepository, 
+                            IUserRepository userRepository, 
                             IGenericRepository<ApplicationModule> moduleRepository)
         {
             _userRepository = userRepository;
@@ -24,10 +23,10 @@ namespace Gatam.Infrastructure.UOW
             _context = context;
         }
 
-        public IGenericRepository<ApplicationUser> UserRepository => _userRepository;
+        public IUserRepository UserRepository => _userRepository;
         public IGenericRepository<ApplicationModule> ModuleRepository => _moduleRepository;
 
-        public async Task commit()
+        public async Task Commit()
         {
             await _context.SaveChangesAsync();
         }

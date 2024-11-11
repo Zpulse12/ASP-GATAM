@@ -1,6 +1,4 @@
-﻿using Gatam.WebAppBegeleider.Extensions;
-
-namespace Gatam.WebAppBegeleider.Interfaces
+﻿namespace Gatam.WebAppBegeleider.Interfaces
 {
     public interface IApiClient
     {

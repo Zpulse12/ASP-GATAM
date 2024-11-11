@@ -49,7 +49,7 @@ namespace Gatam.Application.CQRS.User
             }
             user.IsActive = request.IsActive; 
             await _uow.UserRepository.Update(user);
-            await _uow.commit();
+            await _uow.Commit();
 
             return _mapper.Map<UserDTO>(user);
         }

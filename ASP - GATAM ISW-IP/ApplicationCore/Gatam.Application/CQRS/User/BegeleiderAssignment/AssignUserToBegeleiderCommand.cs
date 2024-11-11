@@ -1,15 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Gatam.Application.CQRS.Module;
-using Gatam.Application.CQRS.User.Roles;
+
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Gatam.Application.CQRS.User.BegeleiderAssignment
 {
@@ -48,7 +43,7 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
             var user = await _uow.UserRepository.FindById(request.VolgerId);
             user.BegeleiderId = request.BegeleiderId;
             await _uow.UserRepository.Update(user); 
-            await _uow.commit();
+            await _uow.Commit();
             return _mapper.Map<ApplicationUser>(user);
         }
     }

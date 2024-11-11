@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
-using FluentValidation;
-using FluentValidation.Results;
 using Gatam.Application.CQRS;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
-using Gatam.Domain;
 using Moq;
 
 namespace UnitTesting.CQRSTest.ApplicationUser;

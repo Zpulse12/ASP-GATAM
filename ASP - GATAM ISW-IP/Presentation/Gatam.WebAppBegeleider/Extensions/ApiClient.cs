@@ -1,7 +1,4 @@
-﻿using Auth0.ManagementApi.Models;
-using Gatam.WebAppBegeleider.Interfaces;
-using Newtonsoft.Json.Linq;
-using System.Net.Http.Headers;
+﻿using Gatam.WebAppBegeleider.Interfaces;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {
