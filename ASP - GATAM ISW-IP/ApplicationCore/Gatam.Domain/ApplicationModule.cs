@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace Gatam.Domain
 {
@@ -13,6 +9,9 @@ namespace Gatam.Domain
         public  string Category { get; set; }
         public DateTime CreatedAt { get; set; }
         //public ICollection<Question> Questions { get; set; } = new List<Question>();
+        [JsonIgnore]
+        public ICollection<UserModule> UserModules { get; set; } = new List<UserModule>();
+
         public ApplicationModule()
         {
             Id = Guid.NewGuid().ToString();

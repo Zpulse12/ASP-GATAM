@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.Module;
 using MediatR;
 using Gatam.Domain;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
-using Gatam.Application.CQRS.Module;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
 namespace Gatam.WebAPI.Controllers
 {
@@ -48,7 +48,7 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
         {
-            var result = await _mediator.Send(new CreateUserCommand() { _user = user });
+            var result = await _mediator.Send(new CreateUserCommand() { User = user });
             return result == null ? BadRequest(result) : Created("", result);
         }
 
@@ -103,6 +103,31 @@ namespace Gatam.WebAPI.Controllers
             }
 
             return Ok(roles);
+        }
+        [HttpPut("AssignUserModule/{userId}")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> AssignUserModule(string userId, [FromQuery] string moduleId)
+        {
+            var assignedUser = await _mediator.Send(new AssignModulesToUserCommand() {VolgerId = userId, ModuleId = moduleId });
+            return Ok(assignedUser);
+        }
+        [HttpGet("modules/{userId}")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUserModules(string userId)
+        {
+            var query = new GetUserModulesQuery(userId);
+            var modules = await _mediator.Send(query);
+            if (modules == null || modules.Count == 0)
+                return NotFound("No modules found for this user.");
+            return Ok(modules);
+        }
+
+        [HttpGet("usersWithModules")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUsersWithModules()
+        {
+            var users = await _mediator.Send(new GetUsersWithModulesQuery());
+            return Ok(users);
         }
 
 

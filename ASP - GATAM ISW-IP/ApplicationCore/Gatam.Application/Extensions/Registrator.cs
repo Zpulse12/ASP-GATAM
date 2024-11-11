@@ -1,10 +1,8 @@
-﻿using Gatam.Application.Interfaces;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
 using System.Reflection;
 using Gatam.Application.Behaviours;
-using Gatam.Application.CQRS;
 
 namespace Gatam.Application.Extensions
 {

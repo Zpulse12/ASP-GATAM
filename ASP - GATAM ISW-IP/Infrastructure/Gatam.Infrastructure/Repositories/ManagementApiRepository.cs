@@ -1,12 +1,10 @@
-﻿using System.Diagnostics;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Gatam.Application.CQRS;
 using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
-using Auth0.ManagementApi.Models;
 
 namespace Gatam.Infrastructure.Repositories;
 

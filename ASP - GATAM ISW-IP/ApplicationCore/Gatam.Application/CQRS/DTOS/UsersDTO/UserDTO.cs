@@ -1,12 +1,3 @@
-using Gatam.Application.Extensions;
-using Gatam.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
 namespace Gatam.Application.CQRS
 {
     public class UserDTO
@@ -18,6 +9,8 @@ namespace Gatam.Application.CQRS
         public required string Id { get; set; }
         public bool IsActive { get; set; }
         public string Picture { get; set; }
+        public List<string> Modules { get; set; }
+
         
     }
 }

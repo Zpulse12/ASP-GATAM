@@ -30,7 +30,7 @@ namespace Gatam.Infrastructure.Extensions
         public static IServiceCollection RegisterInfrastructure(this IServiceCollection services)
         {
             services.AddHttpClient();
-            services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IGenericRepository<ApplicationModule>, ModuleRepository>();
             services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();

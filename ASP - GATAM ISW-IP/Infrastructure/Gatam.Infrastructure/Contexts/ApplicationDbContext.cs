@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
-using System.Reflection.Emit;
 using System.Reflection;
-using Microsoft.Extensions.Options;
 
 namespace Gatam.Infrastructure.Contexts
 {
@@ -74,7 +72,18 @@ namespace Gatam.Infrastructure.Contexts
             };
 
             builder.Entity<ApplicationModule>().HasData(GLOBALMODULE);
+            builder.Entity<UserModule>()
+                .HasKey(um => new { um.UserId, um.ModuleId });
 
+            builder.Entity<UserModule>()
+                .HasOne(um => um.User)
+                .WithMany(u => u.UserModules)
+                .HasForeignKey(um => um.UserId);
+
+            builder.Entity<UserModule>()
+                .HasOne(um => um.Module)
+                .WithMany(m => m.UserModules)
+                .HasForeignKey(um => um.ModuleId);
 
 
 
