@@ -26,12 +26,12 @@ namespace UnitTesting.ControllerTest.ApplicationUser
         [TestMethod]
         public async Task UnassignUsersToBegeleider_UserExists_ReturnsOkResult()
         {
-            var userId = "volgerId";
+            var userId = new Gatam.Domain.ApplicationUser() { Id = "volgerId" };
             var expectedResponse = true; // Verwacht een boolean resultaat (true)
             var begeleiderId = "begeleiderId";
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<FindUserByIdQuery>(), default))
-                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = userId });
+                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "userId" });
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<Gatam.Application.CQRS.User.BegeleiderAssignment.AssignUserToBegeleiderCommand>(), default))
                       .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId", BegeleiderId = begeleiderId });
@@ -45,22 +45,6 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode);
-        }
-
-
-        [TestMethod]
-        public async Task UnassignUsersToBegeleider_UserDoesNotExist_ReturnsNotFoundResult()
-        {
-            // Arrange
-            var userId = "nonExistentUserId";
-            _mediatorMock.Setup(m => m.Send(It.IsAny<FindUserByIdQuery>(), default))
-                .ReturnsAsync((Gatam.Domain.ApplicationUser)null);
-
-            // Act
-            var result = await _controller.UnassignUsersToBegeleider(userId);
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
 
     }

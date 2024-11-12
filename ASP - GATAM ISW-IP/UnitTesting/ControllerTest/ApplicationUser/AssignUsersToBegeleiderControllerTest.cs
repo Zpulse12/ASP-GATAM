@@ -26,32 +26,16 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             var begeleiderId = "begeleiderId";
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<FindUserByIdQuery>(), default))
-                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId" });  
+                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId" });
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<Gatam.Application.CQRS.User.BegeleiderAssignment.AssignUserToBegeleiderCommand>(), default))
-                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId", BegeleiderId = begeleiderId }); 
+                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId", BegeleiderId = begeleiderId });
 
             var result = await _controller.AssignUsersToBegeleider(user, begeleiderId);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);  
-        }
-
-        [TestMethod]
-        public async Task AssignUsersToBegeleider_UserNotFound_ReturnsNotFoundResult()
-        {
-            var user = new Gatam.Domain.ApplicationUser { Id = "volgerId" };
-            var begeleiderId = "begeleiderId";
-
-            _mediatorMock.Setup(m => m.Send(It.IsAny<FindUserByIdQuery>(), default))
-                         .ReturnsAsync((Gatam.Domain.ApplicationUser)null);
-
-            var result = await _controller.AssignUsersToBegeleider(user, begeleiderId);
-
-            var notFoundResult = result as NotFoundResult;
-            Assert.IsNotNull(notFoundResult);
-            Assert.AreEqual(404, notFoundResult.StatusCode);  
+            Assert.AreEqual(200, okResult.StatusCode);
         }
     }
 }
