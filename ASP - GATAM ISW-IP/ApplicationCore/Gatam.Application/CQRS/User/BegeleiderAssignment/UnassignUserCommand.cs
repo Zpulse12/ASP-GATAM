@@ -23,7 +23,7 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
         {
             RuleFor(x => x.VolgerId)
                 .NotEmpty().WithMessage("VolgerId mag niet leeg zijn");
-            RuleFor(x => x.User).NotNull().WithMessage("Geberuiker mag niet null zijn")
+            RuleFor(x => x.User).NotNull().WithMessage("Gebruiker mag niet null zijn")
                 .NotEmpty().WithMessage("Gebruiker mag niet leeg zijn");
             
         }
