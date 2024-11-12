@@ -14,14 +14,18 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
     public class UnassignUserCommand : IRequest<ApplicationUser>
     {
         public required string VolgerId { get; set; }
+        public ApplicationUser User { get; set; }
     }
 
-    public class UnassignUserCommandValidator : AbstractValidator<AssignUserToBegeleiderCommand>
+    public class UnassignUserCommandValidator : AbstractValidator<UnassignUserCommand>
     {
         public UnassignUserCommandValidator()
         {
             RuleFor(x => x.VolgerId)
-                .NotEmpty().WithMessage("VolgerId cannot be empty");
+                .NotEmpty().WithMessage("VolgerId mag niet leeg zijn");
+            RuleFor(x => x.User).NotNull().WithMessage("Geberuiker mag niet null zijn")
+                .NotEmpty().WithMessage("Gebruiker mag niet leeg zijn");
+            
         }
     }
 
@@ -36,11 +40,10 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
 
         public async Task<ApplicationUser> Handle(UnassignUserCommand request, CancellationToken cancellationToken)
         {
-            var user = await _uow.UserRepository.FindById(request.VolgerId);
-            user.BegeleiderId = null;
-            await _uow.UserRepository.Update(user);
+            request.User.BegeleiderId = null;
+            await _uow.UserRepository.Update(request.User);
             await _uow.Commit();
-            return user;
+            return request.User;
         }
     }
 }

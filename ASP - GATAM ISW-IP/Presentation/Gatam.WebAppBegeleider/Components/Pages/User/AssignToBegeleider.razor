@@ -24,7 +24,7 @@
                 @context.Email
             </GridColumn>
             <GridColumn TItem="ApplicationUser" HeaderText="Verwijderen Toewijzing">
-                <button type="button" class="btn btn-outline-danger" @onclick="() => UnassignVolgerToBegeleider(context, context.Id)">Verwijder</button>
+                <button type="button" class="btn btn-outline-danger" @onclick="() => UnassignVolgerToBegeleider(context)">Verwijder</button>
             </GridColumn>
         </GridColumns>
     </Grid>
@@ -100,9 +100,9 @@
         }
 
     }
-    private async Task UnassignVolgerToBegeleider(ApplicationUser user, string id)
+    private async Task UnassignVolgerToBegeleider(ApplicationUser user)
     {
-        var response = await apiClient.PutAsJsonAsync($"api/user/UnassignUsersToBegeleider/{id}", user);
+        var response = await apiClient.PutAsJsonAsync($"api/user/UnassignUsersToBegeleider", user);
 
         if (response.IsSuccessStatusCode)
         {

@@ -154,28 +154,19 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUsersToBegeleider([FromBody] ApplicationUser user, string id)
         {
-            var volger = await _mediator.Send(new FindUserByIdQuery(id));
-            if(volger != null)
-            {
-                var updateBegeleiderId = await _mediator.Send(new AssignUserToBegeleiderCommand() { VolgerId = user.Id, BegeleiderId = id});
-                return Ok(updateBegeleiderId);
 
-            }
-            return NotFound();
+            var updateBegeleiderId = await _mediator.Send(new AssignUserToBegeleiderCommand() { VolgerId = user.Id, BegeleiderId = id });
+            return Ok(updateBegeleiderId);
+
         }
 
-        [HttpPut("UnassignUsersToBegeleider/{id}")]
+        [HttpPut("UnassignUsersToBegeleider")]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> UnassignUsersToBegeleider(string id)
+        public async Task<IActionResult> UnassignUsersToBegeleider([FromBody] ApplicationUser user)
         {
-            var volger = await _mediator.Send(new FindUserByIdQuery(id));
-            if (volger != null)
-            {
-                var updateBegeleiderId = await _mediator.Send(new UnassignUserCommand() { VolgerId = id });
-                return Ok(updateBegeleiderId);
+              var updateBegeleiderId = await _mediator.Send(new UnassignUserCommand() { VolgerId = user.Id, User = user });
+              return Ok(updateBegeleiderId);
 
-            }
-            return NotFound();
         }
 
 
