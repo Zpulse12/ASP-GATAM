@@ -1,5 +1,6 @@
 using Gatam.WebAppVolger.Components;
 using Auth0.AspNetCore.Authentication;
+using Gatam.WebAppVolger.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -15,6 +16,7 @@ internal class Program
                options.Domain = builder.Configuration["Auth0:Domain"];
                options.ClientId = builder.Configuration["Auth0:ClientId"];
            });
+        builder.Services.RegisterPolicies();
 
         // Add services to the container.
         builder.Services.AddRazorComponents()
