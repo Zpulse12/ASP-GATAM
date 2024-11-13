@@ -1,4 +1,4 @@
-﻿namespace Gatam.WebAppBegeleider.Extensions.EnvironmentHelper
+﻿namespace Gatam.WebAppVolger.Extensions.EnvironmentHelper
 {
     public static class SolutionWrapper
     {

@@ -1,6 +1,7 @@
 using Gatam.WebAppVolger.Components;
 using Auth0.AspNetCore.Authentication;
 using Gatam.WebAppVolger.Extensions;
+using Gatam.WebAppVolger.Extensions.EnvironmentHelper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -11,11 +12,10 @@ internal class Program
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services
-           .AddAuth0WebAppAuthentication(options => {
-               options.Domain = builder.Configuration["Auth0:Domain"];
-               options.ClientId = builder.Configuration["Auth0:ClientId"];
-           });
+        builder.Services.AddSingleton<EnvironmentWrapper>();
+        builder.Services.AddScoped<Auth0UserStateService>();
+        builder.Services.RegisterAuth0Authentication();
+        builder.Services.RegisterCustomApiClient();
         builder.Services.RegisterPolicies();
 
         // Add services to the container.

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Gatam.WebAppBegeleider.Extensions.EnvironmentHelper
+namespace Gatam.WebAppVolger.Extensions.EnvironmentHelper
 {
     public static class DotEnvLoader
     {
