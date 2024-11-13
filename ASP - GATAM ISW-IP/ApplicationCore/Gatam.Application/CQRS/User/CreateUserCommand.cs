@@ -5,6 +5,7 @@ using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
+using System.Diagnostics;
 
 
 namespace Gatam.Application.CQRS.User
@@ -42,8 +43,6 @@ namespace Gatam.Application.CQRS.User
         public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
 
-            //string usernameForAuth0 = $"{request._user.Name}_{request._user.Surname}";
-            //request._user.Username = usernameForAuth0;
 
             //request._user.Name = AESProvider.Encrypt(request._user.Name, _environmentWrapper.KEY);
             //request._user.Surname = AESProvider.Encrypt(request._user.Surname, _environmentWrapper.KEY);
@@ -51,19 +50,25 @@ namespace Gatam.Application.CQRS.User
             //request._user.Email = AESProvider.Encrypt(request._user.Email, _environmentWrapper.KEY);
             //request._user.PhoneNumber = AESProvider.Encrypt(request._user.PhoneNumber, _environmentWrapper.KEY);
 
+
             var createUser = await _auth0Repository.CreateUserAsync(_mapper.Map<ApplicationUser>(request._user));
            if(createUser!=null)
             {
-                UserDTO user = _mapper.Map<UserDTO>(createUser);
-                var volgerRoleId = RoleMapper.Roles["VOLGER"];
-                user.RolesIds = new List<string> { volgerRoleId }; 
 
-                await _auth0Repository.UpdateUserRoleAsync(user);
-                await _unitOfWork.UserRepository.Create(_mapper.Map<ApplicationUser>(user));
+                UserDTO user = _mapper.Map<UserDTO>(createUser);
+                if (RoleMapper.Roles.TryGetValue("VOLGER", out var volgerRoleId))
+                {
+                    user.RolesIds = new List<string> { volgerRoleId };
+
+                    await _auth0Repository.UpdateUserRoleAsync(user);
+                }
+                
+                var appUser = _mapper.Map<UserDTO>(user);
+                await _unitOfWork.UserRepository.Create(createUser);
                 await _unitOfWork.commit();
 
+                return appUser;
             }
-
 
             return request._user;
 

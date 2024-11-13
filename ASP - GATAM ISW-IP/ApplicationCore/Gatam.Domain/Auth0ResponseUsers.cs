@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Gatam.Domain
@@ -16,8 +17,11 @@ namespace Gatam.Domain
         public string Name { get; set; }
         public string Nickname { get; set; }
         public string Picture { get; set; }
-        
-        public string Userid { get; set; }
+
+        [JsonPropertyName("user_id")]
+        public string UserId { get; set; }
+
+        [JsonPropertyName("user_metadata")]
         public UserMetadata UserMetadata { get; set; }
         public string Username { get; set; }
     }
@@ -26,5 +30,7 @@ namespace Gatam.Domain
     {
         public string PhoneNumber { get; set; }
         public string Picture { get; set; }
+
+        public IEnumerable<string?>? RolesIds { get; set; }
     }
 }

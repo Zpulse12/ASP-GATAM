@@ -8,6 +8,8 @@ using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Auth0.ManagementApi.Models;
 using Azure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Gatam.Infrastructure.Contexts;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -15,9 +17,11 @@ public class ManagementApiRepository: IManagementApi
 {
     private readonly HttpClient _httpClient;
     private readonly EnvironmentWrapper _environmentWrapper;
-    public ManagementApiRepository(HttpClient httpClient, EnvironmentWrapper environmentWrapper)
+    private readonly IUnitOfWork _unitOfWork;
+    public ManagementApiRepository(IUnitOfWork uow,HttpClient httpClient, EnvironmentWrapper environmentWrapper)
     {
         _httpClient = httpClient;
+        _unitOfWork = uow;
         _environmentWrapper = environmentWrapper;
         _httpClient.BaseAddress = new Uri(_environmentWrapper.BASEURI);
         _httpClient.DefaultRequestHeaders.Add("Authorization", @$"Bearer {_environmentWrapper.TOKEN}");
@@ -32,7 +36,7 @@ public class ManagementApiRepository: IManagementApi
         {
 
             var userId = user.GetProperty("user_id").GetString();
-
+            
 
             var userDto = new UserDTO
             {
@@ -74,6 +78,7 @@ public class ManagementApiRepository: IManagementApi
     public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
     {
     
+
         var payload = new
         {
 
@@ -87,7 +92,6 @@ public class ManagementApiRepository: IManagementApi
             {
                 phonenumber = user.PhoneNumber,
                 picture = user.Picture,
-                
             },
 
         };
@@ -103,23 +107,26 @@ public class ManagementApiRepository: IManagementApi
 
                 if (createdUser == null)
                 {
-                    Console.WriteLine("Failed to parse created user.");
                     return null;
                 }
+
+                string userId = createdUser.UserId;
+                
+
                 var applicationUser = new ApplicationUser
                 {
-                    Id = createdUser.Userid,  
+                    Id = userId,  
                     Name = createdUser.Name,
                     Surname = createdUser.Nickname,
                     Username = createdUser.Username,
                     Email = createdUser.Email,
-                    PhoneNumber = createdUser.UserMetadata.PhoneNumber,
-                    Picture = createdUser.UserMetadata.Picture,
-                    RolesIds = new List<string>() { RoleMapper.Roles["VOLGER"] },
+                    PhoneNumber = createdUser.UserMetadata?.PhoneNumber,
+                    Picture = createdUser.UserMetadata?.Picture,
+                    RolesIds = RoleMapper.GetRoleValues("VOLGER"),
                     IsActive = true 
                 };
-                Console.WriteLine("User created successfully.");
 
+                
 
                 return applicationUser;
             }
@@ -236,6 +243,7 @@ public class ManagementApiRepository: IManagementApi
     public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user)
     {
        
+
         var payload = new
         {
             roles = user.RolesIds.ToArray()

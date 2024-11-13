@@ -5,6 +5,7 @@
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Infrastructure.Repositories
+@using System.Diagnostics;
 
 @rendermode InteractiveServer
 
@@ -84,34 +85,58 @@
     string response = "";
     bool isSuccess = false;
 
-    ApplicationUser user = new ApplicationUser()  ;
+    ApplicationUser user = new ApplicationUser();
     private bool isFollowerRoleSelected = true;
+
 
     private async Task OnFormSubmit() 
     {
 
-        //user.Username = $"{user.Name}{user.Surname}";
+
         if (isFollowerRoleSelected)
         {
             user.RolesIds = new List<string> { RoleMapper.Roles["VOLGER"] };
         }
         else
         {
-            user.RolesIds = new List<string>(); 
+            user.RolesIds = null;
         }
-        HttpResponseMessage result = await apiClient.PostAsJsonAsync("/api/user", user);
 
+
+        var result = await apiClient.PostAsJsonAsync("/api/user", user);
         if(result.IsSuccessStatusCode)
         {
-            isSuccess = true;
-            response = "Gebruiker is aangemaakt";
-            user = new ApplicationUser();
+
+            var createdUser = await result.Content.ReadFromJsonAsync<UserDTO>();
+
+            if (createdUser != null)
+            {
+                if (!string.IsNullOrWhiteSpace(createdUser?.Id))
+                {
+                    await apiClient.PutAsJsonAsync($"/api/user/{createdUser.Id}/roles", createdUser);
+                }
+                else
+                {
+                    isSuccess = false;
+                    response = "Er trad een fout op bij het ophalen van de aangemaakte gebruiker-ID.";
+                }
+
+                isSuccess = true;
+                response = "Gebruiker is aangemaakt en rol is toegewezen.";
+                user = new ApplicationUser();
+            }
+            else
+            {
+                isSuccess = false;
+                response = "Er trad een fout op bij het ophalen van de aangemaakte gebruiker.";
+
+            }
         } else
         {
             isSuccess = false;
             response = "Niet goed";
             response = await result.Content.ReadAsStringAsync();
-            
+
         }
         StateHasChanged();
     }

@@ -17,6 +17,7 @@ namespace Gatam.Domain
         public bool IsActive { get; set; }
         public string? Picture { get; set; }
 
+
     }
 }
 

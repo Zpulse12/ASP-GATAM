@@ -8,6 +8,8 @@ public interface IManagementApi
     Task<IEnumerable<UserDTO>> GetAllUsersAsync();
     Task<bool> DeleteUserAsync(string userId);
     Task<ApplicationUser> CreateUserAsync(ApplicationUser user);
+
+
     Task<UserDTO> UpdateUserAsync(UserDTO user);
     Task<UserDTO> UpdateUserNicknameAsync(UserDTO user);
     Task<UserDTO> UpdateUserEmailAsync(UserDTO user);
