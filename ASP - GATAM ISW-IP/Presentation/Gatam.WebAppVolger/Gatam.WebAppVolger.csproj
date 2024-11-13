@@ -10,4 +10,22 @@
     <PackageReference Include="Auth0.AspNetCore.Authentication" Version="1.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\ApplicationCore\Gatam.Application\Gatam.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Components\Layout\Layout\AuthLayout.razor" />
+    <AdditionalFiles Include="Components\Layout\Layout\CustomCards.razor" />
+    <AdditionalFiles Include="Components\Layout\Layout\CustomNavMenu.razor" />
+    <AdditionalFiles Include="Components\Layout\Layout\InactiveUserRedirect.razor" />
+    <AdditionalFiles Include="Components\Layout\Layout\MainLayout.razor" />
+    <AdditionalFiles Include="Components\Layout\Layout\NavMenu.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css.map" />
+  </ItemGroup>
+
 </Project>
