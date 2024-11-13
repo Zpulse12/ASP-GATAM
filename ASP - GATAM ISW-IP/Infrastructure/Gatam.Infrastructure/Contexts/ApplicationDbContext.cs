@@ -13,7 +13,7 @@ namespace Gatam.Infrastructure.Contexts
         public DbSet<ApplicationModule> Modules { get; set; }
         public DbSet<Question> Questions { get; set; }
 
-        public DbSet<Answer> Answers { get; set; }
+        public DbSet<QuestionAnswer> Answers { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
 
@@ -76,12 +76,15 @@ namespace Gatam.Infrastructure.Contexts
             {
                 QuestionType = (short)QuestionType.OPEN,
                 QuestionTitle = "Wat wil je later bereiken? ",
-                Answers = new List<Answer>() { new Answer() { AnswerTitle = "", AnswerValue = ""} },
                 CreatedUserId = "123",
                 LastUpdatedUserId = "123",
             };
 
             builder.Entity<Question>().HasData(GLOBALQUESTION);
+
+            QuestionAnswer GLOBALQUESTIONANSWER = new QuestionAnswer() { Answer = "OPEN", QuestionId = GLOBALQUESTION.Id };
+            builder.Entity<QuestionAnswer>().HasData(GLOBALQUESTIONANSWER);
+
 
             builder.Entity<ApplicationModule>()
             .HasMany(am => am.Questions)

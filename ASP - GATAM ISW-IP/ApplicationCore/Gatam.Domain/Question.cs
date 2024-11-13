@@ -31,7 +31,7 @@ namespace Gatam.Domain
         public string? ApplicationModuleId { get; set; }
         [JsonIgnore]
         public ApplicationModule? ApplicationModule { get; set; }
-        public IEnumerable<Answer> Answers { get; set; } = new List<Answer>();
+        public IEnumerable<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
         public Question()
         {
             Id = Guid.NewGuid().ToString();
