@@ -1,9 +1,11 @@
 ﻿@page "/ModulesOfUser"
 @using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
+@using Gatam.WebAppVolger.Components.Layout
 @inject ApiClient ApiClient
 @inject IHttpContextAccessor HttpContextAccessor
 @attribute [Authorize]
+<InactiveUserRedirect />
 
 <h3>Mijn Modules</h3>
 
