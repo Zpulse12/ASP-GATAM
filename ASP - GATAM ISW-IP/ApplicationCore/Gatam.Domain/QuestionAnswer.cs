@@ -17,7 +17,7 @@ namespace Gatam.Domain
         public string? AnswerValue { get; set; }
         public string QuestionId { get; set; }
         [JsonIgnore]
-        public Question Question { get; set; }
+        public Question? Question { get; set; }
         public QuestionAnswer() { 
             Id = Guid.NewGuid().ToString();
         }
