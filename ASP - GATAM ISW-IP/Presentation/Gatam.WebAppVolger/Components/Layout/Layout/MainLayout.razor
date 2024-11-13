@@ -5,12 +5,12 @@
 
 <div >
     <div >
-        <CustomNavMenu>
+       <CustomNavMenu>
             <input type="checkbox" title="Navigation menu" class="navbar-toggler" hidden />
 
             <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
                         <AuthorizeView Policy="RequireManagementRole">
                             <Authorized>
                                 <li class="nav-item dropdown">
@@ -61,12 +61,12 @@
                             </Authorized>
                         </AuthorizeView>
 
-                    </ul>
-                </div>
-
+                        </ul>
+                    </div>
+             
             </div>
-
-        </CustomNavMenu>
+            
+       </CustomNavMenu>
     </div>
     <main class="main-content">
         <article class="article-content">
