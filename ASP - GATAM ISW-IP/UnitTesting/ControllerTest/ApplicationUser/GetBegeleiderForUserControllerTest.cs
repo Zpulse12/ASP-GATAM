@@ -7,7 +7,7 @@ using Moq;
 
 namespace UnitTesting.ControllerTest.ApplicationUser;
 [TestClass]
-public class GetBegeleiderForUserTest
+public class GetBegeleiderForUserControllerTest
 {
     private Mock<IMediator> _mockMediator;
     private UserController _controller;
