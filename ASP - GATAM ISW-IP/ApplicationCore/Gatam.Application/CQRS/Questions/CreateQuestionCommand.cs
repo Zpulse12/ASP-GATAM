@@ -23,11 +23,12 @@ namespace Gatam.Application.CQRS.Questions
         {
             RuleFor(q => q.question.QuestionTitle).NotEmpty().WithMessage("Je moet een vraag meegeven");
             RuleFor(q => q.question.QuestionTitle).NotNull().WithMessage("Je moet een vraag meegeven");
-            //RuleFor(q => q.question.QuestionAnswer).NotEmpty().WithMessage("Je moet een antwoord meegeven");
-            //RuleFor(q => q.question.QuestionAnswer).NotNull().WithMessage("Je moet een antwoord meegeven");
+            RuleFor(q => q.question.Answers).NotEmpty().WithMessage("Je moet een antwoord meegeven");
+            RuleFor(q => q.question.QuestionType).NotEmpty().WithMessage("Je moet een type meegeven");
             RuleFor(q => q.question.ApplicationModuleId).NotEqual(q => q.question.Id).WithMessage("Module heeft dezelfde Id als de vraag en dit zorgt voor conflicten. Probeer een nieuwe vraag aan te maken.");
             RuleFor(q => q.question.QuestionTitle).MinimumLength(_minimumQuestionLength).WithMessage($"Je vraag is te kort. Je vraag moet minstens {_minimumQuestionLength} tekens bevatten");
             RuleFor(q => q.question.QuestionTitle).MaximumLength(_maximumQuestionLength).WithMessage($"Je vraag is te lang. Je vraag mag maximaal {_maximumQuestionLength} tekens bevatten");
+
         }
     }
     public class CreateQuestionCommandHandler : IRequestHandler<CreateQuestionCommand, Question>
