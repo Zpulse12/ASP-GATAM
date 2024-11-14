@@ -42,6 +42,6 @@ namespace Gatam.Application.CQRS.User;
         if (user == null)
             throw new KeyNotFoundException("User not found");
 
-        return _mapper.Map<List<ApplicationModule>>(user.UserModules.Select(um => um.Module).ToList());
+        return user.UserModules.Select(um => um.Module).ToList();
     }
 }

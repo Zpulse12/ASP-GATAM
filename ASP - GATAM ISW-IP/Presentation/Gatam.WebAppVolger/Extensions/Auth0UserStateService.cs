@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace Gatam.WebAppBegeleider.Extensions
+namespace Gatam.WebAppVolger.Extensions
 {
     public class Auth0UserStateService
     {
