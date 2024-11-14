@@ -44,8 +44,8 @@ public class ManagementApiRepository: IManagementApi
                 Name = user.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
                 Surname = user.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
                 Username = user.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
-                Email = user.GetProperty("email").GetString(),
-                PhoneNumber=user.GetProperty("phoneNumber").GetString(),
+                Email = user.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
+                PhoneNumber = user.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
                 IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
                 Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
                 RolesIds = new List<string>()
@@ -64,14 +64,14 @@ public class ManagementApiRepository: IManagementApi
         UserDTO _user = new UserDTO
         {
             Id = userId,
-            Email = _response.GetProperty("email").GetString(),
             Name = _response.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
             Surname = _response.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
             Username = _response.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
-            PhoneNumber=_response.GetProperty("phoneNumber").GetString(),
+            Email = _response.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
+            PhoneNumber = _response.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
             Picture = _response.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
             IsActive = !_response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-            RolesIds = new List<string>()
+           // RolesIds = new List<string>()
         };
         return _user; 
     }
