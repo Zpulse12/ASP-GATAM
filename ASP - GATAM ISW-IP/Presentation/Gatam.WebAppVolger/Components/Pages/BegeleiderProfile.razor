@@ -1,0 +1,88 @@
+﻿@page "/BegeleiderProfile"
+@using System.Security.Claims
+@using Gatam.Application.CQRS
+@using Gatam.WebAppVolger.Extensions
+@using Gatam.WebAppVolger.Components.Layout
+@inject ApiClient ApiClient
+@inject AuthenticationStateProvider authenticationStateProvider
+@attribute [Authorize(Policy = "RequireVolgersRole")]
+<InactiveUserRedirect />
+
+<h3>Mijn Begeleider</h3>
+
+@if (_isLoading)
+{
+    <div class="text-center">
+        <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+    </div>
+}
+else if (_hasError)
+{
+    <Callout Color="CalloutColor.Danger">
+        <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van jouw begeleider.
+    </Callout>
+}
+else if (_begeleider != null)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>@_begeleider.Nickname</h5>
+            <p>Email: @_begeleider.Email</p>
+            <p>Telefoon: @_begeleider.PhoneNumber</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <p>Geen begeleider gevonden voor jouw account.</p>
+    </div>
+}
+
+@code {
+    private UserDTO _begeleider;
+    private bool _isLoading = true;
+    private bool _hasError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBegeleider();
+    }
+
+    private async Task LoadBegeleider()
+    {
+        _isLoading = true;
+        try
+        {
+            AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ClaimsPrincipal user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    _hasError = true;
+                    return;
+                }
+                _begeleider = await ApiClient.GetFromJsonAsync<UserDTO>($"api/user/{userId}/begeleider");
+            }
+            else
+            {
+                _hasError = true;
+            }
+        }
+        catch (HttpRequestException)
+        {
+            _hasError = true;
+        }
+        catch (Exception)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

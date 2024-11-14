@@ -1,17 +1,36 @@
 ﻿@inherits LayoutComponentBase
+<div >
+    <div >
+        <CustomNavMenu>
+            <input type="checkbox" title="Navigation menu" class="navbar-toggler" hidden />
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+            <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <AuthorizeView Policy="RequireVolgersRole">
+                            <Authorized>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link" href="/ModulesOfUser" style="color:white; font-weight:bold;">
+                                        <i class="bi bi-people-fill"></i> Mijn modules
+                                    </NavLink>
+                                </li>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link" href="/BegeleiderProfile" style="color:white; font-weight:bold;">
+                                        <i class="bi bi-person-fill"></i> Mijn Begeleider
+                                    </NavLink>
+                                </li>
+
+                            </Authorized>
+                        </AuthorizeView>
+                    </ul>
+                </div>
+
+            </div>
+
+        </CustomNavMenu>
     </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-            <Login />
-        </div>
-
-        <article class="content px-4">
+    <main class="main-content">
+        <article class="article-content">
             @Body
         </article>
     </main>

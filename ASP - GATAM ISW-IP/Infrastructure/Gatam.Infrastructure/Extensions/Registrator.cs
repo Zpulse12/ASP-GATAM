@@ -30,7 +30,7 @@ namespace Gatam.Infrastructure.Extensions
         public static IServiceCollection RegisterInfrastructure(this IServiceCollection services)
         {
             services.AddHttpClient();
-            services.AddScoped<IGenericRepository<ApplicationUser>, UserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IGenericRepository<ApplicationModule>, ModuleRepository>();
             services.AddScoped<IGenericRepository<Question>, QuestionRepository>();
             services.AddScoped<IManagementApi, ManagementApiRepository>();
@@ -62,6 +62,12 @@ namespace Gatam.Infrastructure.Extensions
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
                     var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
+                    policy.RequireRole(requiredRoleIds);
+
+                });
+                options.AddPolicy("RequireVolgersRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetRoleValues("VOLGER","BEHEERDER", "BEGELEIDER");
                     policy.RequireRole(requiredRoleIds);
 
                 });

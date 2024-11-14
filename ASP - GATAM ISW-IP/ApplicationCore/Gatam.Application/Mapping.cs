@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Gatam.Application.CQRS;
+﻿using Gatam.Application.CQRS;
 using AutoMapper;
 using Gatam.Domain;
 namespace Gatam.Application
@@ -12,7 +7,8 @@ namespace Gatam.Application
     {
         public Mapping()
         {
-            CreateMap<ApplicationUser, UserDTO>();
+            CreateMap<ApplicationUser, UserDTO>()
+                .ForMember(dest => dest.Nickname, opt => opt.MapFrom(src => src.UserName));
             CreateMap<UserDTO, ApplicationUser>() .ForMember(dest => dest.Id, opt => opt.Ignore());
 
         }

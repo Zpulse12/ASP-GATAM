@@ -40,7 +40,7 @@ namespace Gatam.Application.CQRS.Questions
 
             request.question.QuestionTitle = HandleTitleUniformEntry(request.question.QuestionTitle);
             await _uow.QuestionRepository.Create(request.question);
-            await _uow.commit();
+            await _uow.Commit();
             return request.question;
         }
         private string HandleTitleUniformEntry(string s)
