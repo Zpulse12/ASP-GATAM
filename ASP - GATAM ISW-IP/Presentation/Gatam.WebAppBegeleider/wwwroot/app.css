@@ -9,7 +9,7 @@ a, .btn-link {
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
+    background-color: #4454D2 !important;
     border-color: #1861ac;
 }
 .search-container {
@@ -136,6 +136,32 @@ h1:focus {
     color: white !important;
     border-bottom: 0 !important;
 }
+
+
+
+.description {
+    border-top: 1px dotted #AAAAAA;
+}
+
+.description span {
+    background: white none repeat scroll 0 0;
+    line-height: 0;
+    padding: 0.1em 1.5em;
+    position: relative;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
+
 @media (max-width: 768px) {
     .navbar-nav {
         /* Bijvoorbeeld: geen marge of padding voor nav items in kleine schermen */

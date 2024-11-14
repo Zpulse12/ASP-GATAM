@@ -8,11 +8,11 @@ namespace Gatam.Infrastructure.Contexts
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
         public DbSet<ApplicationModule> Modules { get; set; }
-        // public DbSet<Question> Questions { get; set; }
+        public DbSet<Question> Questions { get; set; }
+
+        public DbSet<QuestionAnswer> Answers { get; set; }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -87,7 +87,29 @@ namespace Gatam.Infrastructure.Contexts
 
 
 
+            Question GLOBALQUESTION = new Question()
+            {
+                QuestionType = (short)QuestionType.OPEN,
+                QuestionTitle = "Wat wil je later bereiken? ",
+                CreatedUserId = "123",
+                LastUpdatedUserId = "123",
+            };
 
+            builder.Entity<Question>().HasData(GLOBALQUESTION);
+
+            QuestionAnswer GLOBALQUESTIONANSWER = new QuestionAnswer() { Answer = "OPEN", QuestionId = GLOBALQUESTION.Id };
+            builder.Entity<QuestionAnswer>().HasData(GLOBALQUESTIONANSWER);
+
+
+            builder.Entity<ApplicationModule>()
+            .HasMany(am => am.Questions)
+            .WithOne(q => q.ApplicationModule)
+            .HasForeignKey(q => q.ApplicationModuleId).IsRequired(false);
+
+            builder.Entity<Question>()
+            .HasMany(q => q.Answers)
+            .WithOne(a => a.Question)
+            .HasForeignKey(a => a.QuestionId).IsRequired(false);
         }
     }
 }
