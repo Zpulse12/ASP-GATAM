@@ -51,10 +51,10 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode); 
-            var users = okResult.Value as List<Gatam.Domain.ApplicationUser>;
+            var users = okResult.Value as List<UserDTO>;
             Assert.IsNotNull(users);
             Assert.AreEqual(2, users.Count);
-            Assert.AreEqual("user1", users[0].UserName); 
+            Assert.AreEqual("user1", users[0].Nickname); 
         }
 
         [TestMethod]
