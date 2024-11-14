@@ -100,7 +100,7 @@
     {
 
 
-        user.RolesIds = isFollowerRoleSelected ? new List<string> { RoleMapper.Roles["VOLGER"] } : null;
+        user.RolesIds = isFollowerRoleSelected ? new List<string> { RoleMapper.Roles["VOLGER"] } : new List<string>();
 
         var result = await apiClient.PostAsJsonAsync("/api/user", user);
         if(result.IsSuccessStatusCode)
@@ -110,7 +110,7 @@
 
             if (createdUser != null)
             {
-                if (!string.IsNullOrWhiteSpace(createdUser?.Id))
+                if (!string.IsNullOrWhiteSpace(createdUser?.Id) && createdUser.RolesIds?.Any() == true)
                 {
                     await apiClient.PutAsJsonAsync($"/api/user/{createdUser.Id}/roles", createdUser);
                 }

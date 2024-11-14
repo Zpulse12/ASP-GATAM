@@ -85,13 +85,12 @@ namespace Gatam.Application.CQRS.User
             {
 
                 UserDTO user = _mapper.Map<UserDTO>(createUser);
-                if (RoleMapper.Roles.TryGetValue("VOLGER", out var volgerRoleId))
+                if (request._user.RolesIds?.Any() == true && RoleMapper.Roles.TryGetValue("VOLGER", out var volgerRoleId))
                 {
                     user.RolesIds = new List<string> { volgerRoleId };
-
                     await _auth0Repository.UpdateUserRoleAsync(user);
                 }
-                
+
                 var appUser = _mapper.Map<UserDTO>(user);
                 await _unitOfWork.UserRepository.Create(createUser);
                 await _unitOfWork.commit();
