@@ -24,6 +24,35 @@ namespace Gatam.Application.CQRS.User
         public CreateUserCommandValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+
+            RuleFor(u => u._user.Name)
+                .NotNull().NotEmpty()
+                .WithMessage("Voornaam mag niet leeg zijn");
+            RuleFor(u => u._user.Name)
+                .MaximumLength(15)
+                .WithMessage("Voornaam is te lang");
+            RuleFor(u => u._user.Surname)
+                .NotNull().NotEmpty()
+                .WithMessage("Achternaam mag niet leeg zijn");
+            RuleFor(u => u._user.Surname)
+                .MaximumLength(15)
+                .WithMessage("Achternaam is te lang");
+            RuleFor(u => u._user.Username)
+                .NotNull().NotEmpty()
+                .WithMessage("UserNam Mag niet leeg zijn");
+            RuleFor(u => u._user.Email)
+                .NotNull().NotEmpty()
+                .WithMessage("Email moet ingevuld zijn");
+            RuleFor(u => u._user.Email)
+                .EmailAddress()
+                .WithMessage("Email moet een geldig emailadres zijn");
+            RuleFor(u => u._user.PhoneNumber)
+                .NotNull().NotEmpty()
+                .WithMessage("Gsm-nummer moet ingevuld zijn");
+            RuleFor(u => u._user.PasswordHash)
+                .NotNull().NotEmpty()
+                .WithMessage("Wachtwoord moet ingevuld zijn");
+
         }
     }
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDTO>
@@ -46,7 +75,7 @@ namespace Gatam.Application.CQRS.User
 
             //request._user.Name = AESProvider.Encrypt(request._user.Name, _environmentWrapper.KEY);
             //request._user.Surname = AESProvider.Encrypt(request._user.Surname, _environmentWrapper.KEY);
-            //request._user.Username = AESProvider.Encrypt(usernameForAuth0, _environmentWrapper.KEY);
+            //request._user.Username = AESProvider.Encrypt(request._user.Username, _environmentWrapper.KEY);
             //request._user.Email = AESProvider.Encrypt(request._user.Email, _environmentWrapper.KEY);
             //request._user.PhoneNumber = AESProvider.Encrypt(request._user.PhoneNumber, _environmentWrapper.KEY);
 

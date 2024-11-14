@@ -31,12 +31,12 @@ namespace Gatam.Infrastructure.Contexts
                 Id = Guid.NewGuid().ToString(),
                 Name = "admin",
                 Surname = "Suradmin",
-                Username = "admin" + "Suradmin",
-                PhoneNumber = "09966554411",
+                Username = "adminSuradmin",
+                PhoneNumber = "+32 9966554411",
                 Email = "admin@app.com",
                 RolesIds =  new List<string> { RoleMapper.Roles["BEHEERDER"] },
-                PasswordHash = hasher.HashPassword(null, "root")
-                
+                PasswordHash = hasher.HashPassword(null, "root"),
+                IsActive = false
 
             };
 
@@ -45,8 +45,8 @@ namespace Gatam.Infrastructure.Contexts
                 Id = Guid.NewGuid().ToString(),
                 Name = "JohnDoe",
                 Surname = "JOHNDOE",
-                Username = "JohnDoe" + "JOHNDOE",
-                PhoneNumber = "0456789166",
+                Username = "JohnDoeJOHNDOE",
+                PhoneNumber = "+32 456789166",
                 Email = "john.doe@example.com",
                 RolesIds =  new List<string> { RoleMapper.Roles["VOLGER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
@@ -58,8 +58,8 @@ namespace Gatam.Infrastructure.Contexts
                 Id = Guid.NewGuid().ToString(),
                 Name = "JaneDoe",
                 Surname = "JANEDOE",
-                Username = "JaneDoe" + "JANEDOE",
-                PhoneNumber = "0568779633",
+                Username = "JaneDoeJANEDOE",
+                PhoneNumber = "+32 568779633",
                 Email = "jane.doe@example.com",
                 RolesIds =  new List<string> { RoleMapper.Roles["MAKER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
@@ -72,8 +72,8 @@ namespace Gatam.Infrastructure.Contexts
                 Id = Guid.NewGuid().ToString(),
                 Name = "Lautje",
                 Surname = "LAUTJE",
-                Username = "Lautje" + "LAUTJE",
-                PhoneNumber = "07896544336",
+                Username = "LautjeLAUTJE",
+                PhoneNumber = "+23 7896544336",
                 Email = "lautje.doe@example.com",
                 RolesIds =  new List<string> { RoleMapper.Roles["MAKER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),

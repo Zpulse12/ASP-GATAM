@@ -32,34 +32,41 @@
         <ValidationSummary />
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="Name">Naam</label>
+                <label for="Name">Naam <span class="text-danger">*</span></label>
                 <InputText id="Name" @bind-Value="user.Name" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.Name)" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="Surname">Achternaam</label>
+                <label for="Surname">Achternaam <span class="text-danger">*</span></label>
                 <InputText id="Surname" @bind-Value="user.Surname" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.Surname)" />
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="Email">E-mailadres</label>
+                <label for="Email">E-mailadres <span class="text-danger">*</span></label>
                 <InputText id="Email" @bind-Value="user.Email" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.Email)" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="Username">Gebruikersnaam</label>
+                <label for="Username">Gebruikersnaam <span class="text-danger">*</span></label>
                 <InputText id="Username" @bind-Value="user.Username" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.Username)" />
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="Password">Wachtwoord</label>
+                <label for="Password">Wachtwoord <span class="text-danger">*</span></label>
                 <InputText id="Password" @bind-Value="user.PasswordHash" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.PasswordHash)" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="PhoneNumber">Gsm-nummer</label>
+                <label for="PhoneNumber">Gsm-nummer <span class="text-danger">*</span></label>
                 <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.PhoneNumber)" />
+
             </div>
         </div>
         <div class="row mb-3">
@@ -85,7 +92,7 @@
     string response = "";
     bool isSuccess = false;
 
-    ApplicationUser user = new ApplicationUser();
+    UserDTO user = new UserDTO();
     private bool isFollowerRoleSelected = true;
 
 
@@ -93,15 +100,7 @@
     {
 
 
-        if (isFollowerRoleSelected)
-        {
-            user.RolesIds = new List<string> { RoleMapper.Roles["VOLGER"] };
-        }
-        else
-        {
-            user.RolesIds = null;
-        }
-
+        user.RolesIds = isFollowerRoleSelected ? new List<string> { RoleMapper.Roles["VOLGER"] } : null;
 
         var result = await apiClient.PostAsJsonAsync("/api/user", user);
         if(result.IsSuccessStatusCode)
@@ -123,7 +122,7 @@
 
                 isSuccess = true;
                 response = "Gebruiker is aangemaakt en rol is toegewezen.";
-                user = new ApplicationUser();
+                user = new UserDTO();
             }
             else
             {

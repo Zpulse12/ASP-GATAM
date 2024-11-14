@@ -183,7 +183,7 @@
 
         try
         {
-            _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/user");
+            _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
             _hasError = !_users.Any();
 
         } catch (HttpRequestException ex)
