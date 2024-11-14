@@ -19,11 +19,11 @@ namespace Gatam.Infrastructure.UOW
                             ApplicationDbContext context, 
                             IUserRepository userRepository, 
                             IGenericRepository<ApplicationModule> moduleRepository,
-                            IQuestionRepository genericRepository)
+                            IQuestionRepository questionRepository)
         {
             _userRepository = userRepository;
             _moduleRepository = moduleRepository;
-            _questionRepository = genericRepository;
+            _questionRepository = questionRepository;
             _context = context;
         }
 
