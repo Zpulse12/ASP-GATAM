@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Gatam.Application.CQRS;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
 using Gatam.WebAPI.Controllers;
@@ -22,10 +23,24 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         [TestMethod]
         public async Task GetAllUsersWithBegeleiderId_Should_Return_Ok_With_Data()
         {
-            var mockUsers = new List<Gatam.Domain.ApplicationUser>
+            var mockUsers = new List<UserDTO>
             {
-                new Gatam.Domain.ApplicationUser { Id = "1", UserName = "user1", BegeleiderId = "begeleider1" },
-                new Gatam.Domain.ApplicationUser { Id = "2", UserName = "user2", BegeleiderId = "begeleider2" }
+                new UserDTO
+                {
+                    Id = "1",
+                    Nickname = "user1",
+                    BegeleiderId = "begeleider1",
+                    Email = null,
+                    RolesIds = null
+                },
+                new UserDTO
+                {
+                    Id = "2",
+                    Nickname = "user2",
+                    BegeleiderId = "begeleider2",
+                    Email = null,
+                    RolesIds = null
+                }
             };
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetAllUsersWithBegeleiderIdQuery>(), default))
@@ -36,17 +51,17 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode); 
-            var users = okResult.Value as List<Gatam.Domain.ApplicationUser>;
+            var users = okResult.Value as List<UserDTO>;
             Assert.IsNotNull(users);
             Assert.AreEqual(2, users.Count);
-            Assert.AreEqual("user1", users[0].UserName); 
+            Assert.AreEqual("user1", users[0].Nickname); 
         }
 
         [TestMethod]
         public async Task GetAllUsersWithBegeleiderId_Should_Return_Empty_List_When_No_Users_Found()
         {
           
-            var mockUsers = new List<Gatam.Domain.ApplicationUser>(); 
+            var mockUsers = new List<UserDTO>(); 
 
            
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetAllUsersWithBegeleiderIdQuery>(), default))
@@ -59,7 +74,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode); 
-            var users = okResult.Value as List<Gatam.Domain.ApplicationUser>;
+            var users = okResult.Value as List<UserDTO>;
             Assert.IsNotNull(users);
             Assert.AreEqual(0, users.Count); 
         }

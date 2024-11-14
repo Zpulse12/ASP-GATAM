@@ -1,6 +1,6 @@
-﻿@page "/ModulesOfUser"
+﻿@page "/BegeleiderProfile"
 @using System.Security.Claims
-@using Gatam.Domain
+@using Gatam.Application.CQRS
 @using Gatam.WebAppVolger.Extensions
 @using Gatam.WebAppVolger.Components.Layout
 @inject ApiClient ApiClient
@@ -8,7 +8,7 @@
 @attribute [Authorize(Policy = "RequireVolgersRole")]
 <InactiveUserRedirect />
 
-<h3>Mijn Modules</h3>
+<h3>Mijn Begeleider</h3>
 
 @if (_isLoading)
 {
@@ -19,41 +19,37 @@
 else if (_hasError)
 {
     <Callout Color="CalloutColor.Danger">
-        <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van jouw modules.
+        <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van jouw begeleider.
     </Callout>
 }
-else if (_modules != null && _modules.Any())
+else if (_begeleider != null)
 {
-    <div class="module-list">
-        @foreach (var module in _modules)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5>@module.Title</h5>
-                    <p>@module.Category</p>
-                </div>
-            </div>
-        }
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>@_begeleider.Nickname</h5>
+            <p>Email: @_begeleider.Email</p>
+            <p>Telefoon: @_begeleider.PhoneNumber</p>
+        </div>
     </div>
 }
 else
 {
     <div class="text-center">
-        <p>Geen modules gevonden voor jouw account.</p>
+        <p>Geen begeleider gevonden voor jouw account.</p>
     </div>
 }
 
 @code {
-    private List<ApplicationModule> _modules = new List<ApplicationModule>();
+    private UserDTO _begeleider;
     private bool _isLoading = true;
     private bool _hasError = false;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUserModules();
+        await LoadBegeleider();
     }
 
-    private async Task LoadUserModules()
+    private async Task LoadBegeleider()
     {
         _isLoading = true;
         try
@@ -69,18 +65,18 @@ else
                     _hasError = true;
                     return;
                 }
-                _modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/user/modules/{userId}");
+                _begeleider = await ApiClient.GetFromJsonAsync<UserDTO>($"api/user/{userId}/begeleider");
             }
             else
             {
                 _hasError = true;
             }
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
             _hasError = true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _hasError = true;
         }
@@ -89,6 +85,4 @@ else
             _isLoading = false;
         }
     }
-
-
 }

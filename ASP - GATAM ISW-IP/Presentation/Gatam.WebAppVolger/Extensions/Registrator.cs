@@ -56,7 +56,7 @@ namespace Gatam.WebAppVolger.Extensions
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("RequireVolgerRole", policy =>
+                options.AddPolicy("RequireVolgersRole", policy =>
                 {
                     var requiredRoleIds = RoleMapper.GetRoleValues("VOLGER","BEHEERDER","BEGELEIDER");
                     policy.RequireRole(requiredRoleIds);

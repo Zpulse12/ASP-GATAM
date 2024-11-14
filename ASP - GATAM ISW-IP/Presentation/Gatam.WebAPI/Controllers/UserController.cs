@@ -76,8 +76,6 @@ namespace Gatam.WebAPI.Controllers
             return Ok(returnedUser);
         }
 
-        
-
         [HttpDelete]
         [Route("delete/{id}")]
         [Authorize(Policy = "RequireAdminRole")]
@@ -104,6 +102,15 @@ namespace Gatam.WebAPI.Controllers
 
             return Ok(roles);
         }
+        [HttpGet("{UserId}/begeleider")]
+        [Authorize(Policy = "RequireVolgersRole")]
+        public async Task<IActionResult> GetBegeleiderForUser([FromRoute] string UserId)
+        {
+            var begeleiderDto = await _mediator.Send(new GetBegeleiderForUserQuery(UserId));
+            return Ok(begeleiderDto);
+        }
+
+
         [HttpPut("AssignUserModule/{userId}")]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUserModule(string userId, [FromQuery] string moduleId)
@@ -112,7 +119,7 @@ namespace Gatam.WebAPI.Controllers
             return Ok(assignedUser);
         }
         [HttpGet("modules/{userId}")]
-        [Authorize(Policy = "RequireManagementRole")]
+        [Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> GetUserModules(string userId)
         {
             var query = new GetUserModulesQuery(userId);
@@ -142,8 +149,6 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpGet("AssignUsersToBegeleider")]
-        [Authorize(Policy = "RequireManagementRole")]
-
         public async Task<IActionResult> GetAllUsersWithBegeleiderId()
         {
             var assignUsersToBegeleider = await _mediator.Send(new GetAllUsersWithBegeleiderIdQuery());

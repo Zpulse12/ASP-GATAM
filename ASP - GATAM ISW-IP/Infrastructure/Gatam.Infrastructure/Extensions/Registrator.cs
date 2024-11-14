@@ -64,6 +64,12 @@ namespace Gatam.Infrastructure.Extensions
                     policy.RequireRole(requiredRoleIds);
 
                 });
+                options.AddPolicy("RequireVolgersRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetRoleValues("VOLGER","BEHEERDER", "BEGELEIDER");
+                    policy.RequireRole(requiredRoleIds);
+
+                });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
                     var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
