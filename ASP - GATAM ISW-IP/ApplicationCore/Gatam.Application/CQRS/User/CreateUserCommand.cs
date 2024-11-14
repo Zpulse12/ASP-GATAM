@@ -29,13 +29,13 @@ namespace Gatam.Application.CQRS.User
                 .NotNull().NotEmpty()
                 .WithMessage("Voornaam mag niet leeg zijn");
             RuleFor(u => u._user.Name)
-                .MaximumLength(15)
+                .MaximumLength(50)
                 .WithMessage("Voornaam is te lang");
             RuleFor(u => u._user.Surname)
                 .NotNull().NotEmpty()
                 .WithMessage("Achternaam mag niet leeg zijn");
             RuleFor(u => u._user.Surname)
-                .MaximumLength(15)
+                .MaximumLength(50)
                 .WithMessage("Achternaam is te lang");
             RuleFor(u => u._user.Username)
                 .NotNull().NotEmpty()
