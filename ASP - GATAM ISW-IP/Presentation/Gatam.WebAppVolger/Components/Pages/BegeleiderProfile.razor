@@ -5,7 +5,7 @@
 @using Gatam.WebAppVolger.Components.Layout
 @inject ApiClient ApiClient
 @inject AuthenticationStateProvider authenticationStateProvider
-@attribute [Authorize]
+@attribute [Authorize(Policy = "RequireVolgersRole")]
 <InactiveUserRedirect />
 
 <h3>Mijn Begeleider</h3>
