@@ -29,7 +29,14 @@ public class GetUsersWithSyncQueryHandler : IRequestHandler<GetUsersWithSyncQuer
                 await _mediator.Send(new CreateUserCommand { _user = new UserDTO
                 {
                     Id = auth0User.Id,
+                    Name = auth0User.Name,
+                    Surname = auth0User.Surname,
+                    Username = auth0User.Username,
+                    Email = auth0User.Email,
+                    PhoneNumber = auth0User.PhoneNumber,
                     IsActive = true,
+                    Picture = auth0User.Picture,
+                    RolesIds = auth0User.RolesIds ?? new List<string>()
                 } });
                 auth0User.IsActive = true;
             }

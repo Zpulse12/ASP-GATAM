@@ -120,6 +120,7 @@ public class ManagementApiRepository: IManagementApi
                     Surname = createdUser.Nickname,
                     Username = createdUser.Username,
                     Email = createdUser.Email,
+                    PasswordHash = user.PasswordHash,
                     PhoneNumber = createdUser.UserMetadata?.PhoneNumber,
                     Picture = createdUser.UserMetadata?.Picture,
                     RolesIds = RoleMapper.GetRoleValues("VOLGER"),
