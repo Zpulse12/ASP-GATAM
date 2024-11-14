@@ -23,7 +23,7 @@
             <GridColumn TItem="ApplicationUser" HeaderText="Email">
                 @context.Email
             </GridColumn>
-            <GridColumn TItem="ApplicationUser" HeaderText="Verwijderen Toewijzing">
+            <GridColumn TItem="ApplicationUser" HeaderText="Toewijzing verwijderen">
                 <button type="button" class="btn btn-outline-danger" @onclick="() => UnassignVolgerToBegeleider(context)">Verwijder</button>
             </GridColumn>
         </GridColumns>
