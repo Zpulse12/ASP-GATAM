@@ -5,14 +5,14 @@ using MediatR;
 
 namespace Gatam.Application.CQRS.User.BegeleiderAssignment
 {
-    public class GetAllUsersWithBegeleiderIdQuery : IRequest<IEnumerable<ApplicationUser>>
+    public class GetAllUsersWithBegeleiderIdQuery : IRequest<IEnumerable<UserDTO>>
     {
         public GetAllUsersWithBegeleiderIdQuery()
         {
 
         }
     }
-    public class GetAllUsersWithBegeleiderIdQueryHandler : IRequestHandler<GetAllUsersWithBegeleiderIdQuery, IEnumerable<ApplicationUser>>
+    public class GetAllUsersWithBegeleiderIdQueryHandler : IRequestHandler<GetAllUsersWithBegeleiderIdQuery, IEnumerable<UserDTO>>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
@@ -23,9 +23,9 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ApplicationUser>> Handle(GetAllUsersWithBegeleiderIdQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<UserDTO>> Handle(GetAllUsersWithBegeleiderIdQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<IEnumerable<ApplicationUser>>(await _uow.UserRepository.GetAllAsync());
+            return _mapper.Map<IEnumerable<UserDTO>>(await _uow.UserRepository.GetAllAsync());
         }
     }
 
