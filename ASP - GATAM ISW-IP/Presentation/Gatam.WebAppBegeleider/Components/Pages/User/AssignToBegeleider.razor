@@ -23,8 +23,8 @@
             <GridColumn TItem="ApplicationUser" HeaderText="Email">
                 @context.Email
             </GridColumn>
-            <GridColumn TItem="ApplicationUser" HeaderText="Verwijderen Toewijzing">
-                <button type="button" class="btn btn-outline-danger" >Verwijder</button>
+            <GridColumn TItem="ApplicationUser" HeaderText="Toewijzing verwijderen">
+                <button type="button" class="btn btn-outline-danger" @onclick="() => UnassignVolgerToBegeleider(context)">Verwijder</button>
             </GridColumn>
         </GridColumns>
     </Grid>
@@ -100,6 +100,24 @@
         }
 
     }
+    private async Task UnassignVolgerToBegeleider(ApplicationUser user)
+    {
+        var response = await apiClient.PutAsJsonAsync($"api/user/UnassignUsersToBegeleider", user);
+
+        if (response.IsSuccessStatusCode)
+        {
+            usersWithoutBegeleiderId.Add(user);
+            usersWithBegeleiderId.Remove(user);
+            user.BegeleiderId = null;
+
+            usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
+            usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
+            await InvokeAsync(StateHasChanged);
+
+            StateHasChanged();
+        }
+    }
+
    
 
 
