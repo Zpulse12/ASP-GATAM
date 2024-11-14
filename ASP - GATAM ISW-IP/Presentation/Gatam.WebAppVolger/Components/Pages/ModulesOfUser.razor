@@ -1,9 +1,10 @@
 ﻿@page "/ModulesOfUser"
+@using System.Security.Claims
 @using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
 @using Gatam.WebAppVolger.Components.Layout
 @inject ApiClient ApiClient
-@inject IHttpContextAccessor HttpContextAccessor
+@inject AuthenticationStateProvider authenticationStateProvider
 @attribute [Authorize]
 <InactiveUserRedirect />
 
@@ -57,9 +58,12 @@ else
         _isLoading = true;
         try
         {
-            if (HttpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated == true)
+            AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ClaimsPrincipal user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
             {
-                var userId = HttpContextAccessor.HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+                string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
                 {
                     _hasError = true;
