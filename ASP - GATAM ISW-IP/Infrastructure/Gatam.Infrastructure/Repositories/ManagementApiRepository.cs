@@ -30,32 +30,40 @@ public class ManagementApiRepository: IManagementApi
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
     {
         var response = await _httpClient.GetFromJsonAsync<JsonElement>("users");
-        var userDtos = new List<UserDTO>();
-
-        foreach (var user in response.EnumerateArray())
+        return response.EnumerateArray().Select(user => new UserDTO
         {
+            Id = user.GetProperty("user_id").GetString(),
+            Username = user.GetProperty("username").GetString(),
+            Email = user.GetProperty("email").GetString(),
+            PhoneNumber = user.GetProperty("phone_number").GetString(),
+            IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean()
+        }).ToList();
+        //var userDtos = new List<UserDTO>();
 
-            var userId = user.GetProperty("user_id").GetString();
-            
+        //foreach (var user in response.EnumerateArray())
+        //{
 
-            var userDto = new UserDTO
-            {
-                Id = userId,
-                Name = user.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
-                Surname = user.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
-                Username = user.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
-                Email = user.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
-                PhoneNumber = user.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
-                IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-                Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
-                RolesIds = new List<string>()
-            };
+        //    var userId = user.GetProperty("user_id").GetString();
 
-            userDto.RolesIds = (await GetRolesByUserId(userId)).ToList();
-            userDtos.Add(userDto);
-        }
 
-        return userDtos;
+        //    var userDto = new UserDTO
+        //    {
+        //        Id = userId,
+        //        Name = user.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
+        //        Surname = user.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
+        //        Username = user.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
+        //        Email = user.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
+        //        PhoneNumber = user.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
+        //        IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
+        //        Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
+        //        RolesIds = new List<string>()
+        //    };
+
+        //    userDto.RolesIds = (await GetRolesByUserId(userId)).ToList();
+        //    userDtos.Add(userDto);
+        //}
+
+        //return userDtos;
     }
 
     public async Task<UserDTO> GetUserByIdAsync(string userId)
@@ -87,10 +95,10 @@ public class ManagementApiRepository: IManagementApi
             username = user.Username,
             email = user.Email,
             password = user.PasswordHash,
+            phone_number = user.PhoneNumber,
             connection = "Username-Password-Authentication",
             user_metadata = new
             {
-                phonenumber = user.PhoneNumber,
                 picture = user.Picture,
             },
 
@@ -121,7 +129,7 @@ public class ManagementApiRepository: IManagementApi
                     Username = createdUser.Username,
                     Email = createdUser.Email,
                     PasswordHash = user.PasswordHash,
-                    PhoneNumber = createdUser.UserMetadata?.PhoneNumber,
+                    PhoneNumber = createdUser.PhoneNumber,
                     Picture = createdUser.UserMetadata?.Picture,
                     RolesIds = RoleMapper.GetRoleValues("VOLGER"),
                     IsActive = true 

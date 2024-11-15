@@ -13,7 +13,7 @@ namespace Gatam.Domain
         public  string Email { get; set; }
         public  string PhoneNumber { get; set; }
         public  string PasswordHash { get; set; }
-        public  IEnumerable<string?>? RolesIds { get; set; }
+        public  IList<string?>? RolesIds { get; set; }
         public bool IsActive { get; set; }
         public string? Picture { get; set; }
 

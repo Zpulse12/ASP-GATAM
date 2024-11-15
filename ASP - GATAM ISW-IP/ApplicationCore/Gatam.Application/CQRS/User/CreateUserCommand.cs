@@ -25,33 +25,33 @@ namespace Gatam.Application.CQRS.User
         {
             _unitOfWork = unitOfWork;
 
-            RuleFor(u => u._user.Name)
-                .NotNull().NotEmpty()
-                .WithMessage("Voornaam mag niet leeg zijn");
-            RuleFor(u => u._user.Name)
-                .MaximumLength(50)
-                .WithMessage("Voornaam is te lang");
-            RuleFor(u => u._user.Surname)
-                .NotNull().NotEmpty()
-                .WithMessage("Achternaam mag niet leeg zijn");
-            RuleFor(u => u._user.Surname)
-                .MaximumLength(50)
-                .WithMessage("Achternaam is te lang");
-            RuleFor(u => u._user.Username)
-                .NotNull().NotEmpty()
-                .WithMessage("UserNam Mag niet leeg zijn");
-            RuleFor(u => u._user.Email)
-                .NotNull().NotEmpty()
-                .WithMessage("Email moet ingevuld zijn");
-            RuleFor(u => u._user.Email)
-                .EmailAddress()
-                .WithMessage("Email moet een geldig emailadres zijn");
-            RuleFor(u => u._user.PhoneNumber)
-                .NotNull().NotEmpty()
-                .WithMessage("Gsm-nummer moet ingevuld zijn");
-            RuleFor(u => u._user.PasswordHash)
-                .NotNull().NotEmpty()
-                .WithMessage("Wachtwoord moet ingevuld zijn");
+            //RuleFor(u => u._user.Name)
+            //    .NotNull().NotEmpty()
+            //    .WithMessage("Voornaam mag niet leeg zijn");
+            //RuleFor(u => u._user.Name)
+            //    .MaximumLength(50)
+            //    .WithMessage("Voornaam is te lang");
+            //RuleFor(u => u._user.Surname)
+            //    .NotNull().NotEmpty()
+            //    .WithMessage("Achternaam mag niet leeg zijn");
+            //RuleFor(u => u._user.Surname)
+            //    .MaximumLength(50)
+            //    .WithMessage("Achternaam is te lang");
+            //RuleFor(u => u._user.Username)
+            //    .NotNull().NotEmpty()
+            //    .WithMessage("UserNam Mag niet leeg zijn");
+            //RuleFor(u => u._user.Email)
+            //    .NotNull().NotEmpty()
+            //    .WithMessage("Email moet ingevuld zijn");
+            //RuleFor(u => u._user.Email)
+            //    .EmailAddress()
+            //    .WithMessage("Email moet een geldig emailadres zijn");
+            //RuleFor(u => u._user.PhoneNumber)
+            //    .NotNull().NotEmpty()
+            //    .WithMessage("Gsm-nummer moet ingevuld zijn");
+            //RuleFor(u => u._user.PasswordHash)
+            //    .NotNull().NotEmpty()
+            //    .WithMessage("Wachtwoord moet ingevuld zijn");
 
         }
     }

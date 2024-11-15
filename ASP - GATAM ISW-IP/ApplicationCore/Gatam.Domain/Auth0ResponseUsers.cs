@@ -23,12 +23,15 @@ namespace Gatam.Domain
 
         [JsonPropertyName("user_metadata")]
         public UserMetadata UserMetadata { get; set; }
+
+        [JsonPropertyName("phone_number")]
+        public string PhoneNumber { get; set; }
         public string Username { get; set; }
     }
 
     public class UserMetadata
     {
-        public string PhoneNumber { get; set; }
+        
         public string Picture { get; set; }
 
         public IEnumerable<string?>? RolesIds { get; set; }
