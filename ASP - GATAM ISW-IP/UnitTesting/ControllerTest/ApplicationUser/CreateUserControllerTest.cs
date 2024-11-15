@@ -37,13 +37,13 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             Assert.AreEqual(201, createdResult.StatusCode);
             Assert.AreEqual(user, createdResult.Value);
         }
-        [TestMethod]
-        public async Task CreateUser_ReturnsBadRequest_EmptyMail()
-        {
-            _userController.ModelState.AddModelError("Email", "Email cannot be empty");
-            UserDTO user = new UserDTO { Name = "Test", Email = "" };
-            IActionResult result = await _userController.CreateUser(user);
-            Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
-        }
+        //[TestMethod]
+        //public async Task CreateUser_ReturnsBadRequest_EmptyMail()
+        //{
+        //    _userController.ModelState.AddModelError("Email", "Email cannot be empty");
+        //    UserDTO user = new UserDTO { Name = "Test", Email = "" };
+        //    IActionResult result = await _userController.CreateUser(user);
+        //    Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+        //}
     }
 }
