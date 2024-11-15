@@ -19,7 +19,7 @@ namespace Gatam.Application.CQRS
         public  string Name { get; set; }
 
         [Required(ErrorMessage = "Gebruikersnaam mag niet leeg zijn")]
-        public  string Username { get; set; }
+        public  string Username { get; set; } 
 
         [Required(ErrorMessage = "Achternaam mag niet leeg zijn")]
         [MaxLength(15, ErrorMessage = "Achternaam is te lang")]

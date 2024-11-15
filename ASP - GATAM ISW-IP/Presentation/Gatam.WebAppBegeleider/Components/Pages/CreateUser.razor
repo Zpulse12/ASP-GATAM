@@ -49,26 +49,19 @@
                 <ValidationMessage For="@(() => user.Email)" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="Username">Gebruikersnaam <span class="text-danger">*</span></label>
-                <InputText id="Username" @bind-Value="user.Username" class="form-control rounded-pill" />
-                <ValidationMessage For="@(() => user.Username)" />
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
                 <label for="Password">Wachtwoord <span class="text-danger">*</span></label>
                 <InputText id="Password" @bind-Value="user.PasswordHash" class="form-control rounded-pill" />
                 <ValidationMessage For="@(() => user.PasswordHash)" />
             </div>
-            <div class="col-md-6 mb-3">
+        </div>
+        <div class="row">
+            <div class="text-center">
                 <label for="PhoneNumber">Gsm-nummer <span class="text-danger">*</span></label>
                 <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control rounded-pill" />
                 <ValidationMessage For="@(() => user.PhoneNumber)" />
-
             </div>
         </div>
-        <div class="row mb-3">
+        <div class="row mb-3 mt-3">
             <div class="col-md-6">
                 <label>
                     <InputCheckbox @bind-Value="isFollowerRoleSelected" />
@@ -79,7 +72,7 @@
 
         <div class="row">
             <div class="text-center">
-                <button class="w-25 btn rounded-pill" style="background-color:#4454D2; color:white" type="submit" >Aanmaken</button>
+                <button class="w-25 btn rounded-pill" style="background-color:#4454D2; color:white" type="submit" onclick="@OnFormSubmit">Aanmaken</button>
             </div>
 
         </div>
@@ -100,6 +93,7 @@
 
 
         user.RolesIds = isFollowerRoleSelected ? new List<string> { RoleMapper.Roles["VOLGER"] } : new List<string>();
+        user.Username = user.Email.Split('@')[0];
 
         var result = await apiClient.PostAsJsonAsync("/api/user", user);
         if(result.IsSuccessStatusCode)

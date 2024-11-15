@@ -49,7 +49,7 @@ namespace Gatam.WebAPI.Controllers
         public async Task<IActionResult> CreateUser([FromBody] UserDTO user)
         {
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
-            return result == null ? BadRequest(result) : Created("", result);
+            return Created("", result);
         }
 
         [HttpPatch]

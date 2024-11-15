@@ -91,7 +91,7 @@ public class UpdateUserCommandTest
         {
             Id = "1234",
             Name = "TestUser",
-            Surname = "TestUserSurname",
+            Username = "TestUserSurname",
             Email = "testuser@example.com",
             RolesIds = new List<string> { RoleMapper.Roles["BEHEERDER"] },
         };

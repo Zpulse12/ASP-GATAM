@@ -88,6 +88,7 @@ namespace Gatam.Application.CQRS.User
                 if (request._user.RolesIds?.Any() == true && RoleMapper.Roles.TryGetValue("VOLGER", out var volgerRoleId))
                 {
                     user.RolesIds = new List<string> { volgerRoleId };
+
                     await _auth0Repository.UpdateUserRoleAsync(user);
                 }
 
