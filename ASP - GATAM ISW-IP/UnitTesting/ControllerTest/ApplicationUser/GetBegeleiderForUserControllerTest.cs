@@ -25,7 +25,7 @@ public class GetBegeleiderForUserControllerTest
         var userDto = new UserDTO
         {
             Id = "begeleider123",
-            Nickname = "BegeleiderNaam",
+            Username = "BegeleiderNaam",
             Email = null,
             RolesIds = null
         };

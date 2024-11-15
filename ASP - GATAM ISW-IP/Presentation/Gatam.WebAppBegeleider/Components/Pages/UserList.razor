@@ -36,26 +36,32 @@
 
         else
         {
-            <Grid TItem="UserDTO"
-                  AllowRowClick="true"
-                  AllowSorting="true"
-                  Class="table table-hover"
-                  DataProvider="CustomersDataProvider"
-                  AllowPaging="true"
-                  PageSize="5"
-                  HeaderRowCssClass="custom-header"
-                  OnRowClick="OnRowClick"
-                  Responsive="true">
-                <GridColumns>
-                    <GridColumn TItem="UserDTO" HeaderText="Nickname" PropertyName="Nickname" SortString="Nickname" SortKeySelector="item => item.Nickname">
-                        @context.Nickname
+               <Grid TItem="UserDTO"
+                          AllowRowClick="true"
+                          AllowSorting="true"
+                          Class="table table-hover"
+                          DataProvider="CustomersDataProvider"
+                          AllowPaging="true"
+                          PageSize="5"
+                          HeaderRowCssClass="custom-header"
+                          OnRowClick="OnRowClick"
+                          Responsive="true">
+                        <GridColumns>
+                    <GridColumn TItem="UserDTO" HeaderText="Naam" PropertyName="Naam" SortString="Naam" SortKeySelector="item => item.Name">
+                                @context.Name
+                            </GridColumn>
+                    <GridColumn TItem="UserDTO" HeaderText="Achternaam" PropertyName="Surname" SortString="Surname" SortKeySelector="item => item.Surname">
+                        @context.Surname
                     </GridColumn>
-                    <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email" SortString="Email" SortKeySelector="item => item.Email">
-                        @context.Email
+                            <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email" SortString="Email" SortKeySelector="item => item.Email">
+                                @context.Email
+                            </GridColumn>
+                    <GridColumn TItem="UserDTO" HeaderText="Gsm-nummer" PropertyName="PhoneNumber" SortString="PhoneNumber" SortKeySelector="item => item.PhoneNumber">
+                        @context.PhoneNumber
                     </GridColumn>
-                    <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive">
-                        <div class="">
-                            <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
+                            <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive" >
+                                <div class="">
+                                    <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
                                     @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
                                 @(context.IsActive ? "Deactiveer" : "Activeer")
                             </button>
@@ -78,42 +84,42 @@
             </Grid>
         }
     </div>
-    @if (isRolesModalVisible)
-    {
-        <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="userDetailsModalLabel">Gebruikersgegevens</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p><strong>Gebruikersnaam:</strong> @selectedUser?.Nickname</p>
-                        <p><strong>E-mail:</strong> @selectedUser?.Email</p>
-                        <p><strong>Rollen:</strong></p>
-                        <ul>
-                            @if (selectedUser?.Id != null && userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
-                            {
-                                foreach (var role in roles)
+        @if (isRolesModalVisible)
+        {
+            <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="userDetailsModalLabel">Gebruikersgegevens</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Gebruikersnaam:</strong> @selectedUser?.Username</p>
+                            <p><strong>E-mail:</strong> @selectedUser?.Email</p>
+                            <p><strong>Rollen:</strong></p>
+                            <ul>
+                                @if (selectedUser?.Id != null && userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
                                 {
-                                    <li>@role</li>
+                                    foreach (var role in roles)
+                                    {
+                                        <li>@role</li>
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                <li>Geen rollen gevonden</li>
-                            }
-                        </ul>
-                        <a class="btn" style="background-color:#4454D2; color:white" href="/admin/user/@(selectedUser.Id)">
-                            Role toewijzen
-                        </a>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" @onclick="@(() => CloseModal("Role"))">Sluiten</button>
+                                else
+                                {
+                                    <li>Geen rollen gevonden</li>
+                                }
+                            </ul>
+                            <a class="btn" style="background-color:#4454D2; color:white" href="/admin/user/@(selectedUser.Id)">
+                                Role toewijzen
+                            </a>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" @onclick="@(() => CloseModal("Role"))">Sluiten</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
     @if (isDeleteModalVisible)
     {
         <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -171,15 +177,14 @@
 
     private async Task<GridDataProviderResult<UserDTO>> CustomersDataProvider(GridDataProviderRequest<UserDTO> request)
     {
-        _isLoading = true;
 
         try
         {
-            _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/user");
+            _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
             _hasError = !_users.Any();
 
-        }
-        catch (HttpRequestException ex)
+
+        } catch (HttpRequestException ex)
         {
             _hasError = true;
             Console.WriteLine($"Request error: {ex.Message}");
@@ -192,8 +197,10 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
         return await Task.FromResult(request.ApplyTo(_users));
+
     }
 
 

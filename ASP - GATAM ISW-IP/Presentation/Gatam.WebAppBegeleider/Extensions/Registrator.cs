@@ -78,6 +78,7 @@ namespace Gatam.WebAppBegeleider.Extensions
                     var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
                     policy.RequireRole(requiredRoleIds);
                 });
+
             });
             return services;
         }

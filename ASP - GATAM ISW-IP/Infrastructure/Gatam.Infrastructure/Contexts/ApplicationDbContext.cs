@@ -3,13 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
 using System.Reflection;
+using Microsoft.Extensions.Options;
+using Gatam.Application.Extensions;
+using Auth0.ManagementApi.Models;
 
 namespace Gatam.Infrastructure.Contexts
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : DbContext
     {
         public DbSet<ApplicationModule> Modules { get; set; }
         public DbSet<Question> Questions { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }
 
         public DbSet<QuestionAnswer> Answers { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
@@ -23,40 +27,63 @@ namespace Gatam.Infrastructure.Contexts
             // Seeding users
             var hasher = new PasswordHasher<ApplicationUser>();
             // SETUP VAN USER IN DB
-            ApplicationUser GLOBALTESTUSER = new ApplicationUser() { UserName = "admin", Email = "admin@app.com", BegeleiderId = null, PasswordHash = hasher.HashPassword(null, "root") };
+            ApplicationUser GLOBALTESTUSER = new ApplicationUser() {
+                Id = Guid.NewGuid().ToString(),
+                Name = "admin",
+                Surname = "Suradmin",
+                Username = "adminSuradmin",
+                PhoneNumber = "+32 9966554411",
+                Email = "admin@app.com",
+                Picture = "png",
+                RolesIds =  new List<string> { RoleMapper.Roles["BEHEERDER"] },
+                PasswordHash = hasher.HashPassword(null, "root"),
+                IsActive = false
+
+            };
+
             ApplicationUser john = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "JohnDoe",
-                NormalizedUserName = "JOHNDOE",
-                BegeleiderId = null,
+                Name = "JohnDoe",
+                Surname = "JOHNDOE",
+                Username = "JohnDoeJOHNDOE",
+                PhoneNumber = "+32 456789166",
+                Picture = "png",
                 Email = "john.doe@example.com",
-                NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
+                RolesIds =  new List<string> { RoleMapper.Roles["VOLGER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
-                IsActive = false// A hashed password
+                IsActive = false
             };
+
             ApplicationUser jane = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "JaneDoe",
-                NormalizedUserName = "JANEDOE",
-                BegeleiderId = null,
+                Name = "JaneDoe",
+                Surname = "JANEDOE",
+                Username = "JaneDoeJANEDOE",
+                PhoneNumber = "+32 568779633",
                 Email = "jane.doe@example.com",
-                NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
+                Picture = "png",
+                RolesIds =  new List<string> { RoleMapper.Roles["MAKER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
+           
+
             ApplicationUser lauren = new ApplicationUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "Lautje",
-                NormalizedUserName = "LAUTJE",
-                BegeleiderId = null,
+                Name = "Lautje",
+                Surname = "LAUTJE",
+                Username = "LautjeLAUTJE",
+                PhoneNumber = "+23 7896544336",
                 Email = "lautje.doe@example.com",
-                NormalizedEmail = "LAUTJE.DOE@EXAMPLE.COM",
+                Picture = "png",
+                RolesIds =  new List<string> { RoleMapper.Roles["MAKER"] },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
+
             builder.Entity<ApplicationUser>().HasData(
                 GLOBALTESTUSER, john, jane, lauren
 

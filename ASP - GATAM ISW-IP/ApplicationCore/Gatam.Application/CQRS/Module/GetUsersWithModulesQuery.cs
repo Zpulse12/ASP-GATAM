@@ -29,7 +29,7 @@ namespace Gatam.Application.CQRS.User
             return users.Select(user => new UserDTO
             {
                 Id = user.Id,
-                Nickname = user.UserName,
+                Username = user.Username,
                 Email = user.Email,
                 Modules = user.UserModules.Select(um => um.Module.Title)
                     .ToList(),

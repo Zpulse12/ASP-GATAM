@@ -27,7 +27,7 @@ public class GetUsersWithModulesController
             new UserDTO
             {
                 Id = "2",
-                Nickname = "User2",
+                Username = "User2",
                 Email = "user2@example.com",
                 Modules = new List<string>
                 {
@@ -39,7 +39,7 @@ public class GetUsersWithModulesController
         users.Add(new UserDTO
         {
             Id = "1",
-            Nickname = "User1",
+            Username = "User1",
             Email = "user1@example.com",
             Modules = new List<string>
             {

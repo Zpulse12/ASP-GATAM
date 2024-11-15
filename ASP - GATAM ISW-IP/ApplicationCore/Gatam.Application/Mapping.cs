@@ -7,8 +7,7 @@ namespace Gatam.Application
     {
         public Mapping()
         {
-            CreateMap<ApplicationUser, UserDTO>()
-                .ForMember(dest => dest.Nickname, opt => opt.MapFrom(src => src.UserName));
+            CreateMap<ApplicationUser, UserDTO>();
             CreateMap<UserDTO, ApplicationUser>() .ForMember(dest => dest.Id, opt => opt.Ignore());
 
         }

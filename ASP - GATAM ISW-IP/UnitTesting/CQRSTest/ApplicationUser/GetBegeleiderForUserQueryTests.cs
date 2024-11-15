@@ -21,12 +21,12 @@ public class GetBegeleiderForUserQueryTests
     [TestMethod]
     public async Task Handle_ShouldReturnUserDTO_WhenBegeleiderExists()
     {
-        var begeleider = new Gatam.Domain.ApplicationUser { Id = "begeleider123", UserName = "BegeleiderNaam" };
+        var begeleider = new Gatam.Domain.ApplicationUser { Id = "begeleider123", Username = "BegeleiderNaam" };
         var user = new Gatam.Domain.ApplicationUser { Id = "user123", BegeleiderId = "begeleider123" };
         var userDto = new UserDTO
         {
             Id = "begeleider123",
-            Nickname = "BegeleiderNaam",
+            Username = "BegeleiderNaam",
             Email = null,
             RolesIds = null
         };
@@ -42,6 +42,6 @@ public class GetBegeleiderForUserQueryTests
         var result = await handler.Handle(new GetBegeleiderForUserQuery("user123"), CancellationToken.None);
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("BegeleiderNaam", result.Nickname);
+        Assert.AreEqual("BegeleiderNaam", result.Username);
     }
 }

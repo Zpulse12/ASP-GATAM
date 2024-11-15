@@ -22,7 +22,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
 
         {
@@ -31,7 +31,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("{userId}")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsersById(string userId)
         {
             var userById = await _mediator.Send(new GetUserByIdQuery { UserId = userId });
@@ -45,22 +45,22 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
+        //[Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> CreateUser([FromBody] UserDTO user)
         {
-            var result = await _mediator.Send(new CreateUserCommand() { User = user });
-            return result == null ? BadRequest(result) : Created("", result);
+            var result = await _mediator.Send(new CreateUserCommand() { _user = user });
+            return Created("", result);
         }
 
         [HttpPatch]
         [Route("setactivestate")]
-        [Authorize(Policy = "RequireAdminRole")]
+        //[Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> SetActiveState([FromBody] DeactivateUserCommand command)
         {
             return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = command.UserId, IsActive = command.IsActive }));
         }
         [HttpGet("status/{auth0UserId}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        //[Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> GetUserStatus(string auth0UserId)
         {
             var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));

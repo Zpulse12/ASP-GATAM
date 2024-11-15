@@ -5,6 +5,10 @@ using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
+using Auth0.ManagementApi.Models;
+using Azure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Gatam.Infrastructure.Contexts;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -12,9 +16,11 @@ public class ManagementApiRepository: IManagementApi
 {
     private readonly HttpClient _httpClient;
     private readonly EnvironmentWrapper _environmentWrapper;
-    public ManagementApiRepository(HttpClient httpClient, EnvironmentWrapper environmentWrapper)
+    private readonly IUnitOfWork _unitOfWork;
+    public ManagementApiRepository(IUnitOfWork uow,HttpClient httpClient, EnvironmentWrapper environmentWrapper)
     {
         _httpClient = httpClient;
+        _unitOfWork = uow;
         _environmentWrapper = environmentWrapper;
         _httpClient.BaseAddress = new Uri(_environmentWrapper.BASEURI);
         _httpClient.DefaultRequestHeaders.Add("Authorization", @$"Bearer {_environmentWrapper.TOKEN}");
@@ -23,29 +29,40 @@ public class ManagementApiRepository: IManagementApi
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
     {
         var response = await _httpClient.GetFromJsonAsync<JsonElement>("users");
-        var userDtos = new List<UserDTO>();
-
-        foreach (var user in response.EnumerateArray())
+        return response.EnumerateArray().Select(user => new UserDTO
         {
+            Id = user.GetProperty("user_id").GetString(),
+            Username = user.GetProperty("username").GetString(),
+            Email = user.GetProperty("email").GetString(),
+            PhoneNumber = user.GetProperty("phone_number").GetString(),
+            //IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean()
+        }).ToList();
+        //var userDtos = new List<UserDTO>();
 
-            var userId = user.GetProperty("user_id").GetString();
+        //foreach (var user in response.EnumerateArray())
+        //{
+
+        //    var userId = user.GetProperty("user_id").GetString();
 
 
-            var userDto = new UserDTO
-            {
-                Id = userId,
-                Email = user.GetProperty("email").GetString(),
-                Nickname = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
-                Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
-                IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-                RolesIds = new List<string>()
-            };
+        //    var userDto = new UserDTO
+        //    {
+        //        Id = userId,
+        //        Name = user.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
+        //        Surname = user.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
+        //        Username = user.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
+        //        Email = user.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
+        //        PhoneNumber = user.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
+        //        IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
+        //        Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
+        //        RolesIds = new List<string>()
+        //    };
 
-            userDto.RolesIds = (await GetRolesByUserId(userId)).ToList();
-            userDtos.Add(userDto);
-        }
+        //    userDto.RolesIds = (await GetRolesByUserId(userId)).ToList();
+        //    userDtos.Add(userDto);
+        //}
 
-        return userDtos;
+        //return userDtos;
     }
 
     public async Task<UserDTO> GetUserByIdAsync(string userId)
@@ -54,41 +71,71 @@ public class ManagementApiRepository: IManagementApi
         UserDTO _user = new UserDTO
         {
             Id = userId,
-            Email = _response.GetProperty("email").GetString(),
-            Nickname = _response.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
-            Picture = _response.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
+            Name = _response.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
+            Surname = _response.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
+            Username = _response.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
+            Email = _response.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
+            PhoneNumber = _response.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
             IsActive = !_response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-            RolesIds = new List<string>()
+           // RolesIds = new List<string>()
         };
         return _user; 
     }
     public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
     {
+    
+
         var payload = new
         {
+
+            name = user.Name,
+            nickname = user.Surname,
+            username = user.Username,
             email = user.Email,
-            username = user.UserName,
-            password = user.PasswordHash, 
-            connection = "Username-Password-Authentication" 
+            password = user.PasswordHash,
+            phone_number = user.PhoneNumber,
+            connection = "Username-Password-Authentication",
+            user_metadata = new
+            {
+                picture = user.Picture,
+            },
+
         };
+        
         try
         {
             var response = await _httpClient.PostAsJsonAsync("/api/v2/users", payload);
 
             if (response.IsSuccessStatusCode)
             {
-                var createdUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
+                var createdUser = await response.Content.ReadFromJsonAsync<Auth0ResponseUsers>();
+
 
                 if (createdUser == null)
                 {
-                    Console.WriteLine("Failed to parse created user.");
                     return null;
                 }
 
-                Console.WriteLine("User created successfully.");
+                string userId = createdUser.UserId;
+                
 
+                var applicationUser = new ApplicationUser
+                {
+                    Id = userId,  
+                    Name = createdUser.Name,
+                    Surname = createdUser.Nickname,
+                    Username = createdUser.Username,
+                    Email = createdUser.Email,
+                    PasswordHash = user.PasswordHash,
+                    PhoneNumber = createdUser.PhoneNumber,
+                    Picture = createdUser.UserMetadata?.Picture,
+                    RolesIds = RoleMapper.GetRoleValues("VOLGER"),
+                    IsActive = true 
+                };
 
-                return createdUser;
+                
+
+                return applicationUser;
             }
             else
             {
@@ -114,9 +161,9 @@ public class ManagementApiRepository: IManagementApi
     {
         var payload = new
         {
-            nickname = user.Nickname,
+            name = user.Username,
             email=user.Email,
-            username = user.Nickname
+            username = user.Username
 
         };
 
@@ -140,8 +187,8 @@ public class ManagementApiRepository: IManagementApi
     {
         var payload = new
         {
-            nickname = user.Nickname,
-            username = user.Nickname,  
+            nickname = user.Username,
+            username = user.Username,  
         };
 
         var _userId = user.Id;
@@ -203,6 +250,7 @@ public class ManagementApiRepository: IManagementApi
     public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user)
     {
        
+
         var payload = new
         {
             roles = user.RolesIds.ToArray()

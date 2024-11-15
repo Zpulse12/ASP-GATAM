@@ -20,6 +20,7 @@ internal class Program
         builder.Services.RegisterCustomApiClient();
         builder.Services.AddScoped<Auth0UserStateService>();
         builder.Services.RegisterPolicies();
+        
 
         builder.Services.AddBlazorBootstrap();
 

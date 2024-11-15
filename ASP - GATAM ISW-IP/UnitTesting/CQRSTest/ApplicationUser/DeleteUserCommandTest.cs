@@ -18,7 +18,7 @@ public class DeleteUserCommandTest
         _managementApiMock = new Mock<IManagementApi>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _userRepositoryMock = new Mock<IUserRepository>();
-        
+
         _unitOfWorkMock.Setup(mock => mock.UserRepository).Returns(_userRepositoryMock.Object);
         _handler = new DeleteUserCommandHandler(_userRepositoryMock.Object, _managementApiMock.Object);
     }
@@ -29,7 +29,7 @@ public class DeleteUserCommandTest
         const string userId = "nonexistentUser";
         _userRepositoryMock.Setup(repo => repo.FindById(userId)).ReturnsAsync((Gatam.Domain.ApplicationUser)null);
         _managementApiMock.Setup(api => api.GetUserByIdAsync(userId)).ReturnsAsync((UserDTO)null);
-        
+
         var command = new DeleteUserCommand { UserId = userId };
         var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -45,15 +45,17 @@ public class DeleteUserCommandTest
         var userDto = new UserDTO
         {
             Id = userId,
-            Nickname = null,
+            Name = null,
+            Surname= null,
+            PhoneNumber= null,
             Email = null,
             RolesIds = null
-        }; 
+        };
 
         _userRepositoryMock.Setup(repo => repo.FindById(userId)).ReturnsAsync(user);
         _managementApiMock.Setup(api => api.GetUserByIdAsync(userId)).ReturnsAsync(userDto);
         _managementApiMock.Setup(api => api.DeleteUserAsync(userId)).ReturnsAsync(true);
-        
+
         var command = new DeleteUserCommand { UserId = userId };
         var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -70,10 +72,12 @@ public class DeleteUserCommandTest
         var userDto = new UserDTO
         {
             Id = userId,
-            Nickname = null,
+            Name = null,
+            Surname=null,
+            PhoneNumber= null,
             Email = null,
             RolesIds = null
-        }; 
+        };
 
         _userRepositoryMock.Setup(repo => repo.FindById(userId)).ReturnsAsync(user);
         _managementApiMock.Setup(api => api.GetUserByIdAsync(userId)).ReturnsAsync(userDto);

@@ -1,9 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Gatam.Infrastructure.Extensions
+namespace Gatam.Application.Extensions
 {
-    public class AESProvidor
+    public class AESProvider
     {
         public static string Encrypt(string text, string key)
         {

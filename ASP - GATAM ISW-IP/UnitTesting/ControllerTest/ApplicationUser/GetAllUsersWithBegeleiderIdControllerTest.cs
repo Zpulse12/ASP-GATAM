@@ -28,7 +28,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
                 new UserDTO
                 {
                     Id = "1",
-                    Nickname = "user1",
+                    Name = "user1",
                     BegeleiderId = "begeleider1",
                     Email = null,
                     RolesIds = null
@@ -36,7 +36,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
                 new UserDTO
                 {
                     Id = "2",
-                    Nickname = "user2",
+                    Name = "user2",
                     BegeleiderId = "begeleider2",
                     Email = null,
                     RolesIds = null
@@ -54,7 +54,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             var users = okResult.Value as List<UserDTO>;
             Assert.IsNotNull(users);
             Assert.AreEqual(2, users.Count);
-            Assert.AreEqual("user1", users[0].Nickname); 
+            Assert.AreEqual("user1", users[0].Name); 
         }
 
         [TestMethod]

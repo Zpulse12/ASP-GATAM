@@ -1,8 +1,17 @@
 ﻿@page "/admin/create"
 @inject IHttpClientFactory HttpClientFactory
 @using Gatam.Domain
+@using Gatam.Application.CQRS
 @using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Infrastructure.Repositories
+@using System.Diagnostics;
+
 @rendermode InteractiveServer
+
+@inject ApiClient apiClient
+
+
 @attribute [Authorize(Policy = "RequireManagementRole")]
 <InactiveUserRedirect />
 <div class="container mt-3">
@@ -20,58 +29,106 @@
 
     <EditForm Model="@user" FormName="createUser" OnValidSubmit="@OnFormSubmit">
         <DataAnnotationsValidator />
-        <ValidationSummary />
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="UserName">Gebruikersnaam</label>
-                <InputText id="UserName" @bind-Value="user.UserName" class="form-control rounded-pill" />
+                <label for="Name">Naam <span class="text-danger">*</span></label>
+                <InputText id="Name" @bind-Value="user.Name" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.Name)" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="Password">Wachtwoord</label>
-                <InputText id="Password" @bind-Value="user.PasswordHash" class="form-control rounded-pill"/>
+                <label for="Surname">Achternaam <span class="text-danger">*</span></label>
+                <InputText id="Surname" @bind-Value="user.Surname" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.Surname)" />
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="Email">E-mailadres</label>
-                <InputText id="Email" @bind-Value="user.Email" class="form-control rounded-pill"/>
+                <label for="Email">E-mailadres <span class="text-danger">*</span></label>
+                <InputText id="Email" @bind-Value="user.Email" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.Email)" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="PhoneNumber">Telefoonnummer</label>
-                <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control rounded-pill"/>
+                <label for="Password">Wachtwoord <span class="text-danger">*</span></label>
+                <InputText id="Password" @bind-Value="user.PasswordHash" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.PasswordHash)" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="text-center">
+                <label for="PhoneNumber">Gsm-nummer <span class="text-danger">*</span></label>
+                <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control rounded-pill" />
+                <ValidationMessage For="@(() => user.PhoneNumber)" />
+            </div>
+        </div>
+        <div class="row mb-3 mt-3">
+            <div class="col-md-6">
+                <label>
+                    <InputCheckbox @bind-Value="isFollowerRoleSelected" />
+                    Volger
+                </label>
             </div>
         </div>
 
         <div class="row">
             <div class="text-center">
-                <button class="w-25 btn rounded-pill" style="background-color:#4454D2; color:white" type="submit">Aanmaken</button>
+                <button class="w-25 btn rounded-pill" style="background-color:#4454D2; color:white" type="submit" onclick="@OnFormSubmit">Aanmaken</button>
             </div>
+
         </div>
+        
     </EditForm>
 </CustomCards>
 
 @code {
     string response = "";
     bool isSuccess = false;
-    ApplicationUser user = new ApplicationUser()  ;
+
+    UserDTO user = new UserDTO();
+    private bool isFollowerRoleSelected = true;
+
 
     private async Task OnFormSubmit() 
     {
-        
-        var client = HttpClientFactory.CreateClient("ApiClient");
-        HttpResponseMessage result = await client.PostAsJsonAsync("/api/user", user);
 
+
+        user.RolesIds = isFollowerRoleSelected ? new List<string> { RoleMapper.Roles["VOLGER"] } : new List<string>();
+        user.Username = user.Email.Split('@')[0];
+
+        var result = await apiClient.PostAsJsonAsync("/api/user", user);
         if(result.IsSuccessStatusCode)
         {
-            response = "Gebruiker is aangemaakt";
-            isSuccess = true;
 
-            user = new ApplicationUser();
+            var createdUser = await result.Content.ReadFromJsonAsync<UserDTO>();
+
+            if (createdUser != null)
+            {
+                if (!string.IsNullOrWhiteSpace(createdUser?.Id) && createdUser.RolesIds?.Any() == true)
+                {
+                    await apiClient.PutAsJsonAsync($"/api/user/{createdUser.Id}/roles", createdUser);
+                }
+                else
+                {
+                    isSuccess = false;
+                    response = "Er trad een fout op bij het ophalen van de aangemaakte gebruiker-ID.";
+                }
+
+                isSuccess = true;
+                response = "Gebruiker is aangemaakt.";
+                user = new UserDTO();
+            }
+            else
+            {
+                isSuccess = false;
+                response = "Er trad een fout op bij het ophalen van de aangemaakte gebruiker.";
+
+            }
         } else
         {
-            response = await result.Content.ReadAsStringAsync();
             isSuccess = false;
+            response = "Niet goed";
+            response = await result.Content.ReadAsStringAsync();
+
         }
         StateHasChanged();
     }
