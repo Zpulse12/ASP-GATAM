@@ -1,4 +1,5 @@
-﻿using Gatam.Domain;
+﻿using Gatam.Application.Interfaces;
+using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Gatam.Infrastructure.Repositories
 {
-    public class QuestionRepository : GenericRepository<Question>
+    public class QuestionRepository : GenericRepository<Question>, IQuestionRepository
     {
         public QuestionRepository(ApplicationDbContext context) : base(context)
         {
