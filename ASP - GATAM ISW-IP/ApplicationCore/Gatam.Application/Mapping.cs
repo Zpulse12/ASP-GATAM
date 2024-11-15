@@ -9,7 +9,6 @@ namespace Gatam.Application
         {
             CreateMap<ApplicationUser, UserDTO>();
             CreateMap<UserDTO, ApplicationUser>() .ForMember(dest => dest.Id, opt => opt.Ignore());
-
         }
     }
 }

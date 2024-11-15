@@ -42,10 +42,11 @@ namespace Gatam.WebAppBegeleider.Extensions
                 httpClient.BaseAddress = new Uri(_host);
 
 #if DEBUG
-                if(env.ENVIRONMENT == "development")
+                if (env.ENVIRONMENT == "development")
                 {
                     httpClient.BaseAddress = new Uri("http://localhost:5292");
-                } else
+                }
+                else
                 {
                     httpClient.BaseAddress = new Uri("http://localhost:5000");
                 }
@@ -55,8 +56,6 @@ namespace Gatam.WebAppBegeleider.Extensions
             return services;
 
         }
-
-
         public static IServiceCollection RegisterPolicies(this IServiceCollection services)
         {
 

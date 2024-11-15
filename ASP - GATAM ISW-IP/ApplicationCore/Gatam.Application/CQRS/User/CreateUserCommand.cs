@@ -13,9 +13,6 @@ namespace Gatam.Application.CQRS.User
     public class CreateUserCommand: IRequest<UserDTO>
     {
         public required UserDTO _user { get; set; }
-        
-
-
     }
     public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
     {
@@ -71,37 +68,27 @@ namespace Gatam.Application.CQRS.User
         }
         public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-
-
             //request._user.Name = AESProvider.Encrypt(request._user.Name, _environmentWrapper.KEY);
             //request._user.Surname = AESProvider.Encrypt(request._user.Surname, _environmentWrapper.KEY);
             //request._user.Username = AESProvider.Encrypt(request._user.Username, _environmentWrapper.KEY);
             //request._user.Email = AESProvider.Encrypt(request._user.Email, _environmentWrapper.KEY);
             //request._user.PhoneNumber = AESProvider.Encrypt(request._user.PhoneNumber, _environmentWrapper.KEY);
 
+            Result<ApplicationUser> createUser = await _auth0Repository.CreateUserAsync(_mapper.Map<ApplicationUser>(request._user));
 
-            var createUser = await _auth0Repository.CreateUserAsync(_mapper.Map<ApplicationUser>(request._user));
-           if(createUser!=null)
+            if (!createUser.Success)
             {
-
-                UserDTO user = _mapper.Map<UserDTO>(createUser);
-                if (request._user.RolesIds?.Any() == true && RoleMapper.Roles.TryGetValue("VOLGER", out var volgerRoleId))
-                {
-                    user.RolesIds = new List<string> { volgerRoleId };
-
-                    await _auth0Repository.UpdateUserRoleAsync(user);
-                }
-
-                var appUser = _mapper.Map<UserDTO>(user);
-                await _unitOfWork.UserRepository.Create(createUser);
-                await _unitOfWork.Commit();
-
-                return appUser;
+                throw new InvalidOperationException($"Failed to create user: {createUser.Exception?.Message}", createUser.Exception);
             }
+            var user = _mapper.Map<UserDTO>(createUser.Value);
+            if (request._user.RolesIds?.Any() == true)
+            {
+                await _auth0Repository.UpdateUserRoleAsync(user);
+            }
+            await _unitOfWork.UserRepository.Create(createUser.Value);
+            await _unitOfWork.Commit();
 
-            return request._user;
-
-
+            return user;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Gatam.Application.CQRS;
+using Gatam.Application.Extensions;
 using Gatam.Domain;
 
 namespace Gatam.Application.Interfaces;
@@ -7,7 +8,7 @@ public interface IManagementApi
 {
     Task<IEnumerable<UserDTO>> GetAllUsersAsync();
     Task<bool> DeleteUserAsync(string userId);
-    Task<ApplicationUser> CreateUserAsync(ApplicationUser user);
+    Task<Result<ApplicationUser>> CreateUserAsync(ApplicationUser user);
 
 
     Task<UserDTO> UpdateUserAsync(UserDTO user);

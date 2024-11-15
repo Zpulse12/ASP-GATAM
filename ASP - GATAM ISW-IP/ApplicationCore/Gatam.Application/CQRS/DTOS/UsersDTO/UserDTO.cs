@@ -38,7 +38,7 @@ namespace Gatam.Application.CQRS
         [Required(ErrorMessage = "Telefoonnummer moet ingevuld zijn")]
         [RegularExpression(@"^\+?[1-9]\d{1,14}$",
                       ErrorMessage = "Telefoonnummer moet beginnen met een '+' gevolgd door 2 tot 15 cijfers")]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
         public  IList<string?>? RolesIds { get; set; }
         
         public string? Picture { get; set; }

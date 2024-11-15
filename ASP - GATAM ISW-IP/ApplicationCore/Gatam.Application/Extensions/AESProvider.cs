@@ -7,7 +7,7 @@ namespace Gatam.Application.Extensions
     {
         public static string Encrypt(string text, string key)
         {
-            byte[] iv = new byte[18]; //https://www.techtarget.com/whatis/definition/initialization-vector-IV#:~:text=An%20initialization%20vector%20(IV)%20is,a%20suspicious%20or%20malicious%20actor.
+            byte[] iv = new byte[16]; //https://www.techtarget.com/whatis/definition/initialization-vector-IV#:~:text=An%20initialization%20vector%20(IV)%20is,a%20suspicious%20or%20malicious%20actor.
             byte[] array;
 
             using (Aes aes = Aes.Create()) { 
@@ -30,7 +30,7 @@ namespace Gatam.Application.Extensions
         }
         public static string Decrypt(string text, string key)
         {
-            byte[] iv = new byte[18];
+            byte[] iv = new byte[16];
             byte[] buffer = Convert.FromBase64String(text);
 
             using (Aes aes = Aes.Create())
