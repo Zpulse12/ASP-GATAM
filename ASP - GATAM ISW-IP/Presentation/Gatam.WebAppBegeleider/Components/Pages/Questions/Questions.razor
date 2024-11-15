@@ -1,0 +1,370 @@
+﻿@page "/questions"
+
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.Domain
+@using WebAppBegeleider.Extensions
+@using System.Diagnostics
+
+@inject ApiClient apiClient
+@inject AuthenticationStateProvider authenticationStateProvider
+
+@rendermode InteractiveServer
+
+
+@attribute [Authorize(Policy = "RequireMakerRole")]
+
+
+<Modal @ref="modal" Title="Nieuwe vraag aanmaken.">
+    <BodyTemplate>
+        <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit" novalidate>
+            <DataAnnotationsValidator />
+
+            <div class="form-group row mb-3">
+                <label class="col-md-2 col-form-label">Vraag: <span class="text-danger">*</span></label>
+                <div class="col-md-10">
+                    <InputText class="form-control" @bind-Value="newQuestion.QuestionTitle" Placeholder="Wie zou je zijn zonder angsten?" />
+                    <ValidationMessage For="@(() => newQuestion.QuestionTitle)" />
+                </div>
+            </div>
+            <div class="form-group row mb-3">
+                <label class="col-md-2 col-form-label">Type vraag:<span class="text-danger">*</span></label>
+                <div class="col-md-10">
+                    <InputSelect @bind-Value="selectedOption" class="form-control">
+                        <option value="@QuestionType.MULTIPLE_CHOICE">Meerkeuzevraag</option>
+                        <option value="@QuestionType.CHOICE_LIST">Keuzevraag</option>
+                        <option value="@QuestionType.OPEN">Open vraag</option>
+                        <option value="@QuestionType.TRUE_OR_FALSE">Waar / onwaar vraag</option>
+                    </InputSelect>
+                </div>
+            </div>
+            <hr />
+
+            @if(selectedOption == QuestionType.OPEN)
+            {
+                <div class="form-group row mb-3">
+                    <p class="text-center">Je hebt gekozen voor een open vraag. Je moet geen mogelijke antwoorden meegeven.</p>
+                </div>
+            }
+            @if (selectedOption == QuestionType.TRUE_OR_FALSE)
+            {
+<div class="form-group row mb-3">
+                    <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                    <div class="col-md-10">
+                        <InputSelect @bind-Value="currentAnswer.Answer" class="form-control">
+                            <option value="true">Waar</option>
+                            <option value="false">Onwaar</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => newQuestion.Answers)" />
+                    </div>
+                </div>
+            }
+            @if (selectedOption == QuestionType.MULTIPLE_CHOICE)
+            {
+                <div class="form-group row mb-3">
+                    <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                    <div class="col-md-10">
+                        <InputText class="form-control mb-3" @bind-Value="currentAnswer.Answer" />
+                        <ValidationMessage For="@(() => currentAnswer.Answer)" />
+                        <InputSelect @bind-Value="currentAnswer.AnswerValue" class="form-control mb-3">
+                            <option value="true">Juist</option>
+                            <option value="false">Onjuist</option>
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-12 text-left">
+                        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
+                    </div>
+                </div>
+                <Grid TItem="QuestionAnswer"
+                      @ref="answerGrid"
+                      Class="table table-hover"
+                      Data="answers"
+                      HeaderRowCssClass="custom-header"
+                      Responsive="true">
+                    <GridColumns>
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                            @AnswerContext.Answer
+                        </GridColumn>
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                            @AnswerContext.AnswerValue
+                        </GridColumn>
+                        <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                            <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </GridColumn>
+                    </GridColumns>
+                </Grid>
+            }
+            @if (selectedOption == QuestionType.CHOICE_LIST)
+            {
+                <div class="form-group row mb-3">
+                    <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                    <div class="col-md-10">
+                        <InputText class="form-control mb-3" @bind-Value="currentAnswer.Answer" />
+                        <ValidationMessage For="@(() => currentAnswer.Answer)" />
+                        <InputSelect @bind-Value="currentAnswer.AnswerValue" class="form-control mb-3">
+                            <option value="true">Juist</option>
+                            <option value="false">Onjuist</option>
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-12 text-left">
+                        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
+                    </div>
+                </div>
+                <Grid TItem="QuestionAnswer"
+                      @ref="answerGrid"
+                      Class="table table-hover"
+                      Data="answers"
+                      HeaderRowCssClass="custom-header"
+                      Responsive="true">
+                    <GridColumns>
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                            @AnswerContext.Answer
+                        </GridColumn>
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                            @AnswerContext.AnswerValue
+                        </GridColumn>
+                        <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                            <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </GridColumn>
+                    </GridColumns>
+                </Grid>
+            }
+
+            <div class="row">
+                <div class="col-md-12 text-right">
+                    <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="ResetForm">Verwijder data</Button>
+                    <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@isLoading">
+                        @if(isLoading)
+                        {
+                            <Spinner Type="SpinnerType.Dots" />
+                        } else
+                        {
+                            <span>Aanmaken</span>
+                        }
+                    </Button>
+                </div>
+            </div>
+        </EditForm>
+    </BodyTemplate>
+</Modal>
+<CustomCards>
+    <h3>Vragen</h3>
+    <div class="d-flex p-2 justify-content-between">
+        <AutoComplete @ref="search"
+                      @bind-Value="searchValue"
+                      TItem="Question"
+                      DataProvider="QuestionSearchDataProvider"
+                      PropertyName="QuestionTitle"
+                      Placeholder="Zoek een vraag..."
+                      OnChanged="(Question question) => OnAutoCompleteChanged(question)" />
+        <Button Color="ButtonColor.Primary" @onclick="OnShowModalClick">
+            <Icon Name="IconName.Plus"/>
+            Nieuwe vraag
+        </Button>    
+    </div>
+ <Grid TItem="Question"
+     @ref="questionGrid"
+        AllowRowClick="true"
+        AllowSorting="true"
+        Class="table table-hover"
+        AllowPaging="true"
+        Data="questions"
+        PageSize="10"
+        HeaderRowCssClass="custom-header"
+        Responsive="true">
+        <GridColumns>
+            <GridColumn TItem="Question" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
+                @context.QuestionTitle
+            </GridColumn>
+            <GridColumn TItem="Question" HeaderText="Type:" PropertyName="QuestionType" SortString="QuestionType" SortKeySelector="item => item.QuestionType">
+                @((QuestionType)@context.QuestionType)
+            </GridColumn>
+@*           <GridColumn TItem="Question" HeaderText="Antwoord:" PropertyName="QuestionAnswer" SortString="QuestionTitle" SortKeySelector="item => item.QuestionAnswer">
+                @context.QuestionAnswer
+            </GridColumn> *@
+            <GridColumn TItem="Question" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
+                <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
+            </GridColumn>
+            <GridColumn TItem="Question" HeaderText="Aangepast op:" PropertyName="LastUpdatedAt" SortString="QuestionTitle" SortKeySelector="item => item.LastUpdatedAt">
+                <Tooltip Class="me-4" Title="@context.LastUpdatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.LastUpdatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
+            </GridColumn>
+
+            <GridColumn TItem="Question" HeaderText="Actie" Filterable="false">
+                <div>
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
+                        <i class="bi bi-trash"></i>
+                    </button>
+            <a class="btn btn-outline-secondary" href="#" @onclick:stopPropagation>
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </div>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
+</CustomCards>
+
+
+@code {
+    private Modal? modal;
+    private EditContext editContext;
+    private AutoComplete<Question> search;
+    private Question newQuestion = new Question();
+    private QuestionType selectedOption = QuestionType.OPEN;
+    private bool isLoading = false;
+    private string searchValue;
+    private List<Question> questions = new List<Question>();
+    private List<QuestionAnswer> answers = new List<QuestionAnswer>();
+    private Grid<Question> questionGrid = new Grid<Question>();
+    private Grid<QuestionAnswer> answerGrid = new Grid<QuestionAnswer>();
+    private QuestionAnswer currentAnswer = new QuestionAnswer();
+
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
+    protected override async void OnInitialized()
+    {
+        editContext = new EditContext(newQuestion);
+        newQuestion.QuestionType = (short)selectedOption;
+
+        questions = await apiClient.GetFromJsonAsync<List<Question>>("/api/question");
+        questionGrid.Data = questions;
+        questionGrid.RefreshDataAsync();
+        selectedOption = QuestionType.OPEN;
+
+        currentAnswer.Answer = "true";
+        currentAnswer.QuestionId = newQuestion.Id;
+
+        base.OnInitialized();
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        isLoading = true;
+        AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        ClaimsPrincipal user = authState.User;
+        newQuestion.QuestionType = (short)selectedOption;
+
+
+        if((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
+        {
+            answers.Add(currentAnswer);
+        }
+        newQuestion.Answers = answers;
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            string userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            newQuestion.CreatedUserId = userId;
+            newQuestion.LastUpdatedUserId = userId;
+            try
+            {
+                newQuestion.ApplicationModuleId = null;
+                HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", newQuestion);
+
+                if (createQuestionResponse.IsSuccessStatusCode)
+                {
+                    toastService.Notify(new(ToastType.Success, "Je vraag is succesvol aangemaakt", $"Vraag gemaakt op {newQuestion.CreatedAt}"));
+                    ResetForm();
+                }
+                else
+                {
+                    ValidationException errorResponse = await createQuestionResponse.Content.ReadFromJsonAsync<ValidationException>();
+                    string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : createQuestionResponse.ReasonPhrase;
+                    toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", errors));
+                }
+            }
+            catch (Exception e)
+            {
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", e.Message));
+            }
+            finally
+            {
+                Thread.Sleep(200);
+                isLoading = false;
+                UpdateTable();
+            }
+        } else
+        {
+            isLoading = false;
+            toastService.Notify(new(ToastType.Danger, "Geen gebruiker gevonden in de huidige context. Ben je ingelogd?", "Geen gebruiker id gevonden."));
+            return; 
+        }
+    }
+
+    private async Task<AutoCompleteDataProviderResult<Question>> QuestionSearchDataProvider(AutoCompleteDataProviderRequest<Question> request)
+    {
+        try
+        {
+            List<Question> getAllQuestionsResponse = await apiClient.GetFromJsonAsync<List<Question>>("/api/question");
+            return await Task.FromResult(request.ApplyTo(getAllQuestionsResponse));
+        }
+        catch (Exception e)
+        {
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het ophalen van de vragen", e.Message));
+            return await Task.FromResult(request.ApplyTo(new List<Question>()));
+        }
+    }
+
+    public async Task<List<Question>> GetQuestions()
+    {
+        try
+        {
+            List<Question> getAllQuestionsResponse = await apiClient.GetFromJsonAsync<List<Question>>("/api/question");
+            return getAllQuestionsResponse;
+        }
+        catch (Exception e)
+        {
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het ophalen van de vragen", e.Message));
+            return new List<Question>();
+        }
+    }
+
+    private void ResetForm()
+    {
+        newQuestion = new Question();
+        answers.Clear();
+        answers.Append(new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id });
+        editContext = new EditContext(newQuestion);
+        selectedOption = QuestionType.OPEN;
+    }
+    private async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
+
+    private async void OnAutoCompleteChanged(Question question)
+    {
+        if(question != null)
+        {
+            questionGrid.Data = new List<Question>() { question };
+        } else
+        {
+            questionGrid.Data = questions;
+        }
+        await questionGrid.RefreshDataAsync();
+    }
+    private async void UpdateTable()
+    {
+        questionGrid.Data = await apiClient.GetFromJsonAsync<List<Question>>("/api/question");
+        await questionGrid.RefreshDataAsync();
+    }
+    private async void AddAnswerToList()
+    {
+        answers.Add(new QuestionAnswer() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
+        await answerGrid.RefreshDataAsync();
+        currentAnswer = new QuestionAnswer() { AnswerValue = "true" };
+    }
+    private async void RemoveAnswerFromList(QuestionAnswer answer)
+    {
+        answers.Remove(answer);
+        await answerGrid.RefreshDataAsync();
+    }
+}

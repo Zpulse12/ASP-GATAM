@@ -1,6 +1,7 @@
 ﻿using Gatam.Application.Interfaces;
 using Gatam.Infrastructure.Contexts;
 using Gatam.Domain;
+using Gatam.Infrastructure.Repositories;
 
 namespace Gatam.Infrastructure.UOW
 {
@@ -8,6 +9,7 @@ namespace Gatam.Infrastructure.UOW
     {
         private readonly IUserRepository _userRepository;
         private readonly IGenericRepository<ApplicationModule> _moduleRepository;
+        private readonly IQuestionRepository _questionRepository;
 
 
 
@@ -16,15 +18,19 @@ namespace Gatam.Infrastructure.UOW
         public UnitOfWork(
                             ApplicationDbContext context, 
                             IUserRepository userRepository, 
-                            IGenericRepository<ApplicationModule> moduleRepository)
+                            IGenericRepository<ApplicationModule> moduleRepository,
+                            IQuestionRepository questionRepository)
         {
             _userRepository = userRepository;
             _moduleRepository = moduleRepository;
+            _questionRepository = questionRepository;
             _context = context;
         }
 
         public IUserRepository UserRepository => _userRepository;
         public IGenericRepository<ApplicationModule> ModuleRepository => _moduleRepository;
+
+        public IQuestionRepository QuestionRepository => _questionRepository;
 
         public async Task Commit()
         {

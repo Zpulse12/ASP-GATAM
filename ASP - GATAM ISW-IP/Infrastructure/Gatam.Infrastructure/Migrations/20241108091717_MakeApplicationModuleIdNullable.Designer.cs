@@ -4,6 +4,7 @@ using Gatam.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Gatam.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241108091717_MakeApplicationModuleIdNullable")]
+    partial class MakeApplicationModuleIdNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,9 +48,9 @@ namespace Gatam.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "b8f7182a-c1f8-4764-b8be-d53470a93222",
+                            Id = "d615fa20-3ffd-49b9-8715-3fb5fafa158d",
                             Category = "SollicitatieTraining",
-                            CreatedAt = new DateTime(2024, 11, 11, 22, 53, 4, 263, DateTimeKind.Utc).AddTicks(1593),
+                            CreatedAt = new DateTime(2024, 11, 8, 9, 17, 16, 414, DateTimeKind.Utc).AddTicks(3241),
                             Title = "Solliciteren voor beginners"
                         });
                 });
@@ -122,67 +125,67 @@ namespace Gatam.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "38083661-96b8-4972-94da-434578855c2f",
+                            Id = "3bf7572d-0861-416c-a970-caed2364a3a8",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "76e73f55-264c-44c0-96a1-a65b188e7fcd",
+                            ConcurrencyStamp = "fa51408c-48fb-48f3-b65e-67e686f1c21f",
                             Email = "admin@app.com",
                             EmailConfirmed = false,
                             IsActive = false,
                             LockoutEnabled = false,
-                            PasswordHash = "AQAAAAIAAYagAAAAEDQVe8UFAl6hiyK/rrR4m3mQscQx0t5nRDU70/gxLnI/qyyw/L+Z3ZtdBWDRIZBmzg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM+ySfnTMgfJ/moaq7Tzj567rM+ej6nyPsO4Pf0UOdNmuBjoZRCl5RqpAn4NQGJcMQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "33e9aebb-c8cb-447a-8ebc-90c18ca150bc",
+                            SecurityStamp = "0abd56f5-073f-4d88-ac1d-bf2c0b5d3a9a",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
                         new
                         {
-                            Id = "ade10a19-81ce-4f9b-b0af-2cf1e323823a",
+                            Id = "daead2ba-b127-49c1-aca4-fd3ad8ed47dc",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "92951a47-5137-441a-8644-d8eda61c6705",
+                            ConcurrencyStamp = "7ef2b17d-7676-4e97-aafb-8ba582744e61",
                             Email = "john.doe@example.com",
                             EmailConfirmed = false,
                             IsActive = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
                             NormalizedUserName = "JOHNDOE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHsKSBOE6BS9WbiC2o3aihbvTPdVQ9FxIlP2zA1zTDTHFxy4qWF001MGW2VghX8EGA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJ2xGNe7cc7Km6Ivcnpjf+FBRNJga7sjGYQZdabpp5LaEhAOiavKBVp4n4nlo3Ic7w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "172f3bfa-4926-4b8e-a60b-956e238debe1",
+                            SecurityStamp = "459b4605-b065-420d-b212-ada4ddacb377",
                             TwoFactorEnabled = false,
                             UserName = "JohnDoe"
                         },
                         new
                         {
-                            Id = "ac3b8446-f3bd-476e-8972-43a783c2c530",
+                            Id = "e678e6aa-dd5f-4d41-81cf-40f7784e748e",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "192eb663-5a1b-405b-b5c2-586dd6956b9a",
+                            ConcurrencyStamp = "8a2a3441-70aa-4e03-86ad-d2141b6aae49",
                             Email = "jane.doe@example.com",
                             EmailConfirmed = false,
                             IsActive = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
                             NormalizedUserName = "JANEDOE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMiNrOA2jPosldjXzfVCyFZ35x8pclnn6+LCjUE73Y0USLy3YI+UtZ3OK/45n/rGfw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIoxpcjMsSgWol2ZOdWLggxNLvsm3z2Oiy6idazMMACdKja2VcZE2PAeTTLYHU82gg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "355cbbbf-c320-4ea3-8275-c70881810afa",
+                            SecurityStamp = "c2f0c340-0ce9-4a5c-9e38-4805de55c229",
                             TwoFactorEnabled = false,
                             UserName = "JaneDoe"
                         },
                         new
                         {
-                            Id = "030cb83f-5ee6-4665-aaaf-1ed9e624c216",
+                            Id = "8b53a729-93a9-4c43-816e-838f4b9f9634",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "67c31f29-a20d-4959-b53f-c25d40d4ab25",
+                            ConcurrencyStamp = "46b75a92-57fd-48f0-9970-f33b21fbffe6",
                             Email = "lautje.doe@example.com",
                             EmailConfirmed = false,
                             IsActive = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "LAUTJE.DOE@EXAMPLE.COM",
                             NormalizedUserName = "LAUTJE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEB+ngvCZPcbMaXuxCV43VW55aAX1Mb0xK7n+jeylEQLWBt/blOc6svn39XdpzOIH6A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENAyuk1FRIQIOT2yFUs1OsHUdyMOe1P22glLNkAPUEaKrHWoWGruvvDB+eboPZW4mA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "1879364f-03f8-4325-9403-1739e62f3fd7",
+                            SecurityStamp = "bbd2b256-ed6f-4022-ba15-152d2bf2b95c",
                             TwoFactorEnabled = false,
                             UserName = "Lautje"
                         });
@@ -210,10 +213,13 @@ namespace Gatam.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("QuestionAnswer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("QuestionTitle")
                         .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("QuestionType")
                         .HasColumnType("smallint");
@@ -227,43 +233,14 @@ namespace Gatam.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5f78127c-d05c-4265-a142-337dd2aca768",
-                            CreatedAt = new DateTime(2024, 11, 11, 22, 53, 4, 263, DateTimeKind.Utc).AddTicks(1646),
+                            Id = "3fe98c97-3951-4aca-b3cd-521f9679b987",
+                            CreatedAt = new DateTime(2024, 11, 8, 9, 17, 16, 414, DateTimeKind.Utc).AddTicks(3292),
                             CreatedUserId = "123",
-                            LastUpdatedAt = new DateTime(2024, 11, 11, 22, 53, 4, 263, DateTimeKind.Utc).AddTicks(1647),
+                            LastUpdatedAt = new DateTime(2024, 11, 8, 9, 17, 16, 414, DateTimeKind.Utc).AddTicks(3294),
                             LastUpdatedUserId = "123",
+                            QuestionAnswer = "OPEN",
                             QuestionTitle = "Wat wil je later bereiken? ",
                             QuestionType = (short)1
-                        });
-                });
-
-            modelBuilder.Entity("Gatam.Domain.QuestionAnswer", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Answer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AnswerValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("QuestionId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("Answers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "f3f5de95-83bd-41a0-9575-789201656922",
-                            Answer = "OPEN",
-                            QuestionId = "5f78127c-d05c-4265-a142-337dd2aca768"
                         });
                 });
 
@@ -409,15 +386,6 @@ namespace Gatam.Infrastructure.Migrations
                     b.Navigation("ApplicationModule");
                 });
 
-            modelBuilder.Entity("Gatam.Domain.QuestionAnswer", b =>
-                {
-                    b.HasOne("Gatam.Domain.Question", "Question")
-                        .WithMany("Answers")
-                        .HasForeignKey("QuestionId");
-
-                    b.Navigation("Question");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -472,11 +440,6 @@ namespace Gatam.Infrastructure.Migrations
             modelBuilder.Entity("Gatam.Domain.ApplicationModule", b =>
                 {
                     b.Navigation("Questions");
-                });
-
-            modelBuilder.Entity("Gatam.Domain.Question", b =>
-                {
-                    b.Navigation("Answers");
                 });
 #pragma warning restore 612, 618
         }
