@@ -49,12 +49,12 @@
                           OnRowClick="OnRowClick"
                           Responsive="true">
                         <GridColumns>
-                    <GridColumn TItem="UserDTO" HeaderText="Naam" PropertyName="Name" SortString="Name" SortKeySelector="item => item.Name">
+                    <GridColumn TItem="UserDTO" HeaderText="Naam" PropertyName="Naam" SortString="Naam" SortKeySelector="item => item.Name">
                                 @context.Name
                             </GridColumn>
                     <GridColumn TItem="UserDTO" HeaderText="Achternaam" PropertyName="Surname" SortString="Surname" SortKeySelector="item => item.Surname">
                         @context.Surname
-                    </GridColumn> 
+                    </GridColumn>
                             <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email" SortString="Email" SortKeySelector="item => item.Email">
                                 @context.Email
                             </GridColumn>
@@ -179,12 +179,12 @@
 
     private async Task<GridDataProviderResult<UserDTO>> CustomersDataProvider(GridDataProviderRequest<UserDTO> request)
     {
-        _isLoading = true; 
 
         try
         {
             _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
             _hasError = !_users.Any();
+
 
         } catch (HttpRequestException ex)
         {
@@ -197,9 +197,11 @@
             Console.WriteLine($"An error occurred: {ex.Message}");
         } finally
         {
-            _isLoading = false; 
+            _isLoading = false;
+            StateHasChanged();
         }
         return await Task.FromResult(request.ApplyTo(_users));
+
     }
 
 

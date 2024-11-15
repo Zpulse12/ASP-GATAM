@@ -36,7 +36,7 @@ public class ManagementApiRepository: IManagementApi
             Username = user.GetProperty("username").GetString(),
             Email = user.GetProperty("email").GetString(),
             PhoneNumber = user.GetProperty("phone_number").GetString(),
-            IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean()
+            //IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean()
         }).ToList();
         //var userDtos = new List<UserDTO>();
 

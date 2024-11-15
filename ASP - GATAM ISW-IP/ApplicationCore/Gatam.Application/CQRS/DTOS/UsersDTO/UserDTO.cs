@@ -18,7 +18,7 @@ namespace Gatam.Application.CQRS
         [MaxLength(15, ErrorMessage = "Voornaam is te lang")]
         public  string Name { get; set; }
 
-        [Required(ErrorMessage = "UserName mag niet leeg zijn")]
+        [Required(ErrorMessage = "Gebruikersnaam mag niet leeg zijn")]
         public  string Username { get; set; }
 
         [Required(ErrorMessage = "Achternaam mag niet leeg zijn")]
