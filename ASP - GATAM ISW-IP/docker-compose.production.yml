@@ -76,6 +76,13 @@ services:
       dockerfile: ./Presentation/Gatam.WebAppVolger/Dockerfile
     restart: always
     container_name: ${ENVIRONMENT}-webappvolger
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ENVIRONMENT=${ENVIRONMENT}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_CLIENTSECRET=${AUTH0_CLIENTSECRET}
     depends_on:
       - webapi
       - mssql-server

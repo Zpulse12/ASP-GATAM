@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Gatam.Application.CQRS;
 using Gatam.Application.Extensions.EnvironmentHelper;
@@ -77,7 +76,6 @@ public class ManagementApiRepository: IManagementApi
             Username = _response.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
             Email = _response.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
             PhoneNumber = _response.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
-            Picture = _response.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
             IsActive = !_response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
            // RolesIds = new List<string>()
         };

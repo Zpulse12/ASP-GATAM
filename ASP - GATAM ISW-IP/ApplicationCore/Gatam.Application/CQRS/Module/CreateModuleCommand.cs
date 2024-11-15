@@ -1,13 +1,7 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS.Module
 {
@@ -47,7 +41,7 @@ namespace Gatam.Application.CQRS.Module
         public async Task<ApplicationModule> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
         {
             await _uow.ModuleRepository.Create(request._module);
-            await _uow.commit();
+            await _uow.Commit();
             return request._module;
         }
     }

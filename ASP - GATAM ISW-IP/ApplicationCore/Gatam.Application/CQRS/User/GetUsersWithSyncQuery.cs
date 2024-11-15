@@ -33,9 +33,9 @@ public class GetUsersWithSyncQueryHandler : IRequestHandler<GetUsersWithSyncQuer
                     Surname = auth0User.Surname,
                     Username = auth0User.Username,
                     Email = auth0User.Email,
+                    Picture = auth0User.Picture,
                     PhoneNumber = auth0User.PhoneNumber,
                     IsActive = true,
-                    Picture = auth0User.Picture,
                     RolesIds = auth0User.RolesIds ?? new List<string>()
                 } });
                 auth0User.IsActive = true;

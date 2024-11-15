@@ -93,7 +93,7 @@ namespace Gatam.Application.CQRS.User
 
                 var appUser = _mapper.Map<UserDTO>(user);
                 await _unitOfWork.UserRepository.Create(createUser);
-                await _unitOfWork.commit();
+                await _unitOfWork.Commit();
 
                 return appUser;
             }

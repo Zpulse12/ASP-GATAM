@@ -1,9 +1,9 @@
-﻿@page "/admin/user/{Id}"
+﻿﻿
+@page "/admin/user/{Id}"
 
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Application.CQRS
-@using Gatam.Infrastructure.Repositories
 @using System.Diagnostics
 @inject ApiClient apiClient
 
@@ -262,7 +262,6 @@
                 username = userBeingEdited.Username,
                 email = userBeingEdited.Email,
                 rolesIds = userBeingEdited.RolesIds,
-                picture = userBeingEdited.Picture,
                 id = userBeingEdited.Id
             };
 

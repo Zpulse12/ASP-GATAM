@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Json;
-using Microsoft.AspNetCore.Components;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {
@@ -30,18 +29,15 @@ namespace Gatam.WebAppBegeleider.Extensions
                 if (response.TryGetProperty("isActive", out JsonElement isActiveElement))
                 {
                     bool isActive = isActiveElement.GetBoolean();
-                    Debug.WriteLine($"IsActive status retrieved: {isActive}");
                     return !isActive; // Return true if user is inactive
                 }
                 else
                 {
-                    Debug.WriteLine("isActive property is missing or has an unexpected value.");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error: {ex.Message}");
                 return false;
             }
         }

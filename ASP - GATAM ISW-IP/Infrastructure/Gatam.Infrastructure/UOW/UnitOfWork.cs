@@ -7,8 +7,9 @@ namespace Gatam.Infrastructure.UOW
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly IGenericRepository<ApplicationUser> _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IGenericRepository<ApplicationModule> _moduleRepository;
+        private readonly IQuestionRepository _questionRepository;
 
 
 
@@ -16,18 +17,22 @@ namespace Gatam.Infrastructure.UOW
 
         public UnitOfWork(
                             ApplicationDbContext context, 
-                            IGenericRepository<ApplicationUser> userRepository, 
-                            IGenericRepository<ApplicationModule> moduleRepository)
+                            IUserRepository userRepository, 
+                            IGenericRepository<ApplicationModule> moduleRepository,
+                            IQuestionRepository questionRepository)
         {
             _userRepository = userRepository;
             _moduleRepository = moduleRepository;
+            _questionRepository = questionRepository;
             _context = context;
         }
 
-        public IGenericRepository<ApplicationUser> UserRepository => _userRepository;
+        public IUserRepository UserRepository => _userRepository;
         public IGenericRepository<ApplicationModule> ModuleRepository => _moduleRepository;
 
-        public async Task commit()
+        public IQuestionRepository QuestionRepository => _questionRepository;
+
+        public async Task Commit()
         {
             await _context.SaveChangesAsync();
         }

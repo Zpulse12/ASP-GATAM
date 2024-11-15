@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using MediatR;
-using System.Diagnostics;
 
 namespace Gatam.Application.CQRS.User;
 
@@ -55,10 +53,10 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
 
     public async Task<UserDTO> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-            await _auth0Repository.UpdateUserNicknameAsync(request.User);
-            await _auth0Repository.UpdateUserEmailAsync(request.User);
-      
-            return request.User;
+        await _auth0Repository.UpdateUserNicknameAsync(request.User);
+        await _auth0Repository.UpdateUserEmailAsync(request.User);
+
+        return request.User;
     }
 
     

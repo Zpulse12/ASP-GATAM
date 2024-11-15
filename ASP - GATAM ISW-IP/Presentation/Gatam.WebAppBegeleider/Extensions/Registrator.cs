@@ -1,6 +1,5 @@
 ﻿using Auth0.AspNetCore.Authentication;
 using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
-using System.Net.Http.Headers;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {
@@ -43,7 +42,13 @@ namespace Gatam.WebAppBegeleider.Extensions
                 httpClient.BaseAddress = new Uri(_host);
 
 #if DEBUG
-                httpClient.BaseAddress = new Uri("http://localhost:5000");
+                if(env.ENVIRONMENT == "development")
+                {
+                    httpClient.BaseAddress = new Uri("http://localhost:5292");
+                } else
+                {
+                    httpClient.BaseAddress = new Uri("http://localhost:5000");
+                }
 #endif
             })
             .AddHttpMessageHandler<HeaderHandler>();

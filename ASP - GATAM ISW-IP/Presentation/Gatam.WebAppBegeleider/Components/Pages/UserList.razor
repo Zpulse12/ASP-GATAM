@@ -4,8 +4,6 @@
 @page "/admin/user-list"
 @using System.Diagnostics
 
-@using Gatam.Infrastructure.Repositories
-
 @inject ApiClient apiClient
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor httpContextAccessor
@@ -25,15 +23,15 @@
         </div>
         @if (_isLoading)
         {
-        <div class="text-center">
+            <div class="text-center">
                 <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
-        </div>
+            </div>
         }
         @if (_hasError)
         {
-            <Callout Color="CalloutColor.Danger" >
+            <Callout Color="CalloutColor.Danger">
                 <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van de gebruikerslijst.
-           </Callout>
+            </Callout>
         }
 
         else
@@ -65,25 +63,25 @@
                                 <div class="">
                                     <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
                                     @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
-                                        @(context.IsActive ? "Deactiveer" : "Activeer")
-                                    </button>
-                                </div>
-                            </GridColumn>
-                            <!-- Acties Column -->
-                            <GridColumn TItem="UserDTO" HeaderText="Acties">
-                                <div class="">
-                                    <button type="button" @onclick="() => ShowDeleteModal(context.Id)"
-                                            class="btn btn-outline-danger"
+                                @(context.IsActive ? "Deactiveer" : "Activeer")
+                            </button>
+                        </div>
+                    </GridColumn>
+                    <!-- Acties Column -->
+                    <GridColumn TItem="UserDTO" HeaderText="Acties">
+                        <div class="">
+                            <button type="button" @onclick="() => ShowDeleteModal(context.Id)"
+                                    class="btn btn-outline-danger"
                                     data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                <i class="bi bi-trash"></i>
+                            </button>
                             <a class="btn btn-outline-secondary" href="/admin/user/@(context.Id)" @onclick:stopPropagation>
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                </div>
-                            </GridColumn>
-                        </GridColumns>
-                      </Grid>
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                    </GridColumn>
+                </GridColumns>
+            </Grid>
         }
     </div>
         @if (isRolesModalVisible)
@@ -124,26 +122,26 @@
         }
     @if (isDeleteModalVisible)
     {
-    <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
-                    <button type="button" class="close" @onclick="@(() => CloseModal("Delete"))" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Weet je zeker dat je deze gebruiker wilt verwijderen?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-success" @onclick="@(() => CloseModal("Delete"))">Annuleer</button>
-                    <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
+        <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
+                        <button type="button" class="close" @onclick="@(() => CloseModal("Delete"))" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Weet je zeker dat je deze gebruiker wilt verwijderen?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success" @onclick="@(() => CloseModal("Delete"))">Annuleer</button>
+                        <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="modal-backdrop fade show"></div>
+        <div class="modal-backdrop fade show"></div>
 
     }
 
@@ -164,7 +162,7 @@
     private bool _isLoading = true;
     private bool _hasError = false;
 
-    // Boolean to control modal 
+    // Boolean to control modal
     private bool isDeleteModalVisible = false;
     private bool isRolesModalVisible = false;
     private string selectedUserId;
@@ -174,7 +172,7 @@
     private void ShowDeleteModal(string userId)
     {
         selectedUserId = userId;
-        isDeleteModalVisible = true;  
+        isDeleteModalVisible = true;
     }
 
     private async Task<GridDataProviderResult<UserDTO>> CustomersDataProvider(GridDataProviderRequest<UserDTO> request)
@@ -188,14 +186,15 @@
 
         } catch (HttpRequestException ex)
         {
-            _hasError = true;  
+            _hasError = true;
             Console.WriteLine($"Request error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            _hasError = true; 
+            _hasError = true;
             Console.WriteLine($"An error occurred: {ex.Message}");
-        } finally
+        }
+        finally
         {
             _isLoading = false;
             StateHasChanged();
@@ -209,7 +208,7 @@
     {
         selectedUser = args.Item;
         userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
-        isRolesModalVisible = true; 
+        isRolesModalVisible = true;
     }
 
 
@@ -241,7 +240,7 @@
                 if (userToRemove != null)
                 {
                     _users.Remove(userToRemove);
-                    selectedUser = null; 
+                    selectedUser = null;
                     selectedUserId = null;
                     CloseModal("Delete");
                     StateHasChanged();
@@ -255,13 +254,13 @@
     }
 
 
-    private async Task ToggleUserActiveStatus( string userId, bool isActive)
+    private async Task ToggleUserActiveStatus(string userId, bool isActive)
     {
         try
         {
             var command = new { UserId = userId, IsActive = isActive };
 
-            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate",command);
+            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate", command);
 
             if (response.IsSuccessStatusCode)
             {

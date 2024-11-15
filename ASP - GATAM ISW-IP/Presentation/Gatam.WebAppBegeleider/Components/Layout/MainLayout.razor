@@ -24,6 +24,14 @@
                                         <li>
                                             <NavLink class="dropdown-item" href="/admin/create">Gebruiker toevoegen</NavLink>
                                         </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/content/AssigningModules">
+                                                Module toewijzen
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/AssignToBegeleider">Gebruiker toewijzen</NavLink>
+                                        </li>
                                     </ul>
                                 </li>
 
@@ -34,8 +42,7 @@
                             <Authorized>
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="moduleDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style=" color:white; font-weight:bold ">
-                                        <i class="bi bi-journals"></i>
-                                        Modules
+                                        <Icon Name="IconName.BoxSeamFill"/> Modules
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="moduleDropdown">
                                         <li class="nav-item">
@@ -49,6 +56,12 @@
                                             </NavLink>
                                         </li>
                                     </ul>
+                                    
+                                </li>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link" href="/questions">
+                                        <Icon Name="IconName.PencilFill" /> Vragen
+                                    </NavLink>
                                 </li>
                             </Authorized>
                         </AuthorizeView>
@@ -66,9 +79,9 @@
         </article>
     </main>
 </div>
-
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+<Toasts @rendermode="InteractiveServer"  class="p-3" AutoHide="true" Delay="4000" Placement="ToastsPlacement.TopRight" />

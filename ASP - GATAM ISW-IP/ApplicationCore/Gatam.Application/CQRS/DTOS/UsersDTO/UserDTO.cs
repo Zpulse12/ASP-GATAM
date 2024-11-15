@@ -40,8 +40,15 @@ namespace Gatam.Application.CQRS
                       ErrorMessage = "Telefoonnummer moet beginnen met een '+' gevolgd door 2 tot 15 cijfers")]
         public string PhoneNumber { get; set; }
         public  IList<string?>? RolesIds { get; set; }
-        public bool IsActive { get; set; }
+        
         public string? Picture { get; set; }
+
+        public string? BegeleiderId { get; set; }
+   
+        public bool IsActive { get; set; }
+      
+        public List<string>? Modules { get; set; }
+
         
     }
 }

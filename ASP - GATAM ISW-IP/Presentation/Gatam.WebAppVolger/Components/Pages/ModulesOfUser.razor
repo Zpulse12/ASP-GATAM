@@ -1,0 +1,94 @@
+﻿@page "/ModulesOfUser"
+@using System.Security.Claims
+@using Gatam.Domain
+@using Gatam.WebAppVolger.Extensions
+@using Gatam.WebAppVolger.Components.Layout
+@inject ApiClient ApiClient
+@inject AuthenticationStateProvider authenticationStateProvider
+@attribute [Authorize(Policy = "RequireVolgersRole")]
+<InactiveUserRedirect />
+
+<h3>Mijn Modules</h3>
+
+@if (_isLoading)
+{
+    <div class="text-center">
+        <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+    </div>
+}
+else if (_hasError)
+{
+    <Callout Color="CalloutColor.Danger">
+        <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van jouw modules.
+    </Callout>
+}
+else if (_modules != null && _modules.Any())
+{
+    <div class="module-list">
+        @foreach (var module in _modules)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>@module.Title</h5>
+                    <p>@module.Category</p>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <p>Geen modules gevonden voor jouw account.</p>
+    </div>
+}
+
+@code {
+    private List<ApplicationModule> _modules = new List<ApplicationModule>();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserModules();
+    }
+
+    private async Task LoadUserModules()
+    {
+        _isLoading = true;
+        try
+        {
+            AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ClaimsPrincipal user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    _hasError = true;
+                    return;
+                }
+                _modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/user/modules/{userId}");
+            }
+            else
+            {
+                _hasError = true;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+
+}
