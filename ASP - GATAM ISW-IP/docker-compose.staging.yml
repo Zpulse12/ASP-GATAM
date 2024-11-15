@@ -85,6 +85,13 @@ services:
     depends_on:
       - webapi
       - mssql-server
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ENVIRONMENT=${ENVIRONMENT}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_CLIENTSECRET=${AUTH0_CLIENTSECRET}
     networks:
       - database
       - proxy
