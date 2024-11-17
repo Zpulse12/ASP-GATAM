@@ -33,5 +33,13 @@ namespace Gatam.WebAPI.Controllers
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
             return Created("", createdQuestion);
         }
+
+        [HttpPut("{questionId}")]
+        [Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> UpdateQuestion(string questionId,[FromBody] Question question)
+        {
+            var returnedQuestion = await _mediator.Send(new UpdateQuestionCommand() { Id = questionId, Question = question });
+            return Ok(returnedQuestion);
+        }
     }
 }
