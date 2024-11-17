@@ -1,0 +1,118 @@
+﻿@page "/question/{Id}"
+
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@using System.Diagnostics
+@inject ApiClient apiClient
+
+@rendermode InteractiveServer
+
+@attribute [Authorize(Policy = "RequireManagementRole")]
+<div class="container mt-3">
+    @if (isSuccess)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @response_Msg
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    else if (_hasError)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @response_Msg
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>
+<CustomCards>
+    @if (_isLoading)
+    {
+        <div class="text-center">
+            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+        </div>
+    }
+    else if (questionBeingEdited != null)
+    {
+        <EditForm Model="questionBeingEdited" OnValidSubmit="SaveQuestion">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label for="Title" class="form-label">Titel</label>
+                <InputText id="Title" class="form-control" @bind-Value="questionBeingEdited.QuestionTitle" />
+            </div>
+            <button type="submit" class="btn btn-primary">Opslaan</button>
+        </EditForm>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            Vraag niet gevonden.
+        </div>
+    }
+</CustomCards>
+@code {
+    [Parameter] public string Id { get; set; } = "";
+    private Question questionBeingEdited;
+    string response_Msg = "";
+    bool isSuccess = false;
+    private bool _hasError = false;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            questionBeingEdited = await apiClient.GetFromJsonAsync<Question>($"/api/question/{Id}");
+            if (questionBeingEdited == null)
+            {
+                _hasError = true;
+                response_Msg = "Vraag niet gevonden.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            response_Msg = $"Fout bij het ophalen van de vraag.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SaveQuestion()
+    {
+        _isLoading = true;
+        try
+        {
+           
+            var response = await apiClient.PutAsJsonAsync($"/api/question/{questionBeingEdited.Id}", questionBeingEdited);
+            Debug.WriteLine(response.ToString());
+            if (response.IsSuccessStatusCode)
+            {
+                isSuccess = true;
+                response_Msg = "Vraag succesvol opgeslagen.";
+                StateHasChanged();
+               
+            }
+            else
+            {
+                isSuccess = false;
+                response_Msg = "Er is een fout opgetreden bij het opslaan.";
+            }
+        }
+        catch (Exception ex)
+        {
+            isSuccess = false;
+            response_Msg = "Er is een onverwachte fout opgetreden.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

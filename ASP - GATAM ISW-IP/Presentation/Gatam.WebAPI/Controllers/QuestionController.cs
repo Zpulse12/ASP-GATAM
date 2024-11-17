@@ -1,4 +1,5 @@
 ﻿using Gatam.Application.CQRS.Questions;
+using Gatam.Application.CQRS.User;
 using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +20,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> GetAllQuestions()
         {
             IEnumerable<Question> questions = await _mediator.Send(new GetAllQuestionsQuery());
@@ -27,18 +28,31 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> CreateQuestion([FromBody] Question question) 
         {
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
             return Created("", createdQuestion);
         }
 
-        [HttpPut("{questionId}")]
-        [Authorize(Policy = "RequireMakerRole")]
-        public async Task<IActionResult> UpdateQuestion(string questionId,[FromBody] Question question)
+        [HttpGet("{questionId}")]
+        //[Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> GetQuestionById(string questionId)
         {
-            var returnedQuestion = await _mediator.Send(new UpdateQuestionCommand() { Id = questionId, Question = question });
+            var questionById = await _mediator.Send(new GetQuestionByIdQuery { Id = questionId });
+            if (questionById == null)
+            {
+                return NotFound("user niet gevonden");
+            }
+
+            return Ok(questionById);
+        }
+
+        [HttpPut("{questionId}")]
+        //[Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> UpdateQuestion(string questionId, [FromBody] Question question)
+        {
+            var returnedQuestion = await _mediator.Send(new UpdateQuestionCommand() {  Question = question, Id = questionId, });
             return Ok(returnedQuestion);
         }
     }
