@@ -14,7 +14,7 @@
 
 
 @attribute [Authorize(Policy = "RequireManagementRole")]
-@* <InactiveUserRedirect /> *@
+<InactiveUserRedirect />
 
 <CustomCards>
     <h3 style="">Maak gebruiker aan!</h3>
@@ -60,12 +60,16 @@
                     Volger
                 </label>
             </div>
-            <div class="col-md-6">
-                <label>
-                    <InputCheckbox @bind-Value="isAddedToUserSelected" />
-                    Wijs gebruiker aan mij toe
-                </label>
-            </div>
+            @* <AuthorizeView Roles="@RoleMapper.Roles[CustomRoles.BEGELEIDER]">
+                <Authorized Context="AuthorizationContext">
+                    <div class="col-md-6">
+                        <label>
+                            <InputCheckbox @bind-Value="isAddedToUserSelected" />
+                            Wijs gebruiker aan mij toe
+                        </label>
+                    </div>
+                </Authorized>
+            </AuthorizeView> *@
         </div>
 
         <div class="row">
@@ -84,7 +88,7 @@
 
     UserDTO user = new UserDTO();
     private bool isFollowerRoleSelected = true;
-    private bool isAddedToUserSelected = true;
+    private bool isAddedToUserSelected = false;
 
     [Inject] protected ToastService toastService { get; set; } = default!;
 
@@ -93,7 +97,7 @@
         AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         ClaimsPrincipal authUser = authState.User;
 
-        if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue("VOLGER", out var volgerRoleId))
+        if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue(CustomRoles.VOLGER, out var volgerRoleId))
         {
             user.RolesIds = isFollowerRoleSelected ? new List<string> { volgerRoleId } : new List<string>();
             user.Username = user.Email.Split('@')[0];

@@ -1,26 +1,44 @@
-﻿namespace Gatam.WebAppBegeleider.Extensions
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+
+namespace Gatam.WebAppBegeleider.Extensions
 {
+    public enum CustomRoles
+    {
+        BEHEERDER,
+        BEGELEIDER,
+        VOLGER,
+        MAKER
+    }
     public static class RoleMapper
     {
-        public static readonly Dictionary<string, string> Roles = new Dictionary<string, string>
+        public static readonly ImmutableDictionary<CustomRoles, string> Roles = ImmutableDictionary.CreateRange(new[]
         {
-            { "BEHEERDER", "rol_3BsJHRFokYkbjr5O" },
-            { "BEGELEIDER", "rol_8cLkJwwd2u2itnu3" },
-            { "VOLGER", "rol_2SgoYL1AoK9tXYXW" },
-            { "MAKER", "rol_tj8keS38380ZU4NR" }
-        };
-        public static string[] GetRoleValues(params string[] roleNames)
+        new KeyValuePair<CustomRoles, string>(CustomRoles.BEHEERDER, "BEHEERDER"),
+        new KeyValuePair<CustomRoles, string>(CustomRoles.BEGELEIDER, "BEGELEIDER"),
+        new KeyValuePair<CustomRoles, string>(CustomRoles.VOLGER, "VOLGER"),
+        new KeyValuePair<CustomRoles, string>(CustomRoles.MAKER, "MAKER")
+        });
+
+        public static string[] GetRoleValues(params CustomRoles[] roleNames)
         {
-            return Roles
-                .Where(role => roleNames.Contains(role.Key))
-                .Select(role => role.Key)
+            if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
+            return roleNames
+                .Select(role => Roles.TryGetValue(role, out var value)
+                    ? value
+                    : throw new ArgumentException($"Role {role} not found"))
                 .ToArray();
         }
 
-        public static List<string> GetKeysBasedOnValues(params string[] values)
+        public static List<CustomRoles> GetKeysBasedOnValues(params string[] values)
         {
-            return Roles.Where(role => values.Contains(role.Value)).Select(role => role.Key).ToList();
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            return values
+                .Select(value => Roles.FirstOrDefault(role => role.Value == value).Key)
+                .Where(key => key != default)
+                .ToList();
         }
-
     }
 }
