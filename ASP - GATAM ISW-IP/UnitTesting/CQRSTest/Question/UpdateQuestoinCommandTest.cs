@@ -17,14 +17,14 @@ namespace UnitTesting.CQRSTest.Question
     public class UpdateQuestoinCommandTest
     {
         private Mock<IUnitOfWork> _unitOfWork;
-        private UpdateUserCommandHandler _handler;
+        private UpdateQuestionCommandHandler _handler;
         private ValidationBehaviour<UpdateQuestionCommand, Gatam.Domain.Question> _commandBehaviour;
 
         [TestInitialize]
         public void Setup()
         {
             _unitOfWork = new Mock<IUnitOfWork>();
-            _handler = new UpdateUserCommandHandler(_unitOfWork.Object, null); // Assuming you don't need a mapper for the test
+            _handler = new UpdateQuestionCommandHandler(_unitOfWork.Object, null); // Assuming you don't need a mapper for the test
             UpdateQuestionCommandValidator validator = new UpdateQuestionCommandValidator(_unitOfWork.Object);
             IEnumerable<IValidator<UpdateQuestionCommand>> validators = new List<IValidator<UpdateQuestionCommand>>() { validator };
             _commandBehaviour = new ValidationBehaviour<UpdateQuestionCommand, Gatam.Domain.Question>(validators);

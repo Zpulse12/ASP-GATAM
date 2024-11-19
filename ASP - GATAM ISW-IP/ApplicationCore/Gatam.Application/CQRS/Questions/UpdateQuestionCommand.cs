@@ -39,11 +39,11 @@ namespace Gatam.Application.CQRS.Questions
         }
     }
 
-    public class UpdateUserCommandHandler : IRequestHandler<UpdateQuestionCommand, Question>
+    public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionCommand, Question>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
-        public UpdateUserCommandHandler(IUnitOfWork uow, IMapper mapper)
+        public UpdateQuestionCommandHandler(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
             _mapper = mapper;

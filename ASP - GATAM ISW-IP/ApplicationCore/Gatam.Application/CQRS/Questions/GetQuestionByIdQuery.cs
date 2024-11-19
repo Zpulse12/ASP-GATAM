@@ -16,11 +16,9 @@ namespace Gatam.Application.CQRS.Questions
     {
 
         private readonly IUnitOfWork _uow;
-        private readonly IMapper _mapper;
-        public GetQuestionByIdQueryHandler(IUnitOfWork uow, IMapper mapper)
+        public GetQuestionByIdQueryHandler(IUnitOfWork uow)
         {
             _uow = uow;
-            _mapper = mapper;
         }
 
         public async Task<Question> Handle(GetQuestionByIdQuery request, CancellationToken cancellationToken)
