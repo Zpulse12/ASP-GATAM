@@ -22,10 +22,19 @@ namespace Gatam.Application.CQRS.Questions
     public class UpdateQuestionCommandValidator : AbstractValidator<UpdateQuestionCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly short _minimumQuestionLength = 15;
+        private readonly short _maximumQuestionLength = 512;
 
         public UpdateQuestionCommandValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            RuleFor(q => q.Question.QuestionTitle).NotEmpty().WithMessage("Je moet een vraag meegeven");
+            RuleFor(q => q.Question.QuestionTitle).NotNull().WithMessage("Je moet een vraag meegeven");
+            RuleFor(q => q.Question.Answers).NotEmpty().WithMessage("Je moet een antwoord meegeven");
+            RuleFor(q => q.Question.QuestionType).NotEmpty().WithMessage("Je moet een type meegeven");
+            RuleFor(q => q.Question.ApplicationModuleId).NotEqual(q => q.Question.Id).WithMessage("Module heeft dezelfde Id als de vraag en dit zorgt voor conflicten. Probeer een nieuwe vraag aan te maken.");
+            RuleFor(q => q.Question.QuestionTitle).MinimumLength(_minimumQuestionLength).WithMessage($"Je vraag is te kort. Je vraag moet minstens {_minimumQuestionLength} tekens bevatten");
+            RuleFor(q => q.Question.QuestionTitle).MaximumLength(_maximumQuestionLength).WithMessage($"Je vraag is te lang. Je vraag mag maximaal {_maximumQuestionLength} tekens bevatten");
 
         }
     }

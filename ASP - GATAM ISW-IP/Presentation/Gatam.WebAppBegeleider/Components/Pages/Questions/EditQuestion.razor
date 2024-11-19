@@ -39,6 +39,7 @@
             <div class="mb-3">
                 <label for="Title" class="form-label">Titel</label>
                 <InputText id="Title" class="form-control" @bind-Value="questionBeingEdited.QuestionTitle" />
+                <ValidationMessage For="@(() => questionBeingEdited.QuestionTitle)" />
             </div>
 
             @if (questionBeingEdited.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
@@ -163,7 +164,7 @@
     [Parameter] public string Message { get; set; } = "Weet u zeker dat u wilt annuleren zonder uw wijzigingen op te slaan?";
 
 
-    bool isSuccess = false;
+    private bool isSuccess = false;
     private bool _hasError = false;
     private bool _isLoading = true;
 
@@ -272,6 +273,11 @@
 
     private async void AddAnswerToList()
     {
+        if (string.IsNullOrWhiteSpace(answerBeingEdited.Answer))
+        {
+            toastService.Notify(new(ToastType.Warning, "Antwoord mag niet leeg zijn"));
+            return; 
+        }
         answers.Add(new QuestionAnswer() { Answer = answerBeingEdited.Answer, AnswerValue = answerBeingEdited.AnswerValue, QuestionId = newQuestion.Id });
         await answerGrid.RefreshDataAsync();
         answerBeingEdited = new QuestionAnswer() { AnswerValue = "true" };

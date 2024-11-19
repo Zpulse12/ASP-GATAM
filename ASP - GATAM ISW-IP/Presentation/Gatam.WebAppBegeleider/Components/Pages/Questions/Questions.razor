@@ -361,6 +361,11 @@
     }
     private async void AddAnswerToList()
     {
+        if (string.IsNullOrWhiteSpace(currentAnswer.Answer))
+        {
+            toastService.Notify(new(ToastType.Warning, "Antwoord mag niet leeg zijn"));
+            return;
+        }
         answers.Add(new QuestionAnswer() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
         await answerGrid.RefreshDataAsync();
         currentAnswer = new QuestionAnswer() { AnswerValue = "true" };
