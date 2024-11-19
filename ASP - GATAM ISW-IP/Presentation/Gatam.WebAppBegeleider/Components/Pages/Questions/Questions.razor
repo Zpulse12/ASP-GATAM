@@ -248,7 +248,10 @@
         ClaimsPrincipal user = authState.User;
         newQuestion.QuestionType = (short)selectedOption;
 
-
+        if ((QuestionType)newQuestion.QuestionType == QuestionType.TRUE_OR_FALSE)
+        {
+            answers.Add(currentAnswer);
+        }
         if((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
         {
             answers.Add(currentAnswer);

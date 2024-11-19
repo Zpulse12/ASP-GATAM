@@ -8,23 +8,8 @@
 
 @rendermode InteractiveServer
 
-@attribute [Authorize(Policy = "RequireManagementRole")]
-<div class="container mt-3">
-    @if (isSuccess)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @response_Msg
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    else if (_hasError)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @response_Msg
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-</div>
+@attribute [Authorize(Policy = "RequireMakerRole")]
+
 <CustomCards>
     @if (_isLoading)
     {
@@ -42,20 +27,117 @@
                 <label for="Title" class="form-label">Titel</label>
                 <InputText id="Title" class="form-control" @bind-Value="questionBeingEdited.QuestionTitle" />
             </div>
-            <button type="submit" class="btn btn-primary">Opslaan</button>
-        </EditForm>
-    }
-    else
-    {
-        <div class="alert alert-danger">
-            Vraag niet gevonden.
-        </div>
-    }
+
+            @if (questionBeingEdited.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
+            {
+                <div class="mb-3">
+                    <div class="form-group row mb-3">
+                        <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                        <div class="col-md-10">
+                            <InputText class="form-control mb-3" @bind-Value="answerBeingEdited.Answer" />
+                            <ValidationMessage For="@(() => answerBeingEdited.Answer)" />
+                            <InputSelect @bind-Value="answerBeingEdited.AnswerValue" class="form-control mb-3">
+                                <option value="true">Juist</option>
+                                <option value="false">Onjuist</option>
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-12 text-left">
+                            <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
+                        </div>
+                    </div>
+                </div>
+                <Grid TItem="QuestionAnswer"
+                      @ref="answerGrid"
+                      Class="table table-hover"
+                      Data="answers"
+                      HeaderRowCssClass="custom-header"
+                      Responsive="true">
+                    <GridColumns>
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                            @AnswerContext.Answer
+                        </GridColumn>
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                            @AnswerContext.AnswerValue
+                        </GridColumn>
+                        <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                            <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </GridColumn>
+                    </GridColumns>
+                </Grid>
+            }
+ 
+            else if (questionBeingEdited.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
+            {
+                <div class="form-group row mb-3">
+                    <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                    <div class="col-md-10">
+                        <InputSelect @bind-Value="answerBeingEdited.Answer" class="form-control">
+                            <option value="true">Waar</option>
+                            <option value="false">Onwaar</option>
+                        </InputSelect>
+                    </div>
+                </div>
+            }
+            else if (questionBeingEdited.QuestionType == (short)QuestionType.CHOICE_LIST)
+            {
+                <div class="form-group row mb-3">
+                    <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                    <div class="col-md-10">
+                        <InputText class="form-control mb-3" @bind-Value="answerBeingEdited.Answer" />
+                        <ValidationMessage For="@(() => answerBeingEdited.Answer)" />
+                        <InputSelect @bind-Value="answerBeingEdited.AnswerValue" class="form-control mb-3">
+                            <option value="true">Juist</option>
+                            <option value="false">Onjuist</option>
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-12 text-left">
+                        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
+                    </div>
+                </div>
+
+                <Grid TItem="QuestionAnswer"
+                      @ref="answerGrid"
+                      Class="table table-hover"
+                      Data="answers"
+                      HeaderRowCssClass="custom-header"
+                      Responsive="true">
+                    <GridColumns>
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                            @AnswerContext.Answer
+                        </GridColumn>
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                            @AnswerContext.AnswerValue
+                        </GridColumn>
+                        <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                            <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </GridColumn>
+                    </GridColumns>
+                </Grid>
+            }
+                    <button type="submit" class="btn btn-primary">Opslaan</button>
+                </EditForm>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    Vraag niet gevonden.
+                </div>
+            }
 </CustomCards>
 @code {
     [Parameter] public string Id { get; set; } = "";
     private Question questionBeingEdited;
-    string response_Msg = "";
+    private QuestionAnswer answerBeingEdited;
+    private List<QuestionAnswer> answers = new List<QuestionAnswer>();
+    private Grid<QuestionAnswer> answerGrid = new Grid<QuestionAnswer>();
+    private Question newQuestion = new Question();
+
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
     bool isSuccess = false;
     private bool _hasError = false;
     private bool _isLoading = true;
@@ -66,17 +148,48 @@
 
         try
         {
+            answerBeingEdited = new QuestionAnswer { AnswerValue = "true" };
             questionBeingEdited = await apiClient.GetFromJsonAsync<Question>($"/api/question/{Id}");
             if (questionBeingEdited == null)
             {
                 _hasError = true;
-                response_Msg = "Vraag niet gevonden.";
+                toastService.Notify(new(ToastType.Danger, "Vraag niet gevonden."));
+
+            }
+            else
+            {
+                answers = questionBeingEdited.Answers?.ToList() ?? new List<QuestionAnswer>();
+                answerGrid.Data = answers;
+
+
+                if (questionBeingEdited.QuestionType == (short)QuestionType.CHOICE_LIST)
+                {
+                    answers = questionBeingEdited.Answers?.ToList() ?? new List<QuestionAnswer>();
+                }
+                else if (questionBeingEdited.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
+                {
+                    answers = questionBeingEdited.Answers?.ToList() ?? new List<QuestionAnswer>();
+                }
+                else if (questionBeingEdited.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
+                {
+                    var trueFalseAnswer = questionBeingEdited.Answers?.FirstOrDefault();
+                    if (trueFalseAnswer != null)
+                    {
+                        answerBeingEdited.Answer = trueFalseAnswer.Answer;
+                        answerBeingEdited.AnswerValue = trueFalseAnswer.AnswerValue;
+                    }
+                    else
+                    {
+                        answerBeingEdited = new QuestionAnswer { AnswerValue = "true" };
+                    }
+                }
             }
         }
         catch (Exception ex)
         {
             _hasError = true;
-            response_Msg = $"Fout bij het ophalen van de vraag.";
+            toastService.Notify(new(ToastType.Warning, "Er is een fout opgetreden bij het ophalen van de vraag."));
+
         }
         finally
         {
@@ -89,30 +202,61 @@
         _isLoading = true;
         try
         {
-           
+            if (questionBeingEdited.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
+            {
+               
+                answers = new List<QuestionAnswer>
+            {
+                new QuestionAnswer
+                {
+                    Answer = answerBeingEdited.Answer,
+                    AnswerValue = answerBeingEdited.AnswerValue,
+                    QuestionId = questionBeingEdited.Id
+                }
+            };
+            }
+            questionBeingEdited.Answers = answers;
+            
             var response = await apiClient.PutAsJsonAsync($"/api/question/{questionBeingEdited.Id}", questionBeingEdited);
-            Debug.WriteLine(response.ToString());
+            
             if (response.IsSuccessStatusCode)
             {
                 isSuccess = true;
-                response_Msg = "Vraag succesvol opgeslagen.";
+                toastService.Notify(new(ToastType.Success, "Vraag succesvol opgeslagen.", $"Vraag bewerkt op {newQuestion.LastUpdatedAt}"));
                 StateHasChanged();
                
             }
             else
             {
                 isSuccess = false;
-                response_Msg = "Er is een fout opgetreden bij het opslaan.";
+                toastService.Notify(new(ToastType.Warning, "Er is een fout opgetreden bij het opslaan."));
             }
         }
         catch (Exception ex)
         {
             isSuccess = false;
-            response_Msg = "Er is een onverwachte fout opgetreden.";
+            toastService.Notify(new(ToastType.Warning, "Er is een onverwachte fout opgetreden."));
+
         }
         finally
         {
             _isLoading = false;
         }
     }
+
+
+    private async void AddAnswerToList()
+    {
+        answers.Add(new QuestionAnswer() { Answer = answerBeingEdited.Answer, AnswerValue = answerBeingEdited.AnswerValue, QuestionId = newQuestion.Id });
+        await answerGrid.RefreshDataAsync();
+        answerBeingEdited = new QuestionAnswer() { AnswerValue = "true" };
+    }
+    private async void RemoveAnswerFromList(QuestionAnswer answer)
+    {
+        answers.Remove(answer);
+        await answerGrid.RefreshDataAsync();
+    }
+
+
 }
+

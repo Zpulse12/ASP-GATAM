@@ -25,7 +25,7 @@ namespace Gatam.Application.CQRS.Questions
 
         public async Task<Question> Handle(GetQuestionByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _uow.QuestionRepository.FindById(request.Id);
+            return await _uow.QuestionRepository.GetQuestionAndAnswers(request.Id);
         }
 
     }
