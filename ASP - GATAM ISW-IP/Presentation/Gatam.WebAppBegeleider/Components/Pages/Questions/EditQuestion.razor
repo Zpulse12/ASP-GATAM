@@ -5,11 +5,23 @@
 @using Gatam.WebAppBegeleider.Extensions
 @using System.Diagnostics
 @inject ApiClient apiClient
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
 
 @rendermode InteractiveServer
 
 @attribute [Authorize(Policy = "RequireMakerRole")]
 
+<Modal @ref="modal" Title="Annuleer het bewerken van de vraag">
+    <BodyTemplate>
+        @Message
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Ja</Button>
+        <Button Color="ButtonColor.Success"@onclick="SaveQuestion">Wijzigingen opslaan</Button>
+    </FooterTemplate>
+</Modal>
 <CustomCards>
     @if (_isLoading)
     {
@@ -19,6 +31,7 @@
     }
     else if (questionBeingEdited != null)
     {
+        
         <EditForm Model="questionBeingEdited" OnValidSubmit="SaveQuestion">
             <DataAnnotationsValidator />
             <ValidationSummary />
@@ -119,6 +132,9 @@
                 </Grid>
             }
                     <button type="submit" class="btn btn-primary">Opslaan</button>
+            <button type="button" class="btn btn-danger" @onclick="OnShowModalClick">Annuleren</button>
+
+
                 </EditForm>
             }
             else
@@ -127,8 +143,13 @@
                     Vraag niet gevonden.
                 </div>
             }
+           
+
+
 </CustomCards>
+
 @code {
+    private Modal? modal;
     [Parameter] public string Id { get; set; } = "";
     private Question questionBeingEdited;
     private QuestionAnswer answerBeingEdited;
@@ -137,6 +158,10 @@
     private Question newQuestion = new Question();
 
     [Inject] protected ToastService toastService { get; set; } = default!;
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> OnConfirm { get; set; }
+    [Parameter] public string Message { get; set; } = "Weet u zeker dat u wilt annuleren zonder uw wijzigingen op te slaan?";
+
 
     bool isSuccess = false;
     private bool _hasError = false;
@@ -204,7 +229,7 @@
         {
             if (questionBeingEdited.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
             {
-               
+
                 answers = new List<QuestionAnswer>
             {
                 new QuestionAnswer
@@ -216,15 +241,15 @@
             };
             }
             questionBeingEdited.Answers = answers;
-            
+
             var response = await apiClient.PutAsJsonAsync($"/api/question/{questionBeingEdited.Id}", questionBeingEdited);
-            
+
             if (response.IsSuccessStatusCode)
             {
                 isSuccess = true;
                 toastService.Notify(new(ToastType.Success, "Vraag succesvol opgeslagen.", $"Vraag bewerkt op {newQuestion.LastUpdatedAt}"));
                 StateHasChanged();
-               
+
             }
             else
             {
@@ -258,5 +283,15 @@
     }
 
 
+    private async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+        Navigation.NavigateTo("/questions");
+    }
 }
 
