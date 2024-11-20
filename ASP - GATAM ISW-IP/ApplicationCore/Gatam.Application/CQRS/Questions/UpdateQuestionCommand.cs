@@ -42,11 +42,9 @@ namespace Gatam.Application.CQRS.Questions
     public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionCommand, Question>
     {
         private readonly IUnitOfWork _uow;
-        private readonly IMapper _mapper;
-        public UpdateQuestionCommandHandler(IUnitOfWork uow, IMapper mapper)
+        public UpdateQuestionCommandHandler(IUnitOfWork uow)
         {
             _uow = uow;
-            _mapper = mapper;
         }
 
         public async Task<Question> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
