@@ -42,10 +42,11 @@ namespace Gatam.WebAppBegeleider.Extensions
                 httpClient.BaseAddress = new Uri(_host);
 
 #if DEBUG
-                if(env.ENVIRONMENT == "development")
+                if (env.ENVIRONMENT == "development")
                 {
                     httpClient.BaseAddress = new Uri("http://localhost:5292");
-                } else
+                }
+                else
                 {
                     httpClient.BaseAddress = new Uri("http://localhost:5000");
                 }
@@ -55,8 +56,6 @@ namespace Gatam.WebAppBegeleider.Extensions
             return services;
 
         }
-
-
         public static IServiceCollection RegisterPolicies(this IServiceCollection services)
         {
 
@@ -64,18 +63,18 @@ namespace Gatam.WebAppBegeleider.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
+                    var requiredRoleIds = RoleMapper.GetRoleValues(CustomRoles.BEHEERDER, CustomRoles.BEGELEIDER);
                     policy.RequireRole(requiredRoleIds);
 
                 });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
+                    var requiredRoleIds = RoleMapper.GetRoleValues(CustomRoles.BEHEERDER, CustomRoles.MAKER);
                     policy.RequireRole(requiredRoleIds);
                 });
                 options.AddPolicy("RequireAdminRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
+                    var requiredRoleIds = RoleMapper.GetRoleValues(CustomRoles.BEHEERDER);
                     policy.RequireRole(requiredRoleIds);
                 });
 

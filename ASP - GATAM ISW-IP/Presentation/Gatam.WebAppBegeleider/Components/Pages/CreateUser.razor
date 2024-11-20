@@ -10,24 +10,16 @@
 @rendermode InteractiveServer
 
 @inject ApiClient apiClient
+@inject AuthenticationStateProvider authenticationStateProvider
 
 
 @attribute [Authorize(Policy = "RequireManagementRole")]
 <InactiveUserRedirect />
-<div class="container mt-3">
-    @if (isSuccess)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @response
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
 
-</div>
 <CustomCards>
     <h3 style="">Maak gebruiker aan!</h3>
 
-    <EditForm Model="@user" FormName="createUser" OnValidSubmit="@OnFormSubmit">
+    <EditForm Model="@user" FormName="createUser">
         <DataAnnotationsValidator />
         <div class="row">
             <div class="col-md-6 mb-3">
@@ -68,6 +60,16 @@
                     Volger
                 </label>
             </div>
+            @* <AuthorizeView Roles="@RoleMapper.Roles[CustomRoles.BEGELEIDER]">
+                <Authorized Context="AuthorizationContext">
+                    <div class="col-md-6">
+                        <label>
+                            <InputCheckbox @bind-Value="isAddedToUserSelected" />
+                            Wijs gebruiker aan mij toe
+                        </label>
+                    </div>
+                </Authorized>
+            </AuthorizeView> *@
         </div>
 
         <div class="row">
@@ -86,50 +88,50 @@
 
     UserDTO user = new UserDTO();
     private bool isFollowerRoleSelected = true;
+    private bool isAddedToUserSelected = false;
 
+    [Inject] protected ToastService toastService { get; set; } = default!;
 
     private async Task OnFormSubmit() 
     {
+        AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        ClaimsPrincipal authUser = authState.User;
 
-
-        user.RolesIds = isFollowerRoleSelected ? new List<string> { RoleMapper.Roles["VOLGER"] } : new List<string>();
-        user.Username = user.Email.Split('@')[0];
-
-        var result = await apiClient.PostAsJsonAsync("/api/user", user);
-        if(result.IsSuccessStatusCode)
+        if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue(CustomRoles.VOLGER, out var volgerRoleId))
         {
+            user.RolesIds = isFollowerRoleSelected ? new List<string> { volgerRoleId } : new List<string>();
+            user.Username = user.Email.Split('@')[0];
 
-            var createdUser = await result.Content.ReadFromJsonAsync<UserDTO>();
-
-            if (createdUser != null)
+            if(isAddedToUserSelected)
             {
-                if (!string.IsNullOrWhiteSpace(createdUser?.Id) && createdUser.RolesIds?.Any() == true)
-                {
-                    await apiClient.PutAsJsonAsync($"/api/user/{createdUser.Id}/roles", createdUser);
-                }
-                else
-                {
-                    isSuccess = false;
-                    response = "Er trad een fout op bij het ophalen van de aangemaakte gebruiker-ID.";
-                }
-
-                isSuccess = true;
-                response = "Gebruiker is aangemaakt.";
-                user = new UserDTO();
+                string userId = authUser.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                user.BegeleiderId = userId;
             }
-            else
+            try
             {
-                isSuccess = false;
-                response = "Er trad een fout op bij het ophalen van de aangemaakte gebruiker.";
-
+                var result = await apiClient.PostAsJsonAsync<UserDTO>("/api/user", user);
+                if(result.IsSuccessStatusCode)
+                {
+                    var createdUser = await result.Content.ReadFromJsonAsync<UserDTO>();
+                    toastService.Notify(new(ToastType.Success, "Je gebruiker is succesvol aangemaakt", $"Met id {createdUser.Id}"));
+                } else
+                {
+                    ValidationException errorResponse = await result.Content.ReadFromJsonAsync<ValidationException>();
+                    string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : result.ReasonPhrase;
+                    toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van de gebruiker.", errors));
+                }
+            } catch(Exception e)
+            {
+                toastService.Notify(new(ToastType.Danger, "Er ging iets mis met het aanmaken van de gebruiker", e.Message));
+            } finally
+            {
+                user = new UserDTO();
+                StateHasChanged();
             }
         } else
         {
-            isSuccess = false;
-            response = "Niet goed";
-            response = await result.Content.ReadAsStringAsync();
-
+            toastService.Notify(new(ToastType.Danger, "Geen gebruiker gevonden in de huidige context. Ben je ingelogd?", "Geen gebruiker id gevonden."));
+            return;
         }
-        StateHasChanged();
     }
 }
