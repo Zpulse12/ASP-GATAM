@@ -24,7 +24,7 @@ namespace UnitTesting.CQRSTest.Question
         public void Setup()
         {
             _unitOfWork = new Mock<IUnitOfWork>();
-            _handler = new UpdateQuestionCommandHandler(_unitOfWork.Object, null); // Assuming you don't need a mapper for the test
+            _handler = new UpdateQuestionCommandHandler(_unitOfWork.Object); 
             UpdateQuestionCommandValidator validator = new UpdateQuestionCommandValidator(_unitOfWork.Object);
             IEnumerable<IValidator<UpdateQuestionCommand>> validators = new List<IValidator<UpdateQuestionCommand>>() { validator };
             _commandBehaviour = new ValidationBehaviour<UpdateQuestionCommand, Gatam.Domain.Question>(validators);
