@@ -199,7 +199,7 @@
                     data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
                         <i class="bi bi-trash"></i>
                     </button>
-            <a class="btn btn-outline-secondary" href="#" @onclick:stopPropagation>
+                    <a class="btn btn-outline-secondary" href="/question/@(context.Id)" @onclick:stopPropagation>
                         <i class="bi bi-pencil"></i>
                     </a>
                 </div>
@@ -248,7 +248,10 @@
         ClaimsPrincipal user = authState.User;
         newQuestion.QuestionType = (short)selectedOption;
 
-
+        if ((QuestionType)newQuestion.QuestionType == QuestionType.TRUE_OR_FALSE)
+        {
+            answers.Add(currentAnswer);
+        }
         if((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
         {
             answers.Add(currentAnswer);
@@ -358,6 +361,11 @@
     }
     private async void AddAnswerToList()
     {
+        if (string.IsNullOrWhiteSpace(currentAnswer.Answer))
+        {
+            toastService.Notify(new(ToastType.Warning, "Antwoord mag niet leeg zijn"));
+            return;
+        }
         answers.Add(new QuestionAnswer() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
         await answerGrid.RefreshDataAsync();
         currentAnswer = new QuestionAnswer() { AnswerValue = "true" };

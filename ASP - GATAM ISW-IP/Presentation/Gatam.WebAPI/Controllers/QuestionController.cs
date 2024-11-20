@@ -1,4 +1,5 @@
 ﻿using Gatam.Application.CQRS.Questions;
+using Gatam.Application.CQRS.User;
 using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -32,6 +33,27 @@ namespace Gatam.WebAPI.Controllers
         {
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
             return Created("", createdQuestion);
+        }
+
+        [HttpGet("{questionId}")]
+        [Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> GetQuestionById(string questionId)
+        {
+            var questionById = await _mediator.Send(new GetQuestionByIdQuery { Id = questionId });
+            if (questionById == null)
+            {
+                return NotFound("user niet gevonden");
+            }
+
+            return Ok(questionById);
+        }
+
+        [HttpPut("{questionId}")]
+        [Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> UpdateQuestion(string questionId, [FromBody] Question question)
+        {
+            var returnedQuestion = await _mediator.Send(new UpdateQuestionCommand() {  Question = question, Id = questionId, });
+            return Ok(returnedQuestion);
         }
     }
 }

@@ -13,5 +13,6 @@ namespace Gatam.Application.Interfaces
         Task<T?> FindByProperty(string propertyName, string value);
         Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate);
 
+
     }
 }
