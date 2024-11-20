@@ -14,6 +14,7 @@ namespace Gatam.Infrastructure.Contexts
         public DbSet<ApplicationModule> Modules { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<UserModule> UserModules { get; set; }
 
         public DbSet<QuestionAnswer> Answers { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }

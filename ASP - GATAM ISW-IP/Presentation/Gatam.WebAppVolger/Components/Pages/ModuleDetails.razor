@@ -1,0 +1,50 @@
+﻿@page "/ModuleDetails/{ModuleId:guid}"
+@using Gatam.Domain
+@using Gatam.WebAppVolger.Extensions
+@inject ApiClient ApiClient
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Policy = "RequireVolgersRole")]
+<h3>ModuleDetails</h3>
+
+    <h3>Vragen</h3>
+      
+
+@code {
+    
+    [Parameter]
+    public Guid ModuleId { get; set; }
+    private List<Question> _questions = new List<Question>();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    protected override async Task OnInitializedAsync()
+    {
+        _questions = await ApiClient.GetFromJsonAsync<List<Question>>($"api/module/{ModuleId}/questions");
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadQuestions();
+    }
+
+    private async Task LoadQuestions()
+    {
+        _isLoading = true;
+        try
+        {
+            _questions = await ApiClient.GetFromJsonAsync<List<Question>>($"api/module/{ModuleId}/questions");
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+
+}
