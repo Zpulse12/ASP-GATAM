@@ -17,7 +17,9 @@ namespace Gatam.Application
 
         CreateMap<ApplicationModule, ModuleDTO>();
         
-        CreateMap<Question, QuestionDTO>();
+        CreateMap<Question, QuestionDTO>()
+            .ForMember(dest => dest.QuestionSetting, 
+                      opt => opt.MapFrom(src => src.UserModuleQuestionSettings.FirstOrDefault()));
 
          CreateMap<UserModule, UserModuleDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -26,10 +28,12 @@ namespace Gatam.Application
             .ForMember(dest => dest.QuestionSettings, opt => opt.MapFrom(src => src.QuestionSettings));
         CreateMap<UserModuleQuestionSetting, QuestionSettingDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
-            .ForMember(dest => dest.IsVisible, opt => opt.MapFrom(src => src.IsVisible));
+            .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
+            .ForMember(dest => dest.IsVisible, opt => opt.MapFrom(src => src.IsVisible))
+            .ForMember(dest => dest.QuestionTitle, opt => opt.MapFrom(src => src.Question.QuestionTitle))
+            .ForMember(dest => dest.QuestionType, opt => opt.MapFrom(src => src.Question.QuestionType));
 
-        CreateMap<UserModuleQuestionSettingDTO, UserModuleQuestionSetting>()
+        CreateMap<QuestionSettingDTO, UserModuleQuestionSetting>()
             .ForMember(dest => dest.Question, opt => opt.Ignore())
             .ForMember(dest => dest.UserModule, opt => opt.Ignore());
 

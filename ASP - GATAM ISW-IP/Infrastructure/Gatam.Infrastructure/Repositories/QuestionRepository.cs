@@ -61,10 +61,10 @@ namespace Gatam.Infrastructure.Repositories
            
         }
 
-        public async Task<List<Question>> GetVisibleQuestionsForVolger(string volgerId)
+        public async Task<List<Question>> GetVisibleQuestionsForFollower(string followerId)
         {
             return await _context.UserModule
-                .Where(um => um.UserId == volgerId)
+                .Where(um => um.UserId == followerId)
                 .SelectMany(um => um.QuestionSettings
                     .Where(umqs => umqs.IsVisible)
                     .Select(umqs => umqs.Question))
