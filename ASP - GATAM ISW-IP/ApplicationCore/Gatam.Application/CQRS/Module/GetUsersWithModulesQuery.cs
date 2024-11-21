@@ -22,43 +22,20 @@ namespace Gatam.Application.CQRS.Module
     public class GetUsersWithModulesQueryHandler : IRequestHandler<GetUsersWithModulesQuery, List<UserModuleDTO>>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public GetUsersWithModulesQueryHandler(IUserRepository userRepository)
+        public GetUsersWithModulesQueryHandler(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public async Task<List<UserModuleDTO>> Handle(GetUsersWithModulesQuery request, CancellationToken cancellationToken)
         {
             var users = await _userRepository.GetUsersWithModulesAsync();
             
-            return users.SelectMany(u => u.UserModules.Select(um => new UserModuleDTO
-            {
-                Id = um.Id,
-                User = new UserDTO 
-                { 
-                    Id = u.Id,
-                    Username = u.Username,
-                    Email = u.Email 
-                },
-                Module = new ModuleDTO
-                {
-                    Id = um.Module.Id,
-                    Title = um.Module.Title,
-                    Category = um.Module.Category
-                },
-                QuestionSettings = um.QuestionSettings.Select(qs => new QuestionSettingDTO
-                {
-                    Id = qs.Id,
-                    IsVisible = qs.IsVisible,
-                    Question = new QuestionDTO
-                    {
-                        Id = qs.Question.Id,
-                        QuestionTitle = qs.Question.QuestionTitle,
-                        QuestionType = qs.Question.QuestionType
-                    }
-                }).ToList()
-            })).ToList();
+            var userModules = users.SelectMany(u => u.UserModules).ToList();
+            return _mapper.Map<List<UserModuleDTO>>(userModules);
         }
     }
 }
