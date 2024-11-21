@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Gatam.Application.CQRS.Questions;
 using MediatR;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
@@ -48,20 +49,39 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
 }
 public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, bool>
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IModuleRepository _moduleRepository;
+    private readonly IMediator _mediator;
+    private readonly IUnitOfWork _uow;
 
-    public AssignModulesToUserCommandHandler(IUnitOfWork unitOfWork)
+    public AssignModulesToUserCommandHandler(IModuleRepository moduleRepository, IMediator mediator, IUnitOfWork uow)
     {
-        _unitOfWork = unitOfWork;
+        _moduleRepository = moduleRepository;
+        _mediator = mediator;
+        _uow = uow;
     }
     
     public async Task<bool> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _unitOfWork.UserRepository.FindById(request.VolgerId);
-        var module = await _unitOfWork.ModuleRepository.FindById(request.ModuleId);
-        user.UserModules.Add(new UserModule { UserId = user.Id, ModuleId = module.Id });
-        await _unitOfWork.UserRepository.Update(user);
-        await _unitOfWork.Commit();
+        var user = await _uow.UserRepository.FindById(request.VolgerId);
+        var module = await _moduleRepository.FindByIdWithQuestions(request.ModuleId);
+        var userModule = new UserModule 
+        { 
+            UserId = user.Id, 
+            ModuleId = module.Id 
+        };
+        user.UserModules.Add(userModule);
+        
+        await _uow.UserRepository.Update(user);
+        await _uow.Commit();
+
+        foreach (var question in module.Questions)
+        {
+            await _mediator.Send(new CreateSettingCommand
+            {
+                UserModuleId = userModule.Id,
+                QuestionId = question.Id
+            });
+        }
 
         return true;
     }
