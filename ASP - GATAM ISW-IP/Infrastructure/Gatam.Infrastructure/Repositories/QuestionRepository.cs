@@ -60,5 +60,46 @@ namespace Gatam.Infrastructure.Repositories
             }
            
         }
+
+        public async Task<List<Question>> GetVisibleQuestionsForVolger(string volgerId)
+        {
+            return await _context.UserModule
+                .Where(um => um.UserId == volgerId)
+                .SelectMany(um => um.QuestionSettings
+                    .Where(umqs => umqs.IsVisible)
+                    .Select(umqs => umqs.Question))
+                .ToListAsync();
+        }
+
+        public async Task<List<(UserModule Module, List<Question> Questions)>> GetVisibleQuestionsPerModule(string volgerId)
+        {
+            var modules = await _context.UserModule
+                .Where(um => um.UserId == volgerId)
+                .Include(um => um.QuestionSettings)
+                    .ThenInclude(umqs => umqs.Question)
+                .Select(um => new
+                {
+                    Module = um,
+                    Questions = um.QuestionSettings
+                        .Where(umqs => umqs.IsVisible == true)
+                        .Select(umqs => umqs.Question)
+                        .ToList()
+                })
+                .ToListAsync();
+
+            return modules.Select(m => (m.Module, m.Questions)).ToList();
+        }
+
+        public async Task<UserModuleQuestionSetting> GetQuestionSettingById(string id)
+        {
+            return await _context.UserModuleQuestionSetting
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task UpdateQuestionSetting(UserModuleQuestionSetting setting)
+        {
+            _context.UserModuleQuestionSetting.Update(setting);
+            await _context.SaveChangesAsync();
+        }
     }
 }
