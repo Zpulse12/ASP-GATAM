@@ -27,6 +27,7 @@ namespace Gatam.Domain
         [JsonIgnore]
         public ApplicationModule? ApplicationModule { get; set; }
         public IEnumerable<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
+        public virtual ICollection<UserModuleQuestionSetting> UserModuleQuestionSettings { get; set; } = new List<UserModuleQuestionSetting>();
         public Question()
         {
             Id = Guid.NewGuid().ToString();
