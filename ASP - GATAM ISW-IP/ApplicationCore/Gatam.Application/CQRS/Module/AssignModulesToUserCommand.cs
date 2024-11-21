@@ -8,7 +8,7 @@ namespace Gatam.Application.CQRS.Module;
 
 public class AssignModulesToUserCommand : IRequest<bool>
 {
-    public string VolgerId { get; set; }
+    public string FollowerId { get; set; }
     public string ModuleId { get; set; }
 }
 public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModulesToUserCommand>
@@ -17,14 +17,14 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
     public AssignModulesToUserCommandValidator(IUnitOfWork uow)
     {
         _uow = uow;
-        RuleFor(command => command.VolgerId)
+        RuleFor(command => command.FollowerId)
             .NotEmpty()
-            .WithMessage("VolgerId is required.");
+            .WithMessage("FollowerId is required.");
 
         RuleFor(command => command.ModuleId)
             .NotEmpty()
             .WithMessage("ModuleId is required.");
-        RuleFor(x => x.VolgerId)
+        RuleFor(x => x.FollowerId)
             .MustAsync(async (userId, token) =>
             {
                 var user = await _uow.UserRepository.FindById(userId);
@@ -41,7 +41,7 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
         RuleFor(command => command)
             .MustAsync(async (command, cancellation) =>
             {
-                var user = await _uow.UserRepository.FindById(command.VolgerId);
+                var user = await _uow.UserRepository.FindById(command.FollowerId);
                 return user != null && user.UserModules.All(um => um.ModuleId != command.ModuleId);
             })
             .WithMessage("Module is already assigned to this user");
@@ -62,7 +62,7 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
     
     public async Task<bool> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _uow.UserRepository.FindById(request.VolgerId);
+        var user = await _uow.UserRepository.FindById(request.FollowerId);
         var module = await _moduleRepository.FindByIdWithQuestions(request.ModuleId);
         var userModule = new UserModule 
         { 

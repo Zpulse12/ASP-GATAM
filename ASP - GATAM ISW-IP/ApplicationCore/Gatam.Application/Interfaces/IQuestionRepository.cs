@@ -6,7 +6,7 @@ public interface IQuestionRepository : IGenericRepository<Question>
 {
     Task<Question> GetQuestionAndAnswers(string Id);
     Task UpdateQuestionAndAnswers(Question entity);
-    Task<List<Question>> GetVisibleQuestionsForVolger(string volgerId);
+    Task<List<Question>> GetVisibleQuestionsForFollower(string followerId);
     Task<UserModuleQuestionSetting> GetQuestionSettingById(string id);
     Task UpdateQuestionSetting(UserModuleQuestionSetting setting);
 }

@@ -44,11 +44,11 @@ namespace Gatam.WebAPI.Controllers
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
             return Created("", createdQuestion);
         }
-        [HttpGet("visible/{volgerId}")]
+        [HttpGet("visible/{followerId}")]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> GetVisibleQuestionsForVolger(string volgerId)
+        public async Task<IActionResult> GetVisibleQuestionsForFollower(string followerId)
         {
-            var questions = await _mediator.Send(new GetVisibleQuestionsForVolgerQuery { VolgerId = volgerId });
+            var questions = await _mediator.Send(new GetVisibleQuestionsForFollowerQuery { FollowerId = followerId });
             return Ok(questions);
         }
 
@@ -81,7 +81,7 @@ namespace Gatam.WebAPI.Controllers
         // }
 
         [HttpPut("visibility")]
-        [Authorize(Policy = "RequireManagementRole")]
+        // [Authorize(Policy = "RequireManagementRole")]
 
         public async Task<IActionResult> UpdateVisibility([FromBody] UpdateQuestionVisibilityCommand command)
         {
