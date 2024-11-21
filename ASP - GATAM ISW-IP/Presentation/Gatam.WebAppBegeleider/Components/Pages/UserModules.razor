@@ -6,7 +6,6 @@
 @inject ApiClient ApiClient
 @rendermode InteractiveServer
 
-
 <h3>Modules per Gebruiker</h3>
 
 @if (_loading)
@@ -17,7 +16,7 @@
         </div>
     </div>
 }
-else if (_userModules == null || !_userModules.Any())
+else if (_userModules?.Any() != true)
 {
     <div class="alert alert-info">
         Geen gebruikers of modules gevonden.
@@ -25,53 +24,45 @@ else if (_userModules == null || !_userModules.Any())
 }
 else
 {
-    @foreach (var userModule in _userModules)
-    {
-        @if (userModule?.User != null)
+    <div class="accordion" id="userModulesAccordion">
+        @foreach (var userModule in _userModules)
         {
-            <div class="user-section mb-4">
-                <h4 class="user-title">@userModule.User.Username</h4>
-                @if (userModule.Module != null)
-                {
-                    <div class="module-section">
-                        <h5 class="module-title">@userModule.Module.Title</h5>
-                        
-                        @if (userModule.QuestionSettings != null)
-                        {
-                            <div class="question-list">
-                                @foreach (var questionSetting in userModule.QuestionSettings)
-                                {
-                                    @if (questionSetting?.Question != null)
-                                    {
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <h5 class="card-title mb-0">@questionSetting.Question.QuestionTitle</h5>
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" 
-                                                               type="checkbox" 
-                                                               checked="@questionSetting.IsVisible"
-                                                               @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
-                                                        <label class="form-check-label">Zichtbaar</label>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="question-metadata text-muted mt-2">
-                                                    <small>
-                                                        Type: @GetQuestionTypeText(questionSetting.Question.QuestionType)
-                                                    </small>
-                                                </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#user-@userModule.Id">
+                        @userModule.User.Username - @userModule.Module.Title
+                    </button>
+                </h2>
+                <div id="user-@userModule.Id" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        <div class="question-list">
+                            @foreach (var questionSetting in userModule.QuestionSettings)
+                            {
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="card-title mb-0">@questionSetting.QuestionTitle</h5>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" 
+                                                       type="checkbox" 
+                                                       checked="@questionSetting.IsVisible"
+                                                       @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
+                                                <label class="form-check-label">Zichtbaar</label>
                                             </div>
                                         </div>
-                                    }
-                                }
-                            </div>
-                        }
+                                        <div class="question-metadata text-muted mt-2">
+                                            <small>Type: @GetQuestionTypeText(questionSetting.QuestionType)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
-                }
+                </div>
             </div>
         }
-    }
+    </div>
 }
 
 @code {
@@ -130,18 +121,18 @@ else
     };
 }
 <style>
-    .module-section {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 30px;
+    .accordion {
+        margin-bottom: 2rem;
     }
 
-    .module-title {
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
         color: #2c3e50;
-        border-bottom: 2px solid #e9ecef;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(0,0,0,.125);
     }
 
     .question-list {
