@@ -11,7 +11,6 @@ namespace Gatam.Application.CQRS.Questions
         public required string UserModuleId { get; set; }
         public required string QuestionId { get; set; }
         public bool IsVisible { get; set; } = true;
-        public bool IsEditable { get; set; } = false;
     }
 
     public class CreateSettingCommandValidator : AbstractValidator<CreateSettingCommand>
