@@ -43,7 +43,6 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
             })
             .WithMessage("The module does not exist"); 
 
-        // Single validation for duplicate assignment
         RuleFor(command => command)
             .MustAsync(async (command, cancellation) =>
             {
@@ -74,31 +73,26 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
     
     public async Task<UserModuleDTO> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _uow.UserRepository.FindById(request.FollowerId);
-        var module = await _moduleRepository.FindByIdWithQuestions(request.ModuleId);
+        var follower = await _uow.UserRepository.FindById(request.FollowerId);
+        var moduleTemplate = await _moduleRepository.FindByIdWithQuestions(request.ModuleId);
         
-        var userModule = new UserModule 
+        var newUserModule = new UserModule 
         { 
-            UserId = user.Id, 
-            ModuleId = module.Id,
-            User = user,
-            Module = module
+            UserId = follower.Id, 
+            ModuleId = moduleTemplate.Id,
+            User = follower,
+            Module = moduleTemplate,
+            UserQuestions = moduleTemplate.Questions.Select(templateQuestion => new UserQuestion
+            {
+                QuestionId = templateQuestion.Id,
+                IsVisible = true
+            }).ToList()
         };
         
-        user.UserModules.Add(userModule);
-        
-        await _uow.UserRepository.Update(user);
+        follower.UserModules.Add(newUserModule);
+        await _uow.UserRepository.Update(follower);
         await _uow.Commit();
 
-        foreach (var question in module.Questions)
-        {
-            await _mediator.Send(new CreateSettingCommand
-            {
-                UserModuleId = userModule.Id,
-                QuestionId = question.Id
-            });
-        }
-
-        return _mapper.Map<UserModuleDTO>(userModule);
+        return _mapper.Map<UserModuleDTO>(newUserModule);
     }
 }

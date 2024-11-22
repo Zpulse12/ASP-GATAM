@@ -8,5 +8,5 @@ public class UserModuleDTO
     public string Id { get; set; }
     public UserDTO User { get; set; }
     public ModuleDTO Module { get; set; } 
-    public List<QuestionSettingDTO> QuestionSettings { get; set; }
+    public List<UserQuestionDTO> UserQuestion { get; set; }
 }

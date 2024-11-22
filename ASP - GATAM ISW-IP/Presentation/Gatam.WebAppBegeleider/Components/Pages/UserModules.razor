@@ -39,7 +39,7 @@ else
                 </div>
 
                 <div class="module-content @(_expandedModules.Contains(userModule.Id) ? "show" : "")">
-                    @foreach (var questionSetting in userModule.QuestionSettings)
+                    @foreach (var questionSetting in userModule.UserQuestion)
                     {
                         <div class="question-item">
                             <div class="question-content">
@@ -91,22 +91,22 @@ else
         }
     }
 
-    private async Task ToggleQuestionVisibility(QuestionSettingDTO questionSetting)
+    private async Task ToggleQuestionVisibility(UserQuestionDTO userQuestion)
     {
-        if (questionSetting == null) return;
+        if (userQuestion == null) return;
         
         try
         {
-            questionSetting.IsVisible = !questionSetting.IsVisible;
+            userQuestion.IsVisible = !userQuestion.IsVisible;
             await ApiClient.PutAsJsonAsync($"api/question/visibility", new
             {
-                UserModuleQuestionSettingId = questionSetting.Id,
-                IsVisible = questionSetting.IsVisible
+                UserModuleQuestionSettingId = userQuestion.Id,
+                IsVisible = userQuestion.IsVisible
             });
         }
         catch (Exception ex)
         {
-            questionSetting.IsVisible = !questionSetting.IsVisible;
+            userQuestion.IsVisible = !userQuestion.IsVisible;
             Debug.WriteLine($"Error updating visibility: {ex.Message}");
         }
     }

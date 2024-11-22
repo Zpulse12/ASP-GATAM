@@ -10,13 +10,13 @@ namespace Gatam.Infrastructure.UOW
         private readonly IUserRepository _userRepository;
         private readonly IGenericRepository<ApplicationModule> _moduleRepository;
         private readonly IQuestionRepository _questionRepository;
-        private readonly IUserModuleQuestionSettingRepository _userModuleQuestionSettingRepository;
+        private readonly IUserQuestionRepository _userQuestionRepository;
 
 
 
         private readonly ApplicationDbContext _context;
 
-        public UnitOfWork(IUserModuleQuestionSettingRepository userModuleQuestionSettingRepository,
+        public UnitOfWork(IUserQuestionRepository userQuestionRepository,
                             ApplicationDbContext context, 
                             IUserRepository userRepository, 
                             IGenericRepository<ApplicationModule> moduleRepository,
@@ -25,7 +25,7 @@ namespace Gatam.Infrastructure.UOW
             _userRepository = userRepository;
             _moduleRepository = moduleRepository;
             _questionRepository = questionRepository;
-            _userModuleQuestionSettingRepository = userModuleQuestionSettingRepository;
+            _userQuestionRepository = userQuestionRepository;
             _context = context;
         }
 
@@ -33,7 +33,7 @@ namespace Gatam.Infrastructure.UOW
         public IGenericRepository<ApplicationModule> ModuleRepository => _moduleRepository;
 
         public IQuestionRepository QuestionRepository => _questionRepository;
-        public IUserModuleQuestionSettingRepository UserModuleQuestionSettingRepository => _userModuleQuestionSettingRepository;
+        public IUserQuestionRepository UserQuestionRepository => _userQuestionRepository;
         public async Task Commit()
         {
             await _context.SaveChangesAsync();

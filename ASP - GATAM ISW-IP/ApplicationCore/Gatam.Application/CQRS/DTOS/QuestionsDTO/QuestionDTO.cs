@@ -10,5 +10,5 @@ public class QuestionDTO
     public DateTime LastUpdatedAt { get; set; }
     public string LastUpdatedUserId { get; set; }
     public string ApplicationModuleId { get; set; }
-    public QuestionSettingDTO QuestionSetting { get; set; }
+    public UserQuestionDTO UserQuestion { get; set; }
 }

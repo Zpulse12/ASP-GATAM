@@ -65,7 +65,7 @@ namespace Gatam.Infrastructure.Repositories
         {
             return await _context.UserModule
                 .Where(um => um.UserId == followerId)
-                .SelectMany(um => um.QuestionSettings
+                .SelectMany(um => um.UserQuestions
                     .Where(umqs => umqs.IsVisible)
                     .Select(umqs => umqs.Question))
                 .ToListAsync();
@@ -75,12 +75,12 @@ namespace Gatam.Infrastructure.Repositories
         {
             var modules = await _context.UserModule
                 .Where(um => um.UserId == volgerId)
-                .Include(um => um.QuestionSettings)
+                .Include(um => um.UserQuestions)
                     .ThenInclude(umqs => umqs.Question)
                 .Select(um => new
                 {
                     Module = um,
-                    Questions = um.QuestionSettings
+                    Questions = um.UserQuestions
                         .Where(umqs => umqs.IsVisible == true)
                         .Select(umqs => umqs.Question)
                         .ToList()
@@ -90,15 +90,15 @@ namespace Gatam.Infrastructure.Repositories
             return modules.Select(m => (m.Module, m.Questions)).ToList();
         }
 
-        public async Task<UserModuleQuestionSetting> GetQuestionSettingById(string id)
+        public async Task<UserQuestion> GetQuestionSettingById(string id)
         {
-            return await _context.UserModuleQuestionSetting
+            return await _context.UserQuestion
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task UpdateQuestionSetting(UserModuleQuestionSetting setting)
+        public async Task UpdateQuestionSetting(UserQuestion setting)
         {
-            _context.UserModuleQuestionSetting.Update(setting);
+            _context.UserQuestion.Update(setting);
             await _context.SaveChangesAsync();
         }
     }

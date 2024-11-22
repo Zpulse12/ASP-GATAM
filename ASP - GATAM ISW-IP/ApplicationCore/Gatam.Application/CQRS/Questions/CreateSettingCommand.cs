@@ -35,8 +35,8 @@ namespace Gatam.Application.CQRS.Questions
 
         public async Task<bool> Handle(CreateSettingCommand request, CancellationToken cancellationToken)
         {
-            var setting = _mapper.Map<UserModuleQuestionSetting>(request);
-            await _uow.UserModuleQuestionSettingRepository.Create(setting);
+            var setting = _mapper.Map<UserQuestion>(request);
+            await _uow.UserQuestionRepository.Create(setting);
             await _uow.Commit();
 
             return true;

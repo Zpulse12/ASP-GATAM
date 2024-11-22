@@ -2,8 +2,9 @@ using Gatam.Domain;
 
 namespace Gatam.Application.CQRS.DTOS.QuestionsDTO;
 
-public class QuestionSettingDTO
+public class UserQuestionDTO
 {
+    public string UserModuleId { get; set; }
     public string Id { get; set; }
     public bool IsVisible { get; set; }
     public string QuestionId { get; set; }

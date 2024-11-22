@@ -17,7 +17,7 @@ public class UserModule
     public string ModuleId { get; set; }
     [JsonIgnore] 
     public ApplicationModule Module { get; set; }
-    public List<UserModuleQuestionSetting> QuestionSettings { get; set; } = new List<UserModuleQuestionSetting>();
+    public List<UserQuestion> UserQuestions { get; set; } = new List<UserQuestion>();
 
     
 }

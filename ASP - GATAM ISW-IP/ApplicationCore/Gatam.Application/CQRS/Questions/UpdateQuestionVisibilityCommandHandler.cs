@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Gatam.Application.CQRS.Questions
 {
-     public class UpdateQuestionVisibilityCommand : IRequest<UserModuleQuestionSetting>
+     public class UpdateQuestionVisibilityCommand : IRequest<UserQuestion>
     {
         public string UserModuleQuestionSettingId { get; set; }
         public bool IsVisible { get; set; }
@@ -21,13 +21,13 @@ namespace Gatam.Application.CQRS.Questions
             RuleFor(x => x.UserModuleQuestionSettingId)
                 .MustAsync(async (userModuleQuestionSettingId, cancellationToken) =>
                 {
-                    var setting = await uow.UserModuleQuestionSettingRepository.GetQuestionSettingById(userModuleQuestionSettingId);
+                    var setting = await uow.UserQuestionRepository.GetQuestionSettingById(userModuleQuestionSettingId);
                     return setting != null;
 
                 }).WithMessage("Question setting doesn't exist");
         }
     }
-    public class UpdateQuestionVisibilityCommandHandler : IRequestHandler<UpdateQuestionVisibilityCommand, UserModuleQuestionSetting>
+    public class UpdateQuestionVisibilityCommandHandler : IRequestHandler<UpdateQuestionVisibilityCommand, UserQuestion>
     {
         private readonly IUnitOfWork _uow;
 
@@ -36,11 +36,11 @@ namespace Gatam.Application.CQRS.Questions
             _uow = uow;
         }
 
-        public async Task<UserModuleQuestionSetting> Handle(UpdateQuestionVisibilityCommand request, CancellationToken cancellationToken)
+        public async Task<UserQuestion> Handle(UpdateQuestionVisibilityCommand request, CancellationToken cancellationToken)
         {
-            var setting = await _uow.UserModuleQuestionSettingRepository.GetQuestionSettingById(request.UserModuleQuestionSettingId);
+            var setting = await _uow.UserQuestionRepository.GetQuestionSettingById(request.UserModuleQuestionSettingId);
             setting.IsVisible = request.IsVisible;
-            await _uow.UserModuleQuestionSettingRepository.UpdateQuestionSetting(setting);
+            await _uow.UserQuestionRepository.UpdateQuestionSetting(setting);
             return setting;
         }
     }
