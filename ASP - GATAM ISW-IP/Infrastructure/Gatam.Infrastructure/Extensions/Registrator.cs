@@ -38,6 +38,7 @@ namespace Gatam.Infrastructure.Extensions
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUserModuleQuestionSettingRepository, UserModuleQuestionSettingRepository>();
             services.RegisterDbContext();
 
             return services;
