@@ -8,7 +8,7 @@
 
 
 <CustomCards>
-    <h2>Modules</h2>
+    <h2>Modulen</h2>
     <NavLink class="nav-link" href="/content/create" >
         <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold; margin-bottom:10px;">
             Module toevoegen
@@ -16,58 +16,59 @@
         
     </NavLink>
    
-    <div class="layout-container">
-@if (modules != null && modules.Count > 0)
-{
-    <nav>
-        <ul class="module-navbar">
-            @foreach (var module in modules.OrderBy(m => m.Title))
-            {
-                    <li style="list-style-type: none">
-                    <a @onclick="() => OpenModuleDetails(module.Id)">@module.Title</a>
-                </li>
-            }
-        </ul>
-    </nav>
-}
-else
-{
-    <p>Geen modules gevonden.</p>
-}
-
-@if (selectedModule != null)
-{
-           
-    <div class="module-details">
-                <h3>@selectedModule.Title</h3>
-                <p>Category: @selectedModule.Category</p>
-                <p>Created At: @selectedModule.CreatedAt.ToString("g")</p>
-            <h5>Vragen</h5>
-           
-    </div>
-}
-    </div>
+            <Grid TItem="ApplicationModule"
+                  @ref="moduleGrid"
+                  AllowRowClick="true"
+                  AllowSorting="true"
+                  Class="table table-hover"
+                  AllowPaging="true"
+                  Data="modules"
+                  PageSize="10"
+                  HeaderRowCssClass="custom-header"
+                  Responsive="true">
+                <GridColumns>
+                    <GridColumn TItem="ApplicationModule" HeaderText="Title" PropertyName="Title" SortString="Title" SortKeySelector="item => item.Title">
+                        @context.Title
+                    </GridColumn>
+                    <GridColumn TItem="ApplicationModule" HeaderText="Category:" PropertyName="Category" SortString="Category" SortKeySelector="item => item.Category">
+                        @context.Category
+                    </GridColumn>
+                    <GridColumn TItem="ApplicationModule" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
+                        <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
+                    </GridColumn>
+                <GridColumn TItem="ApplicationModule" HeaderText="Actie" Filterable="false">
+                        <div>
+                            <button type="button"
+                                    class="btn btn-outline-danger"
+                                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
+                                <i class="bi bi-trash"></i>
+                            </button>
+                    <a class="btn" style="background-color: #4454D2; color:white; font-weight:bold;" href="/questions" @onclick:stopPropagation>
+                        <i class="bi bi-plus-square-fill"></i> Voeg vraag toe
+                            </a>
+                        </div>
+                    </GridColumn>
+                </GridColumns>
+            </Grid>
 </CustomCards>
 
 
 @code {
-    
+    private Grid<ApplicationModule> moduleGrid = new Grid<ApplicationModule>();
     private List<ApplicationModule> modules = new();
-    private ApplicationModule selectedModule;
 
 
-    protected override async Task OnInitializedAsync()
+    protected override async void OnInitialized()
     {
         var modulesResponse = await apiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module");
-        if (modulesResponse != null && modulesResponse.Count > 0)
-        {
-            modules = modulesResponse;
-        }
+        moduleGrid.Data = modulesResponse;
+        moduleGrid.RefreshDataAsync();
+       
+
+        base.OnInitialized();
+
     }
 
-    private void OpenModuleDetails(string moduleId)
-    {
-        selectedModule = modules.FirstOrDefault(m => m.Id == moduleId);
-    }
+   
 
 }
