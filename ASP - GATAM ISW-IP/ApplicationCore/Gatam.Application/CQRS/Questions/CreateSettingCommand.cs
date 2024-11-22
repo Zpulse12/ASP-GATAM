@@ -9,7 +9,6 @@ namespace Gatam.Application.CQRS.Questions
 {
     public class CreateSettingCommand : IRequest<QuestionSettingDTO>
     {
-        public required string UserModuleId { get; set; }
         public required string QuestionId { get; set; }
         public bool IsVisible { get; set; } = true;
     }
@@ -18,8 +17,6 @@ namespace Gatam.Application.CQRS.Questions
     {
         public CreateSettingCommandValidator()
         {
-            RuleFor(x => x.UserModuleId)
-                .NotEmpty().WithMessage("UserModuleId is verplicht");
             RuleFor(x => x.QuestionId)
                 .NotEmpty().WithMessage("QuestionId is verplicht");
         }

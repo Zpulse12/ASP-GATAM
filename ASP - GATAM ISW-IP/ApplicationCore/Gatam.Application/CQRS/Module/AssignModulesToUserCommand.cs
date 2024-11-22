@@ -78,7 +78,6 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
         {
             await _mediator.Send(new CreateSettingCommand
             {
-                UserModuleId = userModule.Id,
                 QuestionId = question.Id
             });
         }
