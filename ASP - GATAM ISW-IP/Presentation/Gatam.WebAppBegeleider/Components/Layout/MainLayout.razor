@@ -8,72 +8,89 @@
        <CustomNavMenu>
             <input type="checkbox" title="Navigation menu" class="navbar-toggler" hidden />
 
-            <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav">
+            <div class="nav-scrollable">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav" style="gap: 1rem;">
                         <AuthorizeView Policy="RequireManagementRole">
                             <Authorized>
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="usersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style=" color:white; font-weight:bold;">
-                                        <i class="bi bi-people-fill"></i> Gebruikers
+                                    <a class="nav-link dropdown-toggle" href="#" id="usersDropdown" role="button" 
+                                       data-bs-toggle="dropdown" aria-expanded="false" style="color:white; font-weight:bold;">
+                                        <i class="bi bi-people" style="font-size: 1.2rem; margin-right: 0.5rem;"></i> Gebruikersbeheer
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="usersDropdown">
-                                         <li class="nav-item">
-                                   <NavLink class="nav-link" href="/modules-per-gebruiker" style="color:white; font-weight:bold;">
-                                        <i class="bi bi-journal-text"></i> Modules
-                                            </NavLink>
-                                    </li>
+                                    <ul class="dropdown-menu" aria-labelledby="usersDropdown" style="padding: 0.5rem 0;">
                                         <li>
-                                            <NavLink class="dropdown-item" href="/admin/user-list">Overzicht gebruikers</NavLink>
-                                        </li>
-                                        <li>
-                                            <NavLink class="dropdown-item" href="/admin/create">Gebruiker toevoegen</NavLink>
-                                        </li>
-                                        <li>
-                                            <NavLink class="dropdown-item" href="/content/AssigningModules">
-                                                Module toewijzen
+                                            <NavLink class="dropdown-item" href="/admin/user-list">
+                                                <i class="bi bi-list-ul"></i> Gebruikers Overzicht
                                             </NavLink>
                                         </li>
                                         <li>
-                                            <NavLink class="dropdown-item" href="/AssignToBegeleider">Gebruiker toewijzen</NavLink>
+                                            <NavLink class="dropdown-item" href="/admin/create">
+                                                <i class="bi bi-person-plus"></i> Gebruiker Toevoegen
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/AssignToBegeleider">
+                                                <i class="bi bi-person-check"></i> Begeleider Toewijzen
+                                            </NavLink>
                                         </li>
                                     </ul>
                                 </li>
+                            </Authorized>
+                        </AuthorizeView>
 
+                        <AuthorizeView Policy="RequireManagementRole">
+                            <Authorized>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="modulesDropdown" role="button" 
+                                       data-bs-toggle="dropdown" aria-expanded="false" style="color:white; font-weight:bold;">
+                                        <i class="bi bi-journal" style="font-size: 1.2rem; margin-right: 0.5rem;"></i> Modules
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="modulesDropdown" style="padding: 0.5rem 0;">
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/modules-per-gebruiker">
+                                                <i class="bi bi-eye"></i> Modules per Gebruiker
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/content/AssigningModules">
+                                                <i class="bi bi-plus"></i> Modules Toewijzen
+                                            </NavLink>
+                                        </li>
+                                    </ul>
+                                </li>
                             </Authorized>
                         </AuthorizeView>
 
                         <AuthorizeView Policy="RequireMakerRole">
                             <Authorized>
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="moduleDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style=" color:white; font-weight:bold ">
-                                        <Icon Name="IconName.BoxSeamFill"/> Modules
+                                    <a class="nav-link dropdown-toggle" href="#" id="contentDropdown" role="button" 
+                                       data-bs-toggle="dropdown" aria-expanded="false" style="color:white; font-weight:bold;">
+                                        <i class="bi bi-journal" style="font-size: 1.2rem; margin-right: 0.5rem;"></i> Content
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="moduleDropdown">
-                                        <li class="nav-item">
+                                    <ul class="dropdown-menu" aria-labelledby="contentDropdown" style="padding: 0.5rem 0;">
+                                        <li>
                                             <NavLink class="dropdown-item" href="/content/modules">
-                                                Overzicht module
+                                                <i class="bi bi-collection"></i> Modules Overzicht
                                             </NavLink>
                                         </li>
                                         <li>
                                             <NavLink class="dropdown-item" href="/content/create">
-                                                Module aanmaken
+                                                <i class="bi bi-plus"></i> Module Aanmaken
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/questions">
+                                                <i class="bi bi-question"></i> Vragen Beheren
                                             </NavLink>
                                         </li>
                                     </ul>
-                                    
-                                </li>
-                                <li class="nav-item">
-                                    <NavLink class="nav-link" href="/questions">
-                                        <Icon Name="IconName.PencilFill" /> Vragen
-                                    </NavLink>
                                 </li>
                             </Authorized>
                         </AuthorizeView>
-
-                        </ul>
-                    </div>
-             
+                    </ul>
+                </div>
             </div>
             
        </CustomNavMenu>
