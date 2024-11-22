@@ -1,28 +1,33 @@
-using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
-using ApplicationCore.CQRS.Questions;
 using FluentValidation;
 using Gatam.Application.Interfaces;
+using Gatam.Domain;
+using MediatR;
 
-namespace ApplicationCore.CQRS.Questions
+namespace Gatam.Application.CQRS.Questions
 {
-     public class UpdateQuestionVisibilityCommand : IRequest<bool>
+     public class UpdateQuestionVisibilityCommand : IRequest<UserModuleQuestionSetting>
     {
-        public string UserModuleQuestionSettingId { get; set; }
-        public bool IsVisible { get; set; }
+        public string UserModuleQuestionSettingId { get; }
+        public bool IsVisible { get; }
     }
 
     public class UpdateQuestionVisibilityCommandValidator : AbstractValidator<UpdateQuestionVisibilityCommand>
     {
-        public UpdateQuestionVisibilityCommandValidator()
+        public UpdateQuestionVisibilityCommandValidator(IQuestionRepository questionRepository)
         {
             RuleFor(x => x.UserModuleQuestionSettingId)
                 .NotEmpty()
                 .WithMessage("QuestionSetting ID is required");
+            RuleFor(x => x.UserModuleQuestionSettingId)
+                .MustAsync(async (userModuleQuestionSettingId, cancellationToken) =>
+                {
+                    var setting = await questionRepository.GetQuestionSettingById(userModuleQuestionSettingId);
+                    return setting != null;
+
+                }).WithMessage("Question setting doesn't exist");
         }
     }
-    public class UpdateQuestionVisibilityCommandHandler : IRequestHandler<UpdateQuestionVisibilityCommand, bool>
+    public class UpdateQuestionVisibilityCommandHandler : IRequestHandler<UpdateQuestionVisibilityCommand, UserModuleQuestionSetting>
     {
         private readonly IQuestionRepository _questionRepository;
 
@@ -31,14 +36,12 @@ namespace ApplicationCore.CQRS.Questions
             _questionRepository = questionRepository;
         }
 
-        public async Task<bool> Handle(UpdateQuestionVisibilityCommand request, CancellationToken cancellationToken)
+        public async Task<UserModuleQuestionSetting> Handle(UpdateQuestionVisibilityCommand request, CancellationToken cancellationToken)
         {
             var setting = await _questionRepository.GetQuestionSettingById(request.UserModuleQuestionSettingId);
-            if (setting == null) return false;
-
             setting.IsVisible = request.IsVisible;
             await _questionRepository.UpdateQuestionSetting(setting);
-            return true;
+            return setting;
         }
     }
 } 
