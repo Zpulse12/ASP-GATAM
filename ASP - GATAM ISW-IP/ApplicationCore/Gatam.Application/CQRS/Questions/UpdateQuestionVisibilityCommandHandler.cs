@@ -13,7 +13,7 @@ namespace Gatam.Application.CQRS.Questions
 
     public class UpdateQuestionVisibilityCommandValidator : AbstractValidator<UpdateQuestionVisibilityCommand>
     {
-        public UpdateQuestionVisibilityCommandValidator(IQuestionRepository questionRepository)
+        public UpdateQuestionVisibilityCommandValidator(IUnitOfWork uow)
         {
             RuleFor(x => x.UserModuleQuestionSettingId)
                 .NotEmpty()
@@ -21,7 +21,7 @@ namespace Gatam.Application.CQRS.Questions
             RuleFor(x => x.UserModuleQuestionSettingId)
                 .MustAsync(async (userModuleQuestionSettingId, cancellationToken) =>
                 {
-                    var setting = await questionRepository.GetQuestionSettingById(userModuleQuestionSettingId);
+                    var setting = await uow.UserModuleQuestionSettingRepository.GetQuestionSettingById(userModuleQuestionSettingId);
                     return setting != null;
 
                 }).WithMessage("Question setting doesn't exist");
@@ -29,18 +29,18 @@ namespace Gatam.Application.CQRS.Questions
     }
     public class UpdateQuestionVisibilityCommandHandler : IRequestHandler<UpdateQuestionVisibilityCommand, UserModuleQuestionSetting>
     {
-        private readonly IQuestionRepository _questionRepository;
+        private readonly IUnitOfWork _uow;
 
-        public UpdateQuestionVisibilityCommandHandler(IQuestionRepository questionRepository)
+        public UpdateQuestionVisibilityCommandHandler(IUnitOfWork uow)
         {
-            _questionRepository = questionRepository;
+            _uow = uow;
         }
 
         public async Task<UserModuleQuestionSetting> Handle(UpdateQuestionVisibilityCommand request, CancellationToken cancellationToken)
         {
-            var setting = await _questionRepository.GetQuestionSettingById(request.UserModuleQuestionSettingId);
+            var setting = await _uow.UserModuleQuestionSettingRepository.GetQuestionSettingById(request.UserModuleQuestionSettingId);
             setting.IsVisible = request.IsVisible;
-            await _questionRepository.UpdateQuestionSetting(setting);
+            await _uow.UserModuleQuestionSettingRepository.UpdateQuestionSetting(setting);
             return setting;
         }
     }
