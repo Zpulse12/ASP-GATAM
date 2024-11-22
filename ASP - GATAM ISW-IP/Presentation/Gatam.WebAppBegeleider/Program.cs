@@ -42,17 +42,17 @@ internal class Program
             ForwardedHeaders = ForwardedHeaders.XForwardedProto
         });
 
+        app.UseCookiePolicy();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
         app.UseRouting();
-        app.UseAuthentication();
-        app.UseAuthorization();
         app.UseAntiforgery();
         app.MapRazorPages();
-        
         app.MapGet("account/login", async (HttpContext httpContext, string redirectUri = "/") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()

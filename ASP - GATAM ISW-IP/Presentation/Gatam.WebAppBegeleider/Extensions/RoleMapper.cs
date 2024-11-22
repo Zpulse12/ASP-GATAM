@@ -31,7 +31,6 @@ namespace Gatam.WebAppBegeleider.Extensions
                     : throw new ArgumentException($"Role {role} not found"))
                 .ToArray();
         }
-
         public static List<CustomRoles> GetKeysBasedOnValues(params string[] values)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));

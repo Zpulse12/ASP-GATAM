@@ -5,10 +5,8 @@ using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
-using Auth0.ManagementApi.Models;
-using Azure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Gatam.Infrastructure.Contexts;
+using Gatam.Application.Extensions.httpExtensions;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -17,6 +15,8 @@ public class ManagementApiRepository: IManagementApi
     private readonly HttpClient _httpClient;
     private readonly EnvironmentWrapper _environmentWrapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IHttpWrapper _httpWrapper;
+    private readonly string _baseURL;
     public ManagementApiRepository(IUnitOfWork uow,HttpClient httpClient, EnvironmentWrapper environmentWrapper)
     {
         _httpClient = httpClient;
@@ -24,6 +24,8 @@ public class ManagementApiRepository: IManagementApi
         _environmentWrapper = environmentWrapper;
         _httpClient.BaseAddress = new Uri(_environmentWrapper.BASEURI);
         _httpClient.DefaultRequestHeaders.Add("Authorization", @$"Bearer {_environmentWrapper.TOKEN}");
+        _httpWrapper = new HttpWrapper(_httpClient);
+        _baseURL = _environmentWrapper.BASEURI;
     }
 
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
@@ -286,5 +288,14 @@ public class ManagementApiRepository: IManagementApi
         }
     }
 
-    
+    public async Task<Result<bool>> DeleteUserRoles(string userId, RolesDTO roles)
+    {
+        Result<HttpResponseMessage> request =  await _httpWrapper.SendDeleteWithBody<RolesDTO>( $"{_baseURL}users/{userId}/roles", roles);
+        if (request.Success) { 
+            return Result<bool>.Ok(true);
+        } else
+        {
+            return Result<bool>.Fail(request.Exception);
+        }
+    }
 }

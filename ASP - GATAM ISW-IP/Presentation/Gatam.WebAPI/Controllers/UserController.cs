@@ -7,6 +7,7 @@ using Gatam.Application.CQRS.User;
 using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -178,10 +179,13 @@ namespace Gatam.WebAPI.Controllers
               return Ok(updateBegeleiderId);
 
         }
-
-
-
-
+        [HttpPatch("{id}/roles")]
+        //[Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> RemoveUserRoles([FromBody] RolesDTO rolesDTO, string id)
+        {
+            var command = await _mediator.Send(new DeleteUserRolesCommand() { UserId = id, Roles = rolesDTO });
+            return Ok(command);
+        }
     }
 
 }
