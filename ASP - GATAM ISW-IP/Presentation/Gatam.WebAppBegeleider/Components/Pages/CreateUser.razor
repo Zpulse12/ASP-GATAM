@@ -99,7 +99,7 @@
 
         if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue(CustomRoles.VOLGER, out var volgerRoleId))
         {
-            user.RolesIds = isFollowerRoleSelected ? new List<string> { volgerRoleId } : new List<string>();
+            user.RolesIds = isFollowerRoleSelected ? new List<string> { volgerRoleId.Name } : new List<string>();
             user.Username = user.Email.Split('@')[0];
 
             if(isAddedToUserSelected)

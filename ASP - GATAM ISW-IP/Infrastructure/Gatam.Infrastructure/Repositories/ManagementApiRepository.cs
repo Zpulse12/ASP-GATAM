@@ -7,6 +7,7 @@ using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Gatam.Application.Extensions.httpExtensions;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Azure.Core;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -124,7 +125,7 @@ public class ManagementApiRepository: IManagementApi
                     Email = createdUser.Email,
                     PasswordHash = user.PasswordHash,
                     Picture = createdUser.UserMetadata?.Picture,
-                    RolesIds = RoleMapper.GetRoleValues("VOLGER"),
+                    RolesIds = RoleMapper.GetRoleValues("VOLGER").ToList(),
                     BegeleiderId = user.BegeleiderId,
                     PhoneNumber = user.PhoneNumber,
                     IsActive = true 
@@ -239,27 +240,19 @@ public class ManagementApiRepository: IManagementApi
         return updatedUser;
     }
 
-    public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user)
+    public async Task<Result<bool>> UpdateUserRoleAsync(string userId, RolesDTO roles)
     {
-       
-
-        var payload = new
+        try
         {
-            roles = user.RolesIds.ToArray()
-        };
-
+            var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{userId}/roles", roles);
+            if (response.IsSuccessStatusCode)
+            {
+                return Result<bool>.Ok(true);
+            } else { return Result<bool>.Fail(new Exception(response.ReasonPhrase)); }
+        } catch (Exception ex) { 
         
-        
-        var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{user.Id}/roles", payload);
-
-        if (response.IsSuccessStatusCode)
-        {
-            return user;
+            return Result<bool>.Fail(ex);
         }
-
-        var errorDetails = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"Error updating user roles: {response.StatusCode} - {errorDetails}");
-        return null;
     }
 
     public async Task<IEnumerable<string>> GetRolesByUserId(string userId)

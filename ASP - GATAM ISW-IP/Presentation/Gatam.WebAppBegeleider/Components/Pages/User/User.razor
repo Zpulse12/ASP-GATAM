@@ -3,6 +3,7 @@
 
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Application.CQRS.DTOS.RolesDTO
 @using Gatam.Application.CQRS
 @using System.Diagnostics
 @inject ApiClient apiClient
@@ -104,9 +105,9 @@
             <Callout Color="CalloutColor.Info" Heading="Belangrijk">
                 <p><strong>@userBeingEdited.Username heeft momenteel volgende rol(len):</strong></p>
                 <ul class="roles-list">
-                    @if (userRolesMap.TryGetValue(userBeingEdited?.Id, out var roles))
+                @if (userBeingEdited.RolesIds != null && userBeingEdited.RolesIds.Count > 0)
                     {
-                        foreach (var role in roles)
+                        foreach (var role in userBeingEdited.RolesIds)
                         {
                             <li>@role</li>
                         }
@@ -124,7 +125,7 @@
                 <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
                     @foreach (var role in RoleMapper.Roles)
                     {
-                        <option value="@role.Value">@role.Key</option>
+                        <option value="@role.Value.Id">@role.Key</option>
                     }
                 </InputSelect>
             </div>
@@ -142,13 +143,13 @@
 @code {
     [Parameter] public string Id { get; set; } = "";
 
-    private Dictionary<string, List<string>> userRolesMap = new();
+    // private Dictionary<string, List<string>> userRolesMap = new();
     private UserDTO selectedUser;
     private string selectedRoles { get; set; } = "";
 
     string response_Msg = "";
     bool isSuccess = false;
-    private UserDTO userBeingEdited ;
+    private UserDTO userBeingEdited = new UserDTO();
 
 
     private bool _hasError = false;
@@ -156,6 +157,8 @@
 
     private bool isEditUsernameModalVisible = false;
     private bool isEditEmailModalVisible = false;
+
+    [Inject] protected ToastService toastService { get; set; } = default!;
 
 
     protected override async Task OnInitializedAsync()
@@ -169,16 +172,13 @@
             {
                 _hasError = true;
                 response_Msg = "Gebruiker niet gevonden.";
-            }
-            var roles = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{userBeingEdited.Id}/roles");
-            userRolesMap[userBeingEdited.Id] = roles;
-            
+            } 
         }
         catch (Exception ex)
         {
             _hasError = true;
             response_Msg = $"Fout bij het ophalen van de gebruiker";
-            
+
         }
         finally
         {
@@ -198,11 +198,8 @@
         }
         try
         {
-
-            userBeingEdited.RolesIds = new List<string>() { selectedRoles };
-
-
-            var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited);
+            RolesDTO roles = new RolesDTO() { Roles = new List<string?> { selectedRoles } };
+            var roleUpdateResponse = await apiClient.PostAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", roles);
 
             if (roleUpdateResponse.IsSuccessStatusCode)
             {
@@ -214,13 +211,14 @@
             }
             else
             {
-                response_Msg = "Fout bij het bijwerken van de rollen.";
+                ValidationException errorResponse = await roleUpdateResponse.Content.ReadFromJsonAsync<ValidationException>();
+                string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : roleUpdateResponse.ReasonPhrase;
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het bewerken van de rollen", errors));
             }
         }
         catch (Exception ex)
         {
-            response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
-
+            toastService.Notify(new(ToastType.Danger, "OOpsie", ex.Message));
         }
     }
 
@@ -266,7 +264,6 @@
             };
 
             var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", payload);
-            Debug.WriteLine(response.ToString());
 
             if (response.IsSuccessStatusCode)
             {

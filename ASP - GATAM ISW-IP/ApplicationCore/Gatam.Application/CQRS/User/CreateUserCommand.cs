@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
 using Gatam.Application.Extensions;
 using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Interfaces;
@@ -83,7 +84,7 @@ namespace Gatam.Application.CQRS.User
             var user = _mapper.Map<UserDTO>(createUser.Value);
             if (request._user.RolesIds?.Any() == true)
             {
-                await _auth0Repository.UpdateUserRoleAsync(user);
+                await _auth0Repository.UpdateUserRoleAsync(user.Id, new RolesDTO() { Roles = user.RolesIds });
             }
             await _unitOfWork.UserRepository.Create(createUser.Value);
             await _unitOfWork.Commit();

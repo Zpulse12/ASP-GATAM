@@ -139,12 +139,11 @@ namespace Gatam.WebAPI.Controllers
         }
 
 
-        [HttpPut("{userId}/roles")]
-        [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> AssignUserRole(string userId, [FromBody] UserDTO user)
+        [HttpPost("{userId}/roles")]
+        //[Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> AssignUserRole(string userId, [FromBody] RolesDTO roles)
         {
-            
-            var returnedUser = await _mediator.Send(new AssignUserRoleCommand { User = user, Id = userId});
+            var returnedUser = await _mediator.Send(new UpdateUserRoleCommand { Roles = roles, Id = userId});
             return Ok(returnedUser);
         }
 

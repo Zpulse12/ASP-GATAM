@@ -5,7 +5,6 @@ using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System.Diagnostics;
 
 
 namespace Gatam.Application.CQRS.User.Roles
@@ -56,15 +55,15 @@ namespace Gatam.Application.CQRS.User.Roles
         }
         public async Task<UserDTO> Handle(DeleteUserRolesCommand request, CancellationToken cancellationToken)
         {
-            Debug.WriteLine("TEST -------------------");
             Result<bool> result = await _managementApi.DeleteUserRoles(request.UserId, request.Roles);
             if (result.Success)
             {
                 try
                 {
                     ApplicationUser user = await _uow.UserRepository.FindById(request.UserId);
-                    user.RolesIds = request.Roles.Roles;
-                    user = await _uow.UserRepository.Update(user);
+                    user.RolesIds.RemoveAll(item => request.Roles.Roles.Contains(item));
+                    await _uow.UserRepository.Update(user);
+                    await _uow.Commit();
                     return _mapper.Map<UserDTO>(user);
                 }
                 catch (Exception ex) {
