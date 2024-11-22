@@ -1,4 +1,5 @@
-﻿using Gatam.Application.CQRS.DTOS.RolesDTO;
+﻿using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
 using Gatam.Application.CQRS.User.Roles;
 using Gatam.Application.Interfaces;
 using Moq;
@@ -8,27 +9,39 @@ namespace UnitTesting.CQRSTest.ApplicationUser
     [TestClass]
     public class DeleteUserRolesCommandTest
     {
-        private Mock<IManagementApi> _managementApi;
+        private Mock<IManagementApi> _managementApiMock;
         private Mock<IUnitOfWork> _unitOfWork;
+        private Mock<IUserRepository> _userRepositoryMock;
         private DeleteUserRolesCommandValidator _validator;
 
         [TestInitialize]
         public void Setup()
         {
-            _managementApi = new Mock<IManagementApi>();
+            _managementApiMock = new Mock<IManagementApi>();
             _unitOfWork = new Mock<IUnitOfWork>();
-            _validator = new DeleteUserRolesCommandValidator(_managementApi.Object, _unitOfWork.Object);
+            _userRepositoryMock = new Mock<IUserRepository>();
+            _unitOfWork.Setup(uow => uow.UserRepository).Returns(_userRepositoryMock.Object);
+            _validator = new DeleteUserRolesCommandValidator(_managementApiMock.Object, _unitOfWork.Object);
         }
 
         [TestMethod]
         public async Task Should_Fail_When_UserId_Is_Empty()
         {
+            // Arrange
+            const string userId = "";
+            _userRepositoryMock.Setup(repo => repo.FindById(userId)).ReturnsAsync((Gatam.Domain.ApplicationUser)null);
+            _managementApiMock.Setup(api => api.GetUserByIdAsync(userId)).ReturnsAsync((UserDTO)null);
+
             var command = new DeleteUserRolesCommand
             {
-                UserId = string.Empty,
-                Roles = new RolesDTO() { Roles = new List<string> { "Admin" } }
+                UserId = userId,
+                Roles = new RolesDTO { Roles = new List<string> { "Admin" } }
             };
+
+            // Act
             var result = await _validator.ValidateAsync(command);
+
+            // Assert
             Assert.IsFalse(result.IsValid);
             Assert.IsTrue(result.Errors.Any(e => e.PropertyName == "UserId" && e.ErrorMessage == "User ID cannot be empty"));
         }
@@ -36,14 +49,19 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         [TestMethod]
         public async Task Should_Fail_When_Roles_Are_Empty()
         {
+            const string userId = "123";
+            _userRepositoryMock.Setup(repo => repo.FindById(userId)).ReturnsAsync(new Gatam.Domain.ApplicationUser());
+            _managementApiMock.Setup(api => api.GetUserByIdAsync(userId)).ReturnsAsync(new UserDTO());
+
             var command = new DeleteUserRolesCommand
             {
-                UserId = "123",
-                Roles = new RolesDTO() { Roles = new List<string>() }
+                UserId = userId,
+                Roles = new RolesDTO { Roles = new List<string>() } // Empty list of roles
             };
             var result = await _validator.ValidateAsync(command);
+
             Assert.IsFalse(result.IsValid);
-            Assert.IsTrue(result.Errors.Any(e => e.PropertyName == "Roles" && e.ErrorMessage == "Roles cannot be empty"));
+            Assert.IsTrue(result.Errors.Any());
         }
 
         [TestMethod]

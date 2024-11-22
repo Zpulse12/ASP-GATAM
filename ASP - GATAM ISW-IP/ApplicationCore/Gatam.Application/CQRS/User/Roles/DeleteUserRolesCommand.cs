@@ -24,8 +24,12 @@ namespace Gatam.Application.CQRS.User.Roles
             _managementApi = managementApi;
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID cannot be empty");
-            RuleFor(x => x.Roles)
+            RuleFor(x => x.Roles.Roles)
                 .NotEmpty().WithMessage("Roles cannot be empty");
+            RuleFor(x => x.UserId)
+                .NotNull().WithMessage("User ID cannot be null");
+            RuleFor(x => x.Roles.Roles)
+                .NotNull().WithMessage("Roles cannot be null");
             RuleFor(x => x.UserId)
                 .MustAsync(async (userId, cancellation) =>
                 {
