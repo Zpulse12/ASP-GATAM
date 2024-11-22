@@ -47,7 +47,7 @@ namespace Gatam.Application.CQRS.User.Roles
                 try
                 {
                     ApplicationUser user = await _uow.UserRepository.FindById(request.Id);
-                    user.RolesIds.AddRange(request.Roles.Roles);
+                    user.RolesIds.AddRange(request.Roles.Roles.Except(user.RolesIds));
                     await _uow.UserRepository.Update(user);
                     await _uow.Commit();
                     return _mapper.Map<UserDTO>(user);

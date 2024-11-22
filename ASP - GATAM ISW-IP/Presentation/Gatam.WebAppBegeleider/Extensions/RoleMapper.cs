@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -65,6 +66,13 @@ namespace Gatam.WebAppBegeleider.Extensions
                 .Select(value => Roles.FirstOrDefault(role => role.Value.Name == value || role.Value.Id == value).Key)
                 .Where(key => key != default)
                 .ToList();
+        }
+
+        public static CustomRoles GetKeyBasedOnValue(string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            var key = Roles.FirstOrDefault(role => role.Value.Name == value || role.Value.Id == value).Key;
+            return key;
         }
     }
 }
