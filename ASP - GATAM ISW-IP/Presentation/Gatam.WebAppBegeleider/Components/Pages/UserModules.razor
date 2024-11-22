@@ -8,7 +8,7 @@
 
 <link href="css/user-modules.css" rel="stylesheet" />
 
-<h3>Modules per Gebruiker</h3>
+<h3 class="mb-4">Modules per Gebruiker</h3>
 
 @if (_loading)
 {
@@ -26,41 +26,37 @@ else if (_userModules?.Any() != true)
 }
 else
 {
-    <div class="accordion" id="userModulesAccordion">
+    <div class="modules-container">
         @foreach (var userModule in _userModules)
         {
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                            data-bs-target="#user-@userModule.Id">
-                        @userModule.User.Username - @userModule.Module.Title
-                    </button>
-                </h2>
-                <div id="user-@userModule.Id" class="accordion-collapse collapse">
-                    <div class="accordion-body">
-                        <div class="question-list">
-                            @foreach (var questionSetting in userModule.QuestionSettings)
-                            {
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h5 class="card-title mb-0">@questionSetting.QuestionTitle</h5>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" 
-                                                       type="checkbox" 
-                                                       checked="@questionSetting.IsVisible"
-                                                       @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
-                                                <label class="form-check-label">Zichtbaar</label>
-                                            </div>
-                                        </div>
-                                        <div class="question-metadata text-muted mt-2">
-                                            <small>Type: @GetQuestionTypeText(questionSetting.QuestionType)</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
+            <div class="module-card">
+                <div class="module-header" @onclick="() => ToggleModule(userModule.Id)">
+                    <div class="user-module-info">
+                        <span class="username">@userModule.User.Username</span>
+                        <span class="module-title">@userModule.Module.Title</span>
                     </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+
+                <div class="module-content @(_expandedModules.Contains(userModule.Id) ? "show" : "")">
+                    @foreach (var questionSetting in userModule.QuestionSettings)
+                    {
+                        <div class="question-item">
+                            <div class="question-content">
+                                <h6>@questionSetting.QuestionTitle</h6>
+                                <span class="question-type">@GetQuestionTypeText(questionSetting.QuestionType)</span>
+                            </div>
+                            <div class="visibility-toggle">
+                                <label class="switch">
+                                    <input type="checkbox" 
+                                           checked="@questionSetting.IsVisible"
+                                           @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">@(questionSetting.IsVisible ? "Zichtbaar" : "Verborgen")</span>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         }
@@ -70,6 +66,7 @@ else
 @code {
     private List<UserModuleDTO> _userModules;
     private bool _loading = true;
+    private HashSet<string> _expandedModules = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -121,4 +118,12 @@ else
         3 => "Ja/Nee",
         _ => "Onbekend type"
     };
+
+    private void ToggleModule(string moduleId)
+    {
+        if (_expandedModules.Contains(moduleId))
+            _expandedModules.Remove(moduleId);
+        else
+            _expandedModules.Add(moduleId);
+    }
 }

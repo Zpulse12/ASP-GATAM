@@ -7,10 +7,10 @@ using Gatam.Application.CQRS.DTOS.QuestionsDTO;
 
 namespace Gatam.Application.CQRS.Questions
 {
-    public class CreateSettingCommand : IRequest<QuestionSettingDTO>
+    public class CreateSettingCommand : IRequest<bool>
     {
-        public required string QuestionId { get; set; }
-        public bool IsVisible { get; set; } = true;
+        public string QuestionId { get; set; }
+        public string UserModuleId { get; set; }
     }
 
     public class CreateSettingCommandValidator : AbstractValidator<CreateSettingCommand>
@@ -22,7 +22,7 @@ namespace Gatam.Application.CQRS.Questions
         }
     }
 
-    public class CreateSettingCommandHandler : IRequestHandler<CreateSettingCommand, QuestionSettingDTO>
+    public class CreateSettingCommandHandler : IRequestHandler<CreateSettingCommand, bool>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
@@ -33,13 +33,13 @@ namespace Gatam.Application.CQRS.Questions
             _mapper = mapper;
         }
 
-        public async Task<QuestionSettingDTO> Handle(CreateSettingCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(CreateSettingCommand request, CancellationToken cancellationToken)
         {
             var setting = _mapper.Map<UserModuleQuestionSetting>(request);
             await _uow.UserModuleQuestionSettingRepository.Create(setting);
             await _uow.Commit();
 
-            return _mapper.Map<QuestionSettingDTO>(setting);
+            return true;
         }
     }
 } 

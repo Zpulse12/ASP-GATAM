@@ -3,10 +3,11 @@ using Gatam.Application.CQRS.Questions;
 using MediatR;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
+using AutoMapper;
 
 namespace Gatam.Application.CQRS.Module;
 
-public class AssignModulesToUserCommand : IRequest<bool>
+public class AssignModulesToUserCommand : IRequest<UserModuleDTO>
 {
     public string FollowerId { get; set; }
     public string ModuleId { get; set; }
@@ -17,6 +18,7 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
     public AssignModulesToUserCommandValidator(IUnitOfWork uow)
     {
         _uow = uow;
+        
         RuleFor(command => command.FollowerId)
             .NotEmpty()
             .WithMessage("FollowerId is required.");
@@ -24,6 +26,7 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
         RuleFor(command => command.ModuleId)
             .NotEmpty()
             .WithMessage("ModuleId is required.");
+
         RuleFor(x => x.FollowerId)
             .MustAsync(async (userId, token) =>
             {
@@ -31,44 +34,57 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
                 return user != null;
             })
             .WithMessage("The user does not exist"); 
+
         RuleFor(x => x.ModuleId)
             .MustAsync(async (moduleId, token) =>
             {
-                var user = await _uow.ModuleRepository.FindById(moduleId);
-                return user != null;
+                var module = await _uow.ModuleRepository.FindById(moduleId);
+                return module != null;
             })
             .WithMessage("The module does not exist"); 
+
+        // Single validation for duplicate assignment
         RuleFor(command => command)
             .MustAsync(async (command, cancellation) =>
             {
                 var user = await _uow.UserRepository.FindById(command.FollowerId);
-                return user != null && user.UserModules.All(um => um.ModuleId != command.ModuleId);
+                return user != null && !user.UserModules.Any(um => um.ModuleId == command.ModuleId);
             })
             .WithMessage("Module is already assigned to this user");
     }
 }
-public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, bool>
+public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, UserModuleDTO>
 {
     private readonly IModuleRepository _moduleRepository;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _uow;
+    private readonly IMapper _mapper;
 
-    public AssignModulesToUserCommandHandler(IModuleRepository moduleRepository, IMediator mediator, IUnitOfWork uow)
+    public AssignModulesToUserCommandHandler(
+        IModuleRepository moduleRepository, 
+        IMediator mediator, 
+        IUnitOfWork uow,
+        IMapper mapper)
     {
         _moduleRepository = moduleRepository;
         _mediator = mediator;
         _uow = uow;
+        _mapper = mapper;
     }
     
-    public async Task<bool> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
+    public async Task<UserModuleDTO> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
     {
         var user = await _uow.UserRepository.FindById(request.FollowerId);
         var module = await _moduleRepository.FindByIdWithQuestions(request.ModuleId);
+        
         var userModule = new UserModule 
         { 
             UserId = user.Id, 
-            ModuleId = module.Id 
+            ModuleId = module.Id,
+            User = user,
+            Module = module
         };
+        
         user.UserModules.Add(userModule);
         
         await _uow.UserRepository.Update(user);
@@ -78,10 +94,11 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
         {
             await _mediator.Send(new CreateSettingCommand
             {
+                UserModuleId = userModule.Id,
                 QuestionId = question.Id
             });
         }
 
-        return true;
+        return _mapper.Map<UserModuleDTO>(userModule);
     }
 }
