@@ -14,9 +14,9 @@ namespace Gatam.Application.CQRS.User.Roles
         public required RolesDTO Roles { get; set; }
     }
 
-    public class AssignUserRoleCommandValidator : AbstractValidator<UpdateUserRoleCommand>
+    public class UpdateUserRoleCommandValidator : AbstractValidator<UpdateUserRoleCommand>
     {
-        public AssignUserRoleCommandValidator()
+        public UpdateUserRoleCommandValidator()
         {
             RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("Id cannot be empty")
@@ -27,13 +27,13 @@ namespace Gatam.Application.CQRS.User.Roles
                 .NotNull().WithMessage("Role cannot be null");
         }
     }
-    public class AssignUserRoleCommandHandler : IRequestHandler<UpdateUserRoleCommand, UserDTO>
+    public class UpdateUserRoleCommandHandler : IRequestHandler<UpdateUserRoleCommand, UserDTO>
     {
         private readonly IManagementApi _auth0Repository;
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public AssignUserRoleCommandHandler(IManagementApi auth0Repository, IUnitOfWork uow, IMapper mapper)
+        public UpdateUserRoleCommandHandler(IManagementApi auth0Repository, IUnitOfWork uow, IMapper mapper)
         {
             _auth0Repository = auth0Repository;
             _uow = uow;
