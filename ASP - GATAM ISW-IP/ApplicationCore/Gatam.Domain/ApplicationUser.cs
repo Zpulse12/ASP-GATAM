@@ -14,7 +14,7 @@ namespace Gatam.Domain
         public  string Email { get; set; }
         public  string? PhoneNumber { get; set; }
         public  string PasswordHash { get; set; }
-        public  List<string?>? RolesIds { get; set; }
+        public  List<string?> RolesIds { get; set; }
         public bool IsActive { get; set; }
         public string? Picture { get; set; }
 
