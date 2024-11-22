@@ -12,11 +12,9 @@ namespace Gatam.Application.CQRS.Module
     public class GetUsersWithModulesQuery : IRequest<List<UserModuleDTO>> { }
     public class GetUsersModulesQueryValidator : AbstractValidator<GetUserModulesQuery>
     {
-        public GetUsersModulesQueryValidator()
+        public GetUsersModulesQueryValidator(IUnitOfWork uow)
         {
-            RuleFor(query => query.UserId)
-                .NotEmpty()
-                .WithMessage("UserId is required.");
+           
         }
     }
     public class GetUsersWithModulesQueryHandler : IRequestHandler<GetUsersWithModulesQuery, List<UserModuleDTO>>
