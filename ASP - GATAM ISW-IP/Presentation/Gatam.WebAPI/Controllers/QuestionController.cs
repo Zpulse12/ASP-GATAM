@@ -1,5 +1,4 @@
-﻿using ApplicationCore.CQRS.Questions;
-using Gatam.Application.CQRS.Questions;
+﻿using Gatam.Application.CQRS.Questions;
 using Gatam.Application.CQRS.User;
 using Gatam.Domain;
 using MediatR;
@@ -86,8 +85,7 @@ namespace Gatam.WebAPI.Controllers
         public async Task<IActionResult> UpdateVisibility([FromBody] UpdateQuestionVisibilityCommand command)
         {
             var result = await _mediator.Send(command);
-            if (!result) return NotFound();
-            return Ok();
+            return Ok(result);
         }
     }
 }
