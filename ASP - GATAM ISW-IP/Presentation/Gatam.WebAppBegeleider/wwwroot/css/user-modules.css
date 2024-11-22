@@ -1,0 +1,42 @@
+.accordion {
+    margin-bottom: 2rem;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #f8f9fa;
+    color: #2c3e50;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,.125);
+}
+
+.question-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.card { 
+    transition: transform 0.2s;
+    border-radius: 8px;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.form-switch {
+    padding-left: 2.5em;
+}
+
+.form-check-input {
+    cursor: pointer;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+} 
