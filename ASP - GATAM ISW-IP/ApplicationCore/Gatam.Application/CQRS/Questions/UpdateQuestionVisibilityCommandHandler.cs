@@ -7,8 +7,8 @@ namespace Gatam.Application.CQRS.Questions
 {
      public class UpdateQuestionVisibilityCommand : IRequest<UserModuleQuestionSetting>
     {
-        public string UserModuleQuestionSettingId { get; }
-        public bool IsVisible { get; }
+        public string UserModuleQuestionSettingId { get; set; }
+        public bool IsVisible { get; set; }
     }
 
     public class UpdateQuestionVisibilityCommandValidator : AbstractValidator<UpdateQuestionVisibilityCommand>
