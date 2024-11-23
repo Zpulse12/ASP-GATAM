@@ -8,7 +8,7 @@ namespace Gatam.Application.CQRS.Module
     public class CreateModuleCommand : IRequest<ApplicationModule>
     {
         public ApplicationModule _module { get; set; }
-        public List<Question> Questions { get; set; } = new List<Question>();
+        public List<Question> Question { get; set; }
     }
     public class CreateModuleCommandValidators : AbstractValidator<CreateModuleCommand>
     {
@@ -43,7 +43,7 @@ namespace Gatam.Application.CQRS.Module
         {
             await _uow.ModuleRepository.Create(request._module);
             await _uow.Commit();
-            foreach(var question in request.Questions)
+            foreach(var question in request.Question)
         {
                 question.ApplicationModuleId = request._module.Id; 
                 await _uow.QuestionRepository.Create(question);
