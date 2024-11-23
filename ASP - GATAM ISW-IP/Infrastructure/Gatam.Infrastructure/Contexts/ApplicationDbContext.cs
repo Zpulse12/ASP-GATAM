@@ -17,7 +17,7 @@ namespace Gatam.Infrastructure.Contexts
         public DbSet<UserModule> UserModule { get; set; }
 
         public DbSet<QuestionAnswer> Answers { get; set; }
-        public DbSet<UserModuleQuestionSetting> UserModuleQuestionSetting { get; set; }
+        public DbSet<UserQuestion> UserQuestion { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
 
@@ -138,15 +138,15 @@ namespace Gatam.Infrastructure.Contexts
             .WithOne(a => a.Question)
             .HasForeignKey(a => a.QuestionId).IsRequired(false);
 
-            builder.Entity<UserModuleQuestionSetting>()
+            builder.Entity<UserQuestion>()
                 .HasOne(umqs => umqs.UserModule)
-                .WithMany(um => um.QuestionSettings)
+                .WithMany(um => um.UserQuestions)
                 .HasForeignKey(umqs => new { umqs.UserModuleId })
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<UserModuleQuestionSetting>()
+            builder.Entity<UserQuestion>()
                 .HasOne(umqs => umqs.Question)
-                .WithMany(q => q.UserModuleQuestionSettings)
+                .WithMany(q => q.UserQuestions)
                 .HasForeignKey(umqs => umqs.QuestionId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
