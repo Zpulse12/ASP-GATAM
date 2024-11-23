@@ -12,5 +12,6 @@ namespace Gatam.Application.CQRS.DTOS.ModulesDTO
         public string? Id { get; set; }
         public string UserId { get; set; }
         public ApplicationModule Module { get; set; }
+        public List<UserAnswer> UserGivenAnswers { get; set; } = new List<UserAnswer>();
     }
 }

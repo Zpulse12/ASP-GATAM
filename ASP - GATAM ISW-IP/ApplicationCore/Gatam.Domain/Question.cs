@@ -33,6 +33,5 @@ namespace Gatam.Domain
             CreatedAt = DateTime.UtcNow;
             LastUpdatedAt = DateTime.UtcNow;
         }
-
     }
 }

@@ -1,11 +1,13 @@
 ﻿@page "/ModulesOfUser"
 @using System.Security.Claims
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
 @using Gatam.WebAppVolger.Components.Layout
 @inject ApiClient ApiClient
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireVolgersRole")]
 <InactiveUserRedirect />
 
@@ -23,19 +25,20 @@ else if (_hasError)
         <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van jouw modules.
     </Callout>
 }
-else if (_modules != null && _modules.Any())
+else if (_userModules != null && _userModules.Any())
 {
     <div class="module-list">
-        @foreach (var module in _modules)
+        @foreach (var userModule in _userModules)
         {
-            <div class="card mb-3" @onclick="() => NavigateToModule(module.Id)">
+            <div class="card mb-3" @onclick="() => NavigateToModule(userModule.Id)">
                 <div class="card-body">
-                    <h5>@module.Title</h5>
-                    <p>@module.Category</p>
+                    <h5>@userModule.Module.Title</h5>
+                    <p>@userModule.Module.Category</p>
                 </div>
             </div>
         }
     </div>
+    
 }
 else
 {
@@ -45,10 +48,9 @@ else
 }
 
 @code {
-    private List<ApplicationModule> _modules = new List<ApplicationModule>();
+    private List<UserModuleDTO> _userModules = new List<UserModuleDTO>();
     private bool _isLoading = true;
     private bool _hasError = false;
-
     protected override async Task OnInitializedAsync()
     {
         await LoadUserModules();
@@ -70,7 +72,7 @@ else
                     _hasError = true;
                     return;
                 }
-                _modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/user/modules/{userId}");
+                _userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{userId}/modules");
             }
             else
             {
@@ -91,12 +93,8 @@ else
         }
     }
 
-
-
-    private void NavigateToModule(string moduleId)
+    private void NavigateToModule(string userModuleId)
     {
-        NavigationManager.NavigateTo($"/ModuleDetails/{moduleId}");
+        NavigationManager.NavigateTo($"/ModuleDetails/{userModuleId}");
     }
-
-
 }

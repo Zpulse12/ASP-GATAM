@@ -5,7 +5,7 @@ using Gatam.Domain;
 
 namespace Gatam.Application.CQRS.Module;
 
-public class AssignModulesToUserCommand : IRequest<bool>
+public class AssignModulesToUserCommand : IRequest<UserModule>
 {
     public string VolgerId { get; set; }
     public string ModuleId { get; set; }
@@ -46,7 +46,7 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
             .WithMessage("Module is already assigned to this user");
     }
 }
-public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, bool>
+public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, UserModule>
 {
     private readonly IUnitOfWork _unitOfWork;
 
@@ -55,14 +55,42 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<bool> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
+    public async Task<UserModule> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
     {
         var user = await _unitOfWork.UserRepository.FindById(request.VolgerId);
-        var module = await _unitOfWork.ModuleRepository.FindById(request.ModuleId);
-        user.UserModules.Add(new UserModule { UserId = user.Id, ModuleId = module.Id });
-        await _unitOfWork.UserRepository.Update(user);
-        await _unitOfWork.Commit();
+        var module = await _unitOfWork.ModuleRepository.FindByIdModuleWithIncludes(request.ModuleId);
 
-        return true;
+        var userModule = new UserModule
+        {
+            UserId = user.Id,
+            ModuleId = module.Id,
+            State = UserModuleState.NotStarted
+        };
+
+        await _unitOfWork.UserModuleRepository.Create(userModule);
+
+        foreach (var question in module.Questions)
+        {
+            foreach (var answer in question.Answers)
+            {
+                var userAnswer = new UserAnswer
+                {
+                    UserModuleId = userModule.Id, 
+                    QuestionAnswerId = answer.Id,
+                    GivenAnswer = string.Empty,
+                };
+
+                if (userModule.UserGivenAnswers == null)
+                {
+                    userModule.UserGivenAnswers = new List<UserAnswer>();
+                }
+                userModule.UserGivenAnswers.Add(userAnswer);
+
+                await _unitOfWork.UserAnwserRepository.Create(userAnswer);
+            }
+        }
+
+        await _unitOfWork.Commit();
+        return userModule;
     }
 }

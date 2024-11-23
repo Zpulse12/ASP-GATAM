@@ -13,8 +13,18 @@ public class UserModule
     [JsonIgnore] 
     public ApplicationModule Module { get; set; }
 
+    public UserModuleState State { get; set; }
+
+    public List<UserAnswer> UserGivenAnswers { get; set; } = new List<UserAnswer>();
+
     public UserModule()
     {
         Id = Guid.NewGuid().ToString();
+        State = UserModuleState.NotStarted;
     }
+}
+
+public enum UserModuleState
+{
+    NotStarted, InProgress
 }

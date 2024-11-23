@@ -20,18 +20,18 @@ namespace Gatam.Application.CQRS.Module.UserModules
     }
     public class FindUserModuleIdQueryHandler : IRequestHandler<FindUserModuleIdQuery, UserModuleDTO>
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUserModuleRepository _userModuleRepository;
         private readonly IMapper _mapper;
 
-        public FindUserModuleIdQueryHandler(IUnitOfWork uow,IMapper mapper)
+        public FindUserModuleIdQueryHandler(IUserModuleRepository userModuleRepository, IMapper mapper)
         {
-            _uow = uow;
+            _userModuleRepository = userModuleRepository;
             _mapper = mapper;
         }
 
         public async Task<UserModuleDTO> Handle(FindUserModuleIdQuery request, CancellationToken cancellationToken)
         {
-            var userModule = await _uow.UserModuleRepository.FindById(request.UserModuleId);
+            var userModule = await _userModuleRepository.FindByIdModuleWithIncludes(request.UserModuleId);
             return _mapper.Map<UserModuleDTO>(userModule);
         }
     }
