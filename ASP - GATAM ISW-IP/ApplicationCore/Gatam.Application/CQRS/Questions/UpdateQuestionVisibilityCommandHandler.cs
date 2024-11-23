@@ -41,6 +41,7 @@ namespace Gatam.Application.CQRS.Questions
             var setting = await _uow.UserQuestionRepository.GetQuestionSettingById(request.UserQuestionId);
             setting.IsVisible = request.IsVisible;
             await _uow.UserQuestionRepository.Update(setting);
+            await _uow.Commit();
             return setting;
         }
     }
