@@ -7,7 +7,7 @@ namespace Gatam.Application.CQRS.Questions
 {
      public class UpdateQuestionVisibilityCommand : IRequest<UserQuestion>
     {
-        public string UserModuleQuestionSettingId { get; set; }
+        public string UserQuestionId { get; set; }
         public bool IsVisible { get; set; }
     }
 
@@ -15,13 +15,13 @@ namespace Gatam.Application.CQRS.Questions
     {
         public UpdateQuestionVisibilityCommandValidator(IUnitOfWork uow)
         {
-            RuleFor(x => x.UserModuleQuestionSettingId)
+            RuleFor(x => x.UserQuestionId)
                 .NotEmpty()
                 .WithMessage("QuestionSetting ID is required");
-            RuleFor(x => x.UserModuleQuestionSettingId)
-                .MustAsync(async (userModuleQuestionSettingId, cancellationToken) =>
+            RuleFor(x => x.UserQuestionId)
+                .MustAsync(async (UserQuestionId, cancellationToken) =>
                 {
-                    var setting = await uow.UserQuestionRepository.GetQuestionSettingById(userModuleQuestionSettingId);
+                    var setting = await uow.UserQuestionRepository.GetQuestionSettingById(UserQuestionId);
                     return setting != null;
 
                 }).WithMessage("Question setting doesn't exist");
@@ -38,9 +38,9 @@ namespace Gatam.Application.CQRS.Questions
 
         public async Task<UserQuestion> Handle(UpdateQuestionVisibilityCommand request, CancellationToken cancellationToken)
         {
-            var setting = await _uow.UserQuestionRepository.GetQuestionSettingById(request.UserModuleQuestionSettingId);
+            var setting = await _uow.UserQuestionRepository.GetQuestionSettingById(request.UserQuestionId);
             setting.IsVisible = request.IsVisible;
-            await _uow.UserQuestionRepository.UpdateQuestionSetting(setting);
+            await _uow.UserQuestionRepository.Update(setting);
             return setting;
         }
     }

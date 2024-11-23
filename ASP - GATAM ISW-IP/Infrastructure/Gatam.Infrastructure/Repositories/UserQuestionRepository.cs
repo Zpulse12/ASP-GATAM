@@ -19,10 +19,4 @@ public class UserQuestionRepository: GenericRepository<UserQuestion>, IUserQuest
         return await _context.UserQuestion
             .FirstOrDefaultAsync(x => x.Id == id);
     }
-
-    public async Task UpdateQuestionSetting(UserQuestion setting)
-    {
-        _context.UserQuestion.Update(setting);
-        await _context.SaveChangesAsync();
-    }
 }

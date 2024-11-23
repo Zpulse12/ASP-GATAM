@@ -4,11 +4,6 @@ namespace Gatam.Domain;
 
 public class UserModule
 {
-    public UserModule()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
-
     public string Id { get; set; }
     public string UserId { get; set; }
     [JsonIgnore] 
@@ -18,6 +13,10 @@ public class UserModule
     [JsonIgnore] 
     public ApplicationModule Module { get; set; }
     public List<UserQuestion> UserQuestions { get; set; } = new List<UserQuestion>();
+    public UserModule()
+    {
+        Id = Guid.NewGuid().ToString();
+    }
 
     
 }

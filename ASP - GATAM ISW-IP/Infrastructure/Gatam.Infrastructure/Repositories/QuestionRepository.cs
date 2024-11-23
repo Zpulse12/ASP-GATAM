@@ -89,17 +89,5 @@ namespace Gatam.Infrastructure.Repositories
 
             return modules.Select(m => (m.Module, m.Questions)).ToList();
         }
-
-        public async Task<UserQuestion> GetQuestionSettingById(string id)
-        {
-            return await _context.UserQuestion
-                .FirstOrDefaultAsync(x => x.Id == id);
-        }
-
-        public async Task UpdateQuestionSetting(UserQuestion setting)
-        {
-            _context.UserQuestion.Update(setting);
-            await _context.SaveChangesAsync();
-        }
     }
 }
