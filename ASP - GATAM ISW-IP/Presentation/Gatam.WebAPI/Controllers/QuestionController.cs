@@ -55,13 +55,5 @@ namespace Gatam.WebAPI.Controllers
             var returnedQuestion = await _mediator.Send(new UpdateQuestionCommand() {  Question = question, Id = questionId, });
             return Ok(returnedQuestion);
         }
-
-        [HttpGet("modules/{moduleId}/questions")]
-        //[Authorize(Policy = "RequireMakerRole")]
-        public async Task<IActionResult> GetQuestionByModuleId(string moduleId)
-        {
-            var questionByModuleId = await _mediator.Send(new GetAllQuestionByModuleIdQuery { ModuleId = moduleId });
-            return Ok(questionByModuleId);
-        }
     }
 }

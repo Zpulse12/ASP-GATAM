@@ -32,12 +32,5 @@ namespace Gatam.WebAPI.Controllers
             var result = await _mediator.Send(new CreateModuleCommand() { _module = module });
             return Created("", result);
         }
-
-        [HttpGet("{moduleId}/questions")]
-        public async Task<IActionResult> GetModuleById(string moduleId)
-        {
-            var modules = await _mediator.Send(new GetModuleByIdQuery() { ModuleId = moduleId});
-            return Ok(modules);
-        }
     }
 }
