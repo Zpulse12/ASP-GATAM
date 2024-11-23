@@ -81,7 +81,7 @@ public class ManagementApiRepository: IManagementApi
         };
         return _user; 
     }
-    public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
+    public async Task<Result<ApplicationUser>> CreateUserAsync(ApplicationUser user)
     {
     
 
@@ -93,7 +93,6 @@ public class ManagementApiRepository: IManagementApi
             username = user.Username,
             email = user.Email,
             password = user.PasswordHash,
-            phone_number = user.PhoneNumber,
             connection = "Username-Password-Authentication",
             user_metadata = new
             {
@@ -109,16 +108,11 @@ public class ManagementApiRepository: IManagementApi
             if (response.IsSuccessStatusCode)
             {
                 var createdUser = await response.Content.ReadFromJsonAsync<Auth0ResponseUsers>();
-
-
                 if (createdUser == null)
                 {
-                    return null;
-                }
-
+                    return Result<ApplicationUser>.Fail(new Exception("Could not convert auth response to Auth0ResponseUsers object"));
+                } 
                 string userId = createdUser.UserId;
-                
-
                 var applicationUser = new ApplicationUser
                 {
                     Id = userId,  
@@ -127,27 +121,23 @@ public class ManagementApiRepository: IManagementApi
                     Username = createdUser.Username,
                     Email = createdUser.Email,
                     PasswordHash = user.PasswordHash,
-                    PhoneNumber = createdUser.PhoneNumber,
                     Picture = createdUser.UserMetadata?.Picture,
                     RolesIds = RoleMapper.GetRoleValues("VOLGER"),
+                    BegeleiderId = user.BegeleiderId,
+                    PhoneNumber = user.PhoneNumber,
                     IsActive = true 
                 };
-
-                
-
-                return applicationUser;
+                return Result<ApplicationUser>.Ok(applicationUser);
             }
             else
             {
                 var errorDetails = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error creating user: {response.StatusCode} - {errorDetails}");
-                return null;
+                return Result<ApplicationUser>.Fail(new Exception(errorDetails));
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occurred while creating the user: {ex.Message}");
-            return null;
+            return Result<ApplicationUser>.Fail(ex);
         }
     }
 

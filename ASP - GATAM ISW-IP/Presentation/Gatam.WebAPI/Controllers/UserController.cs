@@ -112,14 +112,15 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpPut("AssignUserModule/{userId}")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUserModule(string userId, [FromQuery] string moduleId)
         {
             var assignedUser = await _mediator.Send(new AssignModulesToUserCommand() {VolgerId = userId, ModuleId = moduleId });
             return Ok(assignedUser);
         }
+
         [HttpGet("modules/{userId}")]
-        [Authorize(Policy = "RequireVolgersRole")]
+        //[Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> GetUserModules(string userId)
         {
             var query = new GetUserModulesQuery(userId);
@@ -130,7 +131,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("usersWithModules")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsersWithModules()
         {
             var users = await _mediator.Send(new GetUsersWithModulesQuery());
@@ -139,7 +140,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpPut("{userId}/roles")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUserRole(string userId, [FromBody] UserDTO user)
         {
             
@@ -156,7 +157,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("AssignUsersToBegeleider/{id}")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUsersToBegeleider([FromBody] ApplicationUser user, string id)
         {
 
@@ -166,7 +167,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("UnassignUsersToBegeleider")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UnassignUsersToBegeleider([FromBody] ApplicationUser user)
         {
             var volger = await _mediator.Send(new FindUserByIdQuery(user.Id));

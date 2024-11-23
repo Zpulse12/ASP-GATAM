@@ -8,9 +8,10 @@ namespace Gatam.Infrastructure.UOW
     public class UnitOfWork : IUnitOfWork
     {
         private readonly IUserRepository _userRepository;
-        private readonly IGenericRepository<ApplicationModule> _moduleRepository;
+        private readonly IModuleRepository _moduleRepository;
         private readonly IQuestionRepository _questionRepository;
-        private readonly IGenericRepository<UserModule> _userModuleRepository;
+        private readonly IUserModuleRepository _userModuleRepository;
+        private readonly IGenericRepository<UserAnswer> _userAnwserRepository;
 
 
 
@@ -19,10 +20,11 @@ namespace Gatam.Infrastructure.UOW
 
         public UnitOfWork(
                             ApplicationDbContext context, 
-                            IUserRepository userRepository, 
-                            IGenericRepository<ApplicationModule> moduleRepository,
+                            IUserRepository userRepository,
+                            IModuleRepository moduleRepository,
                             IQuestionRepository questionRepository,
-                            IGenericRepository<UserModule> userModuleRepository
+                            IUserModuleRepository userModuleRepository,
+                            IGenericRepository<UserAnswer> userAnwserRepository
 
                             )
         {
@@ -31,13 +33,14 @@ namespace Gatam.Infrastructure.UOW
             _questionRepository = questionRepository;
             _context = context;
             _userModuleRepository = userModuleRepository;
+            _userAnwserRepository = userAnwserRepository;
         }
 
         public IUserRepository UserRepository => _userRepository;
-        public IGenericRepository<ApplicationModule> ModuleRepository => _moduleRepository;
-        public IGenericRepository<UserModule> UserModuleRepository => _userModuleRepository;
+        public IModuleRepository ModuleRepository => _moduleRepository;
+        public IUserModuleRepository UserModuleRepository => _userModuleRepository;
         public IQuestionRepository QuestionRepository => _questionRepository;
-
+        public IGenericRepository<UserAnswer> UserAnwserRepository => _userAnwserRepository;
         public async Task Commit()
         {
             await _context.SaveChangesAsync();

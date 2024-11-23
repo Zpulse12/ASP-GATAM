@@ -18,7 +18,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> GetAllModules()
         {
                 var modules = await _mediator.Send(new GetAllModulesQuery());
@@ -26,11 +26,18 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> CreateModule([FromBody] ApplicationModule module)
         {
             var result = await _mediator.Send(new CreateModuleCommand() { _module = module });
             return Created("", result);
+        }
+
+        [HttpGet("{moduleId}/questions")]
+        public async Task<IActionResult> GetModuleById(string moduleId)
+        {
+            var modules = await _mediator.Send(new GetModuleByIdQuery() { ModuleId = moduleId});
+            return Ok(modules);
         }
     }
 }

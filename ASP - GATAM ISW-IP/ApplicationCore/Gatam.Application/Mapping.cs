@@ -12,8 +12,6 @@ namespace Gatam.Application
             CreateMap<UserDTO, ApplicationUser>() .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<UserModule, UserModuleDTO>();
-            CreateMap<UserModuleDTO, UserModule>();
-
         }
     }
 }

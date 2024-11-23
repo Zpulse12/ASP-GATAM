@@ -4,7 +4,7 @@ namespace Gatam.Application.Extensions
     {
         public static readonly Dictionary<string, string> Roles = new Dictionary<string, string>
         {
-            { "BEHEERDER", "rol_3BsJHRFokYkbjr5O" },
+            { "BEHEERDER", "BEHEERDER" },
             { "BEGELEIDER", "rol_8cLkJwwd2u2itnu3" },
             { "VOLGER", "rol_2SgoYL1AoK9tXYXW" },
             { "MAKER", "rol_tj8keS38380ZU4NR" }
@@ -16,7 +16,7 @@ namespace Gatam.Application.Extensions
         {
             return Roles
                 .Where(role => roleNames.Contains(role.Key))
-                .Select(role => role.Key)
+                .Select(role => role.Value)
                 .ToArray();
         }
 
