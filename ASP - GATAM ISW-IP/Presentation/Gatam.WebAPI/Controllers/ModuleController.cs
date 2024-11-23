@@ -27,9 +27,9 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPost]
         //[Authorize(Policy = "RequireMakerRole")]
-        public async Task<IActionResult> CreateModule([FromBody] ApplicationModule module)
+        public async Task<IActionResult> CreateModule([FromBody] CreateModuleCommand command)
         {
-            var result = await _mediator.Send(new CreateModuleCommand() { _module = module });
+            var result = await _mediator.Send(command);
             return Created("", result);
         }
     }

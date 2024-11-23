@@ -8,6 +8,7 @@ namespace Gatam.Application.CQRS.Module
     public class CreateModuleCommand : IRequest<ApplicationModule>
     {
         public ApplicationModule _module { get; set; }
+        public List<Question> Questions { get; set; } = new List<Question>();
     }
     public class CreateModuleCommandValidators : AbstractValidator<CreateModuleCommand>
     {
@@ -41,6 +42,12 @@ namespace Gatam.Application.CQRS.Module
         public async Task<ApplicationModule> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
         {
             await _uow.ModuleRepository.Create(request._module);
+            await _uow.Commit();
+            foreach(var question in request.Questions)
+        {
+                question.ApplicationModuleId = request._module.Id; 
+                await _uow.QuestionRepository.Create(question);
+            }
             await _uow.Commit();
             return request._module;
         }

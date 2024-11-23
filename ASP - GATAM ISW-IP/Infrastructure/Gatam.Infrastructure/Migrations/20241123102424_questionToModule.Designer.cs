@@ -4,6 +4,7 @@ using Gatam.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Gatam.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241123102424_questionToModule")]
+    partial class questionToModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,9 +48,9 @@ namespace Gatam.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "cf91760c-0153-4222-9e97-94f562e9f619",
+                            Id = "b8bcbe58-226e-4142-a8e5-2abfc182cccf",
                             Category = "SollicitatieTraining",
-                            CreatedAt = new DateTime(2024, 11, 23, 16, 45, 56, 591, DateTimeKind.Utc).AddTicks(4515),
+                            CreatedAt = new DateTime(2024, 11, 23, 10, 24, 23, 329, DateTimeKind.Utc).AddTicks(2212),
                             Title = "Solliciteren voor beginners"
                         });
                 });
@@ -99,11 +102,11 @@ namespace Gatam.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "96b82fa0-f8b4-4bbb-908d-345580008078",
+                            Id = "35e8cd4b-2209-47e6-870b-526e5e177976",
                             Email = "admin@app.com",
                             IsActive = false,
                             Name = "admin",
-                            PasswordHash = "AQAAAAIAAYagAAAAELzFIAUEjrRBCRR0uX3SDFLt7VFxT7vVw9Wziu5iog3Gnrf3LDZMqYcAoyUULR2log==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEN0C+lKCQ/iOxeEqGM7IjLiGKkOTZJf7asc+H1CViUWJXQ+O9cFdVYOuP/hiqETGnA==",
                             PhoneNumber = "+32 9966554411",
                             Picture = "png",
                             RolesIds = "[\"rol_3BsJHRFokYkbjr5O\"]",
@@ -112,11 +115,11 @@ namespace Gatam.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = "502cb1a5-f321-4dba-8ee7-224f955d6e66",
+                            Id = "ac90648f-b8f9-4b18-a671-3bb9c081f703",
                             Email = "john.doe@example.com",
                             IsActive = false,
                             Name = "JohnDoe",
-                            PasswordHash = "AQAAAAIAAYagAAAAEONNkSH8zIbcPZPkbeTqZjTQovNY2yvvF+sl6oYr9enaHeADGQ8w3OpiUAL0VxVQjg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEInst+LraTcuHn9qQSAphwXYEyU9UADquoo5VvzLJJByKESaKYQ7U7ij77DHkdv5rw==",
                             PhoneNumber = "+32 456789166",
                             Picture = "png",
                             RolesIds = "[\"rol_2SgoYL1AoK9tXYXW\"]",
@@ -125,11 +128,11 @@ namespace Gatam.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = "2e907a03-1af2-4b23-9fab-6a184bbd776c",
+                            Id = "f06815b1-1295-4e77-bf13-beb124cc49af",
                             Email = "jane.doe@example.com",
                             IsActive = false,
                             Name = "JaneDoe",
-                            PasswordHash = "AQAAAAIAAYagAAAAENRvzPJyHB5eD9NKp6W4s6bLlIm/Q0Mkm59+j/RfUz84Y7V6WX/S3IVD9PvFjUuqPA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHjxh0VgpsUuLjSIY1vFyB26q8l/O1e6rzubS9Q9Np+GX0QtDoSejYwybkZ1JVpEDQ==",
                             PhoneNumber = "+32 568779633",
                             Picture = "png",
                             RolesIds = "[\"rol_tj8keS38380ZU4NR\"]",
@@ -138,11 +141,11 @@ namespace Gatam.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = "db869a62-e9a8-454c-ae7d-9dd4a313f492",
+                            Id = "5a489be0-d5c9-4eb0-a0cc-67876bba6506",
                             Email = "lautje.doe@example.com",
                             IsActive = false,
                             Name = "Lautje",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJMklvEYOOXWKvyNwK8Zq6r/AUDIgNeOr/Rgw0Ljv2NjrwOrBa3EcgsBGIx4DLXWmQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHUT+nCz7rTfc5+k2ZvfrekZKm0xyque/4VbLh4j2bQSWtFnE92jzdAR9KEjlBZC2Q==",
                             PhoneNumber = "+23 7896544336",
                             Picture = "png",
                             RolesIds = "[\"rol_tj8keS38380ZU4NR\"]",
@@ -190,10 +193,10 @@ namespace Gatam.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "31a796ad-84fa-4159-b683-e6cc4c53142a",
-                            CreatedAt = new DateTime(2024, 11, 23, 16, 45, 56, 592, DateTimeKind.Utc).AddTicks(2040),
+                            Id = "d4d48c91-3391-4822-819d-bad61e255c3b",
+                            CreatedAt = new DateTime(2024, 11, 23, 10, 24, 23, 330, DateTimeKind.Utc).AddTicks(556),
                             CreatedUserId = "123",
-                            LastUpdatedAt = new DateTime(2024, 11, 23, 16, 45, 56, 592, DateTimeKind.Utc).AddTicks(2042),
+                            LastUpdatedAt = new DateTime(2024, 11, 23, 10, 24, 23, 330, DateTimeKind.Utc).AddTicks(558),
                             LastUpdatedUserId = "123",
                             QuestionTitle = "Wat wil je later bereiken? ",
                             QuestionType = (short)1
@@ -224,9 +227,9 @@ namespace Gatam.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1e042bcc-0e5a-463a-af54-2ed62067429c",
+                            Id = "dbbc39a6-3326-4ebe-b608-592adac87c06",
                             Answer = "OPEN",
-                            QuestionId = "31a796ad-84fa-4159-b683-e6cc4c53142a"
+                            QuestionId = "d4d48c91-3391-4822-819d-bad61e255c3b"
                         });
                 });
 
@@ -256,8 +259,7 @@ namespace Gatam.Infrastructure.Migrations
                 {
                     b.HasOne("Gatam.Domain.ApplicationModule", "ApplicationModule")
                         .WithMany("Questions")
-                        .HasForeignKey("ApplicationModuleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ApplicationModuleId");
 
                     b.Navigation("ApplicationModule");
                 });
