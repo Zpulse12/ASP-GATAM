@@ -1,6 +1,6 @@
 ﻿using Gatam.Application.CQRS.Questions;
-using Gatam.Application.CQRS.User;
 using Gatam.Domain;
+using Gatam.WebAPI.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -80,11 +80,13 @@ namespace Gatam.WebAPI.Controllers
         // }
 
         [HttpPut("visibility")]
-        // [Authorize(Policy = "RequireManagementRole")]
-
-        public async Task<IActionResult> UpdateVisibility([FromBody] UpdateQuestionVisibilityCommand command)
+        public async Task<IActionResult> UpdateVisibility(string userQuestionId, bool isVisible)
         {
-            var result = await _mediator.Send(command);
+            var result = await _mediator.Send(new UpdateQuestionVisibilityCommand
+            {
+                UserQuestionId = userQuestionId,
+                IsVisible = isVisible
+            });
             return Ok(result);
         }
     }

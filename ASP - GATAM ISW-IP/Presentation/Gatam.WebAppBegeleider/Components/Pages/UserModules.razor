@@ -98,11 +98,7 @@ else
         try
         {
             userQuestion.IsVisible = !userQuestion.IsVisible;
-            await ApiClient.PutAsJsonAsync($"api/question/visibility", new
-            {
-                UserModuleQuestionSettingId = userQuestion.Id,
-                IsVisible = userQuestion.IsVisible
-            });
+            await ApiClient.PutAsync($"api/question/visibility?userQuestionId={userQuestion.Id}&isVisible={userQuestion.IsVisible}");
         }
         catch (Exception ex)
         {
