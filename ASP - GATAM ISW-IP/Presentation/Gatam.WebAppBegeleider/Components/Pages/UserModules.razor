@@ -1,0 +1,125 @@
+@page "/modules-per-gebruiker"
+@using System.Diagnostics
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Application.CQRS.DTOS.QuestionsDTO
+@inject ApiClient ApiClient
+@rendermode InteractiveServer
+
+<link href="css/user-modules.css" rel="stylesheet" />
+
+<h3 class="mb-4">Modules per Gebruiker</h3>
+
+@if (_loading)
+{
+    <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_userModules?.Any() != true)
+{
+    <div class="alert alert-info">
+        Geen gebruikers of modules gevonden.
+    </div>
+}
+else
+{
+    <div class="modules-container">
+        @foreach (var userModule in _userModules)
+        {
+            <div class="module-card">
+                <div class="module-header" @onclick="() => ToggleModule(userModule.Id)">
+                    <div class="user-module-info">
+                        <span class="username">@userModule.User.Username</span>
+                        <span class="module-title">@userModule.Module.Title</span>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+
+                <div class="module-content @(_expandedModules.Contains(userModule.Id) ? "show" : "")">
+                    @foreach (var questionSetting in userModule.UserQuestion)
+                    {
+                        <div class="question-item">
+                            <div class="question-content">
+                                <h6>@questionSetting.QuestionTitle</h6>
+                                <span class="question-type">@GetQuestionTypeText(questionSetting.QuestionType)</span>
+                            </div>
+                            <div class="visibility-toggle">
+                                <label class="switch">
+                                    <input type="checkbox" 
+                                           checked="@questionSetting.IsVisible"
+                                           @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">@(questionSetting.IsVisible ? "Zichtbaar" : "Verborgen")</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<UserModuleDTO> _userModules;
+    private bool _loading = true;
+    private HashSet<string> _expandedModules = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserModules();
+    }
+
+    private async Task LoadUserModules()
+    {
+        try
+        {
+            _loading = true;
+            _userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>("api/user/usersWithModules");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user modules: {ex.Message}");
+            _userModules = new List<UserModuleDTO>();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task ToggleQuestionVisibility(UserQuestionDTO userQuestion)
+    {
+        if (userQuestion == null) return;
+        
+        try
+        {
+            userQuestion.IsVisible = !userQuestion.IsVisible;
+            await ApiClient.PutAsync($"api/question/visibility?userQuestionId={userQuestion.Id}&isVisible={userQuestion.IsVisible}");
+        }
+        catch (Exception ex)
+        {
+            userQuestion.IsVisible = !userQuestion.IsVisible;
+            Debug.WriteLine($"Error updating visibility: {ex.Message}");
+        }
+    }
+
+    private string GetQuestionTypeText(int questionType) => questionType switch
+    {
+        1 => "Open vraag",
+        2 => "Multiple choice",
+        3 => "Ja/Nee",
+        _ => "Onbekend type"
+    };
+
+    private void ToggleModule(string moduleId)
+    {
+        if (_expandedModules.Contains(moduleId))
+            _expandedModules.Remove(moduleId);
+        else
+            _expandedModules.Add(moduleId);
+    }
+}

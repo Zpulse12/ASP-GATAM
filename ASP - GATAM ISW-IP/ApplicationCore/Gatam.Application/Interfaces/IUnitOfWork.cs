@@ -9,6 +9,7 @@ namespace Gatam.Application.Interfaces
         public IUserModuleRepository UserModuleRepository { get; }
         public IGenericRepository<UserAnswer> UserAnwserRepository { get; }
         public IQuestionRepository QuestionRepository { get; }
+        public IUserQuestionRepository UserQuestionRepository { get; }
         Task Commit();
     }
 }

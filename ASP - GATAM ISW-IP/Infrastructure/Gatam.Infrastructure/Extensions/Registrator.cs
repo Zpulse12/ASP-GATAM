@@ -30,6 +30,7 @@ namespace Gatam.Infrastructure.Extensions
         public static IServiceCollection RegisterInfrastructure(this IServiceCollection services)
         {
             services.AddHttpClient();
+
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IModuleRepository, ModuleRepository>();
             services.AddScoped<IGenericRepository<UserAnswer>, UserAnwserRepository>();
@@ -38,7 +39,9 @@ namespace Gatam.Infrastructure.Extensions
 
             services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUserQuestionRepository, UserQuestionRepository>();
             services.RegisterDbContext();
+
             return services;
         }
         public static IServiceCollection RegisterJWTAuthentication(this IServiceCollection services, WebApplicationBuilder builder)

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Gatam.Domain;
 
@@ -16,6 +17,7 @@ public class UserModule
     public UserModuleState State { get; set; }
 
     public List<UserAnswer> UserGivenAnswers { get; set; } = new List<UserAnswer>();
+    public List<UserQuestion> UserQuestions { get; set; } = new List<UserQuestion>();
 
     public UserModule()
     {

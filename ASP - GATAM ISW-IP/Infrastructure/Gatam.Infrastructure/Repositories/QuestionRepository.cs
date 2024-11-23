@@ -70,5 +70,34 @@ namespace Gatam.Infrastructure.Repositories
             }
            
         }
+
+        public async Task<List<Question>> GetVisibleQuestionsForFollower(string followerId)
+        {
+            return await _context.UserModule
+                .Where(um => um.UserId == followerId)
+                .SelectMany(um => um.UserQuestions
+                    .Where(umqs => umqs.IsVisible)
+                    .Select(umqs => umqs.Question))
+                .ToListAsync();
+        }
+
+        public async Task<List<(UserModule Module, List<Question> Questions)>> GetVisibleQuestionsPerModule(string volgerId)
+        {
+            var modules = await _context.UserModule
+                .Where(um => um.UserId == volgerId)
+                .Include(um => um.UserQuestions)
+                    .ThenInclude(umqs => umqs.Question)
+                .Select(um => new
+                {
+                    Module = um,
+                    Questions = um.UserQuestions
+                        .Where(umqs => umqs.IsVisible == true)
+                        .Select(umqs => umqs.Question)
+                        .ToList()
+                })
+                .ToListAsync();
+
+            return modules.Select(m => (m.Module, m.Questions)).ToList();
+        }
     }
 }

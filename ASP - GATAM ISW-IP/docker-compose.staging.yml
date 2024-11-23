@@ -34,6 +34,7 @@ services:
       - BASE_URI=${BASE_URI}
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - KEY=${KEY}
     depends_on:
       - mssql-server
     networks:

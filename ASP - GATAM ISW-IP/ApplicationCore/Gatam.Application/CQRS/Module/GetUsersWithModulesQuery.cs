@@ -1,40 +1,39 @@
 ﻿using FluentValidation;
-using MediatR;
+using Gatam.Application.CQRS.User;
 using Gatam.Application.Interfaces;
+using Gatam.Domain;
+using MediatR;
+using AutoMapper;
+using Gatam.Application.CQRS.DTOS.QuestionsDTO;
+using Gatam.Application.CQRS.DTOS.ModulesDTO;
 
-namespace Gatam.Application.CQRS.User
+namespace Gatam.Application.CQRS.Module
 {
-    public class GetUsersWithModulesQuery : IRequest<List<UserDTO>> { }
+    public class GetUsersWithModulesQuery : IRequest<List<UserModuleDTO>> { }
     public class GetUsersModulesQueryValidator : AbstractValidator<GetUserModulesQuery>
     {
-        public GetUsersModulesQueryValidator()
+        public GetUsersModulesQueryValidator(IUnitOfWork uow)
         {
-            RuleFor(query => query.UserId)
-                .NotEmpty()
-                .WithMessage("UserId is required.");
+           
         }
     }
-    public class GetUsersWithModulesQueryHandler : IRequestHandler<GetUsersWithModulesQuery, List<UserDTO>>
+    public class GetUsersWithModulesQueryHandler : IRequestHandler<GetUsersWithModulesQuery, List<UserModuleDTO>>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public GetUsersWithModulesQueryHandler(IUserRepository userRepository)
+        public GetUsersWithModulesQueryHandler(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
-        public async Task<List<UserDTO>> Handle(GetUsersWithModulesQuery request, CancellationToken cancellationToken)
+        public async Task<List<UserModuleDTO>> Handle(GetUsersWithModulesQuery request, CancellationToken cancellationToken)
         {
             var users = await _userRepository.GetUsersWithModulesAsync();
-            return users.Select(user => new UserDTO
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                Modules = user.UserModules.Select(um => um.Module.Title)
-                    .ToList(),
-                RolesIds = null
-            }).ToList();
+            
+            var userModules = users.SelectMany(u => u.UserModules).ToList();
+            return _mapper.Map<List<UserModuleDTO>>(userModules);
         }
     }
 }

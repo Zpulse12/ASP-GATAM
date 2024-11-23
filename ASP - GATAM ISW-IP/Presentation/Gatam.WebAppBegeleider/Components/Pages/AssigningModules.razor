@@ -1,16 +1,19 @@
 ﻿﻿
 @page "/content/AssigningModules"
+@using Gatam.Application.CQRS
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
-@using Gatam.WebAppBegeleider.Components.Layout
 @inject ApiClient ApiClient
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireManagementRole")]
+
+<link href="css/assigning-modules.css" rel="stylesheet" />
+
 <CustomCards>
     <div class="card-body">
         <div class="card-header">
-            <h5>Wijs Modules toe aan Volgers</h5>
+            <h5>Wijs Modules toe aan Gebruikers</h5>
         </div>
 
         @if (IsLoading)
@@ -22,12 +25,12 @@
         else
         {
             <div class="mb-3">
-                <label>Selecteer Volger:</label>
-                <select class="form-select" @onchange="OnVolgerSelected">
-                    <option value="">-- Selecteer een Volger --</option>
-                    @foreach (var volger in VolgersWithModules)
+                <label>Selecteer Gebruiker:</label>
+                <select class="form-select" @onchange="OnUserSelected">
+                    <option value="">-- Selecteer een Gebruiker --</option>
+                    @foreach (var user in users)
                     {
-                        <option value="@volger.Id">@volger.Email (@volger.Id)</option>
+                        <option value="@user.Id">@user.Email (@user.Id)</option>
                     }
                 </select>
             </div>
@@ -43,8 +46,8 @@
                 </select>
             </div>
 
-            <button @onclick="AssignModuleToVolger" class="btn btn-primary mt-2"
-                    disabled="@(string.IsNullOrEmpty(SelectedVolgerId) || string.IsNullOrEmpty(SelectedModuleId))">
+            <button @onclick="AssignModuleToUser" class="btn btn-primary mt-2"
+                    disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
                 Wijs Module toe
             </button>
 
@@ -59,35 +62,35 @@
 
             <hr />
 
-            <h5>Volgers en Toegewezen Modules</h5>
+            <h5>Gebruikers en Toegewezen Modules</h5>
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
                             <th>Email</th>
-                            <th>Volger ID</th>
+                            <th>Gebruiker ID</th>
                             <th>Toegewezen Modules</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (VolgersWithModules.Count == 0)
+                        @if (UsersWithModules.Count == 0)
                         {
                             <tr>
-                                <td colspan="3" class="text-center">Geen volgers gevonden.</td>
+                                <td colspan="3" class="text-center">Geen gebruikers gevonden.</td>
                             </tr>
                         }
                         else
                         {
-                            @foreach (var volger in VolgersWithModules)
+                            @foreach (var user in UsersWithModules)
                             {
                                 <tr>
-                                    <td>@volger.Email</td>
-                                    <td>@volger.Id</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.Id</td>
                                     <td>
-                                        @if (volger.Modules != null && volger.Modules.Count > 0)
+                                        @if (user.Modules != null && user.Modules.Count > 0)
                                         {
                                             <ul class="list-unstyled">
-                                                @foreach (var module in volger.Modules)
+                                                @foreach (var module in user.Modules)
                                                 {
                                                     <li>@module</li>
                                                 }
@@ -109,9 +112,10 @@
 </CustomCards>
 
 @code {
-    private List<UserWithModulesDTO> VolgersWithModules = new();
+    private List<UserWithModulesDTO> UsersWithModules = new();
+    private List<UserDTO> users = new();
     private List<ApplicationModule> Modules = new();
-    private string SelectedVolgerId;
+    private string SelectedUserId;
     private string SelectedModuleId;
     private string? SuccessMessage;
     private string? ErrorMessage;
@@ -119,43 +123,39 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadData();
-    }
-
-    private async Task LoadData()
-    {
         IsLoading = true;
-        await LoadVolgersWithModules();
-        await LoadModules();
-        IsLoading = false;
-    }
-
-    private async Task LoadVolgersWithModules()
-    {
-        VolgersWithModules = await ApiClient.GetFromJsonAsync<List<UserWithModulesDTO>>("api/user/usersWithModules") ?? new List<UserWithModulesDTO>();
-    }
-
-    private async Task LoadModules()
-    {
-        Modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module") ?? new List<ApplicationModule>();
-    }
-
-    private async Task AssignModuleToVolger()
-    {
-        if (string.IsNullOrEmpty(SelectedVolgerId) || string.IsNullOrEmpty(SelectedModuleId))
+        try
         {
-            ErrorMessage = "Selecteer zowel een volger als een module.";
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>("api/user") ?? new();
+            Modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module") ?? new();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Er is een fout opgetreden bij het laden van de data.";
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task AssignModuleToUser()
+    {
+        if (string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))
+        {
+            ErrorMessage = "Selecteer zowel een gebruiker als een module.";
             SuccessMessage = null;
             return;
         }
 
-        var response = await ApiClient.PutAsJsonAsync($"api/user/AssignUserModule/{SelectedVolgerId}?moduleId={SelectedModuleId}", new { });
+        var response = await ApiClient.PutAsJsonAsync($"api/user/AssignUserModule/{SelectedUserId}?moduleId={SelectedModuleId}", new { });
 
         if (response.IsSuccessStatusCode)
         {
             SuccessMessage = "Module succesvol toegewezen!";
             ErrorMessage = null;
-            await LoadVolgersWithModules();
+            await OnInitializedAsync();
         }
         else
         {
@@ -164,9 +164,9 @@
         }
     }
 
-    private void OnVolgerSelected(ChangeEventArgs e)
+    private void OnUserSelected(ChangeEventArgs e)
     {
-        SelectedVolgerId = e.Value?.ToString();
+        SelectedUserId = e.Value?.ToString();
     }
 
     private void OnModuleSelected(ChangeEventArgs e)
