@@ -26,8 +26,12 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
     {
         return await _context.Users
             .Include(u => u.UserModules)
-            .ThenInclude(um => um.Module)
-            .AsNoTracking()
+                .ThenInclude(um => um.Module)
+                    .ThenInclude(m => m.Questions)
+            .Include(u => u.UserModules)
+                .ThenInclude(um => um.UserQuestions)
+                    .ThenInclude(qs => qs.Question)
+                    .AsNoTracking() 
             .ToListAsync();
     }
 }

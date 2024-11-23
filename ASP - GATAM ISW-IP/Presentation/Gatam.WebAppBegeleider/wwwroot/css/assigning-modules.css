@@ -1,0 +1,20 @@
+.table-responsive {
+    margin-top: 2rem;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.form-select {
+    margin-bottom: 1rem;
+}
+
+.alert {
+    margin-top: 1rem;
+}
+
+.list-unstyled {
+    margin-bottom: 0;
+} 

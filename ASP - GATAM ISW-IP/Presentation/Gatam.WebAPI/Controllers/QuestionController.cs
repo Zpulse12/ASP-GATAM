@@ -1,6 +1,6 @@
 ﻿using Gatam.Application.CQRS.Questions;
-using Gatam.Application.CQRS.User;
 using Gatam.Domain;
+using Gatam.WebAPI.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,12 +27,28 @@ namespace Gatam.WebAPI.Controllers
             return Ok(questions);
         }
 
+        [HttpPost("settings")]
+        [Authorize(Policy = "RequireManagementRole")]
+
+        public async Task<IActionResult> CreateSetting([FromBody] CreateSettingCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
         [HttpPost]
         [Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> CreateQuestion([FromBody] Question question) 
         {
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
             return Created("", createdQuestion);
+        }
+        [HttpGet("visible/{followerId}")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetVisibleQuestionsForFollower(string followerId)
+        {
+            var questions = await _mediator.Send(new GetVisibleQuestionsForFollowerQuery { FollowerId = followerId });
+            return Ok(questions);
         }
 
         [HttpGet("{questionId}")]
@@ -54,6 +70,24 @@ namespace Gatam.WebAPI.Controllers
         {
             var returnedQuestion = await _mediator.Send(new UpdateQuestionCommand() {  Question = question, Id = questionId, });
             return Ok(returnedQuestion);
+        }
+
+        // [HttpGet("settings/usermodule/{userModuleId}")]
+        // public async Task<IActionResult> GetQuestionSettingsForUserModule(string userModuleId)
+        // {
+        //     var settings = await _mediator.Send(new GetQuestionSettingsForUserModuleQuery { UserModuleId = userModuleId });
+        //     return Ok(settings);
+        // }
+
+        [HttpPut("visibility")]
+        public async Task<IActionResult> UpdateVisibility(string userQuestionId, bool isVisible)
+        {
+            var result = await _mediator.Send(new UpdateQuestionVisibilityCommand
+            {
+                UserQuestionId = userQuestionId,
+                IsVisible = isVisible
+            });
+            return Ok(result);
         }
     }
 }
