@@ -15,6 +15,8 @@ namespace Gatam.WebAppBegeleider.Extensions
 
         public async Task<bool> IsUserInactive(ClaimsPrincipal user)
         {
+
+            return false;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userId))

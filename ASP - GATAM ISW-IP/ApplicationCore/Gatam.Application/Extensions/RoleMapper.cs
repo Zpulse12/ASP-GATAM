@@ -1,24 +1,73 @@
+using System.Collections.Immutable;
+
 namespace Gatam.Application.Extensions
 {
+    public class RoleInfo
+    {
+        public string Name { get; set; }
+        public string Id { get; set; }
+    }
+
+    public enum CustomRoles
+    {
+        BEHEERDER,
+        BEGELEIDER,
+        VOLGER,
+        MAKER
+    }
     public static class RoleMapper
     {
-        public static readonly Dictionary<string, string> Roles = new Dictionary<string, string>
+        public static readonly ImmutableDictionary<CustomRoles, RoleInfo> Roles = ImmutableDictionary.CreateRange(new[]
         {
-            { "BEHEERDER", "BEHEERDER" },
-            { "BEGELEIDER", "rol_8cLkJwwd2u2itnu3" },
-            { "VOLGER", "rol_2SgoYL1AoK9tXYXW" },
-            { "MAKER", "rol_tj8keS38380ZU4NR" }
-        };
+        new KeyValuePair<CustomRoles, RoleInfo>(CustomRoles.BEHEERDER, new RoleInfo() { Name = "BEHEERDER", Id = "rol_3BsJHRFokYkbjr5O" }),
+        new KeyValuePair<CustomRoles, RoleInfo>(CustomRoles.BEGELEIDER, new RoleInfo() { Name = "BEGELEIDER", Id = "rol_8cLkJwwd2u2itnu3" }),
+        new KeyValuePair<CustomRoles, RoleInfo>(CustomRoles.VOLGER, new RoleInfo() { Name = "VOLGER", Id = "rol_2SgoYL1AoK9tXYXW" }),
+        new KeyValuePair<CustomRoles, RoleInfo>(CustomRoles.MAKER, new RoleInfo() { Name = "MAKER", Id = "rol_tj8keS38380ZU4NR" })
+        });
 
-
-
-        public static string[] GetRoleValues(params string[] roleNames)
+        public static RoleInfo[] GetRoleValues(params CustomRoles[] roleNames)
         {
-            return Roles
-                .Where(role => roleNames.Contains(role.Key))
-                .Select(role => role.Value)
+            if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
+            return roleNames
+                .Select(role => Roles.TryGetValue(role, out var value)
+                    ? value
+                    : throw new ArgumentException($"Role {role} not found"))
                 .ToArray();
         }
+        public static List<string> GetListOfRoleIds(params CustomRoles[] roleNames)
+        {
+            if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
+            return roleNames
+                .Select(role => Roles.TryGetValue(role, out var value)
+                    ? value.Id
+                    : throw new ArgumentException($"Role {role} not found"))
+                .ToList();
+        }
 
+        public static List<string> GetListOfRoleNames(params CustomRoles[] roleNames)
+        {
+            if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
+            return roleNames
+                .Select(role => Roles.TryGetValue(role, out var value)
+                    ? value.Name
+                    : throw new ArgumentException($"Role {role} not found"))
+                .ToList();
+        }
+
+        public static List<CustomRoles> GetKeysBasedOnValues(params string[] values)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            return values
+                .Select(value => Roles.FirstOrDefault(role => role.Value.Name == value || role.Value.Id == value).Key)
+                .Where(key => key != default)
+                .ToList();
+        }
+
+        public static CustomRoles GetKeyBasedOnValue(string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            var key = Roles.FirstOrDefault(role => role.Value.Name == value || role.Value.Id == value).Key;
+            return key;
+        }
     }
 }
