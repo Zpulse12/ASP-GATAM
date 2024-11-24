@@ -8,6 +8,38 @@
 
 
 <CustomCards>
+    <Modal @ref="modal" @bind-IsOpen="isModalOpen" Title="Module Details" Size="ModalSize.Large">
+        <HeaderTemplate>
+            <h5 class="modal-title">Details van @selectedModule?.Title</h5>
+        </HeaderTemplate>
+        <BodyTemplate>
+            @if (selectedModule != null)
+            {
+                <div>
+                    <p><strong>Title:</strong> @selectedModule.Title</p>
+                    <p><strong>Category:</strong> @selectedModule.Category</p>
+                    <h5>Vragen:</h5>
+                    @if (selectedModule.Questions != null && selectedModule.Questions.Any())
+                    {
+                        <ul>
+                            @foreach (var question in selectedModule.Questions)
+                            {
+                                <li>@question.QuestionTitle</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>Geen vragen gekoppeld aan deze module.</p>
+                    }
+                </div>
+            }
+        </BodyTemplate>
+        <FooterTemplate>
+            <button class="btn btn-danger" @onclick="OnHideModalClick">Sluiten</button>
+        </FooterTemplate>
+    </Modal>
+
     <h2>Modulen</h2>
     <NavLink class="nav-link" href="/content/create" >
         <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold; margin-bottom:10px;">
@@ -43,9 +75,11 @@
                                     data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
                                 <i class="bi bi-trash"></i>
                             </button>
-                    <a class="btn" style="background-color: #4454D2; color:white; font-weight:bold;" href="/questions" @onclick:stopPropagation>
-                        <i class="bi bi-plus-square-fill"></i> Voeg vraag toe
-                            </a>
+                    <button type="button"
+                            class="btn" style="background-color:#4454D2; color:white"
+                            @onclick="@(() => OnShowModalClick(@context))">
+                        <i class="bi bi-info-circle"></i> Details Bekijken
+                    </button>
                         </div>
                     </GridColumn>
                 </GridColumns>
@@ -57,18 +91,30 @@
     private Grid<ApplicationModule> moduleGrid = new Grid<ApplicationModule>();
     private List<ApplicationModule> modules = new();
 
+    private Modal? modal;
+    private ApplicationModule? selectedModule;
+    private bool isModalOpen;
 
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         var modulesResponse = await apiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module");
-        moduleGrid.Data = modulesResponse;
-        moduleGrid.RefreshDataAsync();
-       
-
-        base.OnInitialized();
-
+        if (modulesResponse != null)
+        {
+            modules = modulesResponse;
+        }
+        await base.OnInitializedAsync();
+    }
+    private async Task OnShowModalClick(ApplicationModule module)
+    {
+        selectedModule = module;
+        isModalOpen = true;
+        await modal.ShowAsync();
     }
 
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
    
 
 }
