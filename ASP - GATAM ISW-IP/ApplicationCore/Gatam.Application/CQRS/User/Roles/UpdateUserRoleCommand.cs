@@ -42,24 +42,34 @@ namespace Gatam.Application.CQRS.User.Roles
 
         public async Task<UserDTO> Handle(UpdateUserRoleCommand request, CancellationToken cancellationToken)
         {
-            Result<bool> result = await _auth0Repository.UpdateUserRoleAsync(request.Id, request.Roles);
-            if (result.Success) {
-                try
+            try
+            {
+                ApplicationUser user = await _uow.UserRepository.FindById(request.Id);
+                user.RolesIds.AddRange(request.Roles.Roles.Except(user.RolesIds));
+                await _uow.UserRepository.Update(user);
+                await _uow.Commit();
+                Result<bool> result = await _auth0Repository.UpdateUserRoleAsync(request.Id, request.Roles);
+                if (result.Success)
                 {
-                    ApplicationUser user = await _uow.UserRepository.FindById(request.Id);
-                    user.RolesIds.AddRange(request.Roles.Roles.Except(user.RolesIds));
-                    await _uow.UserRepository.Update(user);
-                    await _uow.Commit();
                     return _mapper.Map<UserDTO>(user);
                 }
-                catch (Exception ex)
-                {
-                    throw ex;
+                else {
+                    try
+                    {
+                        user.RolesIds.RemoveAll(item => request.Roles.Roles.Contains(item));
+                        await _uow.UserRepository.Update(user);
+                        await _uow.Commit();
+                        throw result.Exception;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                throw result.Exception;
+                throw ex;
             }
         }
     }

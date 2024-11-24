@@ -61,25 +61,19 @@ namespace Gatam.Infrastructure.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
-                    policy.RequireRole("BEHEERDER", "BEGELEIDER");
-
-                });
-                options.AddPolicy("RequireVolgersRole", policy =>
-                {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("VOLGER","BEHEERDER", "BEGELEIDER");
-                    policy.RequireRole("VOLGER", "BEHEERDER", "BEGELEIDER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.BEGELEIDER);
+                    policy.RequireRole(requiredRoleIds);
 
                 });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
-                    policy.RequireRole("BEHEERDER", "MAKER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.MAKER);
+                    policy.RequireRole(requiredRoleIds);
                 });
                 options.AddPolicy("RequireAdminRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
-                    policy.RequireRole("BEHEERDER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER);
+                    policy.RequireRole(requiredRoleIds);
                 });
             });
             return services;

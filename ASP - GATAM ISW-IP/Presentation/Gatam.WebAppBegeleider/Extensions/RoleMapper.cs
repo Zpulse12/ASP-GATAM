@@ -39,24 +39,24 @@ namespace Gatam.WebAppBegeleider.Extensions
                     : throw new ArgumentException($"Role {role} not found"))
                 .ToArray();
         }
-        public static string[] GetListOfRoleIds(params CustomRoles[] roleNames)
+        public static List<string> GetListOfRoleIds(params CustomRoles[] roleNames)
         {
             if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
             return roleNames
                 .Select(role => Roles.TryGetValue(role, out var value)
                     ? value.Id
                     : throw new ArgumentException($"Role {role} not found"))
-                .ToArray();
+                .ToList();
         }
 
-        public static string[] GetListOfRoleNames(params CustomRoles[] roleNames)
+        public static List<string> GetListOfRoleNames(params CustomRoles[] roleNames)
         {
             if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
             return roleNames
                 .Select(role => Roles.TryGetValue(role, out var value)
                     ? value.Name
                     : throw new ArgumentException($"Role {role} not found"))
-                .ToArray();
+                .ToList();
         }
 
         public static List<CustomRoles> GetKeysBasedOnValues(params string[] values)

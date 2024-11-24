@@ -125,7 +125,7 @@ public class ManagementApiRepository: IManagementApi
                     Email = createdUser.Email,
                     PasswordHash = user.PasswordHash,
                     Picture = createdUser.UserMetadata?.Picture,
-                    RolesIds = RoleMapper.GetRoleValues("VOLGER").ToList(),
+                    RolesIds = RoleMapper.GetListOfRoleIds(CustomRoles.VOLGER),
                     BegeleiderId = user.BegeleiderId,
                     PhoneNumber = user.PhoneNumber,
                     IsActive = true 
@@ -268,7 +268,7 @@ public class ManagementApiRepository: IManagementApi
                 return response.EnumerateArray()
                                .Select(role => role.GetProperty("name").GetString())
                                .Where(name => !string.IsNullOrEmpty(name))
-                               .Select(name => RoleMapper.Roles.FirstOrDefault(r => r.Key == name).Key)
+                               .Select(name => RoleMapper.Roles.FirstOrDefault(role => role.Value.Name == name).Value.Name)
                                .ToList();
             }
 
