@@ -192,12 +192,11 @@
                 <div>
                     <button type="button"
                             class="btn btn-outline-danger"
-                            data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
+                            @onclick="@(() => RemoveQuestion(context))">
                         <i class="bi bi-trash"></i>
                     </button>
-                    <a class="btn btn-outline-secondary" href="/question/@(context.Id)" @onclick:stopPropagation>
-                        <i class="bi bi-pencil"></i>
-                    </a>
+
+
                 </div>
             </GridColumn>
         </GridColumns>
@@ -243,7 +242,7 @@
    
     protected override async Task OnInitializedAsync()
     {
-        ReseTabelForm();
+        ResetForm();
     }
 
     private async Task CreateNewModule()
@@ -268,26 +267,19 @@
                 };
 
             var result = await apiClient.PostAsJsonAsync("api/module", command);
-            // var responseData = await result.Content.ReadFromJsonAsync<ApplicationModule>(); 
-            // Console.WriteLine(JsonConvert.SerializeObject(responseData));
-            // var content1 = await result.Content.ReadAsStringAsync();
-            // Debug.WriteLine("API response: " + content1);
             if (result.IsSuccessStatusCode)
             {
                 
                 var responseData = await result.Content.ReadFromJsonAsync<ApplicationModule>();
-                Debug.WriteLine(JsonConvert.SerializeObject(responseData));
                 successMessage = "Module en vragen succesvol aangemaakt!";
-                showSuccess = true; // Update the local module and questions 
+                showSuccess = true; 
                 newModule = responseData ?? new ApplicationModule();
                 questions = responseData?.Questions.ToList() ?? new List<Question>();
-                var content1 = await result.Content.ReadAsStringAsync();
-                Debug.WriteLine("API response: " + content1);
+                
             }
             else
             {
                 var content = await result.Content.ReadAsStringAsync();
-                Debug.WriteLine("API response: " + content);  
                 errorMessage = "Er is een fout opgetreden bij het aanmaken van de module.";
                 showError = true;
             }
@@ -296,13 +288,11 @@
         {
             errorMessage = "Er is een onverwachte fout opgetreden bij het versturen van de aanvraag.";
             showError = true;
-            Debug.WriteLine(ex.Message);
         }
         catch (Exception ex)
         {
             errorMessage = "Er is een onverwachte fout opgetreden.";
             showError = true;
-            Debug.WriteLine(ex.Message);
         }
         finally
         {
@@ -310,7 +300,6 @@
         }
       
 
-      //  StateHasChanged();
     }
 
     public async Task HandleValidSubmit()
@@ -319,7 +308,6 @@
         AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         ClaimsPrincipal user = authState.User;
         newQuestion.QuestionType = (short)selectedOption;
-        //newQuestion.ApplicationModuleId = newModule.Id;
         if ((QuestionType)newQuestion.QuestionType == QuestionType.TRUE_OR_FALSE)
         {
             answers.Add(currentAnswer);
@@ -362,6 +350,19 @@
             return;
         }
     }
+    private async Task RemoveQuestion(Question question)
+    {
+        if (question == null)
+            return;
+
+        questions.Remove(question);
+
+        await questionGrid.RefreshDataAsync();
+
+        successMessage = $"De vraag '{question.QuestionTitle}' is succesvol verwijderd.";
+        showSuccess = true;
+        showError = false;
+    }
 
     private async void AddAnswerToList()
     {
@@ -386,14 +387,7 @@
         questionGrid.Data = questions; 
         questionGrid.RefreshDataAsync();
     }
-    private void ReseTabelForm()
-    {
-        newQuestion = new Question();
-        answers.Clear();
-        answers.Append(new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id });
-        editContext = new EditContext(newQuestion);
-        selectedOption = QuestionType.OPEN;
-    }
+    
     
     private void ResetForm()
     {

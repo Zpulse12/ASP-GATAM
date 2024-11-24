@@ -17,11 +17,11 @@ namespace Gatam.Application.CQRS.Module
         {
             _uow = uow;
 
-            //RuleFor(x => x._module.Category).NotEmpty().WithMessage("Category mag niet leeg zijn");
-            //RuleFor(x => x._module.Category).NotNull().WithMessage("Category mag niet null zijn");
-            //RuleFor(x => x._module.Title).NotEmpty().WithMessage("Titel mag niet leeg zijn");
-            //RuleFor(x => x._module.Title).NotNull().WithMessage("Titel mag niet null zijn");
-            //RuleFor(x => x._module.Title).MustAsync(BeUniqueTitle).WithMessage("Titel bestaat al."); ;
+            RuleFor(x => x._module.Category).NotEmpty().WithMessage("Category mag niet leeg zijn");
+            RuleFor(x => x._module.Category).NotNull().WithMessage("Category mag niet null zijn");
+            RuleFor(x => x._module.Title).NotEmpty().WithMessage("Titel mag niet leeg zijn");
+            RuleFor(x => x._module.Title).NotNull().WithMessage("Titel mag niet null zijn");
+            RuleFor(x => x._module.Title).MustAsync(BeUniqueTitle).WithMessage("Titel bestaat al."); ;
 
         }
         private async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
