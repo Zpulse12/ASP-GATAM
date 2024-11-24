@@ -8,7 +8,7 @@ namespace Gatam.Application.CQRS.Module
     public class CreateModuleCommand : IRequest<ApplicationModule>
     {
         public ApplicationModule _module { get; set; }
-        public List<Question> Question { get; set; }
+        public List<Question> question { get; set; }
     }
     public class CreateModuleCommandValidators : AbstractValidator<CreateModuleCommand>
     {
@@ -17,11 +17,11 @@ namespace Gatam.Application.CQRS.Module
         {
             _uow = uow;
 
-            RuleFor(x => x._module.Category).NotEmpty().WithMessage("Category mag niet leeg zijn");
-            RuleFor(x => x._module.Category).NotNull().WithMessage("Category mag niet null zijn");
-            RuleFor(x => x._module.Title).NotEmpty().WithMessage("Titel mag niet leeg zijn");
-            RuleFor(x => x._module.Title).NotNull().WithMessage("Titel mag niet null zijn");
-            RuleFor(x => x._module.Title).MustAsync(BeUniqueTitle).WithMessage("Titel bestaat al."); ;
+            //RuleFor(x => x._module.Category).NotEmpty().WithMessage("Category mag niet leeg zijn");
+            //RuleFor(x => x._module.Category).NotNull().WithMessage("Category mag niet null zijn");
+            //RuleFor(x => x._module.Title).NotEmpty().WithMessage("Titel mag niet leeg zijn");
+            //RuleFor(x => x._module.Title).NotNull().WithMessage("Titel mag niet null zijn");
+            //RuleFor(x => x._module.Title).MustAsync(BeUniqueTitle).WithMessage("Titel bestaat al."); ;
 
         }
         private async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
@@ -43,13 +43,16 @@ namespace Gatam.Application.CQRS.Module
         {
             await _uow.ModuleRepository.Create(request._module);
             await _uow.Commit();
-            foreach(var question in request.Question)
+            foreach(var question in request.question)
         {
-                question.ApplicationModuleId = request._module.Id; 
+                question.ApplicationModuleId = request._module.Id;
+                request._module.Questions.Add(question);
                 await _uow.QuestionRepository.Create(question);
             }
             await _uow.Commit();
-            return request._module;
+
+            var createdModule = await _uow.ModuleRepository.GetModuleWithQuestionsAndAnswersAsync(request._module.Id);
+            return createdModule;
         }
     }
 
