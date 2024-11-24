@@ -201,28 +201,11 @@
             </GridColumn>
         </GridColumns>
     </Grid>
-
-    @if (!string.IsNullOrEmpty(errorMessage) && showError)
-    {
-        <div class="alert alert-danger">
-            @errorMessage
-        </div>
-    }
-    @if (!string.IsNullOrEmpty(successMessage) && showSuccess)
-    {
-        <div class="alert alert-success">
-            @successMessage
-        </div>
-    }
     <button class="bt" style="background-color:#4454D2; color:white" @onclick="CreateNewModule">Module Aanmaken</button>
 </CustomCards>
 
 @code {
     private ApplicationModule newModule = new ApplicationModule();
-    private string errorMessage = "";
-    private string successMessage ="";
-    private bool showError;
-    private bool showSuccess;
 
     private EditContext editContext;
     private AutoComplete<Question> search;
@@ -247,10 +230,6 @@
 
     private async Task CreateNewModule()
     {
-        errorMessage = string.Empty;
-        successMessage = string.Empty;
-        showError = false;
-        showSuccess = false;
         try
         {
             
@@ -271,28 +250,20 @@
             {
                 
                 var responseData = await result.Content.ReadFromJsonAsync<ApplicationModule>();
-                successMessage = "Module en vragen succesvol aangemaakt!";
-                showSuccess = true; 
+                toastService.Notify(new(ToastType.Success, "Module en vragen succesvol aangemaakt!"));
                 newModule = responseData ?? new ApplicationModule();
                 questions = responseData?.Questions.ToList() ?? new List<Question>();
-                
+                ResetForm();
             }
             else
             {
                 var content = await result.Content.ReadAsStringAsync();
-                errorMessage = "Er is een fout opgetreden bij het aanmaken van de module.";
-                showError = true;
+                toastService.Notify(new(ToastType.Warning, "Er is een fout opgetreden bij het aanmaken van de module."));
             }
         }
         catch (HttpRequestException ex)
         {
-            errorMessage = "Er is een onverwachte fout opgetreden bij het versturen van de aanvraag.";
-            showError = true;
-        }
-        catch (Exception ex)
-        {
-            errorMessage = "Er is een onverwachte fout opgetreden.";
-            showError = true;
+            toastService.Notify(new(ToastType.Warning, "Er is een onverwachte fout opgetreden bij het versturen van de aanvraag."));
         }
         finally
         {
@@ -359,9 +330,7 @@
 
         await questionGrid.RefreshDataAsync();
 
-        successMessage = $"De vraag '{question.QuestionTitle}' is succesvol verwijderd.";
-        showSuccess = true;
-        showError = false;
+        toastService.Notify(new(ToastType.Success, $"De vraag '{question.QuestionTitle}' is succesvol verwijderd."));
     }
 
     private async void AddAnswerToList()
