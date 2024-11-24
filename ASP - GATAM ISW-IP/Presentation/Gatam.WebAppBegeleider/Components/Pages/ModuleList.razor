@@ -24,7 +24,9 @@
                         <ul>
                             @foreach (var question in selectedModule.Questions)
                             {
-                                <li>@question.QuestionTitle</li>
+                                <li>
+                                    @question.QuestionTitle - <em>@((QuestionType)question.QuestionType)</em>
+                                </li>
                             }
                         </ul>
                     }

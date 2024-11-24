@@ -26,7 +26,9 @@
         <label for="category">Categorie</label>
         <InputText id="category" class="form-control" @bind-Value="newModule.Category" />
     </div>
-
+    <hr/>
+    <h3>Vragen voor module:</h3>
+    <hr />
     <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit" novalidate>
         <DataAnnotationsValidator />
 
@@ -160,7 +162,7 @@
             </div>
         </div>
     </EditForm>
-    <h3>Vragen</h3>
+    <hr />
     <Grid TItem="Question"
           @ref="questionGrid"
           AllowRowClick="true"
@@ -201,7 +203,7 @@
             </GridColumn>
         </GridColumns>
     </Grid>
-    <button class="bt" style="background-color:#4454D2; color:white" @onclick="CreateNewModule">Module Aanmaken</button>
+    <button class="btn" style="background-color:#4454D2; color:white" @onclick="CreateNewModule">Module Aanmaken</button>
 </CustomCards>
 
 @code {
