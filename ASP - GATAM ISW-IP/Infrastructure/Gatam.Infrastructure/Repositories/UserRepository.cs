@@ -37,4 +37,10 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
             .ToListAsync();
     }
 
+    public async Task<List<ApplicationUser>> GetUsersForBegeleiderAsync(string begeleiderId)
+    {
+        return await _context.Users
+        .Where(u => u.BegeleiderId == begeleiderId)
+        .ToListAsync();
+    }
 }
