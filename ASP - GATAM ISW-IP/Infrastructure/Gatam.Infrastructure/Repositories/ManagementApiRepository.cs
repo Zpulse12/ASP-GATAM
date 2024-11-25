@@ -5,10 +5,9 @@ using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
-using Auth0.ManagementApi.Models;
-using Azure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Gatam.Infrastructure.Contexts;
+using Gatam.Application.Extensions.httpExtensions;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Azure.Core;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -17,6 +16,8 @@ public class ManagementApiRepository: IManagementApi
     private readonly HttpClient _httpClient;
     private readonly EnvironmentWrapper _environmentWrapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IHttpWrapper _httpWrapper;
+    private readonly string _baseURL;
     public ManagementApiRepository(IUnitOfWork uow,HttpClient httpClient, EnvironmentWrapper environmentWrapper)
     {
         _httpClient = httpClient;
@@ -24,6 +25,8 @@ public class ManagementApiRepository: IManagementApi
         _environmentWrapper = environmentWrapper;
         _httpClient.BaseAddress = new Uri(_environmentWrapper.BASEURI);
         _httpClient.DefaultRequestHeaders.Add("Authorization", @$"Bearer {_environmentWrapper.TOKEN}");
+        _httpWrapper = new HttpWrapper(_httpClient);
+        _baseURL = _environmentWrapper.BASEURI;
     }
 
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
@@ -122,7 +125,7 @@ public class ManagementApiRepository: IManagementApi
                     Email = createdUser.Email,
                     PasswordHash = user.PasswordHash,
                     Picture = createdUser.UserMetadata?.Picture,
-                    RolesIds = RoleMapper.GetRoleValues("VOLGER"),
+                    RolesIds = RoleMapper.GetListOfRoleIds(CustomRoles.VOLGER),
                     BegeleiderId = user.BegeleiderId,
                     PhoneNumber = user.PhoneNumber,
                     IsActive = true 
@@ -237,27 +240,19 @@ public class ManagementApiRepository: IManagementApi
         return updatedUser;
     }
 
-    public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user)
+    public async Task<Result<bool>> UpdateUserRoleAsync(string userId, RolesDTO roles)
     {
-       
-
-        var payload = new
+        try
         {
-            roles = user.RolesIds.ToArray()
-        };
-
+            var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{userId}/roles", roles);
+            if (response.IsSuccessStatusCode)
+            {
+                return Result<bool>.Ok(true);
+            } else { return Result<bool>.Fail(new Exception(response.ReasonPhrase)); }
+        } catch (Exception ex) { 
         
-        
-        var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{user.Id}/roles", payload);
-
-        if (response.IsSuccessStatusCode)
-        {
-            return user;
+            return Result<bool>.Fail(ex);
         }
-
-        var errorDetails = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"Error updating user roles: {response.StatusCode} - {errorDetails}");
-        return null;
     }
 
     public async Task<IEnumerable<string>> GetRolesByUserId(string userId)
@@ -273,7 +268,7 @@ public class ManagementApiRepository: IManagementApi
                 return response.EnumerateArray()
                                .Select(role => role.GetProperty("name").GetString())
                                .Where(name => !string.IsNullOrEmpty(name))
-                               .Select(name => RoleMapper.Roles.FirstOrDefault(r => r.Key == name).Key)
+                               .Select(name => RoleMapper.Roles.FirstOrDefault(role => role.Value.Name == name).Value.Name)
                                .ToList();
             }
 
@@ -286,5 +281,14 @@ public class ManagementApiRepository: IManagementApi
         }
     }
 
-    
+    public async Task<Result<bool>> DeleteUserRoles(string userId, RolesDTO roles)
+    {
+        Result<HttpResponseMessage> request =  await _httpWrapper.SendDeleteWithBody<RolesDTO>( $"{_baseURL}users/{userId}/roles", roles);
+        if (request.Success) { 
+            return Result<bool>.Ok(true);
+        } else
+        {
+            return Result<bool>.Fail(request.Exception);
+        }
+    }
 }

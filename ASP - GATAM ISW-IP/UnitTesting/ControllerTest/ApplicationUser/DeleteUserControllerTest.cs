@@ -38,5 +38,4 @@ public class DeleteUserControllerTest
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         Assert.IsTrue(((OkObjectResult)result).StatusCode == 200);
     }
-
 }

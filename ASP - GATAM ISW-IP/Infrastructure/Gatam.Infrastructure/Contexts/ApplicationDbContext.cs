@@ -37,7 +37,7 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 9966554411",
                 Email = "admin@app.com",
                 Picture = "png",
-                RolesIds =  new List<string> { RoleMapper.Roles["BEHEERDER"] },
+                RolesIds =  new List<string> { RoleMapper.Roles[CustomRoles.BEHEERDER].Name },
                 PasswordHash = hasher.HashPassword(null, "root"),
                 IsActive = false
 
@@ -52,7 +52,7 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 456789166",
                 Picture = "png",
                 Email = "john.doe@example.com",
-                RolesIds =  new List<string> { RoleMapper.Roles["VOLGER"] },
+                RolesIds =  new List<string> { RoleMapper.Roles[CustomRoles.VOLGER].Name },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
@@ -66,7 +66,7 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 568779633",
                 Email = "jane.doe@example.com",
                 Picture = "png",
-                RolesIds =  new List<string> { RoleMapper.Roles["MAKER"] },
+                RolesIds =  new List<string> { RoleMapper.Roles[CustomRoles.MAKER].Name },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
@@ -81,7 +81,7 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+23 7896544336",
                 Email = "lautje.doe@example.com",
                 Picture = "png",
-                RolesIds =  new List<string> { RoleMapper.Roles["MAKER"] },
+                RolesIds =  new List<string> { RoleMapper.Roles[CustomRoles.MAKER].Name },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };

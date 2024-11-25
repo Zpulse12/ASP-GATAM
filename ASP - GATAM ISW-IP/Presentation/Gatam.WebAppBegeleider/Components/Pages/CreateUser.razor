@@ -97,9 +97,9 @@
         AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         ClaimsPrincipal authUser = authState.User;
 
-        if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue(CustomRoles.VOLGER, out var volgerRoleId))
+        if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue(CustomRoles.VOLGER, out var FollowerRoleId))
         {
-            user.RolesIds = isFollowerRoleSelected ? new List<string> { volgerRoleId } : new List<string>();
+            user.RolesIds = isFollowerRoleSelected ? new List<string> { FollowerRoleId.Name } : new List<string>();
             user.Username = user.Email.Split('@')[0];
 
             if(isAddedToUserSelected)
