@@ -17,12 +17,8 @@ namespace Gatam.Application.CQRS.Module.UserModules
     }
     public class SubmitUserAnswersCommandValidator : AbstractValidator<SubmitUserAnswersCommand>
     {
-        private readonly IUnitOfWork _uow;
-
-        public SubmitUserAnswersCommandValidator(IUnitOfWork uow)
+        public SubmitUserAnswersCommandValidator()
         {
-            _uow = uow;
-
             RuleFor(x => x.UserModuleId)
                 .NotEmpty().WithMessage("UserModuleId mag niet leeg zijn.")
                 .WithMessage("UserModuleId is ongeldig.");
