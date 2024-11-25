@@ -5,6 +5,7 @@ using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using AutoMapper;
 using System.Threading.Tasks;
+using Gatam.Application.CQRS.DTOS.ModulesDTO;
 
 namespace Gatam.Application.CQRS.Module;
 
@@ -90,22 +91,22 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
         follower.UserModules.Add(newUserModule);
         await _uow.UserRepository.Update(follower);
 
-        foreach (var question in module.Questions)
+        foreach (var question in moduleTemplate.Questions)
         {
             foreach (var answer in question.Answers)
             {
                 var userAnswer = new UserAnswer
                 {
-                    UserModuleId = userModule.Id, 
+                    UserModuleId = newUserModule.Id, 
                     QuestionAnswerId = answer.Id,
                     GivenAnswer = string.Empty,
                 };
 
-                if (userModule.UserGivenAnswers == null)
+                if (newUserModule.UserGivenAnswers == null)
                 {
-                    userModule.UserGivenAnswers = new List<UserAnswer>();
+                    newUserModule.UserGivenAnswers = new List<UserAnswer>();
                 }
-                userModule.UserGivenAnswers.Add(userAnswer);
+                newUserModule.UserGivenAnswers.Add(userAnswer);
 
                 await _uow.UserAnwserRepository.Create(userAnswer);
             }
