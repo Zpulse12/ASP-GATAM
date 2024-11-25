@@ -17,6 +17,7 @@ namespace Gatam.Infrastructure.Repositories
         {
             return await _context.Set<ApplicationModule>()
                 .Include(m => m.Questions) // Haal de vragen op
+                                    .ThenInclude(q => q.Answers)
                 .FirstOrDefaultAsync(m => m.Id == moduleId);
         }
 
