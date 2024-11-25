@@ -10,4 +10,5 @@ public class UserQuestionDTO
     public string QuestionId { get; set; }
     public string QuestionTitle { get; set; }
     public int QuestionType { get; set; }
+    public Question Question { get; set; }
 }

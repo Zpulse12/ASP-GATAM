@@ -20,7 +20,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> GetAllQuestions()
         {
             IEnumerable<Question> questions = await _mediator.Send(new GetAllQuestionsQuery());
@@ -37,7 +37,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> CreateQuestion([FromBody] Question question) 
         {
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
@@ -52,7 +52,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("{questionId}")]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> GetQuestionById(string questionId)
         {
             var questionById = await _mediator.Send(new GetQuestionByIdQuery { Id = questionId });
@@ -65,7 +65,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("{questionId}")]
-        [Authorize(Policy = "RequireMakerRole")]
+       //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> UpdateQuestion(string questionId, [FromBody] Question question)
         {
             var returnedQuestion = await _mediator.Send(new UpdateQuestionCommand() {  Question = question, Id = questionId, });

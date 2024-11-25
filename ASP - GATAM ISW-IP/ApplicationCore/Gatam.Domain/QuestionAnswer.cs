@@ -18,8 +18,12 @@ namespace Gatam.Domain
         public string QuestionId { get; set; }
         [JsonIgnore]
         public Question? Question { get; set; }
+
+        public List<UserAnswer> GivenUserAnswers { get; set; } = new List<UserAnswer>();
+
         public QuestionAnswer() { 
             Id = Guid.NewGuid().ToString();
         }
+
     }
 }

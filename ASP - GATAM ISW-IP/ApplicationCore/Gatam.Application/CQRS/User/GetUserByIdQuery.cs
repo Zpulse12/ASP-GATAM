@@ -1,4 +1,5 @@
-﻿using Gatam.Application.Interfaces;
+﻿using AutoMapper;
+using Gatam.Application.Interfaces;
 using MediatR;
 
 namespace Gatam.Application.CQRS.User
@@ -10,17 +11,19 @@ namespace Gatam.Application.CQRS.User
 
     public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDTO>
     {
-        private readonly IManagementApi _auth0Repository;
+        private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
 
-        public GetUserByIdQueryHandler(IManagementApi auth0Repository)
+        public GetUserByIdQueryHandler(IUnitOfWork uow, IMapper mapper)
         {
-            _auth0Repository = auth0Repository;
+            _uow = uow;
+            _mapper = mapper;
         }
 
         public async Task<UserDTO> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _auth0Repository.GetUserByIdAsync(request.UserId);
+            return _mapper.Map<UserDTO>(await _uow.UserRepository.FindById(request.UserId));
         }
 
     }

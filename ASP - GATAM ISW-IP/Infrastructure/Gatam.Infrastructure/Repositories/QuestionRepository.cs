@@ -27,7 +27,7 @@ namespace Gatam.Infrastructure.Repositories
 
         }
 
-        public  async Task UpdateQuestionAndAnswers(Question entity)
+        public async Task UpdateQuestionAndAnswers(Question entity)
         {
             Question existingQuestion = await GetQuestionAndAnswers(entity.Id);
 
@@ -58,12 +58,12 @@ namespace Gatam.Infrastructure.Repositories
                     _context.Entry(existingAnswer).CurrentValues.SetValues(newAnswer);
                 }
             }
-           
+
         }
 
         public async Task<List<Question>> GetVisibleQuestionsForFollower(string followerId)
         {
-            return await _context.UserModule
+            return await _context.UserModules
                 .Where(um => um.UserId == followerId)
                 .SelectMany(um => um.UserQuestions
                     .Where(umqs => umqs.IsVisible)
@@ -73,7 +73,7 @@ namespace Gatam.Infrastructure.Repositories
 
         public async Task<List<(UserModule Module, List<Question> Questions)>> GetVisibleQuestionsPerModule(string volgerId)
         {
-            var modules = await _context.UserModule
+            var modules = await _context.UserModules
                 .Where(um => um.UserId == volgerId)
                 .Include(um => um.UserQuestions)
                     .ThenInclude(umqs => umqs.Question)

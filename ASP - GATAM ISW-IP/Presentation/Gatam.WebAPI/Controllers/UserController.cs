@@ -7,6 +7,7 @@ using Gatam.Application.CQRS.User;
 using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -22,7 +23,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpGet]
-        //[Authorize(Policy = "RequireManagementRole")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
 
         {
@@ -31,7 +32,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("{userId}")]
-        //[Authorize(Policy = "RequireManagementRole")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsersById(string userId)
         {
             var userById = await _mediator.Send(new GetUserByIdQuery { UserId = userId });
@@ -45,7 +46,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpPost]
-        //[Authorize(Policy = "RequireManagementRole")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> CreateUser([FromBody] UserDTO user)
         {
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
@@ -54,13 +55,13 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPatch]
         [Route("setactivestate")]
-        //[Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> SetActiveState([FromBody] DeactivateUserCommand command)
         {
             return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = command.UserId, IsActive = command.IsActive }));
         }
         [HttpGet("status/{auth0UserId}")]
-        //[Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> GetUserStatus(string auth0UserId)
         {
             var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
@@ -112,7 +113,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpPut("AssignUserModule/{userId}")]
-        [Authorize(Policy = "RequireManagementRole")]
+       [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUserModule(string userId, [FromQuery] string moduleId)
         {
             var assignedUser = await _mediator.Send(new AssignModulesToUserCommand() {FollowerId = userId, ModuleId = moduleId });
@@ -130,7 +131,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("usersWithModules")]
-        [Authorize(Policy = "RequireManagementRole")]
+      [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsersWithModules()
         {
             var users = await _mediator.Send(new GetUsersWithModulesQuery());
@@ -138,17 +139,17 @@ namespace Gatam.WebAPI.Controllers
         }
 
 
-        [HttpPut("{userId}/roles")]
+        [HttpPost("{userId}/roles")]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> AssignUserRole(string userId, [FromBody] UserDTO user)
+        public async Task<IActionResult> AssignUserRole(string userId, [FromBody] RolesDTO roles)
         {
-            
-            var returnedUser = await _mediator.Send(new AssignUserRoleCommand { User = user, Id = userId});
+            var returnedUser = await _mediator.Send(new UpdateUserRoleCommand { Roles = roles, Id = userId});
             return Ok(returnedUser);
         }
 
 
         [HttpGet("AssignUsersToBegeleider")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetAllUsersWithBegeleiderId()
         {
             var assignUsersToBegeleider = await _mediator.Send(new GetAllUsersWithBegeleiderIdQuery());
@@ -178,10 +179,13 @@ namespace Gatam.WebAPI.Controllers
               return Ok(updateBegeleiderId);
 
         }
-
-
-
-
+        [HttpPatch("{id}/roles")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> RemoveUserRoles([FromBody] RolesDTO rolesDTO, string id)
+        {
+            var command = await _mediator.Send(new DeleteUserRolesCommand() { UserId = id, Roles = rolesDTO });
+            return Ok(command);
+        }
     }
 
 }

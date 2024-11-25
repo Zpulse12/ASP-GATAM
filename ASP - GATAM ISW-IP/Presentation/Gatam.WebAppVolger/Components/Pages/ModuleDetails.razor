@@ -1,0 +1,246 @@
+﻿@page "/ModuleDetails/{CurrentUserModuleId:guid}"
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Domain
+@using Gatam.WebAppVolger.Extensions
+@inject ApiClient ApiClient
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider authStateProvider
+@attribute [Authorize(Policy = "RequireVolgersRole")]
+
+<div class="container">
+    @if (_hasError)
+    {
+        <p>Oops, dit mag niet. Je hebt geen toegang tot deze module.</p>
+    }
+    else if (userModule?.Module != null)
+    {
+        <h3 class="mt-4">@userModule.Module.Title</h3>
+        <p>@userModule.Module.Category</p>
+
+        @if (userModule.UserQuestions != null && userModule.UserQuestions.Any())
+        {
+            @foreach (var question in userModule.UserQuestions.Where(x => x.IsVisible))
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p style="font-size: 0.8em; color: gray;">Vraag:</p>
+                        <h5 class="card-title">@question.QuestionTitle</h5>
+                        @if ((short)question.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
+                        {
+                            <div class="form-check-group">
+                                @foreach (var answer in question.Question.Answers)
+                                {
+                                    var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
+                                    <div class="form-check">
+                                        <input class="form-check-input" checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)"
+                                        @onchange="(e) => UpdateAnswer(answer.Id, (bool)e.Value ? answer.Answer : string.Empty)" type="checkbox" value="@answer.Answer" id="answer-@answer.Id">
+                                        <label class="form-check-label" for="answer-@answer.Id">
+                                            @answer.Answer
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else if ((short)question.QuestionType == (short)QuestionType.OPEN)
+                        {
+                            @foreach (var answer in question.Question.Answers)
+                            {
+                                <div class="form-group mt-3">
+
+                                    <label for="open-answer-@question.Id">Uw antwoord:</label>
+                                    <textarea class="form-control"
+                                              @oninput="(e) => UpdateAnswer(answer.Id, e.Value?.ToString())"
+                                              id="open-answer-@question.Id" rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer</textarea>
+                            </div>
+                            }
+                        }
+                        else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
+                        {
+                            <div class="form-check-group">
+                                @foreach (var answer in question.Question.Answers)
+                                {
+                                    var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="truefalse-@question.Id" @onchange="(e) => {
+                                            UpdateAnswer(answer.Id, e.Value?.ToString());
+                    var otherAnswer = question.Question.Answers.First(a => a.Answer != answer.Answer);
+                                            UpdateAnswer(otherAnswer.Id, string.Empty);
+                                            }" value="@answer.Answer" id="answer-@answer.Id"
+                                        checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)">
+                                        <label class="form-check-label" for="answer-@answer.Id">
+                                            @answer.Answer
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group mt-3">
+                                <label for="select-answer-@question.Id">Kies een optie:</label>
+                                <select class="form-select" @onchange="(e) => OnSelectChange(e, question.Question)" id="select-answer-@question.Id"
+                                        value="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.FirstOrDefault(a => a.Id == x.QuestionAnswerId)?.Id)?.GivenAnswer">
+                                    <option value="">Kies een antwoord</option>
+                                    @foreach (var answer in question.Question.Answers)
+                                    {
+                                        <option value="@answer.Answer"
+                                                selected="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer)">
+                                            @answer.Answer
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                        }
+                    </div>
+                </div>
+
+            }
+            <button class="btn btn-primary mt-4 mb-4" @onclick="CheckAnswersAndShowModal">Antwoorden indienen</button>
+
+            @if (isAnswersModalVisible)
+            {
+                <div class="modal fade show" tabindex="-1" style="display:block" aria-labelledby="incompleteAnswersModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="incompleteAnswersModalLabel">Klaar voor de laatste stap?</h5>
+                            </div>
+                            <div class="modal-body">
+                                Wil je je antwoorden nog eens doornemen? Klik op "Nalezen". Om de module af te sluiten, klik je op "Opslaan".
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" @onclick="CloseModal">Nalezen</button>
+                                <button type="button" class="btn btn-secondary" @onclick="SaveAndRedirect">Opslaan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
+
+            }
+        }
+        
+        else
+        {
+            <p>Oops er zijn nog geen vragen beschikbaar voor deze module. <a onclick="Back">Druk hier om terug te gaan</a></p>
+        }
+    }
+    else
+    {
+        <p>Modulegegevens niet beschikbaar.</p>
+    }
+
+   
+   
+</div>
+
+@code {
+
+    [Parameter]
+    public Guid CurrentUserModuleId { get; set; }
+    private UserModuleDTO userModule = new UserModuleDTO();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    private bool isAnswersModalVisible = false;
+    private string loggedInUserId;
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        userModule = await ApiClient.GetFromJsonAsync<UserModuleDTO>($"api/usermodule/{CurrentUserModuleId}");
+
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadQuestions();
+    }
+
+    private async Task LoadQuestions()
+    {
+        _isLoading = true;
+        try
+        {
+            userModule = await ApiClient.GetFromJsonAsync<UserModuleDTO>($"api/usermodule/{CurrentUserModuleId}");
+            var authState = await authStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if(userModule.UserId != userId)
+            {
+                _hasError = true;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+    private void UpdateAnswer(string questionAnswerId, string givenAnswer)
+    {
+        var answerToUpdate = userModule.UserGivenAnswers.FirstOrDefault(x => x.QuestionAnswerId == questionAnswerId);
+        if (answerToUpdate != null)
+        {
+            answerToUpdate.GivenAnswer = givenAnswer;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitAnswers()
+    {
+        var result = await ApiClient.PutAsJsonAsync($"api/usermodule/{CurrentUserModuleId}/answers", userModule.UserGivenAnswers);
+        if (!result.IsSuccessStatusCode)
+        {
+            toastService.Notify(new(ToastType.Danger, "Oops, er liep iets mis."));
+        }
+    }
+    private void OnSelectChange(ChangeEventArgs e, Question question)
+    {
+        var selectedAnswer = e.Value.ToString();  
+
+
+        foreach (var answer in question.Answers)
+        {
+            if (answer.Answer != selectedAnswer)
+            {
+                UpdateAnswer(answer.Id, string.Empty); 
+            }
+        }
+
+        if (!string.IsNullOrEmpty(selectedAnswer))
+        {
+            UpdateAnswer(question.Answers.First(a => a.Answer == selectedAnswer).Id, selectedAnswer); 
+        }
+    }
+    private async Task SaveAndRedirect()
+    {
+        await SubmitAnswers();
+        toastService.Notify(new(ToastType.Success, "Proficiat, het is correct opgeslagen"));
+        NavigationManager.NavigateTo("/ModulesOfUser");
+    }
+    private async Task Back()
+    {
+        NavigationManager.NavigateTo("/ModulesOfUser");
+    }
+    private void CheckAnswersAndShowModal()
+    {
+            isAnswersModalVisible = true;
+            SubmitAnswers();
+    }
+    private void CloseModal()
+    {
+        isAnswersModalVisible = false;
+        StateHasChanged();
+
+    }
+}

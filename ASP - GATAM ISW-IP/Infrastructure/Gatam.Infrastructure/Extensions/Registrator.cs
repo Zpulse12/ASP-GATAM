@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationM
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Gatam.Application.Extensions;
 using Gatam.Application.Extensions.EnvironmentHelper;
+using Gatam.Application.Extensions.httpExtensions;
 
 namespace Gatam.Infrastructure.Extensions
 {
@@ -33,8 +34,10 @@ namespace Gatam.Infrastructure.Extensions
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IModuleRepository, ModuleRepository>();
-            services.AddScoped<IGenericRepository<ApplicationModule>, ModuleRepository>();
+            services.AddScoped<IGenericRepository<UserAnswer>, UserAnwserRepository>();
+            services.AddScoped<IUserModuleRepository, UserModuleRepository>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
+
             services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUserQuestionRepository, UserQuestionRepository>();
@@ -60,32 +63,29 @@ namespace Gatam.Infrastructure.Extensions
         }
         public static IServiceCollection RegisterPolicies(this IServiceCollection services)
         {
-
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
-                    policy.RequireRole(requiredRoleIds);
-
-                });
-                options.AddPolicy("RequireVolgersRole", policy =>
-                {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("VOLGER","BEHEERDER", "BEGELEIDER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.BEGELEIDER);
                     policy.RequireRole(requiredRoleIds);
 
                 });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.MAKER);
                     policy.RequireRole(requiredRoleIds);
                 });
                 options.AddPolicy("RequireAdminRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER);
                     policy.RequireRole(requiredRoleIds);
                 });
-
+                options.AddPolicy("RequireVolgersRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.VOLGER, CustomRoles.BEGELEIDER);
+                    policy.RequireRole(requiredRoleIds);
+                });
             });
             return services;
         }

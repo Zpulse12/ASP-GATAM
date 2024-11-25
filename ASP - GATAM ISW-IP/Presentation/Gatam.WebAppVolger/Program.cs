@@ -18,6 +18,8 @@ internal class Program
         builder.Services.RegisterCustomApiClient();
         builder.Services.RegisterPolicies();
 
+        builder.Services.AddBlazorBootstrap();
+
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();

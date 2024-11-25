@@ -1,53 +1,58 @@
 ﻿@page "/ModulesOfUser"
 @using System.Security.Claims
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
 @using Gatam.WebAppVolger.Components.Layout
 @inject ApiClient ApiClient
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireVolgersRole")]
 <InactiveUserRedirect />
+<div class="container mt-4">
+    <h2 class="mb-4">Mijn Modules</h2>
 
-<h3>Mijn Modules</h3>
-
-@if (_isLoading)
-{
-    <div class="text-center">
-        <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
-    </div>
-}
-else if (_hasError)
-{
-    <Callout Color="CalloutColor.Danger">
-        <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van jouw modules.
-    </Callout>
-}
-else if (_modules != null && _modules.Any())
-{
-    <div class="module-list">
-        @foreach (var module in _modules)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5>@module.Title</h5>
-                    <p>@module.Category</p>
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+            <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+        </div>
+    }
+    else if (_hasError)
+    {
+        <div class="alert alert-danger text-center" role="alert">
+            <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van jouw modules. Probeer het later opnieuw.
+        </div>
+    }
+    else if (_userModules?.Any() == true)
+    {
+        <div class="row">
+            @foreach (var userModule in _userModules)
+            {
+                <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100 shadow-sm" @onclick="() => NavigateToModule(userModule.Id)">
+                        <div class="card-body">
+                            <h5 class="card-title" style="color: #232B6C;">@userModule.Module.Title</h5>
+                            <p class="card-text">@userModule.Module.Category</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
-}
-else
-{
-    <div class="text-center">
-        <p>Geen modules gevonden voor jouw account.</p>
-    </div>
-}
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center mt-4">
+            <p class="text-muted">Geen modules gevonden voor jouw account.</p>
+        </div>
+    }
+</div>
 
 @code {
-    private List<ApplicationModule> _modules = new List<ApplicationModule>();
+    private List<UserModuleDTO> _userModules = new List<UserModuleDTO>();
     private bool _isLoading = true;
     private bool _hasError = false;
-
     protected override async Task OnInitializedAsync()
     {
         await LoadUserModules();
@@ -69,7 +74,7 @@ else
                     _hasError = true;
                     return;
                 }
-                _modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/user/modules/{userId}");
+                _userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{userId}/modules");
             }
             else
             {
@@ -90,5 +95,8 @@ else
         }
     }
 
-
+    private void NavigateToModule(string userModuleId)
+    {
+        NavigationManager.NavigateTo($"/ModuleDetails/{userModuleId}");
+    }
 }
