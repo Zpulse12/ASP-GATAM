@@ -18,6 +18,18 @@ namespace Gatam.Application.CQRS.Module.UserModules
         public string UserModuleId { get; set; }
 
     }
+    public class FindUserModuleIdQueryValidator : AbstractValidator<FindUserModuleIdQuery>
+    {
+        private readonly IUnitOfWork _uow;
+
+        public FindUserModuleIdQueryValidator(IUnitOfWork uow)
+        {
+            _uow = uow;
+
+            RuleFor(x => x.UserModuleId)
+                .NotEmpty().WithMessage("UserModuleId mag niet leeg zijn.");
+        }
+    }
     public class FindUserModuleIdQueryHandler : IRequestHandler<FindUserModuleIdQuery, UserModuleDTO>
     {
         private readonly IUserModuleRepository _userModuleRepository;

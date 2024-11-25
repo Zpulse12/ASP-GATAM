@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Gatam.Application.CQRS.DTOS.ModulesDTO;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.Interfaces;
@@ -19,6 +20,18 @@ namespace Gatam.Application.CQRS.Module.UserModules
         public GetUserModuleByUserQuery(string userId)
         {
             UserId = userId;
+        }
+    }
+    public class GetUserModuleByUserQueryValidator : AbstractValidator<GetUserModuleByUserQuery>
+    {
+        private readonly IUnitOfWork _uow;
+
+        public GetUserModuleByUserQueryValidator(IUnitOfWork uow)
+        {
+            _uow = uow;
+
+            RuleFor(x => x.UserId)
+                .NotEmpty().WithMessage("UserId mag niet leeg zijn.");
         }
     }
     public class GetUserModuleByUserQueryHandler : IRequestHandler<GetUserModuleByUserQuery, List<UserModuleDTO>>
