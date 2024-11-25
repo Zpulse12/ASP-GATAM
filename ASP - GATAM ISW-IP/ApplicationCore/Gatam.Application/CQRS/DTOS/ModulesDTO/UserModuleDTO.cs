@@ -16,7 +16,8 @@ public class UserModuleDTO
         public string UserId { get; set; }
         public UserDTO User { get; set; }
         public ModuleDTO Module { get; set; } 
-        public List<UserQuestionDTO> UserQuestion { get; set; }
-        public List<UserAnswer> UserGivenAnswers { get; set; } = new List<UserAnswer>();
+        public UserModuleState State { get; set; }
+        public List<UserQuestionDTO> UserQuestions { get; set; }
+        public List<UserAnswer> UserGivenAnswers { get; set; } 
     }
 }
