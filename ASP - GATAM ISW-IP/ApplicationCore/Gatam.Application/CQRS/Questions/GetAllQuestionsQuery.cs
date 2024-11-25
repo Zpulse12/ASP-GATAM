@@ -22,7 +22,7 @@ namespace Gatam.Application.CQRS.Questions
 
         public async Task<IEnumerable<Question>> Handle(GetAllQuestionsQuery request, CancellationToken cancellationToken)
         {
-            return await _uow.QuestionRepository.GetAllAsync();
+            return await _uow.QuestionRepository.GetAllAsync(x => x.Answers);
         }
     }
 }

@@ -34,7 +34,10 @@ namespace Gatam.Infrastructure.Extensions
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IModuleRepository, ModuleRepository>();
+            services.AddScoped<IGenericRepository<UserAnswer>, UserAnwserRepository>();
+            services.AddScoped<IUserModuleRepository, UserModuleRepository>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
+
             services.AddScoped<IManagementApi, ManagementApiRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUserQuestionRepository, UserQuestionRepository>();
@@ -76,6 +79,11 @@ namespace Gatam.Infrastructure.Extensions
                 options.AddPolicy("RequireAdminRole", policy =>
                 {
                     var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER);
+                    policy.RequireRole(requiredRoleIds);
+                });
+                options.AddPolicy("RequireVolgersRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.VOLGER, CustomRoles.BEGELEIDER);
                     policy.RequireRole(requiredRoleIds);
                 });
             });

@@ -4,6 +4,8 @@ using MediatR;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using AutoMapper;
+using System.Threading.Tasks;
+using Gatam.Application.CQRS.DTOS.ModulesDTO;
 
 namespace Gatam.Application.CQRS.Module;
 
@@ -72,10 +74,10 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
     {
         var follower = await _uow.UserRepository.FindById(request.FollowerId);
         var moduleTemplate = await _moduleRepository.FindByIdWithQuestions(request.ModuleId);
-        
-        var newUserModule = new UserModule 
-        { 
-            UserId = follower.Id, 
+
+        var newUserModule = new UserModule
+        {
+            UserId = follower.Id,
             ModuleId = moduleTemplate.Id,
             User = follower,
             Module = moduleTemplate,
@@ -85,9 +87,31 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
                 IsVisible = true
             }).ToList()
         };
-        
+
         follower.UserModules.Add(newUserModule);
         await _uow.UserRepository.Update(follower);
+
+        foreach (var question in moduleTemplate.Questions)
+        {
+            foreach (var answer in question.Answers)
+            {
+                var userAnswer = new UserAnswer
+                {
+                    UserModuleId = newUserModule.Id, 
+                    QuestionAnswerId = answer.Id,
+                    GivenAnswer = string.Empty,
+                };
+
+                if (newUserModule.UserGivenAnswers == null)
+                {
+                    newUserModule.UserGivenAnswers = new List<UserAnswer>();
+                }
+                newUserModule.UserGivenAnswers.Add(userAnswer);
+
+                await _uow.UserAnwserRepository.Create(userAnswer);
+            }
+        }
+
         await _uow.Commit();
 
         return _mapper.Map<UserModuleDTO>(newUserModule);

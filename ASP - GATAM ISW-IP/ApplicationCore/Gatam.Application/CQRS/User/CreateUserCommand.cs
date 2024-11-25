@@ -14,6 +14,9 @@ namespace Gatam.Application.CQRS.User
     public class CreateUserCommand: IRequest<UserDTO>
     {
         public required UserDTO _user { get; set; }
+
+
+
     }
     public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
     {
@@ -69,6 +72,8 @@ namespace Gatam.Application.CQRS.User
         }
         public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
+
+
             //request._user.Name = AESProvider.Encrypt(request._user.Name, _environmentWrapper.KEY);
             //request._user.Surname = AESProvider.Encrypt(request._user.Surname, _environmentWrapper.KEY);
             //request._user.Username = AESProvider.Encrypt(request._user.Username, _environmentWrapper.KEY);

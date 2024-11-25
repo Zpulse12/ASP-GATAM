@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Gatam.Application.Interfaces;
-    public interface IModuleRepository : IGenericRepository<ApplicationModule>
-{
-    
-        Task<ApplicationModule> FindByIdWithQuestions(string moduleId);
-}
+
+    public interface IUserAnswerRepository : IGenericRepository<UserAnswer>
+    {
+    }   
+
