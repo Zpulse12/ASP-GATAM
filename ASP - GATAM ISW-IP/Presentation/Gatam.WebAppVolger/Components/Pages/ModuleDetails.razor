@@ -5,7 +5,9 @@
 @inject ApiClient ApiClient
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject AuthenticationStateProvider authStateProvider
+@attribute [Authorize(Policy = "RequireVolgersRole")]
+
 <div class="container">
     @if (_hasError)
     {
@@ -16,9 +18,9 @@
         <h3 class="mt-4">@userModule.Module.Title</h3>
         <p>@userModule.Module.Category</p>
 
-        @if (userModule.Module.Questions != null && userModule.Module.Questions.Any())
-        { 
-            @foreach (var question in userModule.Module.Questions)
+        @if (userModule.UserQuestions != null && userModule.UserQuestions.Any())
+        {
+            @foreach (var question in userModule.UserQuestions.Where(x => x.IsVisible))
             {
                 <div class="card mb-3">
                     <div class="card-body">
@@ -27,7 +29,7 @@
                         @if ((short)question.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
                         {
                             <div class="form-check-group">
-                                @foreach (var answer in question.Answers)
+                                @foreach (var answer in question.Question.Answers)
                                 {
                                     var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
                                     <div class="form-check">
@@ -42,27 +44,27 @@
                         }
                         else if ((short)question.QuestionType == (short)QuestionType.OPEN)
                         {
-                            @foreach (var answer in question.Answers)
+                            @foreach (var answer in question.Question.Answers)
                             {
                                 <div class="form-group mt-3">
 
                                     <label for="open-answer-@question.Id">Uw antwoord:</label>
                                     <textarea class="form-control"
                                               @oninput="(e) => UpdateAnswer(answer.Id, e.Value?.ToString())"
-                                              id="open-answer-@question.Id" rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Answers.First().Id)?.GivenAnswer</textarea>
+                                              id="open-answer-@question.Id" rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer</textarea>
                             </div>
                             }
                         }
                         else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
                         {
                             <div class="form-check-group">
-                                @foreach (var answer in question.Answers)
+                                @foreach (var answer in question.Question.Answers)
                                 {
                                     var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="truefalse-@question.Id" @onchange="(e) => {
                                             UpdateAnswer(answer.Id, e.Value?.ToString());
-                                            var otherAnswer = question.Answers.First(a => a.Answer != answer.Answer);
+                    var otherAnswer = question.Question.Answers.First(a => a.Answer != answer.Answer);
                                             UpdateAnswer(otherAnswer.Id, string.Empty);
                                             }" value="@answer.Answer" id="answer-@answer.Id"
                                         checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)">
@@ -77,10 +79,10 @@
                         {
                             <div class="form-group mt-3">
                                 <label for="select-answer-@question.Id">Kies een optie:</label>
-                                <select class="form-select" @onchange="(e) => OnSelectChange(e, question)" id="select-answer-@question.Id"
-                                        value="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Answers.FirstOrDefault(a => a.Id == x.QuestionAnswerId)?.Id)?.GivenAnswer">
+                                <select class="form-select" @onchange="(e) => OnSelectChange(e, question.Question)" id="select-answer-@question.Id"
+                                        value="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.FirstOrDefault(a => a.Id == x.QuestionAnswerId)?.Id)?.GivenAnswer">
                                     <option value="">Kies een antwoord</option>
-                                    @foreach (var answer in question.Answers)
+                                    @foreach (var answer in question.Question.Answers)
                                     {
                                         <option value="@answer.Answer"
                                                 selected="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer)">
@@ -146,13 +148,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        loggedInUserId = authenticationState.User.Identity.Name;
+
         userModule = await ApiClient.GetFromJsonAsync<UserModuleDTO>($"api/usermodule/{CurrentUserModuleId}");
-        if (userModule?.UserId != loggedInUserId)
-        {
-            _hasError = true;
-        }
+
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -165,7 +163,14 @@
         try
         {
             userModule = await ApiClient.GetFromJsonAsync<UserModuleDTO>($"api/usermodule/{CurrentUserModuleId}");
-        }
+            var authState = await authStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if(userModule.UserId != userId)
+            {
+                _hasError = true;
+            }
+                }
         catch (HttpRequestException ex)
         {
             _hasError = true;
