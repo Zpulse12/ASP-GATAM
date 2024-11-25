@@ -149,6 +149,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpGet("AssignUsersToBegeleider")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetAllUsersWithBegeleiderId()
         {
             var assignUsersToBegeleider = await _mediator.Send(new GetAllUsersWithBegeleiderIdQuery());
