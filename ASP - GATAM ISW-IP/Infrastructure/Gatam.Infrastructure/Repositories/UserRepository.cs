@@ -21,17 +21,20 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
-
     public async Task<List<ApplicationUser>> GetUsersWithModulesAsync()
     {
         return await _context.Users
             .Include(u => u.UserModules)
                 .ThenInclude(um => um.Module)
                     .ThenInclude(m => m.Questions)
+                    .ThenInclude(m => m.Answers)
+            .Include(u => u.UserModules)
+                .ThenInclude(um => um.UserGivenAnswers)
             .Include(u => u.UserModules)
                 .ThenInclude(um => um.UserQuestions)
-                    .ThenInclude(qs => qs.Question)
-                    .AsNoTracking() 
+                    .ThenInclude(qs => qs.Question) 
+            .AsNoTracking()
             .ToListAsync();
     }
+
 }
