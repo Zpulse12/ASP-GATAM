@@ -5,6 +5,7 @@
 @using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Application.CQRS.DTOS.QuestionsDTO
 @inject ApiClient ApiClient
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
@@ -37,13 +38,22 @@ else
                     <div class="user-module-info">
                         <span class="username">@userModule.User.Username</span>
                         <span class="module-title">@userModule.Module.Title</span>
+
                         @if (userModule.State != UserModuleState.NotStarted)
                         {
-                            <Badge Color="BadgeColor.Secondary">Module gestart</Badge>
+                            <Button Class="badge" Color="ButtonColor.Secondary" @onclick="() => NavigateToModule(userModule.Id)"> Klik hier voor meer </Button>
+                            <Badge Style="@GetBadgeStyle(userModule)"
+                                   Color="BadgeColor.None"
+                                   Class="module-badge">
+                                @CalculateAnsweredPercentageLabel(userModule)
+                            </Badge>
                         }
                     </div>
                     <i class="bi bi-chevron-down ml-4"></i>
                 </div>
+            </div>
+
+
 
                 <div class="module-content @(_expandedModules.Contains(userModule.Id) ? "show" : "")">
                     @foreach (var questionSetting in userModule.UserQuestions)
@@ -69,9 +79,10 @@ else
                         </div>
                     }
                 </div>
-            </div>
         }
     </div>
+
+
 }
 
 @code {
@@ -105,7 +116,7 @@ else
     private async Task ToggleQuestionVisibility(UserQuestionDTO userQuestion)
     {
         if (userQuestion == null) return;
-        
+
         try
         {
             userQuestion.IsVisible = !userQuestion.IsVisible;
@@ -134,4 +145,59 @@ else
         else
             _expandedModules.Add(moduleId);
     }
+    public double CalculateAnsweredPercentage(UserModuleDTO userModule)
+    {
+        var visibleQuestions = userModule.UserQuestions.Where(q => q.IsVisible).ToList();
+        int answeredQuestionsCount = 0;
+
+        foreach (var question in visibleQuestions)
+        {
+            bool isAnswered = false; 
+            foreach (var answer in question.Question.Answers)
+            {
+                if (isAnswered)
+                    break; 
+
+                var matchingAnswer = userModule.UserGivenAnswers
+                    .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));
+
+                if (matchingAnswer != null)
+                {
+                    isAnswered = true; 
+                    answeredQuestionsCount++; 
+                }
+            }
+        }
+        if (visibleQuestions.Count == 0)
+            return 0; 
+
+            return (double)answeredQuestionsCount / visibleQuestions.Count * 100;
+    }
+
+    public string CalculateAnsweredPercentageLabel(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+        return $"{percentage:0.##}%";
+    }
+    private string GetBadgeColor(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+
+        if (percentage >= 80) return "#28a745"; // Groen (succes)
+        if (percentage >= 50) return "#ffc107"; // Geel (waarschuwing)
+        return "#dc3545"; // Rood (fout)
+    }
+    private string GetBadgeStyle(UserModuleDTO userModule)
+    {
+        var badgeColor = GetBadgeColor(userModule);
+        return $"margin-right: 10px; width: 60px; background-color: {badgeColor};";
+    }
+
+    private void NavigateToModule(string userModuleId)
+    {
+        NavigationManager.NavigateTo($"/modules-per-gebruiker/{userModuleId}");
+    }
+
+
 }
+
