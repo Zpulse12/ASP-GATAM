@@ -10,5 +10,6 @@ namespace Gatam.Application.Interfaces;
 {
         Task<ApplicationModule> FindByIdModuleWithIncludes(string id);
         Task<ApplicationModule> FindByIdWithQuestions(string moduleId);
-
+        Task<ApplicationModule> GetModuleWithQuestionsAndAnswersAsync(string moduleId);
+        Task<ApplicationModule> FindByIdWithQuestions(string moduleId);
 }

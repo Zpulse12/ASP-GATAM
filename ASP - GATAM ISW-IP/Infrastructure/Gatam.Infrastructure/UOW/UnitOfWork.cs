@@ -23,6 +23,9 @@ namespace Gatam.Infrastructure.UOW
                             ApplicationDbContext context, 
                             IUserRepository userRepository,
                             IModuleRepository moduleRepository,
+                            IQuestionRepository questionRepository)
+                            IUserRepository userRepository,
+                            IModuleRepository moduleRepository,
                             IQuestionRepository questionRepository,
                             IUserModuleRepository userModuleRepository,
                             IGenericRepository<UserAnswer> userAnwserRepository
@@ -39,6 +42,8 @@ namespace Gatam.Infrastructure.UOW
         }
 
         public IUserRepository UserRepository => _userRepository;
+        public IModuleRepository ModuleRepository => _moduleRepository;
+
         public IModuleRepository ModuleRepository => _moduleRepository;
         public IUserModuleRepository UserModuleRepository => _userModuleRepository;
         public IQuestionRepository QuestionRepository => _questionRepository;

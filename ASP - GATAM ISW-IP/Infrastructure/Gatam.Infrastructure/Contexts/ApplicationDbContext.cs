@@ -136,6 +136,7 @@ namespace Gatam.Infrastructure.Contexts
                 QuestionTitle = "Wat wil je later bereiken? ",
                 CreatedUserId = "123",
                 LastUpdatedUserId = "123",
+                ApplicationModuleId = GLOBALMODULE.Id
             };
             builder.Entity<Question>().HasData(GLOBALQUESTION,v1,v2,v3,v4);
             QuestionAnswer GLOBALQUESTIONANSWER = new QuestionAnswer() { Answer = "OPEN", QuestionId = GLOBALQUESTION.Id };
@@ -161,7 +162,8 @@ namespace Gatam.Infrastructure.Contexts
             builder.Entity<ApplicationModule>()
             .HasMany(am => am.Questions)
             .WithOne(q => q.ApplicationModule)
-            .HasForeignKey(q => q.ApplicationModuleId).IsRequired(false);
+            .HasForeignKey(q => q.ApplicationModuleId)
+            .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Question>()
             .HasMany(q => q.Answers)
