@@ -3,6 +3,8 @@ using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Gatam.Application.CQRS.DTOS.ModulesDTO;
+using Gatam.Application.CQRS.User;
 
 namespace Gatam.WebAPI.Controllers
 {
@@ -27,9 +29,9 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPost]
         //[Authorize(Policy = "RequireMakerRole")]
-        public async Task<IActionResult> CreateModule([FromBody] CreateModuleCommand command)
+        public async Task<IActionResult> CreateModule([FromBody] ModuleDTO module)
         {
-            var result = await _mediator.Send(command);
+            var result = await _mediator.Send(new CreateModuleCommand() { _module = module });
             return Created("", result);
         }
     }

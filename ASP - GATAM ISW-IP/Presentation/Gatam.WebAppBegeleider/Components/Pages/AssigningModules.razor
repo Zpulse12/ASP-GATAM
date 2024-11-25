@@ -3,6 +3,7 @@
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
+@using System.Diagnostics
 @inject ApiClient ApiClient
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireManagementRole")]
@@ -158,6 +159,8 @@
         }
         else
         {
+            var content = await response.Content.ReadAsStringAsync();
+            Debug.WriteLine(content);
             ErrorMessage = "Het toewijzen van de module is mislukt.";
             SuccessMessage = null;
         }

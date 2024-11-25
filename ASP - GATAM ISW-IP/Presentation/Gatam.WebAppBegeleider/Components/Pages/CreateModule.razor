@@ -3,6 +3,7 @@
 @rendermode InteractiveServer
 @using Gatam.Application.CQRS.Module
 @using Gatam.Application.CQRS.Questions
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
@@ -88,11 +89,11 @@
                 </div>
             </div>
             <Grid TItem="QuestionAnswer"
-                  @ref="answerGrid"
-                  Class="table table-hover"
-                  Data="answers"
-                  HeaderRowCssClass="custom-header"
-                  Responsive="true">
+            @ref="answerGrid"
+            Class="table table-hover"
+            Data="answers"
+            HeaderRowCssClass="custom-header"
+            Responsive="true">
                 <GridColumns>
                     <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                         @AnswerContext.Answer
@@ -125,11 +126,11 @@
                 </div>
             </div>
             <Grid TItem="QuestionAnswer"
-                  @ref="answerGrid"
-                  Class="table table-hover"
-                  Data="answers"
-                  HeaderRowCssClass="custom-header"
-                  Responsive="true">
+            @ref="answerGrid"
+            Class="table table-hover"
+            Data="answers"
+            HeaderRowCssClass="custom-header"
+            Responsive="true">
                 <GridColumns>
                     <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                         @AnswerContext.Answer
@@ -164,15 +165,15 @@
     </EditForm>
     <hr />
     <Grid TItem="Question"
-          @ref="questionGrid"
-          AllowRowClick="true"
-          AllowSorting="true"
-          Class="table table-hover"
-          AllowPaging="true"
-          Data="questions"
-          PageSize="10"
-          HeaderRowCssClass="custom-header"
-          Responsive="true">
+    @ref="questionGrid"
+    AllowRowClick="true"
+    AllowSorting="true"
+    Class="table table-hover"
+    AllowPaging="true"
+    Data="questions"
+    PageSize="10"
+    HeaderRowCssClass="custom-header"
+    Responsive="true">
         <GridColumns>
             <GridColumn TItem="Question" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
                 @context.QuestionTitle
@@ -193,8 +194,8 @@
             <GridColumn TItem="Question" HeaderText="Actie" Filterable="false">
                 <div>
                     <button type="button"
-                            class="btn btn-outline-danger"
-                            @onclick="@(() => RemoveQuestion(context))">
+                    class="btn btn-outline-danger"
+                    @onclick="@(() => RemoveQuestion(context))">
                         <i class="bi bi-trash"></i>
                     </button>
 
@@ -207,7 +208,7 @@
 </CustomCards>
 
 @code {
-    private ApplicationModule newModule = new ApplicationModule();
+    private ModuleDTO newModule = new ModuleDTO();
 
     private EditContext editContext;
     private AutoComplete<Question> search;
@@ -224,7 +225,7 @@
 
     [Inject] protected ToastService toastService { get; set; } = default!;
 
-   
+
     protected override async Task OnInitializedAsync()
     {
         ResetForm();
@@ -234,32 +235,29 @@
     {
         try
         {
-            
+
             foreach (var question in questions)
             {
                 question.ApplicationModuleId = newModule.Id; 
+
             }
 
-            
-            var command = new CreateModuleCommand
-                {
-                    _module = newModule,
-                    question = questions 
-                };
 
-            var result = await apiClient.PostAsJsonAsync("api/module", command);
+            newModule.Questions=questions;
+            var result = await apiClient.PostAsJsonAsync("api/module", newModule);
             if (result.IsSuccessStatusCode)
             {
-                
-                var responseData = await result.Content.ReadFromJsonAsync<ApplicationModule>();
+
+                var responseData = await result.Content.ReadFromJsonAsync<ModuleDTO>();
                 toastService.Notify(new(ToastType.Success, "Module en vragen succesvol aangemaakt!"));
-                newModule = responseData ?? new ApplicationModule();
+                newModule = responseData ?? new ModuleDTO();
                 questions = responseData?.Questions.ToList() ?? new List<Question>();
                 ResetForm();
             }
             else
             {
                 var content = await result.Content.ReadAsStringAsync();
+                Debug.WriteLine(content);
                 toastService.Notify(new(ToastType.Warning, "Er is een fout opgetreden bij het aanmaken van de module."));
             }
         }
@@ -271,7 +269,7 @@
         {
             isLoading = false;
         }
-      
+
 
     }
 
@@ -290,7 +288,7 @@
             answers.Add(currentAnswer);
         }
         newQuestion.Answers = answers;
-       
+
 
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {

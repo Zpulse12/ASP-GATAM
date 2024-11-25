@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
+using Gatam.Application.CQRS.DTOS.ModulesDTO;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
@@ -7,8 +9,7 @@ namespace Gatam.Application.CQRS.Module
 {
     public class CreateModuleCommand : IRequest<ApplicationModule>
     {
-        public ApplicationModule _module { get; set; }
-        public List<Question> question { get; set; }
+        public ModuleDTO _module { get; set; }
     }
     public class CreateModuleCommandValidators : AbstractValidator<CreateModuleCommand>
     {
@@ -35,18 +36,19 @@ namespace Gatam.Application.CQRS.Module
     public class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand, ApplicationModule>
     {
         private readonly IUnitOfWork _uow;
-        public CreateModuleCommandHandler(IUnitOfWork uow)
+        private readonly IMapper _mapper;
+
+        public CreateModuleCommandHandler(IUnitOfWork uow, IMapper mapper)
         {
             this._uow = uow;
+            this._mapper = mapper;
         }
         public async Task<ApplicationModule> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
         {
-            await _uow.ModuleRepository.Create(request._module);
-            await _uow.Commit();
-            foreach(var question in request.question)
+            await _uow.ModuleRepository.Create(_mapper.Map<ApplicationModule>(request._module));
+            foreach(var question in request._module.Questions)
         {
                 question.ApplicationModuleId = request._module.Id;
-                request._module.Questions.Add(question);
                 await _uow.QuestionRepository.Create(question);
             }
             await _uow.Commit();
