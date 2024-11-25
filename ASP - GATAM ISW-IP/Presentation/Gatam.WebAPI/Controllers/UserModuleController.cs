@@ -20,17 +20,17 @@ namespace Gatam.WebAPI.Controllers
         }
        
         [HttpGet("user/{userId}/modules")]
-        [Authorize(Policy = "RequireVolgersRole")]
+       [Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> GetUserModules(string userId)
         {
-            var query = new GetUserModuleByUserQuery(userId);
+            var query = new GetUserModuleByUserQuery() { UserId = userId};
             var modules = await _mediator.Send(query);
             return Ok(modules);
         }
 
         
         [HttpGet("{usermoduleId}")]
-        [Authorize(Policy = "RequireVolgersRole")]
+       [Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> GetUserModuleById(string usermoduleId)
         {
             var query = new FindUserModuleIdQuery() { UserModuleId = usermoduleId };
@@ -39,7 +39,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("{usermoduleId}/answers")]
-        [Authorize(Policy = "RequireVolgersRole")]
+       [Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> SubmitAnswers(string userModuleId, [FromBody] List<UserAnswer> userAnswers)
         {
             var updateCommand = new UpdateUserModuleStatusCommand() {UserModuleId=userModuleId, State = UserModuleState.InProgress };

@@ -16,11 +16,6 @@ namespace Gatam.Application.CQRS.Module.UserModules
     public class GetUserModuleByUserQuery : IRequest<List<UserModuleDTO>>
     {
         public string UserId { get; set; }
-
-        public GetUserModuleByUserQuery(string userId)
-        {
-            UserId = userId;
-        }
     }
     public class GetUserModuleByUserQueryValidator : AbstractValidator<GetUserModuleByUserQuery>
     {

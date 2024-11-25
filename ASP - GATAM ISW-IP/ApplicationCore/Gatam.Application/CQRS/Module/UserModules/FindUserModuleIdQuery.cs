@@ -27,7 +27,14 @@ namespace Gatam.Application.CQRS.Module.UserModules
             _uow = uow;
 
             RuleFor(x => x.UserModuleId)
-                .NotEmpty().WithMessage("UserModuleId mag niet leeg zijn.");
+                .NotEmpty().WithMessage("UserModuleId mag niet leeg zijn.")
+                .MustAsync(async (userModuleId, cancellationToken) => await UserModuleExists(userModuleId))
+                .WithMessage("UserModuleId bestaat niet.");
+        }
+        private async Task<bool> UserModuleExists(string userModuleId)
+        {
+            var userModule = await _uow.UserModuleRepository.FindById(userModuleId);
+            return userModule != null;
         }
     }
     public class FindUserModuleIdQueryHandler : IRequestHandler<FindUserModuleIdQuery, UserModuleDTO>

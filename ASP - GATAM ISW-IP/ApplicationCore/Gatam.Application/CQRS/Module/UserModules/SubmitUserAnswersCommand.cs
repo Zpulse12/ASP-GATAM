@@ -12,7 +12,7 @@ namespace Gatam.Application.CQRS.Module.UserModules
 {
     public class SubmitUserAnswersCommand : IRequest<List<UserAnswer>>
     {
-        public string UserModuleId;
+        public string UserModuleId { get; set; }
         public List<UserAnswer> UserAnwsers { get; set; }
     }
     public class SubmitUserAnswersCommandValidator : AbstractValidator<SubmitUserAnswersCommand>
