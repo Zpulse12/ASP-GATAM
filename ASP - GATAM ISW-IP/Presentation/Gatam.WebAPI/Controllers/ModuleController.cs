@@ -20,7 +20,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> GetAllModules()
         {
                 var modules = await _mediator.Send(new GetAllModulesQuery());
@@ -28,11 +28,24 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequireMakerRole")]
+        //[Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> CreateModule([FromBody] ModuleDTO module)
         {
             var result = await _mediator.Send(new CreateModuleCommand() { _module = module });
             return Created("", result);
+        }
+
+        [HttpDelete]
+        [Route("delete/{moduleId}")]
+        //[Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> DeleteModule(string moduleId)
+        {
+            var response = await _mediator.Send(new DeleteModuleCommand() { ModuleId = moduleId });
+            if (response)
+            {
+                return Ok(response);
+            }
+            return NotFound("Module doesnt exists");
         }
     }
 }
