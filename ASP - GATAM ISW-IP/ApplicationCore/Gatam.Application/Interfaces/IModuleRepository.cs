@@ -10,5 +10,7 @@ namespace Gatam.Application.Interfaces
     public interface IModuleRepository : IGenericRepository<ApplicationModule>
     {
         Task<ApplicationModule> GetModuleWithQuestionsAndAnswersAsync(string moduleId);
+
+        Task<ApplicationModule> FindByIdWithQuestions(string moduleId);
     }
-} 
+}

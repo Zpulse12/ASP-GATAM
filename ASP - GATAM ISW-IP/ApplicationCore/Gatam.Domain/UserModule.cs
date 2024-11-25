@@ -12,9 +12,11 @@ public class UserModule
     public string ModuleId { get; set; }
     [JsonIgnore] 
     public ApplicationModule Module { get; set; }
-
+    public List<UserQuestion> UserQuestions { get; set; } = new List<UserQuestion>();
     public UserModule()
     {
         Id = Guid.NewGuid().ToString();
     }
+
+    
 }

@@ -1,13 +1,15 @@
 ﻿using FluentValidation;
+using Gatam.Application.CQRS.Questions;
 using MediatR;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
+using AutoMapper;
 
 namespace Gatam.Application.CQRS.Module;
 
-public class AssignModulesToUserCommand : IRequest<bool>
+public class AssignModulesToUserCommand : IRequest<UserModuleDTO>
 {
-    public string VolgerId { get; set; }
+    public string FollowerId { get; set; }
     public string ModuleId { get; set; }
 }
 public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModulesToUserCommand>
@@ -16,53 +18,78 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
     public AssignModulesToUserCommandValidator(IUnitOfWork uow)
     {
         _uow = uow;
-        RuleFor(command => command.VolgerId)
+        
+        RuleFor(command => command.FollowerId)
             .NotEmpty()
-            .WithMessage("VolgerId is required.");
+            .WithMessage("FollowerId is required.");
 
         RuleFor(command => command.ModuleId)
             .NotEmpty()
             .WithMessage("ModuleId is required.");
-        RuleFor(x => x.VolgerId)
+
+        RuleFor(x => x.FollowerId)
             .MustAsync(async (userId, token) =>
             {
                 var user = await _uow.UserRepository.FindById(userId);
                 return user != null;
             })
             .WithMessage("The user does not exist"); 
+
         RuleFor(x => x.ModuleId)
             .MustAsync(async (moduleId, token) =>
             {
-                var user = await _uow.ModuleRepository.FindById(moduleId);
-                return user != null;
+                var module = await _uow.ModuleRepository.FindById(moduleId);
+                return module != null;
             })
             .WithMessage("The module does not exist"); 
+
         RuleFor(command => command)
             .MustAsync(async (command, cancellation) =>
             {
-                var user = await _uow.UserRepository.FindById(command.VolgerId);
-                return user != null && user.UserModules.All(um => um.ModuleId != command.ModuleId);
+                var user = await _uow.UserRepository.FindById(command.FollowerId);
+                return user != null && !user.UserModules.Any(um => um.ModuleId == command.ModuleId);
             })
             .WithMessage("Module is already assigned to this user");
     }
 }
-public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, bool>
+public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, UserModuleDTO>
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IModuleRepository _moduleRepository;
+    private readonly IUnitOfWork _uow;
+    private readonly IMapper _mapper;
 
-    public AssignModulesToUserCommandHandler(IUnitOfWork unitOfWork)
+    public AssignModulesToUserCommandHandler(
+        IModuleRepository moduleRepository, 
+        IUnitOfWork uow,
+        IMapper mapper)
     {
-        _unitOfWork = unitOfWork;
+        _moduleRepository = moduleRepository;
+        _uow = uow;
+        _mapper = mapper;
     }
     
-    public async Task<bool> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
+    public async Task<UserModuleDTO> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _unitOfWork.UserRepository.FindById(request.VolgerId);
-        var module = await _unitOfWork.ModuleRepository.FindById(request.ModuleId);
-        user.UserModules.Add(new UserModule { UserId = user.Id, ModuleId = module.Id });
-        await _unitOfWork.UserRepository.Update(user);
-        await _unitOfWork.Commit();
+        var follower = await _uow.UserRepository.FindById(request.FollowerId);
+        var moduleTemplate = await _moduleRepository.FindByIdWithQuestions(request.ModuleId);
+        
+        var newUserModule = new UserModule 
+        { 
+            UserId = follower.Id, 
+            ModuleId = moduleTemplate.Id,
+            User = follower,
+            Module = moduleTemplate,
+            UserQuestions = moduleTemplate.Questions.Select(templateQuestion => new UserQuestion
+            {
+                QuestionId = templateQuestion.Id,
+                IsVisible = true
+            }).ToList()
+        };
+        
+        follower.UserModules.Add(newUserModule);
+        await _uow.UserRepository.Update(follower);
+        await _uow.Commit();
 
-        return true;
+        return _mapper.Map<UserModuleDTO>(newUserModule);
     }
 }

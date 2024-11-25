@@ -115,7 +115,7 @@ namespace Gatam.WebAPI.Controllers
        // [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUserModule(string userId, [FromQuery] string moduleId)
         {
-            var assignedUser = await _mediator.Send(new AssignModulesToUserCommand() {VolgerId = userId, ModuleId = moduleId });
+            var assignedUser = await _mediator.Send(new AssignModulesToUserCommand() {FollowerId = userId, ModuleId = moduleId });
             return Ok(assignedUser);
         }
         [HttpGet("modules/{userId}")]
@@ -156,7 +156,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("AssignUsersToBegeleider/{id}")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUsersToBegeleider([FromBody] ApplicationUser user, string id)
         {
 
