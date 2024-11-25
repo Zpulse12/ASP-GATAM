@@ -33,6 +33,7 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
             .Include(u => u.UserModules)
                 .ThenInclude(um => um.UserQuestions)
                     .ThenInclude(qs => qs.Question) 
+                    .ThenInclude(q => q.Answers)
             .AsNoTracking()
             .ToListAsync();
     }
