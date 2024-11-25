@@ -145,6 +145,8 @@
     private bool _hasError = false;
     private bool isAnswersModalVisible = false;
     private string loggedInUserId;
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -170,7 +172,7 @@
             {
                 _hasError = true;
             }
-                }
+        }
         catch (HttpRequestException ex)
         {
             _hasError = true;
@@ -197,6 +199,10 @@
     private async Task SubmitAnswers()
     {
         var result = await ApiClient.PutAsJsonAsync($"api/usermodule/{CurrentUserModuleId}/answers", userModule.UserGivenAnswers);
+        if (!result.IsSuccessStatusCode)
+        {
+            toastService.Notify(new(ToastType.Danger, "Oops, er liep iets mis."));
+        }
     }
     private void OnSelectChange(ChangeEventArgs e, Question question)
     {
@@ -219,6 +225,7 @@
     private async Task SaveAndRedirect()
     {
         await SubmitAnswers();
+        toastService.Notify(new(ToastType.Success, "Proficiat, het is correct opgeslagen"));
         NavigationManager.NavigateTo("/ModulesOfUser");
     }
     private async Task Back()
