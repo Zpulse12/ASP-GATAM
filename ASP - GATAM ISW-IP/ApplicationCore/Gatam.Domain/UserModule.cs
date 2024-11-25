@@ -16,7 +16,7 @@ public class UserModule
 
     public UserModuleState State { get; set; }
 
-    public List<UserAnswer> UserGivenAnswers { get; set; } = new List<UserAnswer>();
+    public ICollection<UserAnswer> UserGivenAnswers { get; set; } = new List<UserAnswer>();
     public List<UserQuestion> UserQuestions { get; set; } = new List<UserQuestion>();
 
     public UserModule()
