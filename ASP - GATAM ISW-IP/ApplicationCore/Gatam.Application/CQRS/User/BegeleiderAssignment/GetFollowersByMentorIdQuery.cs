@@ -6,12 +6,8 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
 {
     public class GetFollowersByMentorIdQuery : IRequest<List<ApplicationUser>>
     {
-        public string BegeleiderId { get; }
-
-        public GetFollowersByMentorIdQuery(string begeleiderId)
-        {
-            BegeleiderId = begeleiderId;
-        }
+        public string MentorId { get; set; }
+        
     }
 
     public class GetFollowersByMentorIdQueryHandler : IRequestHandler<GetFollowersByMentorIdQuery, List<ApplicationUser>>
@@ -25,7 +21,7 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
 
         public async Task<List<ApplicationUser>> Handle(GetFollowersByMentorIdQuery request, CancellationToken cancellationToken)
         {
-            return await _uow.UserRepository.GetUsersForBegeleiderAsync(request.BegeleiderId);
+            return await _uow.UserRepository.GetUsersForBegeleiderAsync(request.MentorId);
         }
     }
 }
