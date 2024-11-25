@@ -177,11 +177,11 @@ namespace Gatam.WebAPI.Controllers
             var command = await _mediator.Send(new DeleteUserRolesCommand() { UserId = id, Roles = rolesDTO });
             return Ok(command);
         }
-        [HttpGet("{UserId}/begeleider")]
+        [HttpGet("{mentorId}/begeleider")]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> GetUsersForBegeleider([FromRoute] string UserId)
+        public async Task<IActionResult> GetUsersForBegeleider([FromRoute] string mentorId)
         {
-            var begeleiderDto = await _mediator.Send(new GetFollowersByMentorIdQuery(UserId));
+            var begeleiderDto = await _mediator.Send(new GetFollowersByMentorIdQuery() { MentorId = mentorId });
             return Ok(begeleiderDto);
         }
     }
