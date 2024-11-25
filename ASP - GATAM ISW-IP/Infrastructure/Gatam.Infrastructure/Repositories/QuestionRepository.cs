@@ -23,19 +23,9 @@ namespace Gatam.Infrastructure.Repositories
         {
             return await _context.Questions.Include(q => q.Answers)
                  .FirstOrDefaultAsync(q => q.Id == Id);
+
+
         }
-        public async Task<List<Question>> GetQuestionsByModuleIdAsync(string moduleId, bool includeAnswers = false)
-        {
-            IQueryable<Question> query = _context.Questions.Where(q => q.ApplicationModuleId == moduleId);
-
-            if (includeAnswers)
-            {
-                query = query.Include(q => q.Answers);
-            }
-
-            return await query.ToListAsync();
-        }
-
 
         public async Task UpdateQuestionAndAnswers(Question entity)
         {
@@ -68,12 +58,12 @@ namespace Gatam.Infrastructure.Repositories
                     _context.Entry(existingAnswer).CurrentValues.SetValues(newAnswer);
                 }
             }
-           
+
         }
 
         public async Task<List<Question>> GetVisibleQuestionsForFollower(string followerId)
         {
-            return await _context.UserModule
+            return await _context.UserModules
                 .Where(um => um.UserId == followerId)
                 .SelectMany(um => um.UserQuestions
                     .Where(umqs => umqs.IsVisible)
@@ -83,7 +73,7 @@ namespace Gatam.Infrastructure.Repositories
 
         public async Task<List<(UserModule Module, List<Question> Questions)>> GetVisibleQuestionsPerModule(string volgerId)
         {
-            var modules = await _context.UserModule
+            var modules = await _context.UserModules
                 .Where(um => um.UserId == volgerId)
                 .Include(um => um.UserQuestions)
                     .ThenInclude(umqs => umqs.Question)
