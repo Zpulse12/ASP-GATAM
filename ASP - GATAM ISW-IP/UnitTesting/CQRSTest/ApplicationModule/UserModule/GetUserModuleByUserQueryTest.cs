@@ -55,7 +55,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
                 .Setup(mapper => mapper.Map<List<UserModuleDTO>>(userModules))
                 .Returns(userModuleDTOs);
 
-            var query = new GetUserModuleByUserQuery(userId);
+            var query = new GetUserModuleByUserQuery() { UserId = userId };
 
             var result = await _queryHandler.Handle(query, CancellationToken.None);
 

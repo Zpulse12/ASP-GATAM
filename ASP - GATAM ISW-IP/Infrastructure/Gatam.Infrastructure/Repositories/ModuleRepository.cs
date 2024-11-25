@@ -13,31 +13,12 @@ namespace Gatam.Infrastructure.Repositories
         public ModuleRepository(ApplicationDbContext context) : base(context) {
             _context = context;
         }
-
-        public async Task<ApplicationModule> GetModuleWithQuestionsAndAnswersAsync(string moduleId)
-        {
-            return await _context.Modules
-                .Include(m => m.Questions)
-                    .ThenInclude(q => q.Answers)
-                .FirstOrDefaultAsync(m => m.Id == moduleId);
-        }
-
-        
-
         public async Task<ApplicationModule> FindByIdWithQuestions(string moduleId)
         {
             return await _context.Set<ApplicationModule>()
                 .Include(m => m.Questions) // Haal de vragen op
                                     .ThenInclude(q => q.Answers)
                 .FirstOrDefaultAsync(m => m.Id == moduleId);
-        }
-
-        public async Task<ApplicationModule> FindByIdModuleWithIncludes(string id)
-        {
-            return await _context.Modules
-                .Include(m => m.Questions) 
-                    .ThenInclude(q => q.Answers) 
-                        .FirstOrDefaultAsync(m => m.Id == id);
         }
     }
 }

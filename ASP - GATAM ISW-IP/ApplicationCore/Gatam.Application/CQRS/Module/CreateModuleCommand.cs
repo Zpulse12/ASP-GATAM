@@ -52,7 +52,7 @@ namespace Gatam.Application.CQRS.Module
             }
             await _uow.Commit();
 
-            var createdModule = await _uow.ModuleRepository.GetModuleWithQuestionsAndAnswersAsync(request._module.Id);
+            var createdModule = await _uow.ModuleRepository.FindByIdWithQuestions(request._module.Id);
             return createdModule;
         }
     }
