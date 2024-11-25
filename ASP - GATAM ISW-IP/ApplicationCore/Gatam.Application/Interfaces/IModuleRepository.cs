@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gatam.Application.Interfaces
-{
+namespace Gatam.Application.Interfaces;
     public interface IModuleRepository : IGenericRepository<ApplicationModule>
 {
         Task<ApplicationModule> FindByIdModuleWithIncludes(string id);
-     Task<ApplicationModule> FindByIdWithQuestions(string moduleId);
+        Task<ApplicationModule> FindByIdWithQuestions(string moduleId);
 
 }
