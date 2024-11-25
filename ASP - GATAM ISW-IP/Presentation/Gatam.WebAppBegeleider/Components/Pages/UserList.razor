@@ -3,6 +3,8 @@
 @using Gatam.WebAppBegeleider.Extensions
 @page "/admin/user-list"
 @using System.Diagnostics
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @inject ApiClient apiClient
 @using Microsoft.AspNetCore.Http
@@ -18,56 +20,66 @@
     <div class="card-body">
         <div class="card-header">
             <h5>
-                Gebruikers overzicht
+                @if (_isBeheerder)
+                {
+                    <span>Alle Gebruikers</span>
+                }
+                else
+                {
+                    <span>Mijn Volgers</span>
+                }
             </h5>
         </div>
-        @if (_isLoading)
-        {
-            <div class="text-center">
-                <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
-            </div>
-        }
-        @if (_hasError)
-        {
-            <Callout Color="CalloutColor.Danger">
-                <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van de gebruikerslijst.
-            </Callout>
-        }
 
-        else
-        {
-               <Grid TItem="UserDTO"
-                          AllowRowClick="true"
-                          AllowSorting="true"
-                          Class="table table-hover"
-                          DataProvider="CustomersDataProvider"
-                          AllowPaging="true"
-                          PageSize="5"
-                          HeaderRowCssClass="custom-header"
-                          OnRowClick="OnRowClick"
-                          Responsive="true">
-                        <GridColumns>
-                    <GridColumn TItem="UserDTO" HeaderText="Naam" PropertyName="Naam" SortString="Naam" SortKeySelector="item => item.Name">
-                                @context.Name
-                            </GridColumn>
-                    <GridColumn TItem="UserDTO" HeaderText="Achternaam" PropertyName="Surname" SortString="Surname" SortKeySelector="item => item.Surname">
-                        @context.Surname
-                    </GridColumn>
-                            <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email" SortString="Email" SortKeySelector="item => item.Email">
-                                @context.Email
-                            </GridColumn>
-                    <GridColumn TItem="UserDTO" HeaderText="Gsm-nummer" PropertyName="PhoneNumber" SortString="PhoneNumber" SortKeySelector="item => item.PhoneNumber">
-                        @context.PhoneNumber
-                    </GridColumn>
-                            <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive" >
-                                <div class="">
-                                    <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
-                                    @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
-                                @(context.IsActive ? "Deactiveer" : "Activeer")
-                            </button>
-                        </div>
-                    </GridColumn>
-                    <!-- Acties Column -->
+        <Grid TItem="UserDTO"
+              @ref="userGrid"
+              DataProvider="CustomersDataProvider"
+              AllowFiltering="true"
+              AllowSorting="true"
+              AllowPaging="true"
+              PageSize="10"
+              ShowPager="true"
+              Responsive="true"
+              Class="table table-hover">
+            <GridColumns>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Naam" 
+                           PropertyName="Name"
+                           SortKeySelector="@(item => item.Name)">
+                    @context.Name
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Achternaam" 
+                           PropertyName="Surname"
+                           SortKeySelector="@(item => item.Surname)">
+                    @context.Surname
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Email" 
+                           PropertyName="Email"
+                           SortKeySelector="@(item => item.Email)">
+                    @context.Email
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Gsm-nummer" 
+                           PropertyName="PhoneNumber"
+                           SortKeySelector="@(item => item.PhoneNumber)">
+                    @context.PhoneNumber
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Status" 
+                           PropertyName="IsActive" 
+                           SortKeySelector="item => item.IsActive">
+                    <div class="">
+                        <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
+                                @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
+                            @(context.IsActive ? "Deactiveer" : "Activeer")
+                        </button>
+                    </div>
+                </GridColumn>
+                
+                @if (_isBeheerder)  
+                {
                     <GridColumn TItem="UserDTO" HeaderText="Acties">
                         <div class="">
                             <button type="button" @onclick="() => ShowDeleteModal(context.Id)"
@@ -80,9 +92,9 @@
                             </a>
                         </div>
                     </GridColumn>
-                </GridColumns>
-            </Grid>
-        }
+                }
+            </GridColumns>
+        </Grid>
     </div>
         @if (isRolesModalVisible)
         {
@@ -166,8 +178,59 @@
     private bool isDeleteModalVisible = false;
     private bool isRolesModalVisible = false;
     private string selectedUserId;
+    private bool _isBeheerder = false;
+    private string _currentUserId;
 
+    private Grid<UserDTO> userGrid = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            Debug.WriteLine("OnInitializedAsync started");
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var isBeheerder = user.IsInRole("BEHEERDER");
+            _currentUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            Debug.WriteLine($"Current user ID: {_currentUserId}");
+            Debug.WriteLine($"Is Beheerder: {isBeheerder}");
+            
+            await LoadUsers();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in OnInitializedAsync: {ex.Message}");
+        }
+    }
+
+    private async Task LoadUsers()
+    {
+        try
+        {
+            Debug.WriteLine("LoadUsers started");
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var isBeheerder = authState.User.IsInRole("BEHEERDER");
+            
+            Debug.WriteLine($"Making request to: {(isBeheerder ? "/api/user" : $"api/user/{_currentUserId}/begeleider")}");
+            
+            if (isBeheerder)
+            {   
+                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
+                Debug.WriteLine($"Retrieved {_users?.Count} users");
+            }
+            else
+            {
+                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/begeleider");
+            }
+            
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in LoadUsers: {ex.Message}");
+        }
+    }
 
     private void ShowDeleteModal(string userId)
     {
@@ -177,32 +240,32 @@
 
     private async Task<GridDataProviderResult<UserDTO>> CustomersDataProvider(GridDataProviderRequest<UserDTO> request)
     {
-
         try
         {
-            _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
-            _hasError = !_users.Any();
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            _isBeheerder = user.IsInRole("BEHEERDER");
+            
+            List<UserDTO> users;
+            if (_isBeheerder)
+            {
+                Debug.WriteLine("Getting all users as BEHEERDER");
+                users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
+            }
+            else
+            {
+                Debug.WriteLine("Getting followers for begeleider");
+                users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/begeleider");
+            }
 
-
-        } catch (HttpRequestException ex)
-        {
-            _hasError = true;
-            Console.WriteLine($"Request error: {ex.Message}");
+            return request.ApplyTo(users ?? new List<UserDTO>());
         }
         catch (Exception ex)
         {
-            _hasError = true;
-            Console.WriteLine($"An error occurred: {ex.Message}");
+            Debug.WriteLine($"Error in CustomersDataProvider: {ex.Message}");
+            return request.ApplyTo(new List<UserDTO>());
         }
-        finally
-        {
-            _isLoading = false;
-            StateHasChanged();
-        }
-        return await Task.FromResult(request.ApplyTo(_users));
-
     }
-
 
     private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
     {
@@ -210,9 +273,6 @@
         userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
         isRolesModalVisible = true;
     }
-
-
-
 
     private void CloseModal(string modalType)
     {
@@ -228,7 +288,6 @@
         }
     }
 
-
     async Task Delete()
     {
         try
@@ -236,15 +295,10 @@
             var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
             if (response.IsSuccessStatusCode)
             {
-                var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
-                if (userToRemove != null)
-                {
-                    _users.Remove(userToRemove);
-                    selectedUser = null;
-                    selectedUserId = null;
-                    CloseModal("Delete");
-                    StateHasChanged();
-                }
+                await userGrid.RefreshDataAsync();
+                selectedUser = null;
+                selectedUserId = null;
+                CloseModal("Delete");
             }
         }
         catch (Exception ex)
@@ -253,31 +307,16 @@
         }
     }
 
-
     private async Task ToggleUserActiveStatus(string userId, bool isActive)
     {
         try
         {
             var command = new { UserId = userId, IsActive = isActive };
-
             var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate", command);
 
             if (response.IsSuccessStatusCode)
             {
-                var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
-                if (updatedUser != null)
-                {
-                    var localUser = _users.FirstOrDefault(u => u.Id == userId);
-                    if (localUser != null)
-                    {
-                        localUser.IsActive = updatedUser.IsActive;
-                    }
-                    StateHasChanged();
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Error updating user status: {response.ReasonPhrase}");
+                await userGrid.RefreshDataAsync();
             }
         }
         catch (Exception ex)
@@ -285,7 +324,5 @@
             Console.WriteLine($"Error during status update: {ex.Message}");
         }
     }
-
-
 }
 

@@ -5,7 +5,7 @@
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
 @inject AuthenticationStateProvider authStateProvider
-@attribute [Authorize(Policy = "RequireMakerRole")]
+@attribute [Authorize(Policy = "RequireManagementRole")]
 
 <CustomCards>
     <h3>Mijn trajectvolgers</h3>

@@ -21,13 +21,12 @@ namespace Gatam.WebAPI.Controllers
             _mediator = mediator;
         }
 
-
         [HttpGet]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
 
         {
-            var usersWithLocalStatus = await _mediator.Send(new GetUsersWithSyncQuery());
+            var usersWithLocalStatus = await _mediator.Send(new GetAllUsersQuery());
             return Ok(usersWithLocalStatus);
         }
 
@@ -55,7 +54,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPatch]
         [Route("setactivestate")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> SetActiveState([FromBody] DeactivateUserCommand command)
         {
             return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = command.UserId, IsActive = command.IsActive }));
@@ -103,15 +102,7 @@ namespace Gatam.WebAPI.Controllers
 
             return Ok(roles);
         }
-        [HttpGet("{UserId}/begeleider")]
-        [Authorize(Policy = "RequireVolgersRole")]
-        public async Task<IActionResult> GetBegeleiderForUser([FromRoute] string UserId)
-        {
-            var begeleiderDto = await _mediator.Send(new GetBegeleiderForUserQuery(UserId));
-            return Ok(begeleiderDto);
-        }
-
-
+        
         [HttpPut("AssignUserModule/{userId}")]
        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUserModule(string userId, [FromQuery] string moduleId)
@@ -185,6 +176,13 @@ namespace Gatam.WebAPI.Controllers
         {
             var command = await _mediator.Send(new DeleteUserRolesCommand() { UserId = id, Roles = rolesDTO });
             return Ok(command);
+        }
+        [HttpGet("{UserId}/begeleider")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUsersForBegeleider([FromRoute] string UserId)
+        {
+            var begeleiderDto = await _mediator.Send(new GetFollowersByMentorIdQuery(UserId));
+            return Ok(begeleiderDto);
         }
     }
 
