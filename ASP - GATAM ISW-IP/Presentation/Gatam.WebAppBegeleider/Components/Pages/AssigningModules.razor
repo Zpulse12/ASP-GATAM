@@ -160,7 +160,6 @@
         else
         {
             var content = await response.Content.ReadAsStringAsync();
-            Debug.WriteLine(content);
             ErrorMessage = "Het toewijzen van de module is mislukt.";
             SuccessMessage = null;
         }

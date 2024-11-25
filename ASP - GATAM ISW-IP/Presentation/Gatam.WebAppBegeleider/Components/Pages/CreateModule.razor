@@ -257,7 +257,6 @@
             else
             {
                 var content = await result.Content.ReadAsStringAsync();
-                Debug.WriteLine(content);
                 toastService.Notify(new(ToastType.Warning, "Er is een fout opgetreden bij het aanmaken van de module."));
             }
         }

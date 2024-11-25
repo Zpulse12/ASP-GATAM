@@ -48,7 +48,6 @@ namespace Gatam.Application.CQRS.Module
             await _uow.ModuleRepository.Create(_mapper.Map<ApplicationModule>(request._module));
             foreach(var question in request._module.Questions)
         {
-                question.ApplicationModuleId = request._module.Id;
                 await _uow.QuestionRepository.Create(question);
             }
             await _uow.Commit();
