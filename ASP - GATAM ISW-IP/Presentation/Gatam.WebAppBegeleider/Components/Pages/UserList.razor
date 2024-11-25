@@ -162,6 +162,7 @@
 
 @code {
     [Inject] ModalService ModalService { get; set; } = default!;
+    [Inject] protected ToastService toastService { get; set; } = default!;
 
     private List<UserDTO> _users = new List<UserDTO>();
 
@@ -174,7 +175,6 @@
     private bool _isLoading = true;
     private bool _hasError = false;
 
-    // Boolean to control modal
     private bool isDeleteModalVisible = false;
     private bool isRolesModalVisible = false;
     private string selectedUserId;
@@ -187,20 +187,16 @@
     {
         try 
         {
-            Debug.WriteLine("OnInitializedAsync started");
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
-            var isBeheerder = user.IsInRole("BEHEERDER");
+            _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
             _currentUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-            Debug.WriteLine($"Current user ID: {_currentUserId}");
-            Debug.WriteLine($"Is Beheerder: {isBeheerder}");
             
             await LoadUsers();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error in OnInitializedAsync: {ex.Message}");
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het initialiseren van de pagina."));
         }
     }
 
@@ -208,16 +204,13 @@
     {
         try
         {
-            Debug.WriteLine("LoadUsers started");
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var isBeheerder = authState.User.IsInRole("BEHEERDER");
+            _isBeheerder = authState.User.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
             
-            Debug.WriteLine($"Making request to: {(isBeheerder ? "/api/user" : $"api/user/{_currentUserId}/begeleider")}");
             
-            if (isBeheerder)
+            if (_isBeheerder)
             {   
                 _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
-                Debug.WriteLine($"Retrieved {_users?.Count} users");
             }
             else
             {
@@ -226,9 +219,9 @@
             
             StateHasChanged();
         }
-        catch (Exception ex)
+        catch
         {
-            Debug.WriteLine($"Error in LoadUsers: {ex.Message}");
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het laden van de gebruikers."));
         }
     }
 
@@ -244,17 +237,15 @@
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
-            _isBeheerder = user.IsInRole("BEHEERDER");
+            _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
             
             List<UserDTO> users;
             if (_isBeheerder)
             {
-                Debug.WriteLine("Getting all users as BEHEERDER");
                 users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
             }
             else
             {
-                Debug.WriteLine("Getting followers for begeleider");
                 users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/begeleider");
             }
 
@@ -262,7 +253,7 @@
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error in CustomersDataProvider: {ex.Message}");
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het ophalen van de gebruikers."));
             return request.ApplyTo(new List<UserDTO>());
         }
     }
@@ -299,11 +290,16 @@
                 selectedUser = null;
                 selectedUserId = null;
                 CloseModal("Delete");
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol verwijderd."));
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error deleting user: {ex.Message}");
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));
         }
     }
 
@@ -317,11 +313,16 @@
             if (response.IsSuccessStatusCode)
             {
                 await userGrid.RefreshDataAsync();
+                toastService.Notify(new(ToastType.Success, $"Gebruiker status succesvol {(isActive ? "geactiveerd" : "gedeactiveerd")}."));
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het wijzigen van de gebruiker status."));
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error during status update: {ex.Message}");
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het wijzigen van de gebruiker status."));
         }
     }
 }
