@@ -21,15 +21,15 @@ namespace Gatam.Infrastructure.Repositories
         {
             _context = context;
         }
-
         public async Task<UserModule> FindByIdModuleWithIncludes(string id)
         {
             return await _context.UserModules
-                            .Include(um => um.Module)
-                                .ThenInclude(m => m.Questions)
-                                    .ThenInclude(q => q.Answers)
-                                        .ThenInclude(x => x.GivenUserAnswers)
-                                            .FirstOrDefaultAsync(um => um.Id == id);
+        .Include(x => x.Module)
+            .ThenInclude(x => x.Questions)
+            .ThenInclude(x => x.Answers)
+        .Include(x => x.UserGivenAnswers)
+        .Include(x => x.UserQuestions)
+        .FirstOrDefaultAsync(um => um.Id == id);
         }
 
     }
