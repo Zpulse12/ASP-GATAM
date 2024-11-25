@@ -8,7 +8,7 @@ namespace Gatam.Domain
         public  string Title { get; set; }
         public  string Category { get; set; }
         public DateTime CreatedAt { get; set; }
-        public ICollection<Question>? Questions { get; set; } = new List<Question>();
+        public ICollection<Question> Questions { get; set; } = new List<Question>();
         [JsonIgnore]
         public ICollection<UserModule> UserModules { get; set; } = new List<UserModule>();
 

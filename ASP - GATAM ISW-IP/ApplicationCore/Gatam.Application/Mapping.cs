@@ -11,13 +11,15 @@ namespace Gatam.Application
     {
         public Mapping()
         {
-                CreateMap<ApplicationUser, UserDTO>();
+            CreateMap<ApplicationUser, UserDTO>();
             CreateMap<UserDTO, ApplicationUser>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
+        CreateMap<ModuleDTO, ApplicationModule>();
         CreateMap<ApplicationModule, ModuleDTO>();
-        
-        CreateMap<Question, QuestionDTO>()
+
+
+         CreateMap<Question, QuestionDTO>()
             .ForMember(dest => dest.UserQuestion, 
                       opt => opt.MapFrom(src => src.UserQuestions.FirstOrDefault()));
 
