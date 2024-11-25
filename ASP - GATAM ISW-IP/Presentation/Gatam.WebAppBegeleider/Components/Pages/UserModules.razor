@@ -1,10 +1,13 @@
 @page "/modules-per-gebruiker"
 @using System.Diagnostics
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Application.CQRS.DTOS.QuestionsDTO
 @inject ApiClient ApiClient
 @rendermode InteractiveServer
+@attribute [Authorize(Policy = "RequireManagementRole")]
+
 
 <link href="css/user-modules.css" rel="stylesheet" />
 
@@ -34,12 +37,16 @@ else
                     <div class="user-module-info">
                         <span class="username">@userModule.User.Username</span>
                         <span class="module-title">@userModule.Module.Title</span>
+                        @if (userModule.State != UserModuleState.NotStarted)
+                        {
+                            <Badge Color="BadgeColor.Secondary">Module gestart</Badge>
+                        }
                     </div>
-                    <i class="bi bi-chevron-down"></i>
+                    <i class="bi bi-chevron-down ml-4"></i>
                 </div>
 
                 <div class="module-content @(_expandedModules.Contains(userModule.Id) ? "show" : "")">
-                    @foreach (var questionSetting in userModule.UserQuestion)
+                    @foreach (var questionSetting in userModule.UserQuestions)
                     {
                         <div class="question-item">
                             <div class="question-content">
@@ -47,12 +54,16 @@ else
                                 <span class="question-type">@GetQuestionTypeText(questionSetting.QuestionType)</span>
                             </div>
                             <div class="visibility-toggle">
-                                <label class="switch">
-                                    <input type="checkbox" 
-                                           checked="@questionSetting.IsVisible"
-                                           @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
-                                    <span class="slider"></span>
-                                </label>
+                                
+                                @if(userModule.State == UserModuleState.NotStarted)
+                                {
+                                    <label class="switch">
+                                        <input type="checkbox"
+                                               checked="@questionSetting.IsVisible"
+                                               @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
+                                        <span class="slider"></span>
+                                    </label>
+                                }
                                 <span class="toggle-label">@(questionSetting.IsVisible ? "Zichtbaar" : "Verborgen")</span>
                             </div>
                         </div>
@@ -109,9 +120,10 @@ else
 
     private string GetQuestionTypeText(int questionType) => questionType switch
     {
+        0 => "Meerkeuze",
         1 => "Open vraag",
-        2 => "Multiple choice",
-        3 => "Ja/Nee",
+        2 => "Waar/Onwaar",
+        3 => "Keuzelijst",
         _ => "Onbekend type"
     };
 
