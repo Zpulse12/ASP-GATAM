@@ -93,6 +93,7 @@ namespace Gatam.WebAPI.Controllers
             return Ok(result);
         }
         [HttpPatch("{userQuestionId}/priority")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UpdateUserQuestionPriority(string userQuestionId, UpdateQuestionPriorityRequestObject requestObject)
         {
             var result = await _mediator.Send(new UpdateQuestionPriorityCommand
