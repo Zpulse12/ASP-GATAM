@@ -15,6 +15,12 @@
 <CustomCards>
      @if (moduleBeingEdited != null)
     {
+        @if (showWarning)
+        {
+            <div class="alert alert-warning">
+                De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger(s).
+            </div>
+        }
         <h3>Module bewerken !</h3>
 
         <div class="mb-3">
@@ -112,6 +118,8 @@
     private bool _hasError = false;
     private bool isLoading = false;
 
+    private bool showWarning = false;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -126,13 +134,11 @@
             }
             else
             {
-                Debug.WriteLine("Geen vragen gevonden.");
                 toastService.Notify(new(ToastType.Warning, "Geen vragen gevonden in deze module."));
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Fout bij ophalen module: {ex.Message}");
             toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het ophalen van de module."));
         }
         finally
@@ -159,10 +165,24 @@
                     Questions = moduleBeingEdited.Questions
                 };
 
-            await apiclient.PutAsJsonAsync($"/api/module/{moduleBeingEdited.Id}", updatedModule);
-
-            toastService.Notify(new(ToastType.Success, "Module succesvol opgeslagen!"));
-            StateHasChanged();
+            var response = await apiclient.PutAsJsonAsync($"/api/module/{moduleBeingEdited.Id}", updatedModule);
+            if(response.IsSuccessStatusCode){
+                toastService.Notify(new(ToastType.Success, "Module succesvol opgeslagen!"));
+                StateHasChanged();
+            }
+            else{
+                var errorContent = await response.Content.ReadAsStringAsync();
+                if (errorContent.Contains("in gebruik"))
+                {
+                    toastService.Notify(new(ToastType.Warning, $"De module {moduleBeingEdited.Title} kan niet worden bewerkt omdat deze in gebruik is."));
+                    showWarning = true;
+                }
+                else
+                {
+                    toastService.Notify(new(ToastType.Danger, "Er is een onverwachte fout opgetreden."));
+                }
+            }
+            
         }
         catch (Exception ex)
         {
@@ -172,103 +192,8 @@
     }
 
 
-    public async Task HandleValidSubmit()
-    {
-        isLoading = true;
-        AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        ClaimsPrincipal user = authState.User;
-        newQuestion.QuestionType = (short)selectedOption;
-        if ((QuestionType)newQuestion.QuestionType == QuestionType.TRUE_OR_FALSE)
-        {
-            answers.Add(currentAnswer);
-        }
-        if ((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
-        {
-            answers.Add(currentAnswer);
-        }
-        newQuestion.Answers = answers;
+    
 
-
-        if (user.Identity != null && user.Identity.IsAuthenticated)
-        {
-            string userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            newQuestion.CreatedUserId = userId;
-            newQuestion.LastUpdatedUserId = userId;
-            try
-            {
-                newQuestion.ApplicationModuleId = moduleBeingEdited.Id;
-                questions.Add(newQuestion);
-                toastService.Notify(new(ToastType.Success, "Vraag toegevoegd aan de module!", "Vraag is lokaal opgeslagen."));
-                ResetForm();
-
-            }
-            catch (Exception e)
-            {
-                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", e.Message));
-            }
-            finally
-            {
-                Thread.Sleep(200);
-                isLoading = false;
-                UpdateTable();
-            }
-        }
-        else
-        {
-            isLoading = false;
-            toastService.Notify(new(ToastType.Danger, "Geen gebruiker gevonden in de huidige context. Ben je ingelogd?", "Geen gebruiker id gevonden."));
-            return;
-        }
-    }
-
-    private async Task RemoveQuestion(Question question)
-    {
-        if (question == null)
-            return;
-
-        questions.Remove(question);
-
-        await questionGrid.RefreshDataAsync();
-
-        toastService.Notify(new(ToastType.Success, $"De vraag '{question.QuestionTitle}' is succesvol verwijderd."));
-    }
-
-    private async void AddAnswerToList()
-    {
-        if (string.IsNullOrWhiteSpace(answerBeingEdited.Answer))
-        {
-            toastService.Notify(new(ToastType.Warning, "Antwoord mag niet leeg zijn"));
-            return;
-        }
-        answers.Add(new QuestionAnswer() { Answer = answerBeingEdited.Answer, AnswerValue = answerBeingEdited.AnswerValue, QuestionId = newQuestion.Id });
-        await answerGrid.RefreshDataAsync();
-        answerBeingEdited = new QuestionAnswer() { AnswerValue = "true" };
-    }
-    private async void RemoveAnswerFromList(QuestionAnswer answer)
-    {
-        answers.Remove(answer);
-        await answerGrid.RefreshDataAsync();
-    }
-
-    private async Task OnShowModalClick()
-    {
-        await modal.ShowAsync();
-    }
-
-    private async void UpdateTable()
-    {
-        questionGrid.Data = questions;
-        questionGrid.RefreshDataAsync();
-    }
-
-
-    private void ResetForm()
-    {
-        newQuestion = new Question();
-        answers.Clear();
-        answers.Append(new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id });
-        editContext = new EditContext(questionBeingEdited);
-        selectedOption = QuestionType.OPEN;
-    }
+    
 
 }

@@ -25,22 +25,31 @@ namespace Gatam.Application.CQRS.Module
  
         }
     }
-    public class DeleteModuleCommandHandler(IModuleRepository moduleRepository, IUserRepository userRepository) : IRequestHandler<DeleteModuleCommand, bool>
+    public class DeleteModuleCommandHandler: IRequestHandler<DeleteModuleCommand, bool>
     {
+        private readonly IUnitOfWork _uow;
+        private readonly IUserRepository _userRepository;
+
+        public DeleteModuleCommandHandler(IUnitOfWork uow, IUserRepository userRepository)
+        {
+            this._uow = uow;
+            this._userRepository=userRepository;
+        }
+
         public async Task<bool> Handle(DeleteModuleCommand request, CancellationToken cancellationToken)
         {
 
-            var usersWithModule = await userRepository.GetUsersByModuleIdAsync(request.ModuleId);
+            var usersWithModule = await _userRepository.GetUsersByModuleIdAsync(request.ModuleId);
 
             if (usersWithModule.SelectMany(u => u.UserModules)
                                .Any(um => um.ModuleId == request.ModuleId && um.State == UserModuleState.InProgress))
             {
                 throw new InvalidOperationException("De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.");
             }
-            var module = await moduleRepository.FindByIdWithQuestions(request.ModuleId);
+            var module = await _uow.ModuleRepository.FindByIdWithQuestions(request.ModuleId);
             if (module != null)
             {
-                await moduleRepository.Delete(module);
+                await _uow.ModuleRepository.Delete(module);
                 return true;
             }
             return false;

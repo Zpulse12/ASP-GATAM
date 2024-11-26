@@ -22,15 +22,24 @@ namespace Gatam.Application.CQRS.Module
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
-        public UpdateModuleCommandHandler(IUnitOfWork uow, IMapper mapper)
+        private readonly IUserRepository _userRepository;
+
+        public UpdateModuleCommandHandler(IUnitOfWork uow, IMapper mapper, IUserRepository userRepository)
         {
             _uow = uow;
             _mapper = mapper;
-
+            _userRepository=userRepository;
         }
 
         public async Task<ModuleDTO> Handle(UpdateModuleCommand request, CancellationToken cancellationToken)
         {
+            var usersWithModule = await _userRepository.GetUsersByModuleIdAsync(request.Id);
+
+            if (usersWithModule.SelectMany(u => u.UserModules)
+                               .Any(um => um.ModuleId == request.Id && um.State == UserModuleState.InProgress))
+            {
+                throw new InvalidOperationException("De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.");
+            }
 
             var moduleEntity = _mapper.Map<ApplicationModule>(request.Module);
 
