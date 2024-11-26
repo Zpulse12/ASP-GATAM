@@ -1,0 +1,45 @@
+﻿@page "/content/modules/{Id}"
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.WebAppBegeleider.Extensions
+@using System.Diagnostics
+
+@inject ApiClient apiclient
+
+<h3>EditModule</h3>
+@if (moduleBeingEdited == null)
+{
+    <p>Module wordt geladen...</p>
+}
+else
+{
+    <h3>Bewerk Module</h3>
+    <p>@moduleBeingEdited.Title</p>
+}
+
+@code {
+    [Parameter] public string Id { get; set; } = "";
+    private ModuleDTO moduleBeingEdited;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine($"Id-parameter ontvangen: {Id}");
+        if (string.IsNullOrEmpty(Id))
+        {
+            Debug.WriteLine("Id is leeg of null!");
+            return;
+        }
+
+        try
+        {
+            moduleBeingEdited = await apiclient.GetFromJsonAsync<ModuleDTO>($"/api/module/{Id}");
+            if (moduleBeingEdited == null)
+            {
+                Debug.WriteLine("Module niet gevonden.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Fout bij ophalen module: {ex.Message}");
+        }
+    }
+}

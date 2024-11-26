@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Gatam.Application.CQRS.DTOS.ModulesDTO;
 using Gatam.Application.CQRS.User;
+using Gatam.Application.CQRS.Questions;
 
 namespace Gatam.WebAPI.Controllers
 {
@@ -25,6 +26,27 @@ namespace Gatam.WebAPI.Controllers
         {
                 var modules = await _mediator.Send(new GetAllModulesQuery());
                 return Ok(modules);
+        }
+
+        [HttpGet("{moduleId}")]
+        //[Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> GetModuleById(string moduleId)
+        {
+            var moduleById = await _mediator.Send(new GetModuleByIdQuery { Id = moduleId });
+            if (moduleById == null)
+            {
+                return NotFound("module niet gevonden");
+            }
+
+            return Ok(moduleById);
+        }
+
+        [HttpPut("{moduleId}")]
+        //[Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> UpdateModule(string moduleId, [FromBody] ModuleDTO module)
+        {
+            var returnedModule = await _mediator.Send(new UpdateModuleCommand() { Module = module, Id = moduleId });
+            return Ok(returnedModule);
         }
 
         [HttpPost]

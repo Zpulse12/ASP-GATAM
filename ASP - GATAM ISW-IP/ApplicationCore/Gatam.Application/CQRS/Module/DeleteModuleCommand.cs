@@ -21,12 +21,9 @@ namespace Gatam.Application.CQRS.Module
         public DeleteModuleCommandValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-           
-           
         }
     }
-    public class DeleteModuleCommandHandler(IModuleRepository moduleRepository)
-        : IRequestHandler<DeleteModuleCommand, bool>
+    public class DeleteModuleCommandHandler(IModuleRepository moduleRepository, IUserRepository userRepository) : IRequestHandler<DeleteModuleCommand, bool>
     {
         public async Task<bool> Handle(DeleteModuleCommand request, CancellationToken cancellationToken)
         {

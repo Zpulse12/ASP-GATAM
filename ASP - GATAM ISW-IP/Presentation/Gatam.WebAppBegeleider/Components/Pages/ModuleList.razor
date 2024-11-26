@@ -112,6 +112,9 @@
             </GridColumn>
             <GridColumn TItem="ApplicationModule" HeaderText="Actie" Filterable="false">
                 <div>
+                    <a class="btn btn-outline-secondary" href="/content/modules/@(context.Id)" @onclick:stopPropagation>
+                        <i class="bi bi-pencil"></i>
+                    </a>
                     <button type="button" @onclick="@(() => OnShowDeleteModalClick(@context))"
                     class="btn btn-outline-danger"
                     data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
