@@ -159,8 +159,6 @@
     private Question newQuestion = new Question();
 
     [Inject] protected ToastService toastService { get; set; } = default!;
-    [Parameter] public bool IsVisible { get; set; }
-    [Parameter] public EventCallback<bool> OnConfirm { get; set; }
     [Parameter] public string Message { get; set; } = "Weet u zeker dat u wilt annuleren zonder uw wijzigingen op te slaan?";
 
 

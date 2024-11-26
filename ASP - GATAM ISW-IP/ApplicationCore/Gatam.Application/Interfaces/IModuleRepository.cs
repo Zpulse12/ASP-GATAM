@@ -10,4 +10,5 @@ namespace Gatam.Application.Interfaces;
 {
     
         Task<ApplicationModule> FindByIdWithQuestions(string moduleId);
+        Task UpdateModuleWithQuestions(ApplicationModule module);
 }

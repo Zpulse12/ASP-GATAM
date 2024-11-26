@@ -29,7 +29,7 @@ namespace Gatam.Application.CQRS.Module
 
         public async Task<ModuleDTO> Handle(GetModuleByIdQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<ModuleDTO>(await _uow.ModuleRepository.FindById(request.Id));
+            return _mapper.Map<ModuleDTO>(await _uow.ModuleRepository.FindByIdWithQuestions(request.Id));
         }
 
     }

@@ -54,7 +54,7 @@
                     @if (showWarning)
                     {
                         <div class="alert alert-warning">
-                            De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.
+                            De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger(s).
                         </div>
                     }
                     <p>Weet je zeker dat je deze module wilt verwijderen?</p>
@@ -84,7 +84,7 @@
         </BodyTemplate>
         <FooterTemplate>
             <button type="button" class="btn btn-outline-danger" @onclick="Delete" disabled="@showWarning">Verwijder</button>
-            <button class="btn btn-danger" @onclick="OnHideModalClick">Sluiten</button>
+            <button class="btn btn-primary" @onclick="OnHideModalClick">Sluiten</button>
         </FooterTemplate>
     </Modal>
 
@@ -128,7 +128,7 @@
                     </button>
                     <button type="button"
                     class="btn" style="background-color:#4454D2; color:white"
-                    @onclick="@(() => OnShowModalClick(@context))">
+                            @onclick="@(() => OnShowModalClick(@context))" @onclick:stopPropagation>
                         <i class="bi bi-info-circle"></i> Details Bekijken
                     </button>
                 </div>
@@ -179,7 +179,6 @@
             }
             else
             {
-                // Controleer op een specifieke fout
                 var errorContent = await response.Content.ReadAsStringAsync();
                 if (errorContent.Contains("in gebruik"))
                 {

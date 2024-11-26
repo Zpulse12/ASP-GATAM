@@ -32,7 +32,9 @@ namespace Gatam.Application.CQRS.Module
         public async Task<ModuleDTO> Handle(UpdateModuleCommand request, CancellationToken cancellationToken)
         {
 
-            await _uow.ModuleRepository.Update(_mapper.Map<ApplicationModule>(request.Module));
+            var moduleEntity = _mapper.Map<ApplicationModule>(request.Module);
+
+            await _uow.ModuleRepository.UpdateModuleWithQuestions(moduleEntity);
 
             await _uow.Commit();
 
