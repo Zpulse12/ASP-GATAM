@@ -51,9 +51,15 @@
             @if (selectedModule != null)
             {
                 <div class="modal-body">
-                    Weet je zeker dat je deze module wilt verwijderen? 
+                    @if (showWarning)
+                    {
+                        <div class="alert alert-warning">
+                            De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.
+                        </div>
+                    }
+                    <p>Weet je zeker dat je deze module wilt verwijderen?</p>
                 </div>
-                <hr/>
+                <hr />
                 <div>
                     <p><strong>Title:</strong> @selectedModule.Title</p>
                     <p><strong>Category:</strong> @selectedModule.Category</p>
@@ -77,7 +83,7 @@
             }
         </BodyTemplate>
         <FooterTemplate>
-            <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
+            <button type="button" class="btn btn-outline-danger" @onclick="Delete" disabled="@showWarning">Verwijder</button>
             <button class="btn btn-danger" @onclick="OnHideModalClick">Sluiten</button>
         </FooterTemplate>
     </Modal>
@@ -139,6 +145,7 @@
     private Modal? modal;
     private ApplicationModule? selectedModule;
     private bool isModalOpen;
+    private bool showWarning = false;
 
     [Inject] protected ToastService toastService { get; set; } = default!;
 
@@ -154,10 +161,11 @@
     }
 
 
-    private async Task Delete(){
-        try{
+    private async Task Delete()
+    {
+        try
+        {
             var response = await apiClient.DeleteAsync($"api/module/delete/{selectedModule.Id}");
-            Debug.WriteLine(response);
             if (response.IsSuccessStatusCode)
             {
                 var moduleToRemove = modules.FirstOrDefault(u => u.Id == selectedModule.Id);
@@ -169,9 +177,24 @@
                     StateHasChanged();
                 }
             }
+            else
+            {
+                // Controleer op een specifieke fout
+                var errorContent = await response.Content.ReadAsStringAsync();
+                if (errorContent.Contains("in gebruik"))
+                {
+                    toastService.Notify(new(ToastType.Warning, $"De module {selectedModule.Title} kan niet worden verwijderd omdat deze in gebruik is."));
+                    showWarning = true;
+                }
+                else
+                {
+                    toastService.Notify(new(ToastType.Danger, "Er is een onverwachte fout opgetreden."));
+                }
+            }
         }
-        catch (Exception ex){
-            toastService.Notify(new(ToastType.Warning, "Er is een onverwachte fout opgetreden bij het versturen van de aanvraag."));
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een onverwachte fout opgetreden bij het versturen van de aanvraag."));
         }
     }
 
