@@ -4,6 +4,7 @@
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Application.CQRS.DTOS.QuestionsDTO
+@using Gatam.WebAppBegeleider.Extensions.RequestObjects
 @inject ApiClient ApiClient
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireManagementRole")]
@@ -53,8 +54,18 @@ else
                                 <h6>@questionSetting.QuestionTitle</h6>
                                 <span class="question-type">@GetQuestionTypeText(questionSetting.QuestionType)</span>
                             </div>
+                            <div class="priority-spacing mr-5">
+                                <span class="toggle-label">Prioriteit</span>
+                                <div class="priority-flex">
+                                    <InputSelect @bind-Value="questionSetting.QuestionPriority" class="form-control mb-3">
+                                        <option value="@QuestionPriority.HIGH">Hoog</option>
+                                        <option value="@QuestionPriority.MEDIUM">Gemiddeld</option>
+                                        <option value="@QuestionPriority.LOW">Laag</option>
+                                    </InputSelect>
+                                    <Button Color="ButtonColor.Primary" @onclick="async () => await UpdateQuestionPriority(questionSetting) ">Prioriteit opslaan</Button>
+                                </div>
+                            </div>
                             <div class="visibility-toggle">
-                                
                                 @if(userModule.State == UserModuleState.NotStarted)
                                 {
                                     <label class="switch">
@@ -79,6 +90,8 @@ else
     private bool _loading = true;
     private HashSet<string> _expandedModules = new();
 
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadUserModules();
@@ -93,7 +106,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading user modules: {ex.Message}");
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het ophalen van de gebruikers modules.", ex.Message));
             _userModules = new List<UserModuleDTO>();
         }
         finally
@@ -105,7 +118,7 @@ else
     private async Task ToggleQuestionVisibility(UserQuestionDTO userQuestion)
     {
         if (userQuestion == null) return;
-        
+
         try
         {
             userQuestion.IsVisible = !userQuestion.IsVisible;
@@ -114,7 +127,25 @@ else
         catch (Exception ex)
         {
             userQuestion.IsVisible = !userQuestion.IsVisible;
-            Debug.WriteLine($"Error updating visibility: {ex.Message}");
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanpassen van de zichtbaar.", ex.Message));
+        }
+    }
+    private async Task UpdateQuestionPriority(UserQuestionDTO userQuestion)
+    {
+        if (userQuestion == null) return;
+        if (!Enum.IsDefined(typeof(QuestionPriority), userQuestion.QuestionPriority))
+        {
+            toastService.Notify(new(ToastType.Warning, "Ongeldige prioriteit opgegeven"));
+            return;
+        }
+        try
+        {
+            await ApiClient.PatchAsJsonAsync<UpdateQuestionPriorityRequestObject>($"api/question/{userQuestion.Id}/priority", new UpdateQuestionPriorityRequestObject() { QuestionPriority = userQuestion.QuestionPriority });
+            toastService.Notify(new(ToastType.Success, "Prioriteit succesvol aangepast"));
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanpassen van de prioriteit", ex.Message));
         }
     }
 

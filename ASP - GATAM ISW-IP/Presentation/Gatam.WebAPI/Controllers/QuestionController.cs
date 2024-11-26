@@ -1,6 +1,8 @@
 ﻿using Gatam.Application.CQRS.Questions;
+using Gatam.Application.CQRS.Questions.Gatam.Application.CQRS.Questions;
 using Gatam.Domain;
 using Gatam.WebAPI.Extensions;
+using Gatam.WebAppBegeleider.Extensions.RequestObjects;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +22,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpGet]
-        //[Authorize(Policy = "RequireMakerRole")]
+        [Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> GetAllQuestions()
         {
             IEnumerable<Question> questions = await _mediator.Send(new GetAllQuestionsQuery());
@@ -37,7 +39,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Policy = "RequireMakerRole")]
+        [Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> CreateQuestion([FromBody] Question question) 
         {
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
@@ -52,7 +54,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("{questionId}")]
-        //[Authorize(Policy = "RequireMakerRole")]
+        [Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> GetQuestionById(string questionId)
         {
             var questionById = await _mediator.Send(new GetQuestionByIdQuery { Id = questionId });
@@ -65,7 +67,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("{questionId}")]
-       //[Authorize(Policy = "RequireMakerRole")]
+        [Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> UpdateQuestion(string questionId, [FromBody] Question question)
         {
             var returnedQuestion = await _mediator.Send(new UpdateQuestionCommand() {  Question = question, Id = questionId, });
@@ -80,12 +82,23 @@ namespace Gatam.WebAPI.Controllers
         // }
 
         [HttpPut("visibility")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UpdateVisibility(string userQuestionId, bool isVisible)
         {
             var result = await _mediator.Send(new UpdateQuestionVisibilityCommand
             {
                 UserQuestionId = userQuestionId,
                 IsVisible = isVisible
+            });
+            return Ok(result);
+        }
+        [HttpPatch("{userQuestionId}/priority")]
+        public async Task<IActionResult> UpdateUserQuestionPriority(string userQuestionId, UpdateQuestionPriorityRequestObject requestObject)
+        {
+            var result = await _mediator.Send(new UpdateQuestionPriorityCommand
+            {
+                UserQuestionId = userQuestionId,
+                Priority = requestObject.QuestionPriority
             });
             return Ok(result);
         }
