@@ -65,7 +65,7 @@ namespace Gatam.Application.CQRS.Module
             
             var moduleEntity = _mapper.Map<ApplicationModule>(request.Module);
 
-            await _uow.ModuleRepository.UpdateModuleWithQuestions(moduleEntity);
+            await _uow.ModuleRepository.Update(moduleEntity);
 
             await _uow.Commit();
 

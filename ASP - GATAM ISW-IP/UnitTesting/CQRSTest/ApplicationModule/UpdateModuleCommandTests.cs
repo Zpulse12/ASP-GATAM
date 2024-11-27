@@ -19,7 +19,6 @@ namespace UnitTesting.CQRSTest.ApplicationModule
         private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<IMapper> _mockMapper;
         private UpdateModuleCommandHandler _handler;
-      
 
         [TestInitialize]
         public void Setup()
@@ -27,9 +26,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockMapper = new Mock<IMapper>();
             _handler = new UpdateModuleCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object);
-            
         }
-
 
         [TestMethod]
         public async Task ShouldUpdateModule_WhenValidCommandProvided()
@@ -64,10 +61,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule
                 .Setup(mapper => mapper.Map<Gatam.Domain.ApplicationModule>(moduleDTO))
                 .Returns(applicationModule);
 
-            _mockUnitOfWork
-                .Setup(uow => uow.ModuleRepository.UpdateModuleWithQuestions(applicationModule))
-                .Returns(Task.CompletedTask);
-
+          
             _mockUnitOfWork.Setup(uow => uow.Commit()).Returns(Task.CompletedTask);
 
             // Act
@@ -78,7 +72,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule
             Assert.AreEqual(moduleDTO.Title, result.Title, "De module titel is niet goed geüpdatet.");
             Assert.AreEqual(moduleDTO.Category, result.Category, "De module categorie is niet goed geüpdatet.");
 
-            _mockUnitOfWork.Verify(uow => uow.ModuleRepository.UpdateModuleWithQuestions(applicationModule), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.ModuleRepository.Update(applicationModule), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.Commit(), Times.Once);
         }
     }

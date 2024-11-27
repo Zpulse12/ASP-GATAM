@@ -57,12 +57,10 @@ namespace Gatam.Application.CQRS.Module
         {
 
             var module = await _uow.ModuleRepository.FindByIdWithQuestions(request.ModuleId);
-            if (module != null)
-            {
-                await _uow.ModuleRepository.Delete(module);
-                return true;
-            }
-            return false;
+            await _uow.ModuleRepository.Delete(module);
+            return true;
+            
+            
         }
     }
 }
