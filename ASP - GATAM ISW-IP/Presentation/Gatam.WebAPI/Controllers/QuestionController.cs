@@ -45,7 +45,7 @@ namespace Gatam.WebAPI.Controllers
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
             return Created("", createdQuestion);
         }
-        [HttpGet("visible/{followerId}")]
+        [HttpGet("{followerId}/visible/")]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetVisibleQuestionsForFollower(string followerId)
         {
