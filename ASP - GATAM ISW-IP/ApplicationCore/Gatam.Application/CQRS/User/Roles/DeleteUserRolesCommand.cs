@@ -51,32 +51,36 @@ namespace Gatam.Application.CQRS.User.Roles
         private readonly IManagementApi _managementApi;
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
+
         public DeleteUserRolesCommandHandler(IManagementApi managementApi, IUnitOfWork uow, IMapper mapper)
         {
             _managementApi = managementApi;
             _uow = uow;
             _mapper = mapper;
         }
+
         public async Task<UserDTO> Handle(DeleteUserRolesCommand request, CancellationToken cancellationToken)
         {
-            Result<bool> result = await _managementApi.DeleteUserRoles(request.UserId, request.Roles);
-            if (result.Success)
+            Result<bool> auth0Result = await _managementApi.DeleteUserRoles(request.UserId, request.Roles);
+            if (!auth0Result.Success)
             {
-                try
-                {
-                    ApplicationUser user = await _uow.UserRepository.FindById(request.UserId);
-                    user.RolesIds.RemoveAll(item => request.Roles.Roles.Contains(item));
-                    await _uow.UserRepository.Update(user);
-                    await _uow.Commit();
-                    return _mapper.Map<UserDTO>(user);
-                }
-                catch (Exception ex) {
-                    throw ex;
-                }
-            } else
-            {
-                throw result.Exception;
+                throw auth0Result.Exception ?? new Exception("Failed to delete roles in Auth0");
             }
+
+            var user = await _uow.UserRepository.GetUserWithRoles(request.UserId);
+            
+            var rolesToRemove = user.UserRoles
+                .Where(ur => request.Roles.Roles.Contains(ur.RoleId))
+                .ToList();
+
+            foreach (var roleToRemove in rolesToRemove)
+            {
+                _uow.UserRepository.RemoveUserRole(roleToRemove);
+            }
+
+            await _uow.Commit();
+
+            return _mapper.Map<UserDTO>(user);
         }
     }
 
