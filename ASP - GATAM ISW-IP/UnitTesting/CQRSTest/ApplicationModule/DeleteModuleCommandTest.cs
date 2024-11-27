@@ -1,4 +1,5 @@
-﻿using Gatam.Application.CQRS.Module;
+﻿using FluentValidation.TestHelper;
+using Gatam.Application.CQRS.Module;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Moq;
@@ -14,45 +15,98 @@ namespace UnitTesting.CQRSTest.ApplicationModule
     public class DeleteModuleCommandTest
     {
         private Mock<IUnitOfWork> _mockUnitOfWork;
-        private Mock<IUserRepository> _mockUserRepository;
-        private DeleteModuleCommandHandler _handler;
+        private DeleteModuleCommandValidator _validator;
 
         [TestInitialize]
         public void Setup()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
-            _mockUserRepository = new Mock<IUserRepository>();
-            _handler = new DeleteModuleCommandHandler(_mockUnitOfWork.Object, _mockUserRepository.Object);
+            _validator = new DeleteModuleCommandValidator(_mockUnitOfWork.Object);
         }
 
         [TestMethod]
-        public async Task ShouldThrowException_WhenModuleIsInUse()
+        public async Task ShouldFail_WhenModuleIdIsEmpty()
         {
             // Arrange
-            var moduleId = "module123";
-            var command = new DeleteModuleCommand { ModuleId = moduleId };
+            var command = new DeleteModuleCommand { ModuleId = "" };
 
-            var userWithModule = new Gatam.Domain.ApplicationUser
-            {
-                Id = "user1",
-                UserModules = new List<Gatam.Domain.UserModule>
-            {
-                new Gatam.Domain.UserModule { ModuleId = moduleId, State = UserModuleState.InProgress }
-            }
-            };
+            // Act
+            var result = await _validator.TestValidateAsync(command);
 
-            _mockUserRepository
-                .Setup(repo => repo.GetUsersByModuleIdAsync(It.IsAny<string>()))
-                .ReturnsAsync(new List<Gatam.Domain.ApplicationUser> { userWithModule });
-
-            // Act & Assert
-            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
-            {
-                await _handler.Handle(command, CancellationToken.None);
-            });
+            // Assert
+            result.ShouldHaveValidationErrorFor(c => c.ModuleId)
+                  .WithErrorMessage("Module ID cannot be empty");
         }
 
-       
+        [TestMethod]
+        public async Task ShouldFail_WhenModuleDoesNotExist()
+        {
+            // Arrange
+            var command = new DeleteModuleCommand { ModuleId = "nonexistent" };
 
+            _mockUnitOfWork
+                .Setup(u => u.ModuleRepository.FindByIdWithQuestions(It.IsAny<string>()))
+                .ReturnsAsync((Gatam.Domain.ApplicationModule)null);
+
+            // Act
+            var result = await _validator.TestValidateAsync(command);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(c => c.ModuleId)
+                  .WithErrorMessage("The module doesnt exist");
+        }
+
+        [TestMethod]
+        public async Task ShouldFail_WhenModuleIsInUse()
+        {
+            // Arrange
+            var command = new DeleteModuleCommand { ModuleId = "module123" };
+
+            _mockUnitOfWork
+                .Setup(u => u.UserRepository.GetUsersByModuleIdAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<Gatam.Domain.ApplicationUser>
+                {
+                    new Gatam.Domain.ApplicationUser
+                    {
+                        UserModules = new List<Gatam.Domain.UserModule>
+                        {
+                            new Gatam.Domain.UserModule
+                            {
+                                ModuleId = "module123",
+                                State = UserModuleState.InProgress
+                            }
+                        }
+                    }
+                });
+
+            // Act
+            var result = await _validator.TestValidateAsync(command);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(c => c.ModuleId)
+                  .WithErrorMessage("De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.");
+        }
+
+        [TestMethod]
+        public async Task ShouldPass_WhenModuleIdIsValidAndNotInUse()
+        {
+            // Arrange
+            var command = new DeleteModuleCommand { ModuleId = "module123" };
+
+            _mockUnitOfWork
+                .Setup(u => u.ModuleRepository.FindByIdWithQuestions(It.IsAny<string>()))
+                .ReturnsAsync(new Gatam.Domain.ApplicationModule());
+
+            _mockUnitOfWork
+                .Setup(u => u.UserRepository.GetUsersByModuleIdAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<Gatam.Domain.ApplicationUser>());
+
+            // Act
+            var result = await _validator.TestValidateAsync(command);
+
+            // Assert
+            result.ShouldNotHaveAnyValidationErrors();
+        }
     }
 }
+

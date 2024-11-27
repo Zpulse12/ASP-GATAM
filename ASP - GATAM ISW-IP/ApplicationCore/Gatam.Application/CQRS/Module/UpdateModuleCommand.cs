@@ -30,7 +30,16 @@ namespace Gatam.Application.CQRS.Module
             RuleFor(x => x.Module.Category).NotNull().WithMessage("Category mag niet null zijn");
             RuleFor(x => x.Module.Title).NotEmpty().WithMessage("Titel mag niet leeg zijn");
             RuleFor(x => x.Module.Title).NotNull().WithMessage("Titel mag niet null zijn");
-            RuleFor(x => x.Module.Title).MustAsync(BeUniqueTitle).WithMessage("Titel bestaat al."); ;
+            RuleFor(x => x.Module.Title).MustAsync(BeUniqueTitle).WithMessage("Titel bestaat al.");
+            RuleFor(x => x.Id)
+           .MustAsync(async (moduleId, cancellation) =>
+           {
+               var usersWithModule = await _uow.UserRepository.GetUsersByModuleIdAsync(moduleId);
+
+               return !usersWithModule.SelectMany(u => u.UserModules)
+                                      .Any(um => um.ModuleId == moduleId && um.State == UserModuleState.InProgress);
+           })
+           .WithMessage("De module kan niet worden bewerkt omdat deze in gebruik is door een trajectvolger.");
 
         }
         private async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
@@ -43,25 +52,17 @@ namespace Gatam.Application.CQRS.Module
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
-        private readonly IUserRepository _userRepository;
 
-        public UpdateModuleCommandHandler(IUnitOfWork uow, IMapper mapper, IUserRepository userRepository)
+        public UpdateModuleCommandHandler(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
             _mapper = mapper;
-            _userRepository=userRepository;
+           
         }
 
         public async Task<ModuleDTO> Handle(UpdateModuleCommand request, CancellationToken cancellationToken)
         {
-            var usersWithModule = await _userRepository.GetUsersByModuleIdAsync(request.Id);
-
-            if (usersWithModule.SelectMany(u => u.UserModules)
-                               .Any(um => um.ModuleId == request.Id && um.State == UserModuleState.InProgress))
-            {
-                throw new InvalidOperationException("De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.");
-            }
-
+            
             var moduleEntity = _mapper.Map<ApplicationModule>(request.Module);
 
             await _uow.ModuleRepository.UpdateModuleWithQuestions(moduleEntity);

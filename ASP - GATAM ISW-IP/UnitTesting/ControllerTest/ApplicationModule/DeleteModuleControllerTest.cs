@@ -21,7 +21,7 @@ namespace UnitTesting.ControllerTest.ApplicationModule
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new ModuleController(_mockMediator.Object); // Replace YourController with your actual controller name
+            _controller = new ModuleController(_mockMediator.Object); 
         }
 
         [TestMethod]
@@ -31,7 +31,7 @@ namespace UnitTesting.ControllerTest.ApplicationModule
             var moduleId = "module123";
             _mockMediator
                 .Setup(m => m.Send(It.IsAny<DeleteModuleCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true); // Simulate successful module deletion
+                .ReturnsAsync(true); 
 
             // Act
             var result = await _controller.DeleteModule(moduleId);
@@ -39,8 +39,8 @@ namespace UnitTesting.ControllerTest.ApplicationModule
             // Assert
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode); // Check for HTTP 200 status code
-            Assert.AreEqual(true, okResult.Value); // Check the response value
+            Assert.AreEqual(200, okResult.StatusCode); 
+            Assert.AreEqual(true, okResult.Value);
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace UnitTesting.ControllerTest.ApplicationModule
             var moduleId = "module123";
             _mockMediator
                 .Setup(m => m.Send(It.IsAny<DeleteModuleCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false); // Simulate module not found
+                .ReturnsAsync(false); 
 
             // Act
             var result = await _controller.DeleteModule(moduleId);
@@ -58,8 +58,8 @@ namespace UnitTesting.ControllerTest.ApplicationModule
             // Assert
             var notFoundResult = result as NotFoundObjectResult;
             Assert.IsNotNull(notFoundResult);
-            Assert.AreEqual(404, notFoundResult.StatusCode); // Check for HTTP 404 status code
-            Assert.AreEqual("Module doesn't exist", notFoundResult.Value); // Check the response message
+            Assert.AreEqual(404, notFoundResult.StatusCode); 
+            Assert.AreEqual("The module doesnt exist", notFoundResult.Value); 
         }
     }
 }

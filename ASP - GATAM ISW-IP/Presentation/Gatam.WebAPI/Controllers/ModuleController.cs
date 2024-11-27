@@ -33,11 +33,6 @@ namespace Gatam.WebAPI.Controllers
         public async Task<IActionResult> GetModuleById(string moduleId)
         {
             var moduleById = await _mediator.Send(new GetModuleByIdQuery { Id = moduleId });
-            if (moduleById == null)
-            {
-                return NotFound("module niet gevonden");
-            }
-
             return Ok(moduleById);
         }
 
@@ -63,11 +58,8 @@ namespace Gatam.WebAPI.Controllers
         public async Task<IActionResult> DeleteModule(string moduleId)
         {
             var response = await _mediator.Send(new DeleteModuleCommand() { ModuleId = moduleId });
-            if (response)
-            {
-                return Ok(response);
-            }
-            return NotFound("Module doesnt exists");
+            return Ok(response);
+            
         }
     }
 }

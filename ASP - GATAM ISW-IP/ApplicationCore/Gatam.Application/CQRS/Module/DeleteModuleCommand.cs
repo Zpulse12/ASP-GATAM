@@ -31,30 +31,31 @@ namespace Gatam.Application.CQRS.Module
                     return module != null;
                 })
                 .WithMessage("The module doesnt exist");
-            
+            RuleFor(x => x.ModuleId)
+            .MustAsync(async (moduleId, cancellation) =>
+            {
+                var usersWithModule = await _unitOfWork.UserRepository.GetUsersByModuleIdAsync(moduleId);
+
+                return !usersWithModule.SelectMany(u => u.UserModules)
+                                       .Any(um => um.ModuleId == moduleId && um.State == UserModuleState.InProgress);
+            })
+            .WithMessage("De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.");
         }
     }
     public class DeleteModuleCommandHandler: IRequestHandler<DeleteModuleCommand, bool>
     {
         private readonly IUnitOfWork _uow;
-        private readonly IUserRepository _userRepository;
+       
 
-        public DeleteModuleCommandHandler(IUnitOfWork uow, IUserRepository userRepository)
+        public DeleteModuleCommandHandler(IUnitOfWork uow)
         {
             this._uow = uow;
-            this._userRepository=userRepository;
+           
         }
 
         public async Task<bool> Handle(DeleteModuleCommand request, CancellationToken cancellationToken)
         {
 
-            var usersWithModule = await _userRepository.GetUsersByModuleIdAsync(request.ModuleId);
-
-            if (usersWithModule.SelectMany(u => u.UserModules)
-                               .Any(um => um.ModuleId == request.ModuleId && um.State == UserModuleState.InProgress))
-            {
-                throw new InvalidOperationException("De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.");
-            }
             var module = await _uow.ModuleRepository.FindByIdWithQuestions(request.ModuleId);
             if (module != null)
             {

@@ -27,11 +27,6 @@ namespace Gatam.Infrastructure.Repositories
                 .Include(m => m.Questions) 
                 .FirstOrDefaultAsync(m => m.Id == module.Id);
 
-            if (existingModule == null)
-            {
-                throw new KeyNotFoundException($"Module met ID {module.Id} niet gevonden.");
-            }
-
             _context.Entry(existingModule).CurrentValues.SetValues(module);
 
             foreach (var question in module.Questions)
