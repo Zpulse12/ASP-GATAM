@@ -31,41 +31,25 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<JsonElement>("users");
-        return response.EnumerateArray().Select(user => new UserDTO
+        try 
         {
-            Id = user.GetProperty("user_id").GetString(),
-            Username = user.GetProperty("username").GetString(),
-            Email = user.GetProperty("email").GetString(),
-            PhoneNumber = user.GetProperty("phone_number").GetString(),
-            //IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean()
-        }).ToList();
-        //var userDtos = new List<UserDTO>();
-
-        //foreach (var user in response.EnumerateArray())
-        //{
-
-        //    var userId = user.GetProperty("user_id").GetString();
-
-
-        //    var userDto = new UserDTO
-        //    {
-        //        Id = userId,
-        //        Name = user.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
-        //        Surname = user.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
-        //        Username = user.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
-        //        Email = user.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
-        //        PhoneNumber = user.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
-        //        IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-        //        Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
-        //        RolesIds = new List<string>()
-        //    };
-
-        //    userDto.RolesIds = (await GetRolesByUserId(userId)).ToList();
-        //    userDtos.Add(userDto);
-        //}
-
-        //return userDtos;
+            var response = await _httpClient.GetFromJsonAsync<JsonElement>("users");
+            return response.EnumerateArray().Select(user => new UserDTO
+            {
+                Id = user.TryGetProperty("user_id", out var id) ? id.GetString() : string.Empty,
+                Username = user.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
+                Email = user.TryGetProperty("email", out var email) ? email.GetString() : string.Empty,
+                Name = user.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
+                Surname = user.TryGetProperty("nickname", out var nickname) ? nickname.GetString() : string.Empty,
+                Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : string.Empty,
+                PhoneNumber = user.TryGetProperty("phone_number", out var phone) ? phone.GetString() : string.Empty,
+                RolesIds = user.TryGetProperty("roles", out var roles) ? roles.EnumerateArray().Select(role => role.GetProperty("name").GetString()).ToList() : new List<string>()
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     public async Task<UserDTO> GetUserByIdAsync(string userId)
@@ -86,11 +70,8 @@ public class ManagementApiRepository: IManagementApi
     }
     public async Task<Result<ApplicationUser>> CreateUserAsync(ApplicationUser user)
     {
-    
-
         var payload = new
         {
-
             name = user.Name,
             nickname = user.Surname,
             username = user.Username,
@@ -101,7 +82,6 @@ public class ManagementApiRepository: IManagementApi
             {
                 picture = user.Picture,
             },
-
         };
         
         try
@@ -115,21 +95,28 @@ public class ManagementApiRepository: IManagementApi
                 {
                     return Result<ApplicationUser>.Fail(new Exception("Could not convert auth response to Auth0ResponseUsers object"));
                 } 
-                string userId = createdUser.UserId;
+
                 var applicationUser = new ApplicationUser
                 {
-                    Id = userId,  
+                    Id = createdUser.UserId,  
                     Name = createdUser.Name,
                     Surname = createdUser.Nickname,
                     Username = createdUser.Username,
                     Email = createdUser.Email,
                     PasswordHash = user.PasswordHash,
                     Picture = createdUser.UserMetadata?.Picture,
-                    RolesIds = RoleMapper.GetListOfRoleIds(CustomRoles.VOLGER),
                     BegeleiderId = user.BegeleiderId,
                     PhoneNumber = user.PhoneNumber,
-                    IsActive = true 
+                    IsActive = true,
+                    UserRoles = new List<UserRole>
+                    {
+                        new UserRole
+                        {
+                            RoleId = RoleMapper.Roles[CustomRoles.VOLGER].Id
+                        }
+                    }
                 };
+
                 return Result<ApplicationUser>.Ok(applicationUser);
             }
             else
@@ -245,12 +232,32 @@ public class ManagementApiRepository: IManagementApi
         try
         {
             var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{userId}/roles", roles);
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return Result<bool>.Ok(true);
-            } else { return Result<bool>.Fail(new Exception(response.ReasonPhrase)); }
-        } catch (Exception ex) { 
-        
+                return Result<bool>.Fail(new Exception(response.ReasonPhrase));
+            }
+
+            var user = await _unitOfWork.UserRepository.FindById(userId);
+            if (user == null)
+            {
+                return Result<bool>.Fail(new Exception("User not found"));
+            }
+
+            foreach (var roleId in roles.Roles)
+            {
+                if (!user.UserRoles.Any(ur => ur.RoleId == roleId))
+                {
+                    user.UserRoles.Add(new UserRole { UserId = userId, RoleId = roleId });
+                }
+            }
+
+            await _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.Commit();
+
+            return Result<bool>.Ok(true);
+        }
+        catch (Exception ex)
+        {
             return Result<bool>.Fail(ex);
         }
     }
