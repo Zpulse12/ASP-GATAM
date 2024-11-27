@@ -172,9 +172,10 @@
                 if (moduleToRemove != null)
                 {
                     modules.Remove(moduleToRemove);
+                    modules = modules.ToList();
+                    selectedModule = null;
                     OnHideModalClick();
-                    toastService.Notify(new(ToastType.Success, $"Module {selectedModule.Title} is succesvol verwijderd"));
-                    
+                    toastService.Notify(new(ToastType.Success, $"Module {moduleToRemove.Title} is succesvol verwijderd"));
                 }
             }
             else
