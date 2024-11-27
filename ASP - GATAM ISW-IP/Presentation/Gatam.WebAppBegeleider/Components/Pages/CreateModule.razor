@@ -10,6 +10,8 @@
 @using System.Diagnostics
 @using Newtonsoft.Json
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager Navigation
+
 
 
 @attribute [Authorize(Policy = "RequireMakerRole")]
@@ -253,6 +255,7 @@
                 newModule = responseData ?? new ModuleDTO();
                 questions = responseData?.Questions.ToList() ?? new List<Question>();
                 ResetForm();
+                Navigation.NavigateTo("/content/modules");
             }
             else
             {

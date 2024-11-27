@@ -13,9 +13,15 @@
 
 @attribute [Authorize(Policy = "RequireMakerRole")]
 <CustomCards>
-     @if (moduleBeingEdited != null)
+    @if (_isLoading)
     {
-        @if (showWarning)
+        <div class="text-center">
+            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+        </div>
+    }
+     else if (moduleBeingEdited != null)
+    {
+        @if (_showWarning)
         {
             <div class="alert alert-warning">
                 De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger(s).
@@ -99,37 +105,35 @@
 @code {
     private Modal? modal;
     [Parameter] public string Id { get; set; } = "";
-    private ModuleDTO moduleBeingEdited;
+    private ModuleDTO moduleBeingEdited = new ModuleDTO();
 
 
     private Question questionBeingEdited;
     private QuestionAnswer answerBeingEdited;
     private List<QuestionAnswer> answers = new List<QuestionAnswer>();
     private Grid<QuestionAnswer> answerGrid = new Grid<QuestionAnswer>();
-    private Question newQuestion = new Question();
     [Inject] protected ToastService toastService { get; set; } = default!;
-    private QuestionType selectedOption = QuestionType.OPEN;
-    private EditContext editContext;
 
     private List<Question> questions = new List<Question>();
     private Grid<Question> questionGrid = new Grid<Question>();
     private QuestionAnswer currentAnswer = new QuestionAnswer();
 
-    private bool _hasError = false;
-    private bool isLoading = false;
+    private bool _isLoading = false;
 
-    private bool showWarning = false;
+    private bool _showWarning = false;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            _isLoading = true;
             moduleBeingEdited = await apiclient.GetFromJsonAsync<ModuleDTO>($"/api/module/{Id}");
 
             if (moduleBeingEdited != null && moduleBeingEdited.Questions?.Any() == true)
             {
 
                 questions = moduleBeingEdited.Questions.ToList();
+                
 
             }
             else
@@ -143,7 +147,7 @@
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 
@@ -157,15 +161,9 @@
                 return;
             }
 
-            var updatedModule = new ModuleDTO
-                {
-                    Id = moduleBeingEdited.Id,  
-                    Title = moduleBeingEdited.Title,
-                    Category = moduleBeingEdited.Category,
-                    Questions = moduleBeingEdited.Questions
-                };
+            
 
-            var response = await apiclient.PutAsJsonAsync($"/api/module/{moduleBeingEdited.Id}", updatedModule);
+            var response = await apiclient.PutAsJsonAsync($"/api/module/{moduleBeingEdited.Id}", moduleBeingEdited);
             if(response.IsSuccessStatusCode){
                 toastService.Notify(new(ToastType.Success, "Module succesvol opgeslagen!"));
                 StateHasChanged();
@@ -175,7 +173,7 @@
                 if (errorContent.Contains("in gebruik"))
                 {
                     toastService.Notify(new(ToastType.Warning, $"De module {moduleBeingEdited.Title} kan niet worden bewerkt omdat deze in gebruik is."));
-                    showWarning = true;
+                    _showWarning = true;
                 }
                 else
                 {

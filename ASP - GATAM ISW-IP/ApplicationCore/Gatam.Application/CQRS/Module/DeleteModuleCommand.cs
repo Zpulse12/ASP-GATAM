@@ -22,7 +22,16 @@ namespace Gatam.Application.CQRS.Module
         public DeleteModuleCommandValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
- 
+            RuleFor(x => x.ModuleId)
+                           .NotEmpty().WithMessage("Module ID cannot be empty");
+            RuleFor(x => x.ModuleId)
+                .MustAsync(async (moduleId, cancellation) =>
+                {
+                    var module = await _unitOfWork.ModuleRepository.FindByIdWithQuestions(moduleId);
+                    return module != null;
+                })
+                .WithMessage("The module doesnt exist");
+            
         }
     }
     public class DeleteModuleCommandHandler: IRequestHandler<DeleteModuleCommand, bool>
