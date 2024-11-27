@@ -164,6 +164,7 @@ namespace Gatam.Infrastructure.Contexts
             .WithOne(q => q.ApplicationModule)
             .HasForeignKey(q => q.ApplicationModuleId);
 
+
             builder.Entity<Question>()
             .HasMany(q => q.Answers)
             .WithOne(a => a.Question)
@@ -172,14 +173,12 @@ namespace Gatam.Infrastructure.Contexts
             builder.Entity<UserModule>()
                .HasOne(um => um.User)
                .WithMany(u => u.UserModules)
-               .HasForeignKey(um => um.UserId)
-               .OnDelete(DeleteBehavior.Cascade);
+               .HasForeignKey(um => um.UserId);
 
             builder.Entity<UserModule>()
                 .HasOne(um => um.Module)
                 .WithMany(m => m.UserModules)
-                .HasForeignKey(um => um.ModuleId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(um => um.ModuleId);
 
             builder.Entity<UserModule>()
             .HasMany(q => q.UserGivenAnswers)

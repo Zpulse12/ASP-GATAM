@@ -23,14 +23,14 @@ namespace Gatam.Application.CQRS.Module
         {
             _unitOfWork = unitOfWork;
             RuleFor(x => x.ModuleId)
-                           .NotEmpty().WithMessage("Module ID cannot be empty");
+                           .NotEmpty().WithMessage("Module ID kan niet leeg zijn");
             RuleFor(x => x.ModuleId)
                 .MustAsync(async (moduleId, cancellation) =>
                 {
                     var module = await _unitOfWork.ModuleRepository.FindByIdWithQuestions(moduleId);
                     return module != null;
                 })
-                .WithMessage("The module doesnt exist");
+                .WithMessage("Module bestaat niet");
             RuleFor(x => x.ModuleId)
             .MustAsync(async (moduleId, cancellation) =>
             {

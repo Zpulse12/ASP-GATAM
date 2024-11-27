@@ -1,6 +1,8 @@
 ﻿using Gatam.Application.CQRS.Questions;
+using Gatam.Application.CQRS.Questions.Gatam.Application.CQRS.Questions;
 using Gatam.Domain;
 using Gatam.WebAPI.Extensions;
+using Gatam.WebAppBegeleider.Extensions.RequestObjects;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -80,12 +82,24 @@ namespace Gatam.WebAPI.Controllers
         // }
 
         [HttpPut("visibility")]
+        [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UpdateVisibility(string userQuestionId, bool isVisible)
         {
             var result = await _mediator.Send(new UpdateQuestionVisibilityCommand
             {
                 UserQuestionId = userQuestionId,
                 IsVisible = isVisible
+            });
+            return Ok(result);
+        }
+        [HttpPatch("{userQuestionId}/priority")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> UpdateUserQuestionPriority(string userQuestionId, UpdateQuestionPriorityRequestObject requestObject)
+        {
+            var result = await _mediator.Send(new UpdateQuestionPriorityCommand
+            {
+                UserQuestionId = userQuestionId,
+                Priority = requestObject.QuestionPriority
             });
             return Ok(result);
         }

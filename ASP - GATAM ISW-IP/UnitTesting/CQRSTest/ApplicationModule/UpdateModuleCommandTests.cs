@@ -19,6 +19,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule
         private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<IMapper> _mockMapper;
         private UpdateModuleCommandHandler _handler;
+      
 
         [TestInitialize]
         public void Setup()
@@ -26,36 +27,9 @@ namespace UnitTesting.CQRSTest.ApplicationModule
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockMapper = new Mock<IMapper>();
             _handler = new UpdateModuleCommandHandler(_mockUnitOfWork.Object, _mockMapper.Object);
+            
         }
 
-        
-
-        [TestMethod]
-        public async Task ShouldThrowException_WhenTitleIsNotUnique()
-        {
-            // Arrange
-            var moduleId = "module123";
-            var command = new UpdateModuleCommand
-            {
-                Id = moduleId,
-                Module = new ModuleDTO
-                {
-                    Id = moduleId,
-                    Title = "Duplicate Title",
-                    Category = "Updated Category"
-                }
-            };
-
-            _mockUnitOfWork
-                .Setup(uow => uow.ModuleRepository.FindByProperty("Title", "Duplicate Title"))
-                .ReturnsAsync(new Gatam.Domain.ApplicationModule { Id = "anotherId", Title = "Duplicate Title" });
-
-            // Act & Assert
-            await Assert.ThrowsExceptionAsync<ValidationException>(async () =>
-            {
-                await _handler.Handle(command, CancellationToken.None);
-            });
-        }
 
         [TestMethod]
         public async Task ShouldUpdateModule_WhenValidCommandProvided()

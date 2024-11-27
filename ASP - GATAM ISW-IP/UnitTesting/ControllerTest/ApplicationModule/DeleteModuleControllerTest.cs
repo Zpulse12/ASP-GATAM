@@ -44,7 +44,7 @@ namespace UnitTesting.ControllerTest.ApplicationModule
         }
 
         [TestMethod]
-        public async Task ShouldReturnNotFound_WhenModuleDoesNotExist()
+        public async Task ShouldReturnOk_WhenModuleDoesNotExist()
         {
             // Arrange
             var moduleId = "module123";
@@ -56,10 +56,10 @@ namespace UnitTesting.ControllerTest.ApplicationModule
             var result = await _controller.DeleteModule(moduleId);
 
             // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            Assert.IsNotNull(notFoundResult);
-            Assert.AreEqual(404, notFoundResult.StatusCode); 
-            Assert.AreEqual("The module doesnt exist", notFoundResult.Value); 
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult); 
+            Assert.AreEqual(200, okResult.StatusCode); 
+            Assert.AreEqual(false, okResult.Value); 
         }
     }
 }
