@@ -43,4 +43,15 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
         .Where(u => u.BegeleiderId == begeleiderId)
         .ToListAsync();
     }
+    public void RemoveUserRole(UserRole userRole)
+    {
+        _context.UserRoles.Remove(userRole);
+    }
+
+    public async Task<ApplicationUser?> GetUserWithRoles(string userId)
+    {
+        return await _context.Users
+            .Include(u => u.UserRoles)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
 }
