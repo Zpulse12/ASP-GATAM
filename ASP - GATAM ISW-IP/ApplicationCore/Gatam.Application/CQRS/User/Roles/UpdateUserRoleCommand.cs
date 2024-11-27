@@ -16,15 +16,39 @@ namespace Gatam.Application.CQRS.User.Roles
 
     public class UpdateUserRoleCommandValidator : AbstractValidator<UpdateUserRoleCommand>
     {
-        public UpdateUserRoleCommandValidator()
+        private readonly IUnitOfWork _uow;
+
+        public UpdateUserRoleCommandValidator(IUnitOfWork uow)
         {
+            _uow = uow;
+
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("Id cannot be empty")
-                .Equal(x => x.Id)
-                .WithMessage("Id does not equal given userId");
+                .NotEmpty().WithMessage("User ID cannot be empty")
+                .MustAsync(async (id, cancellation) =>
+                {
+                    var user = await _uow.UserRepository.FindById(id);
+                    return user != null;
+                }).WithMessage("User does not exist");
+
+            RuleFor(x => x.Roles)
+                .NotNull().WithMessage("Roles object cannot be null");
+
             RuleFor(x => x.Roles.Roles)
-                .NotEmpty().WithMessage("Role cannot be empty")
-                .NotNull().WithMessage("Role cannot be null");
+                .NotEmpty().WithMessage("At least one role must be assigned")
+                .NotNull().WithMessage("Roles list cannot be null")
+                .Must(roles => roles.Distinct().Count() == roles.Count)
+                .WithMessage("Duplicate roles found in request")
+                .Must(roles => roles.All(role => RoleMapper.Roles.Values.Any(r => r.Id == role)))
+                .WithMessage("One or more roles are invalid");
+
+            RuleFor(x => x)
+                .MustAsync(async (command, cancellation) =>
+                {
+                    var user = await _uow.UserRepository.FindById(command.Id);
+                    if (user == null) return true;
+                    var newRoles = command.Roles.Roles.Except(user.UserRoles.Select(ur => ur.RoleId));
+                    return newRoles.Any();
+                }).WithMessage("These roles are already assigned to the user");
         }
     }
     public class UpdateUserRoleCommandHandler : IRequestHandler<UpdateUserRoleCommand, UserDTO>
@@ -45,7 +69,10 @@ namespace Gatam.Application.CQRS.User.Roles
             try
             {
                 ApplicationUser user = await _uow.UserRepository.FindById(request.Id);
-                user.RolesIds.AddRange(request.Roles.Roles.Except(user.RolesIds));
+                foreach (var role in request.Roles.Roles)
+                {
+                    user.UserRoles.Add(new UserRole { RoleId = role, UserId = user.Id });
+                }
                 await _uow.UserRepository.Update(user);
                 await _uow.Commit();
                 Result<bool> result = await _auth0Repository.UpdateUserRoleAsync(request.Id, request.Roles);
@@ -56,7 +83,11 @@ namespace Gatam.Application.CQRS.User.Roles
                 else {
                     try
                     {
-                        user.RolesIds.RemoveAll(item => request.Roles.Roles.Contains(item));
+                        var rolesToRemove = user.UserRoles.Where(ur => request.Roles.Roles.Contains(ur.RoleId)).ToList();
+                        foreach (var role in rolesToRemove)
+                        {
+                            user.UserRoles.Remove(role);
+                        }
                         await _uow.UserRepository.Update(user);
                         await _uow.Commit();
                         throw result.Exception;
