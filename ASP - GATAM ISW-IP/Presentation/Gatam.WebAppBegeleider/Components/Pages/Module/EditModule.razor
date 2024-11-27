@@ -106,17 +106,10 @@
     private Modal? modal;
     [Parameter] public string Id { get; set; } = "";
     private ModuleDTO moduleBeingEdited = new ModuleDTO();
-
-
-    private Question questionBeingEdited;
-    private QuestionAnswer answerBeingEdited;
-    private List<QuestionAnswer> answers = new List<QuestionAnswer>();
-    private Grid<QuestionAnswer> answerGrid = new Grid<QuestionAnswer>();
     [Inject] protected ToastService toastService { get; set; } = default!;
 
     private List<Question> questions = new List<Question>();
     private Grid<Question> questionGrid = new Grid<Question>();
-    private QuestionAnswer currentAnswer = new QuestionAnswer();
 
     private bool _isLoading = false;
 
@@ -184,7 +177,6 @@
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Fout bij opslaan module: {ex.Message}");
             toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het opslaan van de module."));
         }
     }
