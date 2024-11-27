@@ -84,7 +84,8 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
             UserQuestions = moduleTemplate.Questions.Select(templateQuestion => new UserQuestion
             {
                 QuestionId = templateQuestion.Id,
-                IsVisible = true
+                IsVisible = true,
+                QuestionPriority = QuestionPriority.HIGH
             }).ToList()
         };
 
