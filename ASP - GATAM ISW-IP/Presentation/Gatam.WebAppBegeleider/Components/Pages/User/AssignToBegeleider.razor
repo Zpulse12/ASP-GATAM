@@ -6,6 +6,8 @@
 @using Gatam.WebAppBegeleider.Extensions
 @inject AuthenticationStateProvider authStateProvider
 @attribute [Authorize(Policy = "RequireManagementRole")]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
 
 <CustomCards>
     <h3>Mijn trajectvolgers</h3>
@@ -56,6 +58,8 @@
 
 
 @code {
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
     private List<ApplicationUser> usersWithBegeleiderId = new();
     private List<ApplicationUser> usersWithoutBegeleiderId = new();
 
@@ -80,25 +84,41 @@
 
     private async Task AssignVolgerToBegeleider(ApplicationUser user)
     {
-        var authState = await authStateProvider.GetAuthenticationStateAsync();
-        var currentUser = authState.User;
-        var begeleiderId = currentUser.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        user.BegeleiderId = begeleiderId;
-        var response = await apiClient.PutAsJsonAsync($"api/user/AssignUsersToBegeleider/{begeleiderId}", user);
-
-        if (response.IsSuccessStatusCode)
+        try 
         {
-            usersWithoutBegeleiderId.Remove(user);
-            usersWithBegeleiderId.Add(user);
-            user.BegeleiderId = begeleiderId; 
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var currentUser = authState.User;
+            var begeleiderId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
-            usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
-            await InvokeAsync(StateHasChanged);
+            if (string.IsNullOrEmpty(begeleiderId))
+            {
+                toastService.Notify(new(ToastType.Warning, "Gebruiker niet gevonden"));
+                return;
+            }
 
-            StateHasChanged();
+            var response = await apiClient.PutAsJsonAsync($"api/user/{begeleiderId}/AssignUsersToBegeleider", user);
+
+            if (response.IsSuccessStatusCode)
+            {
+                usersWithoutBegeleiderId.Remove(user);
+                usersWithBegeleiderId.Add(user);
+                user.BegeleiderId = begeleiderId; 
+
+                usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
+                usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
+                await InvokeAsync(StateHasChanged);
+
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol toegewezen!"));
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
+            }
         }
-
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
+        }
     }
     private async Task UnassignVolgerToBegeleider(ApplicationUser user)
     {
@@ -109,13 +129,14 @@
             usersWithoutBegeleiderId.Add(user);
             usersWithBegeleiderId.Remove(user);
             user.BegeleiderId = null;
-
+            toastService.Notify(new(ToastType.Success, "Gebruiker succesvol verwijderd!"));
             usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
             usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
             await InvokeAsync(StateHasChanged);
 
             StateHasChanged();
         }
+        toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));  
     }
 
    

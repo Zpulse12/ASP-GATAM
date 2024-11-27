@@ -150,7 +150,7 @@
             return;
         }
 
-        var response = await ApiClient.PutAsJsonAsync($"api/user/AssignUserModule/{SelectedUserId}?moduleId={SelectedModuleId}", new { });
+        var response = await ApiClient.PutAsJsonAsync($"api/user/{SelectedUserId}/AssignUserModule?moduleId={SelectedModuleId}", new { });
 
         if (response.IsSuccessStatusCode)
         {
