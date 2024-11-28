@@ -1,4 +1,4 @@
-﻿@page "/ModuleDetails/{CurrentUserModuleId:guid}"
+﻿@page "/ModuleDetails/{CurrentUserModuleId}"
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
@@ -50,9 +50,9 @@
 
                                     <label for="open-answer-@question.Id">Uw antwoord:</label>
                                     <textarea class="form-control"
-                                              @oninput="(e) => UpdateAnswer(answer.Id, e.Value?.ToString())"
-                                              id="open-answer-@question.Id" rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer</textarea>
-                            </div>
+                                    @oninput="(e) => UpdateAnswer(answer.Id, e.Value?.ToString())"
+                                    id="open-answer-@question.Id" rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer</textarea>
+                                </div>
                             }
                         }
                         else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
@@ -80,12 +80,12 @@
                             <div class="form-group mt-3">
                                 <label for="select-answer-@question.Id">Kies een optie:</label>
                                 <select class="form-select" @onchange="(e) => OnSelectChange(e, question.Question)" id="select-answer-@question.Id"
-                                        value="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.FirstOrDefault(a => a.Id == x.QuestionAnswerId)?.Id)?.GivenAnswer">
+                                value="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.FirstOrDefault(a => a.Id == x.QuestionAnswerId)?.Id)?.GivenAnswer">
                                     <option value="">Kies een antwoord</option>
                                     @foreach (var answer in question.Question.Answers)
                                     {
                                         <option value="@answer.Answer"
-                                                selected="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer)">
+                                        selected="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer)">
                                             @answer.Answer
                                         </option>
                                     }
@@ -121,7 +121,7 @@
 
             }
         }
-        
+
         else
         {
             <p>Oops er zijn nog geen vragen beschikbaar voor deze module. <a onclick="Back">Druk hier om terug te gaan</a></p>
@@ -132,14 +132,13 @@
         <p>Modulegegevens niet beschikbaar.</p>
     }
 
-   
-   
+
+
 </div>
 
 @code {
-
     [Parameter]
-    public Guid CurrentUserModuleId { get; set; }
+    public string CurrentUserModuleId { get; set; } = "";
     private UserModuleDTO userModule = new UserModuleDTO();
     private bool _isLoading = true;
     private bool _hasError = false;
