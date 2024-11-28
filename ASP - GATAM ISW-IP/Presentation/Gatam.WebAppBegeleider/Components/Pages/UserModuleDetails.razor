@@ -10,16 +10,24 @@
 @inject AuthenticationStateProvider authStateProvider
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
-<div class="container">
+<div class="container mt-5">
     @if (_hasError)
     {
         <p>Oops, er liep iets mis</p>
     }
     else if (userModule?.Module != null)
     {
-       
-        <h3 class="mt-4">@userModule.Module.Title</h3>
-        <p>@userModule.Module.Category</p>
+
+        <div class="module-header mb-4">
+            <h3 class="module-title">@userModule.Module.Title</h3>
+            <p class="module-category text-muted">@userModule.Module.Category</p>
+        </div>
+
+        <div class="alert alert-info">
+            <p><strong>Volger:</strong> @userModule.User.Name @userModule.User.Surname</p>
+            <p><strong>Aantal zichtbare vragen:</strong> @userModule.UserQuestions.Where(q => q.IsVisible).Count()</p>
+            <p><strong>Percentage beantwoorde vragen:</strong> @CalculateAnsweredPercentageLabel(userModule)</p>
+        </div>
 
         @if (userModule.UserQuestions != null && userModule.UserQuestions.Any())
         {
@@ -42,6 +50,15 @@
                                         </label>
                                     </div>
                                 }
+                                <div class="mt-2">
+                                    <span class="text-muted">Correcte antwoorden:</span>
+                                    <ul class="list-unstyled">
+                                        @foreach (var answer in question.Question.Answers.Where(a => a.AnswerValue == "true"))
+                                        {
+                                            <li>- @answer.Answer</li>
+                                        }
+                                    </ul>
+                                </div>
                             </div>
                         }
                         else if ((short)question.QuestionType == (short)QuestionType.OPEN)
@@ -70,6 +87,15 @@
                                         </label>
                                     </div>
                                 }
+                                 <div class="mt-2">
+                                    <span class="text-muted">Correcte antwoorden:</span>
+                                    <ul class="list-unstyled">
+                                        @foreach (var answer in question.Question.Answers.Where(a => a.AnswerValue == "true"))
+                                        {
+                                            <li>- @answer.Answer</li>
+                                        }
+                                    </ul>
+                                </div>
                             </div>
                         }
                         else
@@ -87,6 +113,15 @@
                                         </option>
                                     }
                                 </select>
+                                <div class="mt-2">
+                                    <span class="text-muted">Correcte antwoorden:</span>
+                                    <ul class="list-unstyled">
+                                        @foreach (var answer in question.Question.Answers.Where(a => a.AnswerValue == "true"))
+                                        {
+                                            <li>- @answer.Answer</li>
+                                        }
+                                    </ul>
+                                </div>
                             </div>
 
                         }
@@ -160,5 +195,40 @@
     private void Back()
     {
         NavigationManager.NavigateTo($"/modules-per-gebruiker");
+    }
+
+    public double CalculateAnsweredPercentage(UserModuleDTO userModule)
+    {
+        var visibleQuestions = userModule.UserQuestions.Where(q => q.IsVisible).ToList();
+        int answeredQuestionsCount = 0;
+
+        foreach (var question in visibleQuestions)
+        {
+            bool isAnswered = false;
+            foreach (var answer in question.Question.Answers)
+            {
+                if (isAnswered)
+                    break;
+
+                var matchingAnswer = userModule.UserGivenAnswers
+                    .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));
+
+                if (matchingAnswer != null)
+                {
+                    isAnswered = true;
+                    answeredQuestionsCount++;
+                }
+            }
+        }
+        if (visibleQuestions.Count == 0)
+            return 0;
+
+        return (double)answeredQuestionsCount / visibleQuestions.Count * 100;
+    }
+
+    public string CalculateAnsweredPercentageLabel(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+        return $"{percentage:0.##}%";
     }
 }
