@@ -4,6 +4,7 @@
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
+@using System.Diagnostics
 @attribute [Authorize(Policy = "RequireMakerRole")]
 
 
@@ -42,50 +43,98 @@
         </FooterTemplate>
     </Modal>
 
+    <Modal @ref="modal" @bind-IsOpen="isModalOpen" Title="Module Details" Size="ModalSize.Large">
+        <HeaderTemplate>
+            <h5 class="modal-title">Details van @selectedModule?.Title</h5>
+        </HeaderTemplate>
+        <BodyTemplate>
+            @if (selectedModule != null)
+            {
+                <div class="modal-body">
+                    @if (showWarning)
+                    {
+                        <div class="alert alert-warning">
+                            De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger(s).
+                        </div>
+                    }
+                    <p>Weet je zeker dat je deze module wilt verwijderen?</p>
+                </div>
+                <hr />
+                <div>
+                    <p><strong>Title:</strong> @selectedModule.Title</p>
+                    <p><strong>Category:</strong> @selectedModule.Category</p>
+                    <h5>Vragen:</h5>
+                    @if (selectedModule.Questions != null && selectedModule.Questions.Any())
+                    {
+                        <ul>
+                            @foreach (var question in selectedModule.Questions)
+                            {
+                                <li>
+                                    @question.QuestionTitle - <em>@((QuestionType)question.QuestionType)</em>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>Geen vragen gekoppeld aan deze module.</p>
+                    }
+                </div>
+            }
+        </BodyTemplate>
+        <FooterTemplate>
+            <button type="button" class="btn btn-outline-danger" @onclick="Delete" disabled="@showWarning">Verwijder</button>
+            <button class="btn btn-primary" @onclick="OnHideModalClick">Sluiten</button>
+        </FooterTemplate>
+    </Modal>
+
     <h2>Modulen</h2>
     <NavLink class="nav-link" href="/content/create" >
         <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold; margin-bottom:10px;">
             Module toevoegen
         </button>
-        
+
     </NavLink>
-   
-            <Grid TItem="ApplicationModule"
-                  @ref="moduleGrid"
-                  AllowRowClick="true"
-                  AllowSorting="true"
-                  Class="table table-hover"
-                  AllowPaging="true"
-                  Data="modules"
-                  PageSize="10"
-                  HeaderRowCssClass="custom-header"
-                  Responsive="true">
-                <GridColumns>
-                    <GridColumn TItem="ApplicationModule" HeaderText="Title" PropertyName="Title" SortString="Title" SortKeySelector="item => item.Title">
-                        @context.Title
-                    </GridColumn>
-                    <GridColumn TItem="ApplicationModule" HeaderText="Category:" PropertyName="Category" SortString="Category" SortKeySelector="item => item.Category">
-                        @context.Category
-                    </GridColumn>
-                    <GridColumn TItem="ApplicationModule" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
-                        <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
-                    </GridColumn>
-                <GridColumn TItem="ApplicationModule" HeaderText="Actie" Filterable="false">
-                        <div>
-                            <button type="button"
-                                    class="btn btn-outline-danger"
-                                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
-                                <i class="bi bi-trash"></i>
-                            </button>
+
+    <Grid TItem="ApplicationModule"
+    @ref="moduleGrid"
+    AllowRowClick="true"
+    AllowSorting="true"
+    Class="table table-hover"
+    AllowPaging="true"
+    Data="modules"
+    PageSize="10"
+    HeaderRowCssClass="custom-header"
+    Responsive="true">
+        <GridColumns>
+            <GridColumn TItem="ApplicationModule" HeaderText="Title" PropertyName="Title" SortString="Title" SortKeySelector="item => item.Title">
+                @context.Title
+            </GridColumn>
+            <GridColumn TItem="ApplicationModule" HeaderText="Category:" PropertyName="Category" SortString="Category" SortKeySelector="item => item.Category">
+                @context.Category
+            </GridColumn>
+            <GridColumn TItem="ApplicationModule" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
+                <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
+            </GridColumn>
+            <GridColumn TItem="ApplicationModule" HeaderText="Actie" Filterable="false">
+                <div>
+                    <a class="btn btn-outline-secondary" href="/content/modules/@(context.Id)" @onclick:stopPropagation>
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <button type="button" @onclick="@(() => OnShowDeleteModalClick(@context))"
+                    class="btn btn-outline-danger"
+                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
+                        <i class="bi bi-trash"></i>
+                    </button>
                     <button type="button"
-                            class="btn" style="background-color:#4454D2; color:white"
-                            @onclick="@(() => OnShowModalClick(@context))">
+                    class="btn" style="background-color:#4454D2; color:white"
+                            @onclick="@(() => OnShowModalClick(@context))" @onclick:stopPropagation>
                         <i class="bi bi-info-circle"></i> Details Bekijken
                     </button>
-                        </div>
-                    </GridColumn>
-                </GridColumns>
-            </Grid>
+                </div>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 </CustomCards>
 
 
@@ -96,6 +145,10 @@
     private Modal? modal;
     private ApplicationModule? selectedModule;
     private bool isModalOpen;
+    private bool showWarning = false;
+
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -106,6 +159,45 @@
         }
         await base.OnInitializedAsync();
     }
+
+
+    private async Task Delete()
+    {
+        try
+        {
+            var response = await apiClient.DeleteAsync($"api/module/delete/{selectedModule.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var moduleToRemove = modules.FirstOrDefault(u => u.Id == selectedModule.Id);
+                if (moduleToRemove != null)
+                {
+                    modules.Remove(moduleToRemove);
+                    modules = modules.ToList();
+                    selectedModule = null;
+                    OnHideModalClick();
+                    toastService.Notify(new(ToastType.Success, $"Module {moduleToRemove.Title} is succesvol verwijderd"));
+                }
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                if (errorContent.Contains("in gebruik"))
+                {
+                    toastService.Notify(new(ToastType.Warning, $"De module {selectedModule.Title} kan niet worden verwijderd omdat deze in gebruik is."));
+                    showWarning = true;
+                }
+                else
+                {
+                    toastService.Notify(new(ToastType.Danger, "Er is een onverwachte fout opgetreden."));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een onverwachte fout opgetreden bij het versturen van de aanvraag."));
+        }
+    }
+
     private async Task OnShowModalClick(ApplicationModule module)
     {
         selectedModule = module;
@@ -116,6 +208,13 @@
     private async Task OnHideModalClick()
     {
         await modal.HideAsync();
+    }
+
+    private async Task OnShowDeleteModalClick(ApplicationModule module)
+    {
+        selectedModule = module;
+        isModalOpen = true;
+        await modal.ShowAsync();
     }
    
 

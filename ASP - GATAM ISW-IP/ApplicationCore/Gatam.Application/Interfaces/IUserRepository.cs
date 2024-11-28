@@ -8,4 +8,6 @@ public interface IUserRepository : IGenericRepository<ApplicationUser>
     Task<List<ApplicationUser>> GetUsersWithModulesAsync();
     Task<List<ApplicationUser>> GetUsersForBegeleiderAsync(string begeleiderId);
 
+
+    Task<List<ApplicationUser>> GetUsersByModuleIdAsync(string moduleId);
 }
