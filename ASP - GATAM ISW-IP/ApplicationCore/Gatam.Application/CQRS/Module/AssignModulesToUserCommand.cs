@@ -56,16 +56,13 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
 }
 public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, UserModuleDTO>
 {
-    private readonly IModuleRepository _moduleRepository;
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
 
     public AssignModulesToUserCommandHandler(
-        IModuleRepository moduleRepository, 
         IUnitOfWork uow,
         IMapper mapper)
     {
-        _moduleRepository = moduleRepository;
         _uow = uow;
         _mapper = mapper;
     }
@@ -73,7 +70,7 @@ public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesTo
     public async Task<UserModuleDTO> Handle(AssignModulesToUserCommand request, CancellationToken cancellationToken)
     {
         var follower = await _uow.UserRepository.FindById(request.FollowerId);
-        var moduleTemplate = await _moduleRepository.FindByIdWithQuestions(request.ModuleId);
+        var moduleTemplate = await _uow.ModuleRepository.FindByIdWithQuestions(request.ModuleId);
 
         var newUserModule = new UserModule
         {

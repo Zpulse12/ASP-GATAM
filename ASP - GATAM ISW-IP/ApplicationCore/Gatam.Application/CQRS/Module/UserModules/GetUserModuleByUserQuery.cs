@@ -27,18 +27,18 @@ namespace Gatam.Application.CQRS.Module.UserModules
     }
     public class GetUserModuleByUserQueryHandler : IRequestHandler<GetUserModuleByUserQuery, List<UserModuleDTO>>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public GetUserModuleByUserQueryHandler(IUserRepository userRepository, IMapper mapper)
+        public GetUserModuleByUserQueryHandler(IUnitOfWork uow, IMapper mapper)
         {
-            _userRepository = userRepository;
+            _uow = uow;
             _mapper = mapper;
         }
 
         public async Task<List<UserModuleDTO>> Handle(GetUserModuleByUserQuery request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserWithModules(request.UserId);
+            var user = await _uow.UserRepository.GetUserWithModules(request.UserId);
             if (user == null)
                 throw new KeyNotFoundException("User not found");
             return _mapper.Map<List<UserModuleDTO>>(user.UserModules);

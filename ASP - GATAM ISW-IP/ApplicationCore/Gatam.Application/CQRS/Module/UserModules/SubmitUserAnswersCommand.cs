@@ -30,17 +30,13 @@ namespace Gatam.Application.CQRS.Module.UserModules
         public class SubmitUserAnswersCommandHandler : IRequestHandler<SubmitUserAnswersCommand, List<UserAnswer>>
     {
         private readonly IUnitOfWork _uow;
-        private readonly IUserModuleRepository _userModuleRepository;
-
-        public SubmitUserAnswersCommandHandler(IUnitOfWork uow, IUserModuleRepository userModuleRepository)
+        public SubmitUserAnswersCommandHandler(IUnitOfWork uow)
         {
             _uow = uow;
-            _userModuleRepository = userModuleRepository;
-
         }
         public async Task<List<UserAnswer>> Handle(SubmitUserAnswersCommand request, CancellationToken cancellationToken)
         {
-            var userModule = await _userModuleRepository.FindById(request.UserModuleId);
+            var userModule = await _uow.UserModuleRepository.FindById(request.UserModuleId);
 
             var existingAnswers = userModule.UserGivenAnswers;
             var newAnswers = request.UserAnwsers;

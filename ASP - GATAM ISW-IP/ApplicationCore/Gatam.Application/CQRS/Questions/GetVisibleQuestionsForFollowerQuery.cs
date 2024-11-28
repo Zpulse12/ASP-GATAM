@@ -16,12 +16,10 @@ namespace Gatam.Application.CQRS.Questions
     public class GetVisibleQuestionsForFollowerQueryHandler : IRequestHandler<GetVisibleQuestionsForFollowerQuery, List<Question>>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
 
-        public GetVisibleQuestionsForFollowerQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetVisibleQuestionsForFollowerQueryHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
 
         public async Task<List<Question>> Handle(GetVisibleQuestionsForFollowerQuery request, CancellationToken cancellationToken)

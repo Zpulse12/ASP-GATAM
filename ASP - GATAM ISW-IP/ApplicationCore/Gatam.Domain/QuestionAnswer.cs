@@ -13,12 +13,11 @@ namespace Gatam.Domain
         public string Id { get; set; }
         [Required(ErrorMessage = "Je moet een antwoord meegeven")]
         public string Answer {  get; set; }
-        // (Nils) value wordt gebruikt voor keuzelijst en meerkeuze vragen.
         public string? AnswerValue { get; set; }
         public string QuestionId { get; set; }
         [JsonIgnore]
         public Question? Question { get; set; }
-
+        [JsonIgnore]    
         public List<UserAnswer> GivenUserAnswers { get; set; } = new List<UserAnswer>();
 
         public QuestionAnswer() { 

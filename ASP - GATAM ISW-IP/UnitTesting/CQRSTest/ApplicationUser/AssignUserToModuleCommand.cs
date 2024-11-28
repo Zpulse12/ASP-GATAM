@@ -10,7 +10,6 @@ namespace UnitTesting.CQRSTest.ApplicationUser;
 public class AssignUserToModuleCommand
 {
     private Mock<IUnitOfWork> _mockUnitOfWork;
-    private Mock<IModuleRepository> _mockModuleRepo;
     private Mock<IMapper> _mockMapper;
     private AssignModulesToUserCommandHandler _handler;
 
@@ -18,9 +17,8 @@ public class AssignUserToModuleCommand
     public void Setup()
     {
         _mockUnitOfWork = new Mock<IUnitOfWork>();
-        _mockModuleRepo = new Mock<IModuleRepository>();
         _mockMapper = new Mock<IMapper>();
-        _handler = new AssignModulesToUserCommandHandler(_mockModuleRepo.Object, _mockUnitOfWork.Object, _mockMapper.Object);
+        _handler = new AssignModulesToUserCommandHandler( _mockUnitOfWork.Object, _mockMapper.Object);
     }
 
     [TestMethod]
@@ -29,7 +27,7 @@ public class AssignUserToModuleCommand
         var user = new Gatam.Domain.ApplicationUser { Id = "user-123", UserModules = new List<UserModule>() };
         var module = new Gatam.Domain.ApplicationModule { Id = "module-456", Questions = new List<Gatam.Domain.Question>() };
         _mockUnitOfWork.Setup(uow => uow.UserRepository.FindById(user.Id)).ReturnsAsync(user);
-        _mockModuleRepo.Setup(repo => repo.FindByIdWithQuestions(module.Id)).ReturnsAsync(module);
+        _mockUnitOfWork.Setup(repo => repo.ModuleRepository.FindByIdWithQuestions(module.Id)).ReturnsAsync(module);
         await _handler.Handle(new AssignModulesToUserCommand
         {
             FollowerId = user.Id,
