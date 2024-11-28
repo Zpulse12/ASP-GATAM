@@ -35,6 +35,24 @@
                         <div class="card-body">
                             <h5 class="card-title" style="color: #232B6C;">@userModule.Module.Title</h5>
                             <p class="card-text">@userModule.Module.Category</p>
+                           
+                            @if (userModule.State != UserModuleState.NotStarted)
+                            {
+                                <p>State: @userModule.State</p>
+
+                                <p>Visible Questions: @userModule.UserQuestions?.Count(q => q.IsVisible)</p>
+                                <p>Given Answers: @userModule.UserGivenAnswers?.Count()</p>
+
+                                <p>Answered Percentage: @CalculateAnsweredPercentage(userModule)</p>
+
+                                <Button Class="badge" Color="ButtonColor.Secondary" @onclick="() => NavigateToModule(userModule.Id)"> Klik hier voor meer </Button>
+                                <Badge Style="@GetBadgeStyle(userModule)"
+                                       Color="BadgeColor.None"
+                                       Class="module-badge">
+                                    @CalculateAnsweredPercentageLabel(userModule)
+                                </Badge>
+
+                            }
                         </div>
                     </div>
                 </div>
@@ -56,6 +74,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadUserModules();
+
     }
 
     private async Task LoadUserModules()
@@ -95,8 +114,59 @@
         }
     }
 
-    private void NavigateToModule(string userModuleId)
+   
+
+    public double CalculateAnsweredPercentage(UserModuleDTO userModule)
+    {
+        var visibleQuestions = userModule.UserQuestions.Where(q => q.IsVisible).ToList();
+        int answeredQuestionsCount = 0;
+
+        foreach (var question in visibleQuestions)
+        {
+            bool isAnswered = false;
+            foreach (var answer in question.Question.Answers)
+            {
+                if (isAnswered)
+                    break;
+
+                var matchingAnswer = userModule.UserGivenAnswers
+                    .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));
+
+                if (matchingAnswer != null)
+                {
+                    isAnswered = true;
+                    answeredQuestionsCount++;
+                }
+            }
+        }
+        if (visibleQuestions.Count == 0)
+            return 0;
+
+        return (double)answeredQuestionsCount / visibleQuestions.Count * 100;
+    }
+
+    public string CalculateAnsweredPercentageLabel(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+        return $"{percentage:0.##}%";
+    }
+    private string GetBadgeColor(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+
+        if (percentage >= 80) return "#28a745"; // Groen (succes)
+        if (percentage >= 50) return "#ffc107"; // Geel (waarschuwing)
+        return "#dc3545"; // Rood (fout)
+    }
+    private string GetBadgeStyle(UserModuleDTO userModule)
+    {
+        var badgeColor = GetBadgeColor(userModule);
+        return $"margin-right: 10px; width: 60px; background-color: {badgeColor};";
+    }
+
+     private void NavigateToModule(string userModuleId)
     {
         NavigationManager.NavigateTo($"/ModuleDetails/{userModuleId}");
     }
+
 }

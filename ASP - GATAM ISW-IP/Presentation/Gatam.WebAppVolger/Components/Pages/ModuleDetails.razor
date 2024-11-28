@@ -1,4 +1,4 @@
-﻿@page "/ModuleDetails/{CurrentUserModuleId}"
+﻿@page "/ModuleDetails/{CurrentUserModuleId:guid}"
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
@@ -138,7 +138,7 @@
 
 @code {
     [Parameter]
-    public string CurrentUserModuleId { get; set; } = "";
+    public Guid CurrentUserModuleId { get; set; }
     private UserModuleDTO userModule = new UserModuleDTO();
     private bool _isLoading = true;
     private bool _hasError = false;
