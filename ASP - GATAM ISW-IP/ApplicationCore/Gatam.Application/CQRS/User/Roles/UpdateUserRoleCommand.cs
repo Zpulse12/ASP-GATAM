@@ -17,38 +17,45 @@ namespace Gatam.Application.CQRS.User.Roles
     public class UpdateUserRoleCommandValidator : AbstractValidator<UpdateUserRoleCommand>
     {
         private readonly IUnitOfWork _uow;
+        private readonly IManagementApi _auth0Repository;
 
-        public UpdateUserRoleCommandValidator(IUnitOfWork uow)
+        public UpdateUserRoleCommandValidator(IUnitOfWork uow, IManagementApi auth0Repository)
         {
             _uow = uow;
+            _auth0Repository = auth0Repository;
 
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("User ID cannot be empty")
+                .NotEmpty().WithMessage("Gebruiker ID kan niet leeg zijn")
                 .MustAsync(async (id, cancellation) =>
                 {
                     var user = await _uow.UserRepository.FindById(id);
                     return user != null;
-                }).WithMessage("User does not exist");
+                }).WithMessage("Gebruiker bestaat niet");
 
             RuleFor(x => x.Roles)
-                .NotNull().WithMessage("Roles object cannot be null");
+                .NotNull().WithMessage("Rollen object kan niet leeg zijn");
 
             RuleFor(x => x.Roles.Roles)
-                .NotEmpty().WithMessage("At least one role must be assigned")
-                .NotNull().WithMessage("Roles list cannot be null")
+                .NotEmpty().WithMessage("Ten minste één rol moet worden toegewezen")
+                .NotNull().WithMessage("Lijst met rollen kan niet leeg zijn")
                 .Must(roles => roles.Distinct().Count() == roles.Count)
-                .WithMessage("Duplicate roles found in request")
+                .WithMessage("Dubbele rollen gevonden in de aanvraag")
                 .Must(roles => roles.All(role => RoleMapper.Roles.Values.Any(r => r.Id == role)))
-                .WithMessage("One or more roles are invalid");
+                .WithMessage("Eén of meer rollen zijn ongeldig");
 
             RuleFor(x => x)
                 .MustAsync(async (command, cancellation) =>
                 {
                     var user = await _uow.UserRepository.FindById(command.Id);
                     if (user == null) return true;
-                    var newRoles = command.Roles.Roles.Except(user.UserRoles.Select(ur => ur.RoleId));
+
+                    var auth0Roles = await _auth0Repository.GetRolesByUserId(command.Id);
+                    var existingRoles = user.UserRoles.Select(ur => ur.RoleId)
+                        .Union(auth0Roles);
+
+                    var newRoles = command.Roles.Roles.Except(existingRoles);
                     return newRoles.Any();
-                }).WithMessage("These roles are already assigned to the user");
+                }).WithMessage("Deze rollen zijn al toegewezen aan deze gebruiker");
         }
     }
     public class UpdateUserRoleCommandHandler : IRequestHandler<UpdateUserRoleCommand, UserDTO>
