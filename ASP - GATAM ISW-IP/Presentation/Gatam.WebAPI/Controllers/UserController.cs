@@ -67,9 +67,9 @@ namespace Gatam.WebAPI.Controllers
         }
         [HttpGet("{auth0UserId}/status")]
         [Authorize(Policy = "RequireAdminRole")]
-        public async Task<IActionResult> GetUserStatus(string auth0UserId)
+        public async Task<IActionResult> GetUserStatus(string userId)
         {
-            var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
+            var user = await _mediator.Send(new GetUserByIdQuery(){UserId = userId});
             return Ok(new { IsActive = user.IsActive });
         }
 
@@ -167,14 +167,13 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UnassignUsersToBegeleider([FromBody] ApplicationUser user)
         {
-            var volger = await _mediator.Send(new FindUserByIdQuery(user.Id));
+            var volger = await _mediator.Send(new GetUserByIdQuery { UserId = user.Id });
             if (volger == null)
             {
                 return NotFound("De volger is niet gevonden.");
             }
-            var updateBegeleiderId = await _mediator.Send(new UnassignUserCommand() { VolgerId = volger.Id, User = volger });
-              return Ok(updateBegeleiderId);
-
+            var updateBegeleiderId = await _mediator.Send(new UnassignUserCommand { VolgerId = volger.Id, User = volger });
+            return Ok(updateBegeleiderId);
         }
         [HttpPatch("{id}/roles")]
         [Authorize(Policy = "RequireManagementRole")]
