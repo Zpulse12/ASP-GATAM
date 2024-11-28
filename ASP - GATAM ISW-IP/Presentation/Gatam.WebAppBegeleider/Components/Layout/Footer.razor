@@ -1,0 +1,50 @@
+﻿<div class="container">
+    <div class="row row-cols-5 py-5 border-top">
+        <div class="col">
+            <h5>Gebruikers</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2"><NavLink href="/admin/user-list" class="nav-link p-0" style="color: white">Overzicht</NavLink></li>
+                <li class="nav-item mb-2"><NavLink href="/admin/create" class="nav-link p-0" style="color: white">Toevoegen</NavLink></li>
+                <li class="nav-item mb-2"><NavLink href="/AssignToBegeleider" class="nav-link p-0" style="color: white">Begeleider toewijzen</NavLink></li>
+                <li class="nav-item mb-2"><NavLink href="/modules-per-gebruiker" class="nav-link p-0" style="color: white">Modules</NavLink></li>
+            </ul>
+        </div>
+
+        <div class="col">
+            <h5>Modules</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2"><NavLink href="/content/modules" class="nav-link p-0" style="color: white">Overzicht</NavLink></li>
+                <li class="nav-item mb-2"><NavLink href="/content/create" class="nav-link p-0" style="color: white">Toevoegen</NavLink></li>
+                <li class="nav-item mb-2"><NavLink href="/content/AssigningModules" class="nav-link p-0" style="color: white">Module toewijzen</NavLink></li>
+            </ul>
+        </div>
+
+        <div class="col">
+            <h5>Vragen</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2"><NavLink href="/questions" class="nav-link p-0" style="color: white">Overzicht</NavLink></li>
+                <li class="nav-item mb-2"><NavLink href="/questions" class="nav-link p-0" style="color: white">Beheer</NavLink></li>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 border-top">
+            <div class="col-md-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                    <img src="/images/GATAM_WHITE.svg" alt="Gatam logo wit" width="50%" height="auto"/>
+                </a>
+                <span>© 2024 Gatam</span>
+            </div>
+
+            <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+                <li class="ms-3"><a href="https://www.linkedin.com/company/gatam/"><Icon Name="IconName.Linkedin" Color="IconColor.White" /></a></li>
+                <li class="ms-3"><a href="https://www.instagram.com/gatam_werkt/https://www.instagram.com/gatam_werkt/"><Icon Name="IconName.Instagram" Color="IconColor.White" /></a></li>
+                <li class="ms-3"><a href="https://www.facebook.com/GATAMvzw/"><Icon Name="IconName.Facebook" Color="IconColor.White" /></a></li>
+            </ul>
+        </footer>
+    </div>
+</div>
+
+@code {
+
+}
