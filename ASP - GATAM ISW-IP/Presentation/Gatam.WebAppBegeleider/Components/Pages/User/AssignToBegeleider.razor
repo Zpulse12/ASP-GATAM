@@ -122,21 +122,31 @@
     }
     private async Task UnassignVolgerToBegeleider(ApplicationUser user)
     {
-        var response = await apiClient.PutAsJsonAsync($"api/user/UnassignUsersToBegeleider", user);
-
-        if (response.IsSuccessStatusCode)
+        try 
         {
-            usersWithoutBegeleiderId.Add(user);
-            usersWithBegeleiderId.Remove(user);
-            user.BegeleiderId = null;
-            toastService.Notify(new(ToastType.Success, "Gebruiker succesvol verwijderd!"));
-            usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
-            usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
-            await InvokeAsync(StateHasChanged);
+            var response = await apiClient.PutAsJsonAsync($"api/user/UnassignUsersToBegeleider", user);
 
-            StateHasChanged();
+            if (response.IsSuccessStatusCode)
+            {
+                usersWithoutBegeleiderId.Add(user);
+                usersWithBegeleiderId.Remove(user);
+                user.BegeleiderId = null;
+                
+                usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
+                usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
+                
+                await InvokeAsync(StateHasChanged);
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol verwijderd!"));
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));
+            }
         }
-        toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));  
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));
+        }
     }
 
    
