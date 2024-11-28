@@ -15,7 +15,6 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
     public class SubmitUserAnswersCommandTest
     {
         private Mock<IUnitOfWork> _unitOfWorkMock;
-        private Mock<IUserModuleRepository> _userModuleRepositoryMock;
         private Mock<IGenericRepository<UserAnswer>> _userAnswerRepositoryMock;
         private SubmitUserAnswersCommandHandler _commandHandler;
 
@@ -23,12 +22,11 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
         public void Setup()
         {
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _userModuleRepositoryMock = new Mock<IUserModuleRepository>();
             _userAnswerRepositoryMock = new Mock<IGenericRepository<UserAnswer>>();
 
             _unitOfWorkMock.SetupGet(uow => uow.UserAnwserRepository).Returns(_userAnswerRepositoryMock.Object);
 
-            _commandHandler = new SubmitUserAnswersCommandHandler(_unitOfWorkMock.Object, _userModuleRepositoryMock.Object);
+            _commandHandler = new SubmitUserAnswersCommandHandler(_unitOfWorkMock.Object);
         }
 
         [TestMethod]
@@ -46,8 +44,8 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
                 UserGivenAnswers = new List<UserAnswer> { existingAnswer }
             };
 
-            _userModuleRepositoryMock
-                .Setup(repo => repo.FindById(userModuleId))
+            _unitOfWorkMock
+                .Setup(repo => repo.UserModuleRepository.FindById(userModuleId))
                 .ReturnsAsync(userModule);
 
             _userAnswerRepositoryMock
@@ -86,8 +84,8 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
                 UserGivenAnswers = new List<UserAnswer> { existingAnswer }
             };
 
-            _userModuleRepositoryMock
-                .Setup(repo => repo.FindById(userModuleId))
+            _unitOfWorkMock
+                .Setup(repo => repo.UserModuleRepository.FindById(userModuleId))
                 .ReturnsAsync(userModule);
 
             _userAnswerRepositoryMock

@@ -13,14 +13,14 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
     [TestClass]
     public class UpdateUserModuleStatusCommandTest
     {
-        private Mock<IUserModuleRepository> _userModuleRepositoryMock;
+        private Mock<IUnitOfWork> _uowMock;
         private UpdateUserModuleStatusHandler _commandHandler;
 
         [TestInitialize]
         public void Setup()
         {
-            _userModuleRepositoryMock = new Mock<IUserModuleRepository>();
-            _commandHandler = new UpdateUserModuleStatusHandler(_userModuleRepositoryMock.Object);
+            _uowMock = new Mock<IUnitOfWork>();
+            _commandHandler = new UpdateUserModuleStatusHandler(_uowMock.Object);
         }
 
         [TestMethod]
@@ -35,8 +35,8 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
                 State = UserModuleState.NotStarted
             };
 
-            _userModuleRepositoryMock
-                .Setup(repo => repo.FindByIdModuleWithIncludes(userModuleId))
+            _uowMock
+                .Setup(repo => repo.UserModuleRepository.FindByIdModuleWithIncludes(userModuleId))
                 .ReturnsAsync(userModule);
 
             var command = new UpdateUserModuleStatusCommand
@@ -50,8 +50,8 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
             Assert.IsNotNull(result);
             Assert.AreEqual(newState, result.State);
 
-            _userModuleRepositoryMock.Verify(repo => repo.FindByIdModuleWithIncludes(userModuleId), Times.Once);
-            _userModuleRepositoryMock.Verify(repo => repo.Update(It.Is<Gatam.Domain.UserModule>(um => um.Id == userModuleId && um.State == newState)), Times.Once);
+            _uowMock.Verify(repo => repo.UserModuleRepository.FindByIdModuleWithIncludes(userModuleId), Times.Once);
+            _uowMock.Verify(repo => repo.UserModuleRepository.Update(It.Is<Gatam.Domain.UserModule>(um => um.Id == userModuleId && um.State == newState)), Times.Once);
         }
     }
 }
