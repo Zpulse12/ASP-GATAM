@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS.User.BegeleiderAssignment
 {
-    public class UnassignUserCommand : IRequest<ApplicationUser>
+    public class UnassignUserCommand : IRequest<UserDTO>
     {
         public required string VolgerId { get; set; }
-        public ApplicationUser User { get; set; }
+        public UserDTO User { get; set; }
     }
 
     public class UnassignUserCommandValidator : AbstractValidator<UnassignUserCommand>
@@ -29,19 +29,20 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
         }
     }
 
-    public class UnassignUserCommandHandler : IRequestHandler<UnassignUserCommand, ApplicationUser>
+    public class UnassignUserCommandHandler : IRequestHandler<UnassignUserCommand, UserDTO>
     {
         private readonly IUnitOfWork _uow;
 
-        public UnassignUserCommandHandler(IUnitOfWork uow, IMapper mapper)
+        public UnassignUserCommandHandler(IUnitOfWork uow)
         {
             _uow = uow;
         }
 
-        public async Task<ApplicationUser> Handle(UnassignUserCommand request, CancellationToken cancellationToken)
+        public async Task<UserDTO> Handle(UnassignUserCommand request, CancellationToken cancellationToken)
         {
-            request.User.BegeleiderId = null;
-            await _uow.UserRepository.Update(request.User);
+            var userEntity = await _uow.UserRepository.FindById(request.VolgerId);
+            userEntity.BegeleiderId = null;
+            await _uow.UserRepository.Update(userEntity);
             await _uow.Commit();
             return request.User;
         }
