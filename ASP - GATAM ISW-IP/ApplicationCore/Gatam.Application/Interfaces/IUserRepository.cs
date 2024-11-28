@@ -11,4 +11,6 @@ public interface IUserRepository : IGenericRepository<ApplicationUser>
     Task<ApplicationUser?> GetUserWithRoles(string userId);
 
 
+
+    Task<List<ApplicationUser>> GetUsersByModuleIdAsync(string moduleId);
 }

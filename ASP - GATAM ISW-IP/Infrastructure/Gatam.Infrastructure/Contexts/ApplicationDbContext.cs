@@ -185,6 +185,8 @@ namespace Gatam.Infrastructure.Contexts
             .HasMany(am => am.Questions)
             .WithOne(q => q.ApplicationModule)
             .HasForeignKey(q => q.ApplicationModuleId);
+
+
             builder.Entity<Question>()
             .HasMany(q => q.Answers)
             .WithOne(a => a.Question)
@@ -213,7 +215,7 @@ namespace Gatam.Infrastructure.Contexts
             builder.Entity<UserAnswer>()
             .HasOne(x => x.QuestionAnswer)
             .WithMany(x => x.GivenUserAnswers)
-            .HasForeignKey(x => x.QuestionAnswerId); ;
+            .HasForeignKey(x => x.QuestionAnswerId);
 
             builder.Entity<UserAnswer>()
                 .HasOne(x => x.UserModule)
