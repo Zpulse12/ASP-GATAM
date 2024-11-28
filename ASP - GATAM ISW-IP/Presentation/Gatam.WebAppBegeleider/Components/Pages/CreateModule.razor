@@ -275,6 +275,17 @@
     public async Task HandleValidSubmit()
     {
         isLoading = true;
+
+        if (questions.Any(q => q.QuestionTitle.Trim().Equals(newQuestion.QuestionTitle.Trim(), 
+            StringComparison.OrdinalIgnoreCase) && q.QuestionType == (short)selectedOption))
+        {
+            toastService.Notify(new(ToastType.Warning, 
+                "Deze vraag bestaat al voor dit type.", 
+                "Je kunt geen identieke vragen van hetzelfde type toevoegen."));
+            isLoading = false;
+            return;
+        }
+
         AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         ClaimsPrincipal user = authState.User;
         newQuestion.QuestionType = (short)selectedOption;
