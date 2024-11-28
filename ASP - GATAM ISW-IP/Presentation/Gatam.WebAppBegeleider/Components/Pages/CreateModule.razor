@@ -10,6 +10,8 @@
 @using System.Diagnostics
 @using Newtonsoft.Json
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager Navigation
+
 
 
 @attribute [Authorize(Policy = "RequireMakerRole")]
@@ -30,7 +32,7 @@
     <hr/>
     <h3>Vragen voor module:</h3>
     <hr />
-    <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit" novalidate>
+    <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit" novalidate FormName="CreateModule">
         <DataAnnotationsValidator />
 
         <div class="form-group row mb-3">
@@ -253,6 +255,7 @@
                 newModule = responseData ?? new ModuleDTO();
                 questions = responseData?.Questions.ToList() ?? new List<Question>();
                 ResetForm();
+                Navigation.NavigateTo("/content/modules");
             }
             else
             {

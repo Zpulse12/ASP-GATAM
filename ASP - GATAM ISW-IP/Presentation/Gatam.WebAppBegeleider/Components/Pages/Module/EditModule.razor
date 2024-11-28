@@ -1,0 +1,189 @@
+﻿@page "/content/modules/{Id}"
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@using System.Diagnostics
+@using System.Text.Json
+
+@inject ApiClient apiclient
+@inject AuthenticationStateProvider authenticationStateProvider
+
+@rendermode InteractiveServer
+
+@attribute [Authorize(Policy = "RequireMakerRole")]
+<CustomCards>
+    @if (_isLoading)
+    {
+        <div class="text-center">
+            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+        </div>
+    }
+     else if (moduleBeingEdited != null)
+    {
+        @if (_showWarning)
+        {
+            <div class="alert alert-warning">
+                De module kan niet worden bewerkt omdat deze in gebruik is door een trajectvolger(s).
+            </div>
+        }
+        <h3>Module bewerken !</h3>
+
+        <div class="mb-3">
+            <label for="title">Titel</label>
+            <InputText id="title" class="form-control" @bind-Value="moduleBeingEdited.Title" />
+        </div>
+
+        <div class="mb-3">
+            <label for="category">Categorie</label>
+            <InputText id="category" class="form-control" @bind-Value="moduleBeingEdited.Category" />
+        </div>
+
+        <hr />
+
+        <button class="btn" style="background-color:#4454D2; color:white" @onclick="SaveModule">Module Opslaan</button>
+        <hr />
+        <h3>Vragen voor module:</h3>
+        <hr/>
+        @if (questions != null) 
+        {
+            <Grid TItem="Question"
+                  @ref="questionGrid"
+                  AllowRowClick="true"
+                  AllowSorting="true"
+                  Class="table table-hover"
+                  AllowPaging="true"
+                  Data="questions"
+                  PageSize="10"
+                  HeaderRowCssClass="custom-header"
+                  Responsive="true">
+                <GridColumns>
+                    <GridColumn TItem="Question" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
+                        @context.QuestionTitle
+                    </GridColumn>
+                    <GridColumn TItem="Question" HeaderText="Type:" PropertyName="QuestionType" SortString="QuestionType" SortKeySelector="item => item.QuestionType">
+                        @((QuestionType)@context.QuestionType)
+                    </GridColumn>
+                    <GridColumn TItem="Question" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
+                        <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
+                    </GridColumn>
+                    <GridColumn TItem="Question" HeaderText="Aangepast op:" PropertyName="LastUpdatedAt" SortString="QuestionTitle" SortKeySelector="item => item.LastUpdatedAt">
+                        <Tooltip Class="me-4" Title="@context.LastUpdatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.LastUpdatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
+                    </GridColumn>
+
+                    <GridColumn TItem="Question" HeaderText="Actie" Filterable="false">
+                        <div>
+                            <button type="button"
+                                    class="btn btn-outline-danger"
+                                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <a class="btn btn-outline-secondary" href="/question/@(context.Id)" @onclick:stopPropagation>
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                    </GridColumn>
+                </GridColumns>
+            </Grid>
+        }
+        else{
+            <div class="alert alert-danger">
+                vraag niet gevonden.
+            </div>
+        }
+        
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            Module niet gevonden.
+        </div>
+    }
+</CustomCards>
+
+
+@code {
+    private Modal? modal;
+    [Parameter] public string Id { get; set; } = "";
+    private ModuleDTO moduleBeingEdited = new ModuleDTO();
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
+    private List<Question> questions = new List<Question>();
+    private Grid<Question> questionGrid = new Grid<Question>();
+
+    private bool _isLoading = false;
+
+    private bool _showWarning = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _isLoading = true;
+            moduleBeingEdited = await apiclient.GetFromJsonAsync<ModuleDTO>($"/api/module/{Id}");
+
+            if (moduleBeingEdited != null && moduleBeingEdited.Questions?.Any() == true)
+            {
+
+                questions = moduleBeingEdited.Questions.ToList();
+                
+
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Warning, "Geen vragen gevonden in deze module."));
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het ophalen van de module."));
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SaveModule()
+    {
+        try
+        {
+            if (moduleBeingEdited == null)
+            {
+                toastService.Notify(new(ToastType.Warning, "Modulegegevens zijn leeg."));
+                return;
+            }
+
+            
+
+            var response = await apiclient.PutAsJsonAsync($"/api/module/{moduleBeingEdited.Id}", moduleBeingEdited);
+            if(response.IsSuccessStatusCode){
+                toastService.Notify(new(ToastType.Success, "Module succesvol opgeslagen!"));
+                StateHasChanged();
+            }
+            else{
+                var errorContent = await response.Content.ReadAsStringAsync();
+                if (errorContent.Contains("in gebruik"))
+                {
+                    toastService.Notify(new(ToastType.Warning, $"De module {moduleBeingEdited.Title} kan niet worden bewerkt omdat deze in gebruik is."));
+                    _showWarning = true;
+                }
+                else
+                {
+                    toastService.Notify(new(ToastType.Danger, "Er is een onverwachte fout opgetreden."));
+                }
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het opslaan van de module."));
+        }
+    }
+
+
+    
+
+    
+
+}

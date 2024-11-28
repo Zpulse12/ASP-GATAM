@@ -104,7 +104,13 @@ h1:focus {
         background-color: #7d85c5; /* Lichte blauwe kleur bij hover */
         color: white; /* Witte tekstkleur blijft behouden */
     }
-
+.priority-spacing {
+    margin-right: 1em;
+}
+.priority-fleX {
+    display: flex;
+    flex-direction: row;
+}
 .nav-link {
     background-clip: text;  font-weight:bold;
 }
