@@ -4,6 +4,7 @@
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
+@using Gatam.WebAppBegeleider.Components.Layout
 @using System.Diagnostics
 @inject ApiClient ApiClient
 @rendermode InteractiveServer
@@ -13,9 +14,7 @@
 
 <CustomCards>
     <div class="card-body">
-        <div class="card-header">
-            <h5>Wijs Modules toe aan Gebruikers</h5>
-        </div>
+            <h3>Wijs Modules toe aan Gebruikers</h3>
 
         @if (IsLoading)
         {
