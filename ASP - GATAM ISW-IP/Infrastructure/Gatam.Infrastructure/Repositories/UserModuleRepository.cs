@@ -24,6 +24,7 @@ namespace Gatam.Infrastructure.Repositories
         public async Task<UserModule> FindByIdModuleWithIncludes(string id)
         {
             return await _context.UserModules
+                .Include(x => x.User)
         .Include(x => x.Module)
             .ThenInclude(x => x.Questions)
             .ThenInclude(x => x.Answers)
