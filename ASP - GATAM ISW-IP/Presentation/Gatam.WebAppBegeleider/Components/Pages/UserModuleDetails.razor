@@ -17,17 +17,16 @@
     }
     else if (userModule?.Module != null)
     {
-
-        <div class="module-header mb-4">
-            <h3 class="module-title">@userModule.Module.Title</h3>
-            <p class="module-category text-muted">@userModule.Module.Category</p>
-        </div>
-
         <div class="alert alert-info">
             <p><strong>Volger:</strong> @userModule.User.Name @userModule.User.Surname</p>
             <p><strong>Aantal zichtbare vragen:</strong> @userModule.UserQuestions.Where(q => q.IsVisible).Count()</p>
             <p><strong>Percentage beantwoorde vragen:</strong> @CalculateAnsweredPercentageLabel(userModule)</p>
         </div>
+
+            <h3 class="module-title">@userModule.Module.Title</h3>
+            <p class="module-category text-muted">@userModule.Module.Category</p>
+
+       
 
         @if (userModule.UserQuestions != null && userModule.UserQuestions.Any())
         {

@@ -12,10 +12,11 @@ a, .btn-link {
     background-color: #1b6ec2;
     border-color: #1861ac;
 }
+
 .search-container {
     margin-top: 15px;
     align-items: center;
-    border-radius:10px;
+    border-radius: 10px;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -48,9 +49,9 @@ h1:focus {
     color: white;
 }
 
-.blazor-error-boundary::after {
-    content: "An error has occurred."
-}
+    .blazor-error-boundary::after {
+        content: "An error has occurred."
+    }
 
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
@@ -71,9 +72,11 @@ h1:focus {
     padding: 10px;
     margin: 5px;
 }
+
 .layout-container {
     display: flex; /* Flexbox gebruiken */
 }
+
 .module-navbar {
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -100,14 +103,16 @@ h1:focus {
     font-weight: 500; /* Maakt de tekst iets dikker voor betere leesbaarheid */
 }
 
-.navbar-nav .dropdown-item:hover {
-    background-color: #7d85c5; /* Lichte blauwe kleur bij hover */
-    color: white; /* Witte tekstkleur blijft behouden */
-}
+    .navbar-nav .dropdown-item:hover {
+        background-color: #7d85c5; /* Lichte blauwe kleur bij hover */
+        color: white; /* Witte tekstkleur blijft behouden */
+    }
 
 .nav-link {
-    background-clip: text;  font-weight:bold;
+    background-clip: text;
+    font-weight: bold;
 }
+
 .nav-item.dropdown:hover .dropdown-menu {
     display: block;
     background-color: #232B6C;
@@ -117,6 +122,7 @@ h1:focus {
 .nav-item.dropdown .dropdown-toggle::after {
     display: none;
 }
+
 .navbar .navbar-nav .dropdown-menu {
     background-color: #232B6C !important;
     border: none;
@@ -131,18 +137,20 @@ h1:focus {
     margin-left: 5px; /* Ruimte tussen de tekst en het pijltje */
     color: white; /* Kleur van het pijltje */
 }
+
 .custom-header {
     background-color: #4454D2 !important;
     color: white !important;
     border-bottom: 0 !important;
 }
+
 @media (max-width: 768px) {
     .navbar-nav {
         /* Bijvoorbeeld: geen marge of padding voor nav items in kleine schermen */
         padding: 0;
     }
 
-    .navbar-nav .dropdown-menu {
-        min-width: 100%; /* Zorg ervoor dat het dropdown-menu breed genoeg is */
-    }
+        .navbar-nav .dropdown-menu {
+            min-width: 100%; /* Zorg ervoor dat het dropdown-menu breed genoeg is */
+        }
 }

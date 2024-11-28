@@ -7,6 +7,8 @@
 @using System.Diagnostics
 @inject ApiClient ApiClient
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider authStateProvider
+
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
 <link href="css/assigning-modules.css" rel="stylesheet" />
@@ -40,7 +42,7 @@
                 <label>Selecteer Module:</label>
                 <select class="form-select" @onchange="OnModuleSelected">
                     <option value="">-- Selecteer een Module --</option>
-                    @foreach (var module in Modules)
+                    @foreach (var module in modules)
                     {
                         <option value="@module.Id">@module.Title</option>
                     }
@@ -61,53 +63,94 @@
                 <div class="alert alert-danger mt-3">@ErrorMessage</div>
             }
 
-            <hr />
 
-            <h5>Gebruikers en Toegewezen Modules</h5>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>Gebruiker ID</th>
-                            <th>Toegewezen Modules</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (UsersWithModules.Count == 0)
+            <Accordion>
+                <AccordionItem>
+                    <TitleTemplate>
+                        <Icon Name="IconName.Person" Class="me-1" /> Selecteer een volger
+                          
+                    </TitleTemplate>
+                    <Content>
+                        <Grid TItem="UserDTO"
+                              @ref="userGrid"
+                              Data="@users"
+                              AllowFiltering="true"
+                              AllowSorting="true"
+                              AllowPaging="true"
+                              PageSize="10"
+                              ShowPager="true"
+                              Responsive="true"
+                              Class="table table-hover">
+                            <GridColumns>
+                                <GridColumn TItem="UserDTO"
+                                            HeaderText="Naam"
+                                            PropertyName="Name"
+                                            SortKeySelector="@(item => item.Name)">
+                                    @context.Name
+                                </GridColumn>
+                                <GridColumn TItem="UserDTO"
+                                            HeaderText="Achternaam"
+                                            PropertyName="Surname"
+                                            SortKeySelector="@(item => item.Surname)">
+                                    @context.Surname
+                                </GridColumn>
+                                <GridColumn TItem="UserDTO"
+                                            HeaderText="Email"
+                                            PropertyName="Email"
+                                            SortKeySelector="@(item => item.Email)">
+                                    @context.Email
+                                </GridColumn>
+                                <GridColumn TItem="UserDTO" HeaderText="Selecteren">
+                                    <button class="btn btn-primary" @onclick="@(() => SelectUser(context.Id))">Selecteer Gebruiker</button>
+</GridColumn>
+                            </GridColumns>
+                        </Grid>
+                        @if (!string.IsNullOrEmpty(SelectedUserId))
                         {
-                            <tr>
-                                <td colspan="3" class="text-center">Geen gebruikers gevonden.</td>
-                            </tr>
+                            <p>Geselecteerde volger: <strong>@users.FirstOrDefault(m => m.Id == SelectedUserId)?.Name @users.FirstOrDefault(m => m.Id == SelectedUserId)?.Surname</strong></p>
                         }
-                        else
+                    </Content>
+
+                </AccordionItem>
+                <AccordionItem>
+                    <TitleTemplate>
+                       <Icon Name="IconName.Book" Class="me-1" /> Selecteer een module
+                    </TitleTemplate>
+                    <Content>
+                        <Grid TItem="ApplicationModule"
+                              @ref="moduleGrid"
+                              Data="@modules"
+                              AllowFiltering="true"
+                              AllowSorting="true"
+                              AllowPaging="true"
+                              PageSize="10"
+                              ShowPager="true"
+                              Responsive="true"
+                              Class="table table-hover">
+                            <GridColumns>
+                                <GridColumn TItem="ApplicationModule" HeaderText="Titel" PropertyName="Title">
+                                    @context.Title
+                                </GridColumn>
+                                <GridColumn TItem="ApplicationModule" HeaderText="Categorie" PropertyName="Category">
+                                    @context.Category
+                                </GridColumn>
+                                <GridColumn TItem="ApplicationModule" HeaderText="Selecteren">
+    <button class="btn btn-primary" @onclick="@(() => SelectModule(@context.Id))">
+        Selecteer Module
+    </button>
+</GridColumn>
+                            </GridColumns>
+                        </Grid>
+
+                        @if (!string.IsNullOrEmpty(SelectedModuleId))
                         {
-                            @foreach (var user in UsersWithModules)
-                            {
-                                <tr>
-                                    <td>@user.Email</td>
-                                    <td>@user.Id</td>
-                                    <td>
-                                        @if (user.Modules != null && user.Modules.Count > 0)
-                                        {
-                                            <ul class="list-unstyled">
-                                                @foreach (var module in user.Modules)
-                                                {
-                                                    <li>@module</li>
-                                                }
-                                            </ul>
-                                        }
-                                        else
-                                        {
-                                            <span>Geen modules toegewezen</span>
-                                        }
-                                    </td>
-                                </tr>
-                            }
+                            <p>Geselecteerde module: <strong>@modules.FirstOrDefault(m => m.Id == SelectedModuleId)?.Title</strong></p>
                         }
-                    </tbody>
-                </table>
-            </div>
+
+                    </Content>
+                </AccordionItem>
+            </Accordion>
+
         }
     </div>
 </CustomCards>
@@ -115,20 +158,34 @@
 @code {
     private List<UserWithModulesDTO> UsersWithModules = new();
     private List<UserDTO> users = new();
-    private List<ApplicationModule> Modules = new();
-    private string SelectedUserId;
-    private string SelectedModuleId;
+    private List<ApplicationModule> modules = new();
+    private string SelectedUserId = "";
+    private string SelectedModuleId= "";
     private string? SuccessMessage;
     private string? ErrorMessage;
     private bool IsLoading = true;
+
+    private Grid<UserDTO> userGrid = new();
+    private Grid<ApplicationModule> moduleGrid = new();
+
+
 
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true;
         try
         {
-            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>("api/user") ?? new();
-            Modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module") ?? new();
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>("api/user") ?? new(); modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module") ?? new();
+            var authState = await authStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (users != null && users.Count > 0)
+            {
+               users = users.Where(u => u.BegeleiderId == userId)
+                    .ToList();
+            }
+            
         }
         catch (Exception ex)
         {
@@ -175,4 +232,14 @@
     {
         SelectedModuleId = e.Value?.ToString();
     }
+    private void SelectUser(string userId)
+    {
+        SelectedUserId = userId;
+    }
+    private void SelectModule(string moduleId)
+    {
+        SelectedModuleId = moduleId;
+    }
+
+
 }
