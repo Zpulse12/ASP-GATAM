@@ -1,0 +1,22 @@
+.fs-7 {
+    font-size: 0.875rem !important;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+.small {
+    font-size: 0.75rem !important;
+}
+
+.table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+.form-select-lg {
+    font-size: 0.975rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
