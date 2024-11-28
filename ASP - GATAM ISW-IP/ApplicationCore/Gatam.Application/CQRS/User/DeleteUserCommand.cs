@@ -36,23 +36,20 @@ namespace Gatam.Application.CQRS.User
     }
     public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, bool>
     {
-        private readonly IUserRepository _userRepository;
         private readonly IManagementApi _managementApi;
         private readonly IUnitOfWork _unitOfWork;
 
         public DeleteUserCommandHandler(
-            IUserRepository userRepository, 
             IManagementApi managementApi,
             IUnitOfWork unitOfWork)
         {
-            _userRepository = userRepository;
             _managementApi = managementApi;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.FindById(request.UserId);
+            var user = await _unitOfWork.UserRepository.FindById(request.UserId);
             if (user == null)
             {
                 return false;
@@ -68,7 +65,7 @@ namespace Gatam.Application.CQRS.User
                 user.UserRoles.Clear();
             }
 
-            await _userRepository.Delete(user);
+            await _unitOfWork.UserRepository.Delete(user);
             await _unitOfWork.Commit();
 
             return true;
