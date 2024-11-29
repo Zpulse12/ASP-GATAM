@@ -1,11 +1,6 @@
 ﻿using Gatam.Application.CQRS.User.BegeleiderAssignment;
-using Gatam.Domain;
 using Gatam.Application.Interfaces;
 using Moq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AutoMapper;
-using System.Threading.Tasks;
-using System.Threading;
 using FluentValidation.TestHelper;
 using Gatam.Application.CQRS;
 

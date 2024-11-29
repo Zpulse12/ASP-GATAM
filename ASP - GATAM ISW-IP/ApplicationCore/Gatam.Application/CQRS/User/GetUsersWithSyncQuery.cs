@@ -1,7 +1,4 @@
-﻿using Gatam.Application.Interfaces;
-using Gatam.Domain;
-using MediatR;
-using AutoMapper;
+﻿using MediatR;
 
 namespace Gatam.Application.CQRS.User;
 

@@ -1,11 +1,7 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
-using System.Reflection;
-using Microsoft.Extensions.Options;
 using Gatam.Application.Extensions;
-using Auth0.ManagementApi.Models;
 
 namespace Gatam.Infrastructure.Contexts
 {

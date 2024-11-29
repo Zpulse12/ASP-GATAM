@@ -1,5 +1,4 @@
 ﻿using FluentValidation.TestHelper;
-using Gatam.Application.CQRS.DTOS.QuestionsDTO;
 using Gatam.Application.CQRS.Questions.Gatam.Application.CQRS.Questions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;

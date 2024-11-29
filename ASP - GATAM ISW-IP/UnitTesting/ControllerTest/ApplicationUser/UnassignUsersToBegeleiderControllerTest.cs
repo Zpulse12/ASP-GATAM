@@ -1,12 +1,6 @@
-﻿using Gatam.Application.CQRS;
-using Gatam.Application.CQRS.User.BegeleiderAssignment;
-using Gatam.Application.CQRS.User;
-using Gatam.WebAPI.Controllers;
+﻿using Gatam.WebAPI.Controllers;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading.Tasks;
 
 namespace UnitTesting.ControllerTest.ApplicationUser
 {

@@ -2,7 +2,6 @@
 using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Gatam.Infrastructure.Repositories
 {

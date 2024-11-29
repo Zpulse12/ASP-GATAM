@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace Gatam.Domain
 {
     public class ApplicationRole

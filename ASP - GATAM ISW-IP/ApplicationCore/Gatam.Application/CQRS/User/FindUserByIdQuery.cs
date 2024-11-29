@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using Gatam.Application.Interfaces;
-using Gatam.Domain;
+﻿using Gatam.Application.Interfaces;
 using MediatR;
 
 namespace Gatam.Application.CQRS.User;

@@ -2,11 +2,9 @@
 using FluentValidation;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
 using Gatam.Application.Extensions;
-using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System.Diagnostics;
 
 
 namespace Gatam.Application.CQRS.User

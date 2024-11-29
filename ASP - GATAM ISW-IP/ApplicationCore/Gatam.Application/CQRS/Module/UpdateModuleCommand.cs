@@ -1,15 +1,9 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Gatam.Application.CQRS.DTOS.ModulesDTO;
-using Gatam.Application.CQRS.Questions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS.Module
 {

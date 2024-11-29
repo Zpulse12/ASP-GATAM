@@ -1,8 +1,6 @@
 ﻿using Gatam.Application.CQRS.User;
 using Gatam.Application.Interfaces;
-using FluentValidation;
 using Moq;
-using Gatam.Application.Behaviours;
 
 namespace UnitTesting.CQRSTest.ApplicationUser;
 [TestClass]
