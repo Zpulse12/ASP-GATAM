@@ -238,7 +238,7 @@
             SelectedUserId = e.Value?.ToString();
             if (!string.IsNullOrEmpty(SelectedUserId))
             {
-                var user = assignedUsers.FirstOrDefault(u => u.Id == SelectedUserId);
+                var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
                 if (user != null)
                 {
                     var userModules = await ApiClient.GetFromJsonAsync<List<UserModule>>($"api/user/{SelectedUserId}/modules");
@@ -282,8 +282,7 @@
             return;
         }
 
-        // Check of de module al is toegewezen aan deze gebruiker
-        var user = assignedUsers.FirstOrDefault(u => u.Id == SelectedUserId);
+        var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
         if (user?.UserModules?.Any(um => um.Module.Id == SelectedModuleId) == true)
         {
             toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
@@ -330,6 +329,14 @@
                 users = users.Where(u => u.BegeleiderId == userId)
                      .ToList();
             }
+            foreach ( var followers in users)
+            {
+                if (string.IsNullOrEmpty(followers.Picture) || followers.Picture.Trim().ToLower() == "png")
+                {
+                    followers.Picture = "/images/default.png";
+                }
+            }
+
 
         }
         catch (Exception ex)
@@ -347,7 +354,7 @@
     {
         try
         {
-            var user = assignedUsers.FirstOrDefault(u => u.Id == userId);
+            var user = users.FirstOrDefault(u => u.Id == userId);
             if (user != null)
             {
                 var modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/user/{userId}/modules");
