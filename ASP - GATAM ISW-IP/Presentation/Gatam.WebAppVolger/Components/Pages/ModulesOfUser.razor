@@ -31,31 +31,55 @@
             @foreach (var userModule in _userModules)
             {
                 <div class="col-md-4 col-sm-6 mb-4">
-                    <div class="card h-100 shadow-sm" @onclick="() => NavigateToModule(userModule.Id)">
+                    <div class="card h-100 shadow-lg border-0" style="background-color: #f9f9fc;" @onclick="() => NavigateToModule(userModule.Id)">
                         <div class="card-body">
-                            <h5 class="card-title" style="color: #232B6C;">@userModule.Module.Title</h5>
-                            <p class="card-text">@userModule.Module.Category</p>
-                           
+                            <!-- Title -->
+                            <h5 class="card-title text-primary font-weight-bold">@userModule.Module.Title</h5>
+
+                            <!-- Category -->
+                            <p class="card-text text-muted mb-3">@userModule.Module.Category</p>
+
                             @if (userModule.State != UserModuleState.NotStarted)
                             {
-                                <p>State: @userModule.State</p>
+                                <!-- State -->
+                                <p class="mb-1">
+                                    <strong>Status:</strong>
+                                    <span class="text-success">@userModule.State</span>
+                                </p>
 
-                                <p>Visible Questions: @userModule.UserQuestions?.Count(q => q.IsVisible)</p>
-                                <p>Given Answers: @userModule.UserGivenAnswers?.Count()</p>
+                                <!-- Visible Questions -->
+                                <p class="mb-1">
+                                    <strong>Visible Questions:</strong>
+                                    <span class="badge bg-info text-dark">@userModule.UserQuestions?.Count(q => q.IsVisible)</span>
+                                </p>
 
-                                <p>Answered Percentage: @CalculateAnsweredPercentage(userModule)</p>
+                                <p class="mb-1">
+                                    <strong>Given Answers:</strong>
+                                    <span class="badge bg-warning text-dark">@userModule.UserGivenAnswers?.Count()</span>
+                                </p>
 
-                                <Button Class="badge" Color="ButtonColor.Secondary" @onclick="() => NavigateToModule(userModule.Id)"> Klik hier voor meer </Button>
-                                <Badge Style="@GetBadgeStyle(userModule)"
-                                       Color="BadgeColor.None"
-                                       Class="module-badge">
-                                    @CalculateAnsweredPercentageLabel(userModule)
-                                </Badge>
+                                <p class="mb-3">
+                                    <strong>Answered Percentage:</strong>
+                                    <span class="badge bg-primary text-white">@CalculateAnsweredPercentage(userModule)%</span>
+                                </p>
 
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <Button Class="btn btn-sm btn-secondary text-white"
+                                            @onclick="() => NavigateToModule(userModule.Id)">
+                                        Klik hier voor meer
+                                    </Button>
+
+                                    <Badge Style="@GetBadgeStyle(userModule)"
+                                           Color="BadgeColor.None"
+                                           Class="module-badge badge bg-light text-dark border">
+                                        @CalculateAnsweredPercentageLabel(userModule)
+                                    </Badge>
+                                </div>
                             }
                         </div>
                     </div>
                 </div>
+
             }
         </div>
     }
