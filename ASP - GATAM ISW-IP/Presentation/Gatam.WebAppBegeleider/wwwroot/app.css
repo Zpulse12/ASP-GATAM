@@ -168,6 +168,11 @@ h1:focus {
     color: red;
 }
 
+.bg-gatam {
+    color: #FFFFFF; 
+    background-color: #273069;
+}
+
 @media (max-width: 768px) {
     .navbar-nav {
         /* Bijvoorbeeld: geen marge of padding voor nav items in kleine schermen */
