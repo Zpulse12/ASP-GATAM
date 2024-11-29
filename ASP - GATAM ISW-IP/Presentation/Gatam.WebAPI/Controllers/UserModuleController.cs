@@ -1,4 +1,6 @@
 ﻿using Gatam.Application.CQRS.Module.UserModules;
+using Gatam.Application.CQRS.Questions;
+using Gatam.Application.CQRS.User;
 using Gatam.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
 using System.Reflection;
 using Gatam.Application.Behaviours;
+using Gatam.Application.Interfaces;
+using Gatam.Application.Extensions.httpExtensions;
 
 namespace Gatam.Application.Extensions
 {

@@ -7,6 +7,7 @@ using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Gatam.Application.Extensions.httpExtensions;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Azure.Core;
 
 namespace Gatam.Infrastructure.Repositories;
 

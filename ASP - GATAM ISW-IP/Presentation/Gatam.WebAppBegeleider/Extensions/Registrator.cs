@@ -1,5 +1,9 @@
 ﻿using Auth0.AspNetCore.Authentication;
 using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Diagnostics;
+using System.Security.Claims;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {

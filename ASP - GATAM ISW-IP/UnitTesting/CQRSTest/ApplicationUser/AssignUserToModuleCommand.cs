@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Reflection;
+using AutoMapper;
 using Gatam.Application.CQRS.Module;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;

@@ -3,6 +3,7 @@ using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using AutoMapper;
 using FluentValidation;
+using Gatam.Application.CQRS.DTOS.QuestionsDTO;
 
 namespace Gatam.Application.CQRS.Questions
 {

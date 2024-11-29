@@ -1,3 +1,4 @@
+using FluentValidation;
 using Gatam.Application.CQRS.Questions;
 using Gatam.Domain;
 using Gatam.WebAPI.Controllers;

@@ -5,6 +5,11 @@ using Gatam.Application.Exceptions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace UnitTesting.CQRSTest.Question
 {

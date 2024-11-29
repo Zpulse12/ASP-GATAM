@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace Gatam.WebAppBegeleider.Extensions
