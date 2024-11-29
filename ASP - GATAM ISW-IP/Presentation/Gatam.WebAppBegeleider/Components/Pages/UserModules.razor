@@ -76,15 +76,13 @@ else
                                 </div>
                             </div>
                             <div class="visibility-toggle">
-                                @if(userModule.State == UserModuleState.NotStarted)
-                                {
+                                
                                     <label class="switch">
                                         <input type="checkbox"
                                                checked="@questionSetting.IsVisible"
                                                @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
                                         <span class="slider"></span>
                                     </label>
-                                }
                                 <span class="toggle-label">@(questionSetting.IsVisible ? "Zichtbaar" : "Verborgen")</span>
                             </div>
                         </div>

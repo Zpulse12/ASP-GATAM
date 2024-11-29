@@ -128,6 +128,10 @@
                     </Content>
                 </AccordionItem>
             </Accordion>
+            <button @onclick="AssignModuleToUser" class="btn btn-primary mt-2"
+                    disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
+                Wijs Module toe
+            </button>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
@@ -166,7 +170,7 @@
                                             @foreach (var userModule in user.UserModules)
                                             {
                                                 <span class="badge bg-light text-dark border fs-7 py-2">
-                                                    <span class="text-secondary">@userModule.Module.Title</span>
+                                                    <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.ModuleId).Title</span>
                                                     <span class="ms-2 badge @(userModule.State == UserModuleState.NotStarted ? "bg-warning" : "bg-success") small">
                                                         @(userModule.State == UserModuleState.NotStarted ? "Niet gestart" : "In progress")
                                                     </span>
@@ -184,10 +188,7 @@
                     </tbody>
                 </table>
                     </div>
-            <button @onclick="AssignModuleToUser" class="btn btn-primary mt-2"
-                    disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
-                Wijs Module toe
-            </button>
+           
         }
         else
         {
