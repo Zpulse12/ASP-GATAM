@@ -3,18 +3,13 @@ using Gatam.Application.CQRS.DTOS.ModulesDTO;
 using Gatam.Application.CQRS.Module.UserModules;
 using Gatam.Application.Interfaces;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
 {
     [TestClass]
     public class GetUserModuleByUserQueryTest
     {
-        private Mock<IUserRepository> _userRepositoryMock;
+        private Mock<IUnitOfWork> _uowMock;
         private Mock<IMapper> _mapperMock;
         private GetUserModuleByUserQueryHandler _queryHandler;
 
@@ -22,11 +17,11 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
         public void Setup()
         {
             // Mock dependencies
-            _userRepositoryMock = new Mock<IUserRepository>();
+            _uowMock = new Mock<IUnitOfWork>();
             _mapperMock = new Mock<IMapper>();
 
             // Instantiate the handler
-            _queryHandler = new GetUserModuleByUserQueryHandler(_userRepositoryMock.Object, _mapperMock.Object);
+            _queryHandler = new GetUserModuleByUserQueryHandler(_uowMock.Object, _mapperMock.Object);
         }
 
         [TestMethod]
@@ -47,8 +42,8 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
                 new UserModuleDTO { Id = "module2"}
             };
 
-            _userRepositoryMock
-                .Setup(repo => repo.GetUserWithModules(userId))
+            _uowMock
+                .Setup(repo => repo.UserRepository.GetUserWithModules(userId))
                 .ReturnsAsync(user);
 
             _mapperMock
@@ -63,7 +58,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
             Assert.AreEqual(userModuleDTOs.Count, result.Count);
             CollectionAssert.AreEquivalent(userModuleDTOs, result);
 
-            _userRepositoryMock.Verify(repo => repo.GetUserWithModules(userId), Times.Once);
+            _uowMock.Verify(repo => repo.UserRepository.GetUserWithModules(userId), Times.Once);
             _mapperMock.Verify(mapper => mapper.Map<List<UserModuleDTO>>(userModules), Times.Once);
         }
     }

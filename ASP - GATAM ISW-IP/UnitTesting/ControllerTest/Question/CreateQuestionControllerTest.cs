@@ -1,15 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Threading;
+﻿using Moq;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using Gatam.Application.CQRS.Questions;
 using Gatam.Domain;
 using Gatam.WebAPI.Controllers;
 using MediatR;
-using Gatam.Application.CQRS.User;
 using FluentValidation;
 using Gatam.Application.Behaviours;
 

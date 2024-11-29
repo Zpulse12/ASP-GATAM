@@ -1,11 +1,7 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
-using System.Reflection;
-using Microsoft.Extensions.Options;
 using Gatam.Application.Extensions;
-using Auth0.ManagementApi.Models;
 
 namespace Gatam.Infrastructure.Contexts
 {
@@ -16,6 +12,7 @@ namespace Gatam.Infrastructure.Contexts
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<UserModule> UserModules { get; set; }
         public DbSet<UserAnswer> UserAnswers { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
 
         public DbSet<QuestionAnswer> Answers { get; set; }
         public DbSet<UserQuestion> UserQuestion { get; set; }
@@ -25,11 +22,36 @@ namespace Gatam.Infrastructure.Contexts
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            
+            builder.Entity<ApplicationRole>(entity =>
+            {
+                entity.ToTable("Roles");
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.Name).IsRequired();
+            });
 
-            // Seeding users
+            builder.Entity<ApplicationRole>().HasData(
+                RoleMapper.Roles.Values.Select(r => new ApplicationRole 
+                { 
+                    Id = r.Id, 
+                    Name = r.Name 
+                })
+            );
+
+            builder.Entity<UserRole>(entity =>
+            {
+                entity.ToTable("UserRoles");
+                entity.HasKey(ur => ur.Id);
+                entity.HasOne(ur => ur.User)
+                    .WithMany(u => u.UserRoles)
+                    .HasForeignKey(ur => ur.UserId);
+
+                entity.HasOne(ur => ur.Role)
+                    .WithMany(r => r.UserRoles)
+                    .HasForeignKey(ur => ur.RoleId);
+            });
+
             var hasher = new PasswordHasher<ApplicationUser>();
-            // SETUP VAN USER IN DB
             ApplicationUser GLOBALTESTUSER = new ApplicationUser() {
                 Id = Guid.NewGuid().ToString(),
                 Name = "admin",
@@ -38,7 +60,6 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 9966554411",
                 Email = "admin@app.com",
                 Picture = "png",
-                RolesIds =  new List<string> { RoleMapper.Roles[CustomRoles.BEHEERDER].Name },
                 PasswordHash = hasher.HashPassword(null, "root"),
                 IsActive = false
 
@@ -52,7 +73,6 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 456789166",
                 Picture = "png",
                 Email = "john.doe@example.com",
-                RolesIds =  new List<string> { RoleMapper.Roles[CustomRoles.VOLGER].Name },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false,
                 BegeleiderId = GLOBALTESTUSER.Id
@@ -66,7 +86,6 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 568779633",
                 Email = "jane.doe@example.com",
                 Picture = "png",
-                RolesIds =  new List<string> { RoleMapper.Roles[CustomRoles.MAKER].Name },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
@@ -79,7 +98,6 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+23 7896544336",
                 Email = "lautje.doe@example.com",
                 Picture = "png",
-                RolesIds =  new List<string> { RoleMapper.Roles[CustomRoles.MAKER].Name },
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
@@ -199,8 +217,13 @@ namespace Gatam.Infrastructure.Contexts
                 .HasOne(x => x.UserModule)
                 .WithMany(x => x.UserGivenAnswers)
                 .HasForeignKey(x => x.UserModuleId); 
+            builder.Entity<UserRole>().HasData(
+                new UserRole { UserId = GLOBALTESTUSER.Id, RoleId = RoleMapper.Roles[CustomRoles.BEHEERDER].Id },
+                new UserRole { UserId = GLOBALTESTUSER.Id, RoleId = RoleMapper.Roles[CustomRoles.MAKER].Id },
+                new UserRole { UserId = lauren.Id, RoleId = RoleMapper.Roles[CustomRoles.VOLGER].Id },
+                new UserRole { UserId = john.Id, RoleId = RoleMapper.Roles[CustomRoles.BEGELEIDER].Id }
+            );
 
-           
         }
     }
 }

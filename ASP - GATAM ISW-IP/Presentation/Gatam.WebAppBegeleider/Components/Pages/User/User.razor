@@ -5,7 +5,6 @@
 @using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Application.CQRS.DTOS.RolesDTO
 @using Gatam.Application.CQRS
-@using System.Diagnostics
 @inject ApiClient apiClient
 
 @rendermode InteractiveServer
@@ -182,16 +181,17 @@
         _isLoading = true;
         try
         {
-
             userBeingEdited = await apiClient.GetFromJsonAsync<UserDTO>($"/api/user/{Id}");
 
             if (userBeingEdited == null)
             {
                 _hasError = true;
                 response_Msg = "Gebruiker niet gevonden.";
-            } else
+            } 
+            else 
             {
-                userRoles = userBeingEdited.RolesIds;
+                userRoles = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{Id}/roles");
+                userRolesGrid.Data = userRoles;
                 userRolesGrid.RefreshDataAsync();
             }
         }
@@ -199,7 +199,6 @@
         {
             _hasError = true;
             response_Msg = $"Fout bij het ophalen van de gebruiker";
-
         }
         finally
         {
@@ -304,19 +303,27 @@
     {
         await inModal.HideAsync();
     }
-    private async void UpdateTableData()
+    private async Task UpdateTableData()
     {
-        userBeingEdited = await apiClient.GetFromJsonAsync<UserDTO>($"/api/user/{Id}");
-        userRoles = userBeingEdited.RolesIds;
-        userRolesGrid.Data = userRoles;
-        userRolesGrid.RefreshDataAsync();
+        try 
+        {
+            userBeingEdited = await apiClient.GetFromJsonAsync<UserDTO>($"/api/user/{Id}");
+            userRoles = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{Id}/roles");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis bij het verversen van de data", ex.Message));
+        }
     }
     private async void DeleteUserRoles(string role)
     {
         _isRequestLoading = true;
         try
         {
-            RolesDTO payload = new RolesDTO() { Roles = new List<string?>() { role } };
+            var roleId = RoleMapper.Roles.FirstOrDefault(r => r.Value.Name == role).Value.Id;
+            
+            RolesDTO payload = new RolesDTO() { Roles = new List<string?>() { roleId } };
             var request = await apiClient.PatchAsJsonAsync<RolesDTO>($"/api/user/{Id}/roles", payload);
 
             if(request.IsSuccessStatusCode)
@@ -327,17 +334,22 @@
                 userRolesGrid.RefreshDataAsync();
                 toastService.Notify(new(ToastType.Success, "Rol verwijderd", $"Rol succesvol verwijderd van gebruiker {userBeingEdited.Username}"));
                 _isRequestLoading = false;
-                OnHideModalClick(removeRoleModal);
-            } else
+                await OnHideModalClick(removeRoleModal);
+            }
+            else
             {
                 ValidationException errorResponse = await request.Content.ReadFromJsonAsync<ValidationException>();
                 string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : request.ReasonPhrase;
                 toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het verwijderen van de rollen", errors));
             }
-
-        } catch(Exception ex)
+        }
+        catch(Exception ex)
         {
             toastService.Notify(new(ToastType.Danger, "Er ging iets mis", ex.Message));
+        }
+        finally
+        {
+            _isRequestLoading = false;
         }
     }
 }

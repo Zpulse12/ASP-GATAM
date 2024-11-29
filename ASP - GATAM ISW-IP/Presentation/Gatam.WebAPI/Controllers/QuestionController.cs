@@ -1,7 +1,6 @@
 ﻿using Gatam.Application.CQRS.Questions;
 using Gatam.Application.CQRS.Questions.Gatam.Application.CQRS.Questions;
 using Gatam.Domain;
-using Gatam.WebAPI.Extensions;
 using Gatam.WebAppBegeleider.Extensions.RequestObjects;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +44,7 @@ namespace Gatam.WebAPI.Controllers
             Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
             return Created("", createdQuestion);
         }
-        [HttpGet("visible/{followerId}")]
+        [HttpGet("{followerId}/visible/")]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetVisibleQuestionsForFollower(string followerId)
         {

@@ -1,16 +1,8 @@
-﻿using FluentValidation.TestHelper;
-using Gatam.Application.CQRS.Module;
-using Gatam.Application.Interfaces;
-using Gatam.Domain;
+﻿using Gatam.Application.CQRS.Module;
 using Gatam.WebAPI.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnitTesting.CQRSTest.ApplicationModule
 {

@@ -1,5 +1,4 @@
 ﻿using Gatam.Domain;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Gatam.Application.CQRS.DTOS.ModulesDTO;
 

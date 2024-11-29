@@ -2,11 +2,9 @@
 using FluentValidation;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
 using Gatam.Application.Extensions;
-using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System.Diagnostics;
 
 
 namespace Gatam.Application.CQRS.User
@@ -50,9 +48,6 @@ namespace Gatam.Application.CQRS.User
             RuleFor(u => u._user.PhoneNumber)
                 .NotNull().NotEmpty()
                 .WithMessage("Gsm-nummer moet ingevuld zijn");
-            RuleFor(u => u._user.PasswordHash)
-                .NotNull().NotEmpty()
-                .WithMessage("Wachtwoord moet ingevuld zijn");
 
         }
     }
@@ -61,40 +56,39 @@ namespace Gatam.Application.CQRS.User
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IManagementApi _auth0Repository;
-        private readonly EnvironmentWrapper _environmentWrapper;
-
-        public CreateUserCommandHandler(IUnitOfWork uow, IMapper mapper, IManagementApi auth0Repository, EnvironmentWrapper environmentWrapper)
+        public CreateUserCommandHandler(IUnitOfWork uow, IMapper mapper, IManagementApi auth0Repository)
         {
             _unitOfWork = uow;
             _mapper = mapper;
             _auth0Repository = auth0Repository;
-            _environmentWrapper = environmentWrapper;
         }
         public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-
-
-            //request._user.Name = AESProvider.Encrypt(request._user.Name, _environmentWrapper.KEY);
-            //request._user.Surname = AESProvider.Encrypt(request._user.Surname, _environmentWrapper.KEY);
-            //request._user.Username = AESProvider.Encrypt(request._user.Username, _environmentWrapper.KEY);
-            //request._user.Email = AESProvider.Encrypt(request._user.Email, _environmentWrapper.KEY);
-            //request._user.PhoneNumber = AESProvider.Encrypt(request._user.PhoneNumber, _environmentWrapper.KEY);
-
             Result<ApplicationUser> createUser = await _auth0Repository.CreateUserAsync(_mapper.Map<ApplicationUser>(request._user));
 
             if (!createUser.Success)
             {
                 throw new InvalidOperationException($"Failed to create user: {createUser.Exception?.Message}", createUser.Exception);
             }
-            var user = _mapper.Map<UserDTO>(createUser.Value);
-            if (request._user.RolesIds?.Any() == true)
+
+            var user = createUser.Value;
+
+            user.UserRoles = new List<UserRole>();
+
+            var volgerRole = RoleMapper.Roles[CustomRoles.VOLGER];
+            user.UserRoles.Add(new UserRole
             {
-                await _auth0Repository.UpdateUserRoleAsync(user.Id, new RolesDTO() { Roles = user.RolesIds });
-            }
-            await _unitOfWork.UserRepository.Create(createUser.Value);
+                UserId = user.Id,
+                RoleId = volgerRole.Id
+            });
+
+            var rolesToUpdate = new List<string> { volgerRole.Id };
+            await _auth0Repository.UpdateUserRoleAsync(user.Id, new RolesDTO() { Roles = rolesToUpdate });
+
+            await _unitOfWork.UserRepository.Create(user);
             await _unitOfWork.Commit();
 
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
     }
 }
