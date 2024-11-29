@@ -32,7 +32,6 @@ public class SyncUserCommandHandler : IRequestHandler<SyncUserCommand, UserDTO>
             localUser = _mapper.Map<ApplicationUser>(request.Auth0User);
             localUser.Id = request.Auth0User.Id;
             localUser.IsActive = true;
-            localUser.PasswordHash = "AUTH0_USER!23";
             await _unitOfWork.UserRepository.Create(localUser);
         }
         else
