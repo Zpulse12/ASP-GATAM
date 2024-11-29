@@ -28,7 +28,7 @@
     <hr/>
     <h3>Vragen voor module:</h3>
     <hr />
-    <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit" novalidate FormName="CreateModule">
+    <EditForm Model="newQuestion" OnValidSubmit="HandleValidSubmit" novalidate FormName="CreateModule">
         <DataAnnotationsValidator />
 
         <div class="form-group row mb-3">
@@ -144,7 +144,6 @@
                 </GridColumns>
             </Grid>
         }
-
         <div class="row">
             <div class="col-md-12 text-right">
                 <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="ResetForm">Verwijder data</Button>
@@ -208,7 +207,7 @@
 @code {
     private ModuleDTO newModule = new ModuleDTO();
 
-    private EditContext editContext;
+    // private EditContext editContext;
     private AutoComplete<Question> search;
     private Question newQuestion = new Question();
     private QuestionType selectedOption = QuestionType.OPEN;
@@ -233,29 +232,13 @@
     {
         try
         {
-
-            
             var result = await apiClient.PostAsJsonAsync("api/module", newModule);
             if (result.IsSuccessStatusCode)
             {
                 foreach (var question in questions)
                 {
-                        question.ApplicationModuleId = newModule.Id;
-                        foreach (var answer in question.Answers)
-                        {
-                            answer.QuestionId = question.Id;
-                            newQuestion.QuestionType = (short)selectedOption;
-                            if ((QuestionType)newQuestion.QuestionType == QuestionType.TRUE_OR_FALSE)
-                            {
-                                answers.Add(currentAnswer);
-                            }
-                            if ((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
-                            {
-                                answers.Add(currentAnswer);
-                            }
-                            newQuestion.Answers = answers;
-                        }
-                         HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", newQuestion);
+                    question.ApplicationModuleId = newModule.Id;
+                    HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", question);
 
                     if (createQuestionResponse.IsSuccessStatusCode)
                     {
@@ -292,8 +275,6 @@
             ResetForm();
 
         }
-
-
     }
 
     public async Task HandleValidSubmit()
@@ -332,9 +313,16 @@
             try
             {
                 newQuestion.ApplicationModuleId = newModule.Id;
-                questions.Add(newQuestion);
+                questions.Add(new Question() { Id = newQuestion.Id, 
+                    CreatedAt = newQuestion.CreatedAt, 
+                    CreatedUserId = newQuestion.LastUpdatedUserId, 
+                    LastUpdatedAt = newQuestion.LastUpdatedAt,  
+                    LastUpdatedUserId = newQuestion.LastUpdatedUserId,
+                    Answers = newQuestion.Answers,
+                    QuestionTitle = newQuestion.QuestionTitle,
+                    QuestionType = newQuestion.QuestionType
+                });
                 toastService.Notify(new(ToastType.Success, "Vraag toegevoegd aan de module!", "Vraag is lokaal opgeslagen."));
-                ResetForm();
                 
             }
             catch (Exception e)
@@ -396,8 +384,10 @@
     {
         newQuestion = new Question();
         answers.Clear();
-        answers.Append(new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id });
-        editContext = new EditContext(newQuestion);
+        QuestionAnswer newAnswer = new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id };
+        answers.Append(newAnswer);
+        currentAnswer = newAnswer;
+        // editContext = new EditContext(newQuestion);
         selectedOption = QuestionType.OPEN;
     }
     
