@@ -44,7 +44,7 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
         .Where(u => u.BegeleiderId == begeleiderId)
         .Include(x => x.UserModules)
         .ThenInclude(x => x.Module)
-         
+        .ThenInclude(x => x.Questions)
         .ToListAsync();
     }
     public async Task<List<ApplicationUser>> GetUsersByModuleIdAsync(string moduleId)
