@@ -1,10 +1,8 @@
 ﻿using FluentValidation;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.Interfaces;
-using Gatam.Domain;
 using MediatR;
 using AutoMapper;
-using Gatam.Application.CQRS.DTOS.QuestionsDTO;
 using Gatam.Application.CQRS.DTOS.ModulesDTO;
 
 namespace Gatam.Application.CQRS.Module

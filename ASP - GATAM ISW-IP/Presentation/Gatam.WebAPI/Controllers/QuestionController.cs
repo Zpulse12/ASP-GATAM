@@ -1,7 +1,6 @@
 ﻿using Gatam.Application.CQRS.Questions;
 using Gatam.Application.CQRS.Questions.Gatam.Application.CQRS.Questions;
 using Gatam.Domain;
-using Gatam.WebAPI.Extensions;
 using Gatam.WebAppBegeleider.Extensions.RequestObjects;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

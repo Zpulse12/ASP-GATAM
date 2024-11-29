@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Authentication;
 using Gatam.WebAppBegeleider.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 
 internal class Program
 {

@@ -1,8 +1,5 @@
 using AutoMapper;
 using MediatR;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 

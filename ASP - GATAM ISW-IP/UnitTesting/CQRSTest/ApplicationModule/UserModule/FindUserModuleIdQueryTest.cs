@@ -3,11 +3,6 @@ using Gatam.Application.CQRS.DTOS.ModulesDTO;
 using Gatam.Application.CQRS.Module.UserModules;
 using Gatam.Application.Interfaces;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
 {
