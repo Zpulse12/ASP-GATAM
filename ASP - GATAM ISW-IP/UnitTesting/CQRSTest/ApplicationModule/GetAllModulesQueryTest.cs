@@ -1,12 +1,7 @@
 ﻿using AutoMapper;
 using Gatam.Application.CQRS.Module;
 using Gatam.Application.Interfaces;
-using Gatam.Domain;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace UnitTesting.CQRSTest.ApplicationModule
 {

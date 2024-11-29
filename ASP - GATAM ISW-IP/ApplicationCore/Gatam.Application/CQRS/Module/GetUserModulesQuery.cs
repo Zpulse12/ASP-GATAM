@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
@@ -18,30 +17,32 @@ namespace Gatam.Application.CQRS.User;
 
     public class GetUserModulesQueryValidator : AbstractValidator<GetUserModulesQuery>
     {
-        public GetUserModulesQueryValidator()
+        private readonly IUnitOfWork _uow;
+        public GetUserModulesQueryValidator(IUnitOfWork uow)
         {
-        RuleFor(query => query.UserId)
+            _uow = uow;
+            RuleFor(query => query.UserId)
             .NotEmpty()
             .WithMessage("UserId mag niet leeg zijn.");
+        RuleFor(x => x.UserId).MustAsync(async (userId, CancellationToken) =>
+        {
+            var user = _uow.UserRepository.FindById(userId);
+            return user != null;
+        }).WithMessage("User bestaat niet");
         }
     }
     public class GetUserModulesQueryHandler : IRequestHandler<GetUserModulesQuery, List<ApplicationModule>>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
+        private readonly IUnitOfWork _uow;
 
-    public GetUserModulesQueryHandler(IUserRepository userRepository, IMapper mapper)
+    public GetUserModulesQueryHandler(IUnitOfWork uow)
     {
-        _userRepository = userRepository;
-        _mapper = mapper;
+        _uow = uow;
     }
 
     public async Task<List<ApplicationModule>> Handle(GetUserModulesQuery request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetUserWithModules(request.UserId);
-        if (user == null)
-            throw new KeyNotFoundException("User not found");
-
+        var user = await _uow.UserRepository.GetUserWithModules(request.UserId);
         return user.UserModules.Select(um => um.Module).ToList();
     }
 }

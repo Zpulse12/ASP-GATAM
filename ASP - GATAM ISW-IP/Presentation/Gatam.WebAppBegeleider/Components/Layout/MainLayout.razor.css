@@ -1,7 +1,17 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh;
+}
+
 .page {
-    position: relative;
     display: flex;
     flex-direction: column;
+    height: 100vh;
 }
 
 main {
@@ -10,6 +20,8 @@ main {
 
 .sidebar {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    height: 100%;
+    overflow-y: auto;
 }
 
 .top-row {
@@ -94,3 +106,32 @@ main {
         right: 0.75rem;
         top: 0.5rem;
     }
+
+@media (max-width: 768px) {
+    .navbar {
+        display: flex;
+        align-items: center;
+    }
+    
+    .navbar-brand {
+        margin-right: auto;
+    }
+    
+    .navbar-toggler {
+        margin-left: 1rem;
+        order: 2;
+    }
+    
+    .navbar-collapse {
+        width: 100%;
+        order: 3;
+    }
+}
+
+.container {
+    overflow: hidden;
+}
+
+.nav-link {
+    color: #fff !important;
+}

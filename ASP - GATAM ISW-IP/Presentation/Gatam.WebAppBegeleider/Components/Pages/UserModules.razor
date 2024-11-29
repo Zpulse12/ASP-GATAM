@@ -1,10 +1,10 @@
 @page "/modules-per-gebruiker"
-@using System.Diagnostics
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
 @using Gatam.Application.CQRS.DTOS.QuestionsDTO
 @using Gatam.WebAppBegeleider.Extensions.RequestObjects
+@using Gatam.WebAppBegeleider.Components.Layout
 @inject ApiClient ApiClient
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
@@ -13,7 +13,7 @@
 
 <link href="css/user-modules.css" rel="stylesheet" />
 
-<h3 class="mb-4">Modules per Gebruiker</h3>
+
 
 @if (_loading)
 {
@@ -31,6 +31,8 @@ else if (_userModules?.Any() != true)
 }
 else
 {
+<CustomCards>
+    <h3 class="mb-4">Modules per Gebruiker</h3>
     <div class="modules-container">
         @foreach (var userModule in _userModules)
         {

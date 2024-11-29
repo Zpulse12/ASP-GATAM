@@ -20,7 +20,11 @@ namespace UnitTesting.CQRSTest.Question
         {
             _unitOfWork = new Mock<IUnitOfWork>();
             _handler = new CreateQuestionCommandHandler(_unitOfWork.Object);
-            CreateQuestionCommandValidator validator = new CreateQuestionCommandValidator();
+            
+            _unitOfWork.Setup(uow => uow.QuestionRepository.GetAllAsync())
+                .ReturnsAsync(new List<Gatam.Domain.Question>());
+            
+            CreateQuestionCommandValidator validator = new CreateQuestionCommandValidator(_unitOfWork.Object);
             IEnumerable<IValidator<CreateQuestionCommand>> validators = new List<IValidator<CreateQuestionCommand>>() { validator };
             _commandBehaviour = new ValidationBehaviour<CreateQuestionCommand, Gatam.Domain.Question>(validators);
         }
@@ -92,6 +96,67 @@ namespace UnitTesting.CQRSTest.Question
             await Assert.ThrowsExceptionAsync<FailedValidationException>(async () =>
             {
                 await _commandBehaviour.Handle(questionCommand, () => Task.FromResult(new Gatam.Domain.Question()), CancellationToken.None);
+            });
+        }
+        [TestMethod]
+        public async Task Handler_ShouldPass_WhenSameQuestionDifferentType()
+        {
+            var existingQuestions = new List<Gatam.Domain.Question>
+            { 
+                new Gatam.Domain.Question 
+                { 
+                    QuestionTitle = "Wat heb je gegeten vandaag?", 
+                    QuestionType = (short)QuestionType.MULTIPLE_CHOICE,
+                    Answers = new List<QuestionAnswer>() { new QuestionAnswer() { Answer = "Pizza", AnswerValue = "Pizza" } }
+                }
+            };
+
+            _unitOfWork.Setup(uow => uow.QuestionRepository.GetAllAsync())
+                .ReturnsAsync(existingQuestions);
+
+            var newQuestion = new Gatam.Domain.Question 
+            { 
+                QuestionTitle = "Wat heb je gegeten vandaag?", 
+                QuestionType = (short)QuestionType.OPEN,
+                Answers = new List<QuestionAnswer>() { new QuestionAnswer() { Answer = "Pizza", AnswerValue = "Pizza" } }
+            };
+
+            var command = new CreateQuestionCommand { question = newQuestion };
+
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Wat heb je gegeten vandaag?", result.QuestionTitle);
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFail_WhenDuplicateQuestionSameType()
+        {
+            var existingQuestions = new List<Gatam.Domain.Question>
+            {
+                new Gatam.Domain.Question 
+                { 
+                    QuestionTitle = "Wat heb je gegeten vandaag?", 
+                    QuestionType = (short)QuestionType.MULTIPLE_CHOICE,
+                    Answers = new List<QuestionAnswer>() { new QuestionAnswer() { Answer = "Pizza", AnswerValue = "Pizza" } }
+                }
+            };
+
+            _unitOfWork.Setup(uow => uow.QuestionRepository.GetAllAsync())
+                .ReturnsAsync(existingQuestions);
+
+            var newQuestion = new Gatam.Domain.Question 
+            { 
+                QuestionTitle = "Wat heb je gegeten vandaag?", 
+                QuestionType = (short)QuestionType.MULTIPLE_CHOICE,
+                Answers = new List<QuestionAnswer>() { new QuestionAnswer() { Answer = "Pizza", AnswerValue = "Pizza" } }
+            };
+
+            var command = new CreateQuestionCommand { question = newQuestion };
+
+            await Assert.ThrowsExceptionAsync<FailedValidationException>(async () =>
+            {
+                await _commandBehaviour.Handle(command, () => Task.FromResult(new Gatam.Domain.Question()), CancellationToken.None);
             });
         }
     }

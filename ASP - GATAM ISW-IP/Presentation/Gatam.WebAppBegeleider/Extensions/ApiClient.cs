@@ -43,5 +43,9 @@ namespace Gatam.WebAppBegeleider.Extensions
         {
             return await _httpClient.PutAsync(requestUri, null);
         }
+        public async Task<HttpResponseMessage> PostAsync(string requestUri)
+        {
+            return await _httpClient.PostAsync(requestUri, null);
+        }
     }
 }

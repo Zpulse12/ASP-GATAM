@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Identity;
 
 
 namespace Gatam.Domain
@@ -13,13 +12,12 @@ namespace Gatam.Domain
         public string Username { get; set; } 
         public  string Email { get; set; }
         public  string? PhoneNumber { get; set; }
-        public  string PasswordHash { get; set; }
-        public  List<string?> RolesIds { get; set; }
+        public  string? PasswordHash { get; set; }
         public bool IsActive { get; set; }
         public string? Picture { get; set; }
 
         public ICollection<UserModule>? UserModules { get; set; } = new List<UserModule>();
-
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public string? BegeleiderId { get; set; }
     }
 }

@@ -47,6 +47,9 @@ namespace Gatam.Application
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
             .ForMember(dest => dest.Question, opt => opt.Ignore())
             .ForMember(dest => dest.UserModule, opt => opt.Ignore());
+
+        CreateMap<QuestionDTO, Question>()
+            .ForMember(dest => dest.UserQuestions, opt => opt.Ignore());
         }
     }
 }

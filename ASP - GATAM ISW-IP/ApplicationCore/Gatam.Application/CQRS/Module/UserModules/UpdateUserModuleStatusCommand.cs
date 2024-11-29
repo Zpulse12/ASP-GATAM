@@ -2,11 +2,6 @@
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS.Module.UserModules
 {
@@ -38,18 +33,18 @@ namespace Gatam.Application.CQRS.Module.UserModules
     }
     public class UpdateUserModuleStatusHandler : IRequestHandler<UpdateUserModuleStatusCommand, UserModule>
     {
-        private readonly IUserModuleRepository _userModuleRepository;
+        private readonly IUnitOfWork _uow;
 
-        public UpdateUserModuleStatusHandler(IUserModuleRepository userModuleRepository)
+        public UpdateUserModuleStatusHandler(IUnitOfWork uow)
         {
-            _userModuleRepository = userModuleRepository;
+            _uow = uow;
         }
 
         public async Task<UserModule> Handle(UpdateUserModuleStatusCommand request, CancellationToken cancellationToken)
         {
-            var userModule = await _userModuleRepository.FindByIdModuleWithIncludes(request.UserModuleId);
+            var userModule = await _uow.UserModuleRepository.FindByIdModuleWithIncludes(request.UserModuleId);
             userModule.State = request.State;
-            await _userModuleRepository.Update(userModule);
+            await _uow.UserModuleRepository.Update(userModule);
             return userModule;
         }
     }
