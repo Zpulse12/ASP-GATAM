@@ -3,28 +3,23 @@ using Gatam.Application.CQRS.DTOS.ModulesDTO;
 using Gatam.Application.CQRS.Module.UserModules;
 using Gatam.Application.Interfaces;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
 {
     [TestClass]
     public class FindUserModuleIdQueryTest
     {
-        private Mock<IUserModuleRepository> _userModuleRepositoryMock;
+        private Mock<IUnitOfWork> _uowMock;
         private Mock<IMapper> _mapperMock;
         private FindUserModuleIdQueryHandler _queryHandler;
 
         [TestInitialize]
         public void Setup()
         {
-            _userModuleRepositoryMock = new Mock<IUserModuleRepository>();
+            _uowMock = new Mock<IUnitOfWork>();
             _mapperMock = new Mock<IMapper>();
 
-            _queryHandler = new FindUserModuleIdQueryHandler(_userModuleRepositoryMock.Object, _mapperMock.Object);
+            _queryHandler = new FindUserModuleIdQueryHandler(_uowMock.Object, _mapperMock.Object);
         }
 
         [TestMethod]
@@ -34,8 +29,8 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
             var userModule = new Gatam.Domain.UserModule { Id = userModuleId };
             var userModuleDTO = new UserModuleDTO { Id = userModuleId };
 
-            _userModuleRepositoryMock
-                .Setup(repo => repo.FindByIdModuleWithIncludes(userModuleId))
+            _uowMock
+                .Setup(repo => repo.UserModuleRepository.FindByIdModuleWithIncludes(userModuleId))
                 .ReturnsAsync(userModule);
 
             _mapperMock
@@ -49,7 +44,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
             Assert.IsNotNull(result);
             Assert.AreEqual(userModuleDTO.Id, result.Id);
 
-            _userModuleRepositoryMock.Verify(repo => repo.FindByIdModuleWithIncludes(userModuleId), Times.Once);
+            _uowMock.Verify(repo => repo.UserModuleRepository.FindByIdModuleWithIncludes(userModuleId), Times.Once);
             _mapperMock.Verify(mapper => mapper.Map<UserModuleDTO>(userModule), Times.Once);
         }
 

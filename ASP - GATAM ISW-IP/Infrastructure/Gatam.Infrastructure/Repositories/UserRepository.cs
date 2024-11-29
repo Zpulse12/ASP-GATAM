@@ -1,4 +1,4 @@
-﻿using Gatam.Application.Interfaces;
+using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
 using Gatam.Infrastructure.Repositories;
@@ -51,6 +51,18 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
         return await _context.Users
         .Where(u => u.BegeleiderId == begeleiderId)
         .ToListAsync();
+    }
+    public Task RemoveUserRole(UserRole userRole)
+    { 
+        _context.UserRoles.Remove(userRole);
+       return _context.SaveChangesAsync();
+    }
+
+    public async Task<ApplicationUser?> GetUserWithRoles(string userId)
+    {
+        return await _context.Users
+            .Include(u => u.UserRoles)
+            .FirstOrDefaultAsync(u => u.Id == userId);
     }
     public async Task<List<ApplicationUser>> GetUsersByModuleIdAsync(string moduleId)
     {

@@ -26,7 +26,9 @@ namespace Gatam.Domain
         public string? ApplicationModuleId { get; set; }
         [JsonIgnore]
         public ApplicationModule? ApplicationModule { get; set; }
+        [JsonIgnore]
         public IEnumerable<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
+        [JsonIgnore]
         public ICollection<UserQuestion>? UserQuestions { get; set; } = new List<UserQuestion>();
         public Question()
         {

@@ -1,7 +1,6 @@
 ﻿@page "/ModulesOfUser"
 @using System.Security.Claims
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
-@using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
 @using Gatam.WebAppVolger.Components.Layout
 @inject ApiClient ApiClient
@@ -33,21 +32,17 @@
                 <div class="col-md-4 col-sm-6 mb-4">
                     <div class="card h-100 shadow-lg border-0" style="background-color: #f9f9fc;" @onclick="() => NavigateToModule(userModule.Id)">
                         <div class="card-body">
-                            <!-- Title -->
                             <h5 class="card-title text-primary font-weight-bold">@userModule.Module.Title</h5>
 
-                            <!-- Category -->
                             <p class="card-text text-muted mb-3">@userModule.Module.Category</p>
 
-                            @if (userModule.State != UserModuleState.NotStarted)
+                            @if (userModule.State != Domain.UserModuleState.NotStarted)
                             {
-                                <!-- State -->
                                 <p class="mb-1">
                                     <strong>Status:</strong>
                                     <span class="text-success">@userModule.State</span>
                                 </p>
 
-                                <!-- Visible Questions -->
                                 <p class="mb-1">
                                     <strong>Visible Questions:</strong>
                                     <span class="badge bg-info text-dark">@userModule.UserQuestions?.Count(q => q.IsVisible)</span>

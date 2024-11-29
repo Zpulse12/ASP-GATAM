@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Gatam.Application.Extensions;
 using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Interfaces;
 using MediatR;

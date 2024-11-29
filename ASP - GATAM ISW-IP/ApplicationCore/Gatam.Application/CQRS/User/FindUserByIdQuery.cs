@@ -1,11 +1,9 @@
-﻿using FluentValidation;
-using Gatam.Application.Interfaces;
-using Gatam.Domain;
+﻿using Gatam.Application.Interfaces;
 using MediatR;
 
 namespace Gatam.Application.CQRS.User;
 
-public class FindUserByIdQuery : IRequest<ApplicationUser>
+public class FindUserByIdQuery : IRequest<UserDTO>
 {
     public string Auth0UserId { get; set; }
     
@@ -13,27 +11,19 @@ public class FindUserByIdQuery : IRequest<ApplicationUser>
     {
         Auth0UserId = auth0UserId;
     }
-    public class FindUserByIdQueryValidator : AbstractValidator<FindUserByIdQuery>
-    {
-        public FindUserByIdQueryValidator()
-        {
-            RuleFor(x => x.Auth0UserId)
-                .NotEmpty().WithMessage("Auth0 User ID is required.");
-        }
-    }
-    public class FindUserByIdQueryHandler : IRequestHandler<FindUserByIdQuery, ApplicationUser>
-    {
-        private readonly IUnitOfWork _uow;
+}
 
-        public FindUserByIdQueryHandler(IUnitOfWork uow)
-        {
-            _uow = uow;
-        }
+public class FindUserByIdQueryHandler : IRequestHandler<FindUserByIdQuery, UserDTO>
+{
+    private readonly IManagementApi _managementApi;
 
-        public async Task<ApplicationUser> Handle(FindUserByIdQuery request, CancellationToken cancellationToken)
-        {
-            return await _uow.UserRepository.FindById(request.Auth0UserId);
-        }
+    public FindUserByIdQueryHandler(IManagementApi managementApi)
+    {
+        _managementApi = managementApi;
     }
 
+    public async Task<UserDTO> Handle(FindUserByIdQuery request, CancellationToken cancellationToken)
+    {
+        return await _managementApi.GetUserByIdAsync(request.Auth0UserId);
+    }
 }

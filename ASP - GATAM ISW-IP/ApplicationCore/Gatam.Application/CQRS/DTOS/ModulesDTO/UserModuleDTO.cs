@@ -1,12 +1,5 @@
-﻿using Gatam.Application.CQRS;
-using Gatam.Application.CQRS.DTOS.ModulesDTO;
-using Gatam.Application.CQRS.DTOS.QuestionsDTO;
+﻿using Gatam.Application.CQRS.DTOS.QuestionsDTO;
 using Gatam.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS.DTOS.ModulesDTO
 {

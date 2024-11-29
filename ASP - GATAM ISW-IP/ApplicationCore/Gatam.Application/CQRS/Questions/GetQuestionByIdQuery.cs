@@ -1,9 +1,6 @@
-﻿
-using AutoMapper;
-using Gatam.Application.Interfaces;
+﻿using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using Microsoft.AspNetCore.Http.Features;
 
 namespace Gatam.Application.CQRS.Questions
 {

@@ -1,4 +1,5 @@
-﻿using Gatam.Application.CQRS.User;
+﻿using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.User;
 using Gatam.WebAPI.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +27,7 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             var begeleiderId = "begeleiderId";
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<FindUserByIdQuery>(), default))
-                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId" });
+                         .ReturnsAsync(new UserDTO() { Id = "volgerId" });
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<Gatam.Application.CQRS.User.BegeleiderAssignment.AssignUserToBegeleiderCommand>(), default))
                          .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId", BegeleiderId = begeleiderId });
