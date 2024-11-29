@@ -25,34 +25,9 @@
                 <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
             </div>
         }
-        else
+        else if (users != null && users.Any())
         {
-            <div class="mb-3">
-                <label>Selecteer Gebruiker:</label>
-                <select class="form-select" @onchange="OnUserSelected">
-                    <option value="">-- Selecteer een Gebruiker --</option>
-                    @foreach (var user in users)
-                    {
-                        <option value="@user.Id">@user.Email (@user.Id)</option>
-                    }
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label>Selecteer Module:</label>
-                <select class="form-select" @onchange="OnModuleSelected">
-                    <option value="">-- Selecteer een Module --</option>
-                    @foreach (var module in modules)
-                    {
-                        <option value="@module.Id">@module.Title</option>
-                    }
-                </select>
-            </div>
-
-            <button @onclick="AssignModuleToUser" class="btn btn-primary mt-2"
-                    disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
-                Wijs Module toe
-            </button>
+            
 
             @if (!string.IsNullOrEmpty(SuccessMessage))
             {
@@ -71,7 +46,7 @@
                           
                     </TitleTemplate>
                     <Content>
-                        <Grid TItem="UserDTO"
+                        <Grid TItem="ApplicationUser"
                               @ref="userGrid"
                               Data="@users"
                               AllowFiltering="true"
@@ -82,33 +57,35 @@
                               Responsive="true"
                               Class="table table-hover">
                             <GridColumns>
-                                <GridColumn TItem="UserDTO"
+                                <GridColumn TItem="ApplicationUser"
                                             HeaderText="Naam"
                                             PropertyName="Name"
                                             SortKeySelector="@(item => item.Name)">
                                     @context.Name
                                 </GridColumn>
-                                <GridColumn TItem="UserDTO"
+                                <GridColumn TItem="ApplicationUser"
                                             HeaderText="Achternaam"
                                             PropertyName="Surname"
                                             SortKeySelector="@(item => item.Surname)">
                                     @context.Surname
                                 </GridColumn>
-                                <GridColumn TItem="UserDTO"
+                                <GridColumn TItem="ApplicationUser"
                                             HeaderText="Email"
                                             PropertyName="Email"
                                             SortKeySelector="@(item => item.Email)">
                                     @context.Email
                                 </GridColumn>
-                                <GridColumn TItem="UserDTO" HeaderText="Selecteren">
+                                <GridColumn TItem="ApplicationUser" HeaderText="Selecteren">
                                     <button class="btn btn-primary" @onclick="@(() => SelectUser(context.Id))">Selecteer Gebruiker</button>
 </GridColumn>
                             </GridColumns>
                         </Grid>
                         @if (!string.IsNullOrEmpty(SelectedUserId))
                         {
-                            <p>Geselecteerde volger: <strong>@users.FirstOrDefault(m => m.Id == SelectedUserId)?.Name @users.FirstOrDefault(m => m.Id == SelectedUserId)?.Surname</strong></p>
+                            var selectedUser = users.FirstOrDefault(m => m.Id == SelectedUserId);
+                            <p>Geselecteerde volger: <strong>@selectedUser?.Name @selectedUser?.Surname</strong></p>
                         }
+
                     </Content>
 
                 </AccordionItem>
@@ -144,28 +121,93 @@
 
                         @if (!string.IsNullOrEmpty(SelectedModuleId))
                         {
-                            <p>Geselecteerde module: <strong>@modules.FirstOrDefault(m => m.Id == SelectedModuleId)?.Title</strong></p>
+                            var selectedModule = modules.FirstOrDefault(m => m.Id == SelectedModuleId);
+                            <p>Geselecteerde module: <strong>@selectedModule?.Title</strong></p>
                         }
 
                     </Content>
                 </AccordionItem>
             </Accordion>
-
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Trajectvolger</th>
+                            <th>Toegewezen Modules</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in users)
+                        {
+                            <tr>
+                                <td style="width: 30%">
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(user.Picture))
+                                        {
+                                            <img src="@user.Picture" class="rounded-circle me-2" width="32" height="32" alt="@user.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                                 style="width: 32px; height: 32px">
+                                                <i class="fas fa-user text-white small"></i>
+                                            </div>
+                                        }
+                                        <div>
+                                            <div>@user.Name @user.Surname</div>
+                                            <small class="text-muted">@user.Email</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @if (user.UserModules != null )
+                                        {
+                                            @foreach (var userModule in user.UserModules)
+                                            {
+                                                <span class="badge bg-light text-dark border fs-7 py-2">
+                                                    <span class="text-secondary">@userModule.Module.Title</span>
+                                                    <span class="ms-2 badge @(userModule.State == UserModuleState.NotStarted ? "bg-warning" : "bg-success") small">
+                                                        @(userModule.State == UserModuleState.NotStarted ? "Niet gestart" : "In progress")
+                                                    </span>
+                                                </span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small fst-italic">Geen modules toegewezen</span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                    </div>
+            <button @onclick="AssignModuleToUser" class="btn btn-primary mt-2"
+                    disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
+                Wijs Module toe
+            </button>
+        }
+        else
+        {
+        <div class="text-center">
+            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+        </div>
         }
     </div>
 </CustomCards>
 
 @code {
-    private List<UserWithModulesDTO> UsersWithModules = new();
-    private List<UserDTO> users = new();
+    private List<ApplicationUser> users = new();
     private List<ApplicationModule> modules = new();
     private string SelectedUserId = "";
     private string SelectedModuleId= "";
     private string? SuccessMessage;
     private string? ErrorMessage;
-    private bool IsLoading = true;
+    private bool IsLoading = false;
 
-    private Grid<UserDTO> userGrid = new();
+    private Grid<ApplicationUser> userGrid = new();
     private Grid<ApplicationModule> moduleGrid = new();
 
 
@@ -173,29 +215,7 @@
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true;
-        try
-        {
-            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>("api/user") ?? new(); modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module") ?? new();
-            var authState = await authStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            if (users != null && users.Count > 0)
-            {
-               users = users.Where(u => u.BegeleiderId == userId)
-                    .ToList();
-            }
-            
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = "Er is een fout opgetreden bij het laden van de data.";
-            Console.WriteLine($"Error loading data: {ex.Message}");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        await LoadData();
     }
 
     private async Task AssignModuleToUser()
@@ -220,6 +240,34 @@
             var content = await response.Content.ReadAsStringAsync();
             ErrorMessage = "Het toewijzen van de module is mislukt.";
             SuccessMessage = null;
+        }
+    }
+    private async Task LoadData()
+    {
+        try
+        {
+
+            var authState = await authStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            users = await ApiClient.GetFromJsonAsync<List<ApplicationUser>>($"api/user/{userId}/begeleider") ?? new();
+            modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/module") ?? new();
+
+            if (users != null && users.Count > 0)
+            {
+                users = users.Where(u => u.BegeleiderId == userId)
+                     .ToList();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Er is een fout opgetreden bij het laden van de data.";
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 

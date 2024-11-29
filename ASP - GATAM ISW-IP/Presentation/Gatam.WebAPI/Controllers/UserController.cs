@@ -22,7 +22,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
 
         {
@@ -178,7 +178,7 @@ namespace Gatam.WebAPI.Controllers
             return Ok(command);
         }
         [HttpGet("{mentorId}/begeleider")]
-        [Authorize(Policy = "RequireManagementRole")]
+       // [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsersForBegeleider([FromRoute] string mentorId)
         {
             var begeleiderDto = await _mediator.Send(new GetFollowersByMentorIdQuery() { MentorId = mentorId });
