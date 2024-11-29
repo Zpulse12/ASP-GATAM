@@ -40,7 +40,7 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
                 .ThenInclude(um => um.UserGivenAnswers)
             .Include(u => u.UserModules)
                 .ThenInclude(um => um.UserQuestions)
-                    .ThenInclude(qs => qs.Question)
+                    .ThenInclude(qs => qs.Question) 
                     .ThenInclude(q => q.Answers)
             .AsNoTracking()
             .ToListAsync();
@@ -50,6 +50,9 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
     {
         return await _context.Users
         .Where(u => u.BegeleiderId == begeleiderId)
+        .Include(x => x.UserModules)
+        .ThenInclude(x => x.Module)
+        .ThenInclude(x => x.Questions)
         .ToListAsync();
     }
     public Task RemoveUserRole(UserRole userRole)
@@ -70,6 +73,8 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
             .Where(u => u.UserModules.Any(um => um.ModuleId == moduleId))
             .Include(u => u.UserModules)
                 .ThenInclude(um => um.Module)
+             .Include(x => x.UserModules)
+                .ThenInclude(x => x.User)
             .AsNoTracking()
             .ToListAsync();
     }

@@ -16,8 +16,7 @@ namespace Gatam.Domain
         public bool IsActive { get; set; }
         public string? Picture { get; set; }
 
-        [JsonIgnore]
-        public ICollection<UserModule> UserModules { get; set; } = new List<UserModule>();
+        public ICollection<UserModule>? UserModules { get; set; } = new List<UserModule>();
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public string? BegeleiderId { get; set; }
     }
