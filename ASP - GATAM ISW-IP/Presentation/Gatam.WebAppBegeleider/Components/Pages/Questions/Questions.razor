@@ -47,7 +47,7 @@
             }
             @if (selectedOption == QuestionType.TRUE_OR_FALSE)
             {
-<div class="form-group row mb-3">
+                <div class="form-group row mb-3">
                     <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
                     <div class="col-md-10">
                         <InputSelect @bind-Value="currentAnswer.Answer" class="form-control">
@@ -75,11 +75,11 @@
                     </div>
                 </div>
                 <Grid TItem="QuestionAnswer"
-                      @ref="answerGrid"
-                      Class="table table-hover"
-                      Data="answers"
-                      HeaderRowCssClass="custom-header"
-                      Responsive="true">
+                @ref="answerGrid"
+                Class="table table-hover"
+                Data="answers"
+                HeaderRowCssClass="custom-header"
+                Responsive="true">
                     <GridColumns>
                         <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                             @AnswerContext.Answer
@@ -112,11 +112,11 @@
                     </div>
                 </div>
                 <Grid TItem="QuestionAnswer"
-                      @ref="answerGrid"
-                      Class="table table-hover"
-                      Data="answers"
-                      HeaderRowCssClass="custom-header"
-                      Responsive="true">
+                @ref="answerGrid"
+                Class="table table-hover"
+                Data="answers"
+                HeaderRowCssClass="custom-header"
+                Responsive="true">
                     <GridColumns>
                         <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                             @AnswerContext.Answer
@@ -154,27 +154,27 @@
     <h3>Vragen</h3>
     <div class="d-flex p-2 justify-content-between">
         <AutoComplete @ref="search"
-                      @bind-Value="searchValue"
-                      TItem="Question"
-                      DataProvider="QuestionSearchDataProvider"
-                      PropertyName="QuestionTitle"
-                      Placeholder="Zoek een vraag..."
-                      OnChanged="(Question question) => OnAutoCompleteChanged(question)" />
+        @bind-Value="searchValue"
+        TItem="Question"
+        DataProvider="QuestionSearchDataProvider"
+        PropertyName="QuestionTitle"
+        Placeholder="Zoek een vraag..."
+        OnChanged="(Question question) => OnAutoCompleteChanged(question)" />
         <Button Color="ButtonColor.Primary" @onclick="OnShowModalClick">
             <Icon Name="IconName.Plus"/>
             Nieuwe vraag
         </Button>    
     </div>
- <Grid TItem="Question"
-     @ref="questionGrid"
-        AllowRowClick="true"
-        AllowSorting="true"
-        Class="table table-hover"
-        AllowPaging="true"
-        Data="questions"
-        PageSize="10"
-        HeaderRowCssClass="custom-header"
-        Responsive="true">
+    <Grid TItem="Question"
+    @ref="questionGrid"
+    AllowRowClick="true"
+    AllowSorting="true"
+    Class="table table-hover"
+    AllowPaging="true"
+    Data="questions"
+    PageSize="10"
+    HeaderRowCssClass="custom-header"
+    Responsive="true">
         <GridColumns>
             <GridColumn TItem="Question" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
                 @context.QuestionTitle
@@ -182,7 +182,7 @@
             <GridColumn TItem="Question" HeaderText="Type:" PropertyName="QuestionType" SortString="QuestionType" SortKeySelector="item => item.QuestionType">
                 @((QuestionType)@context.QuestionType)
             </GridColumn>
-@*           <GridColumn TItem="Question" HeaderText="Antwoord:" PropertyName="QuestionAnswer" SortString="QuestionTitle" SortKeySelector="item => item.QuestionAnswer">
+            @*           <GridColumn TItem="Question" HeaderText="Antwoord:" PropertyName="QuestionAnswer" SortString="QuestionTitle" SortKeySelector="item => item.QuestionAnswer">
                 @context.QuestionAnswer
             </GridColumn> *@
             <GridColumn TItem="Question" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
@@ -195,7 +195,7 @@
             <GridColumn TItem="Question" HeaderText="Actie" Filterable="false">
                 <div>
                     <button type="button"
-                            class="btn btn-outline-danger"
+                    class="btn btn-outline-danger"
                     data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
                         <i class="bi bi-trash"></i>
                     </button>
@@ -329,7 +329,9 @@
     {
         newQuestion = new Question();
         answers.Clear();
-        answers.Append(new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id });
+        QuestionAnswer newAnswer = new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id };
+        answers.Append(newAnswer);
+        currentAnswer = newAnswer;
         editContext = new EditContext(newQuestion);
         selectedOption = QuestionType.OPEN;
     }
