@@ -31,8 +31,6 @@ namespace Gatam.Application.CQRS.Module
             return existingModule == null; // true als de title uniek is
         }
     }
-
-
     public class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand, ApplicationModule>
     {
         private readonly IUnitOfWork _uow;
