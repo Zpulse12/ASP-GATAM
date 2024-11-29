@@ -238,23 +238,65 @@
         try
         {
 
-            foreach (var question in questions)
-            {
-                question.ApplicationModuleId = newModule.Id; 
+            // foreach (var question in questions)
+            // {
+            //     question.ApplicationModuleId = newModule.Id; 
+            //     foreach (var answer in question.Answers)
+            //     {
+            //         answer.QuestionId = question.Id;
+            //         newQuestion.QuestionType = (short)selectedOption;
+            //         if ((QuestionType)newQuestion.QuestionType == QuestionType.TRUE_OR_FALSE)
+            //         {
+            //             answers.Add(currentAnswer);
+            //         }
+            //         if ((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
+            //         {
+            //             answers.Add(currentAnswer);
+            //         }
+            //         newQuestion.Answers = answers;
+            //     }
+            // }
 
-            }
 
-
-            newModule.Questions=questions;
             var result = await apiClient.PostAsJsonAsync("api/module", newModule);
             if (result.IsSuccessStatusCode)
             {
+                foreach (var question in questions)
+                {
+                        question.ApplicationModuleId = newModule.Id;
+                        foreach (var answer in question.Answers)
+                        {
+                            answer.QuestionId = question.Id;
+                            newQuestion.QuestionType = (short)selectedOption;
+                            if ((QuestionType)newQuestion.QuestionType == QuestionType.TRUE_OR_FALSE)
+                            {
+                                answers.Add(currentAnswer);
+                            }
+                            if ((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
+                            {
+                                answers.Add(currentAnswer);
+                            }
+                            newQuestion.Answers = answers;
+                        }
+                         HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", newQuestion);
+
+                    if (createQuestionResponse.IsSuccessStatusCode)
+                    {
+                        toastService.Notify(new(ToastType.Success, "Je vraag is succesvol aangemaakt", $"Vraag gemaakt op {newQuestion.CreatedAt}"));
+                        ResetForm();
+                    }
+                    else
+                    {
+                        ValidationException errorResponse = await createQuestionResponse.Content.ReadFromJsonAsync<ValidationException>();
+                        string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : createQuestionResponse.ReasonPhrase;
+                        toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", errors));
+                    }
+                }
 
                 var responseData = await result.Content.ReadFromJsonAsync<ModuleDTO>();
                 toastService.Notify(new(ToastType.Success, "Module en vragen succesvol aangemaakt!"));
                 newModule = responseData ?? new ModuleDTO();
                 questions = responseData?.Questions.ToList() ?? new List<Question>();
-                ResetForm();
                 Navigation.NavigateTo("/content/modules");
             }
             else
@@ -270,6 +312,8 @@
         finally
         {
             isLoading = false;
+            ResetForm();
+
         }
 
 
