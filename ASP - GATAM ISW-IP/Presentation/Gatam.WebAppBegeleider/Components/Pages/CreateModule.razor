@@ -234,26 +234,7 @@
         try
         {
 
-            // foreach (var question in questions)
-            // {
-            //     question.ApplicationModuleId = newModule.Id; 
-            //     foreach (var answer in question.Answers)
-            //     {
-            //         answer.QuestionId = question.Id;
-            //         newQuestion.QuestionType = (short)selectedOption;
-            //         if ((QuestionType)newQuestion.QuestionType == QuestionType.TRUE_OR_FALSE)
-            //         {
-            //             answers.Add(currentAnswer);
-            //         }
-            //         if ((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
-            //         {
-            //             answers.Add(currentAnswer);
-            //         }
-            //         newQuestion.Answers = answers;
-            //     }
-            // }
-
-
+            
             var result = await apiClient.PostAsJsonAsync("api/module", newModule);
             if (result.IsSuccessStatusCode)
             {
