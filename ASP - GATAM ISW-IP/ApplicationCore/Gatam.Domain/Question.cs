@@ -29,7 +29,7 @@ namespace Gatam.Domain
         [JsonIgnore]
         public IEnumerable<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
         [JsonIgnore]
-        public ICollection<UserQuestion> UserQuestions { get; set; } = new List<UserQuestion>();
+        public ICollection<UserQuestion>? UserQuestions { get; set; } = new List<UserQuestion>();
         public Question()
         {
             Id = Guid.NewGuid().ToString();

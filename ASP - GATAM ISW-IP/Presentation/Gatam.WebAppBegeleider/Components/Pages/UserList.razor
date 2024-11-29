@@ -27,6 +27,7 @@
 
         <Grid TItem="UserDTO"
               @ref="userGrid"
+              AllowRowClick="true"
               DataProvider="CustomersDataProvider"
               AllowFiltering="true"
               AllowSorting="true"
@@ -34,6 +35,7 @@
               PageSize="10"
               ShowPager="true"
               Responsive="true"
+              OnRowClick="OnRowClick"
               Class="table table-hover">
             <GridColumns>
                 <GridColumn TItem="UserDTO" 

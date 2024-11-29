@@ -18,6 +18,14 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
         return await _context.Users
             .Include(u => u.UserModules)
             .ThenInclude(um => um.Module)
+            .ThenInclude(m => m.Questions)
+            .ThenInclude(m => m.Answers)
+            .Include(u => u.UserModules)
+                .ThenInclude(um => um.UserGivenAnswers)
+            .Include(u => u.UserModules)
+                .ThenInclude(um => um.UserQuestions)
+                    .ThenInclude(qs => qs.Question)
+                    .ThenInclude(q => q.Answers)
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
@@ -32,7 +40,8 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
                 .ThenInclude(um => um.UserGivenAnswers)
             .Include(u => u.UserModules)
                 .ThenInclude(um => um.UserQuestions)
-                    .ThenInclude(qs => qs.Question) 
+                    .ThenInclude(qs => qs.Question)
+                    .ThenInclude(q => q.Answers)
             .AsNoTracking()
             .ToListAsync();
     }
