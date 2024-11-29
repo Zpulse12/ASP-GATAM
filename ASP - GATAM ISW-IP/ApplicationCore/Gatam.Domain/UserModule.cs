@@ -7,11 +7,11 @@ public class UserModule
     public string Id { get; set; }
     public string UserId { get; set; }
     [JsonIgnore] 
-    public ApplicationUser User { get; set; }
+    public ApplicationUser? User { get; set; }
 
     public string ModuleId { get; set; }
     [JsonIgnore] 
-    public ApplicationModule Module { get; set; }
+    public ApplicationModule? Module { get; set; }
 
     public UserModuleState State { get; set; }
 
