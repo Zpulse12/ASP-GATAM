@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Gatam.Domain;
 using Microsoft.AspNetCore.Identity;
 using Gatam.Application.Extensions;
+using Gatam.Application.Extensions.Encryption;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Reflection.Emit;
 
 namespace Gatam.Infrastructure.Contexts
 {
@@ -21,6 +24,10 @@ namespace Gatam.Infrastructure.Contexts
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            var encryptionService = this.GetService<KraEncryptionService>();
+            builder.UseEncryption(encryptionService, null);
+
+
             base.OnModelCreating(builder);
             
             builder.Entity<ApplicationRole>(entity =>
