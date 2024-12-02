@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Gatam.Shared.Extensions.Attributes;
 
 namespace Gatam.Domain
 {
@@ -6,10 +6,15 @@ namespace Gatam.Domain
     {
         public string? Id { get; set; }
 
+        [Encrypted]
         public string Name { get; set; }
+        [Encrypted]
         public  string Surname { get; set; }
-        public string Username { get; set; } 
+        [Encrypted]
+        public string Username { get; set; }
+        [Encrypted]
         public  string Email { get; set; }
+        [Encrypted]
         public  string? PhoneNumber { get; set; }
         public  string? PasswordHash { get; set; }
         public bool IsActive { get; set; }
