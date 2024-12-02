@@ -3,6 +3,7 @@
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
+@using System.Diagnostics
 
 @inject ApiClient apiclient
 @inject AuthenticationStateProvider authenticationStateProvider
@@ -17,12 +18,12 @@
             <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
         </div>
     }
-     else if (moduleBeingEdited != null)
+    else if (moduleBeingEdited != null)
     {
         @if (_showWarning)
         {
             <div class="alert alert-warning">
-                De module kan niet worden bewerkt omdat deze in gebruik is door een trajectvolger(s).
+                De module kan niet worden bewerkt omdat deze is toegewezen aan een gebruiker.
             </div>
         }
         <h3>Module bewerken !</h3>
@@ -46,15 +47,15 @@
         @if (questions != null) 
         {
             <Grid TItem="Question"
-                  @ref="questionGrid"
-                  AllowRowClick="true"
-                  AllowSorting="true"
-                  Class="table table-hover"
-                  AllowPaging="true"
-                  Data="questions"
-                  PageSize="10"
-                  HeaderRowCssClass="custom-header"
-                  Responsive="true">
+            @ref="questionGrid"
+            AllowRowClick="true"
+            AllowSorting="true"
+            Class="table table-hover"
+            AllowPaging="true"
+            Data="questions"
+            PageSize="10"
+            HeaderRowCssClass="custom-header"
+            Responsive="true">
                 <GridColumns>
                     <GridColumn TItem="Question" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
                         @context.QuestionTitle
@@ -72,8 +73,8 @@
                     <GridColumn TItem="Question" HeaderText="Actie" Filterable="false">
                         <div>
                             <button type="button"
-                                    class="btn btn-outline-danger"
-                                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
+                            class="btn btn-outline-danger"
+                            data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
                                 <i class="bi bi-trash"></i>
                             </button>
                             <a class="btn btn-outline-secondary" href="/question/@(context.Id)" @onclick:stopPropagation>
@@ -89,7 +90,7 @@
                 vraag niet gevonden.
             </div>
         }
-        
+
     }
     else
     {
@@ -124,7 +125,7 @@
             {
 
                 questions = moduleBeingEdited.Questions.ToList();
-                
+
 
             }
             else
@@ -152,18 +153,19 @@
                 return;
             }
 
-            
+
 
             var response = await apiclient.PutAsJsonAsync($"/api/module/{moduleBeingEdited.Id}", moduleBeingEdited);
+            var responseContent = await response.Content.ReadAsStringAsync(); 
+           
             if(response.IsSuccessStatusCode){
                 toastService.Notify(new(ToastType.Success, "Module succesvol opgeslagen!"));
                 StateHasChanged();
             }
             else{
-                var errorContent = await response.Content.ReadAsStringAsync();
-                if (errorContent.Contains("in gebruik"))
+                if (responseContent.Contains("is toegewezen aan een gebruiker"))
                 {
-                    toastService.Notify(new(ToastType.Warning, $"De module {moduleBeingEdited.Title} kan niet worden bewerkt omdat deze in gebruik is."));
+                    toastService.Notify(new(ToastType.Warning, $"De module {moduleBeingEdited.Title} kan niet worden bewerkt omdat deze is toegewezen aan een gebruiker."));
                     _showWarning = true;
                 }
                 else
