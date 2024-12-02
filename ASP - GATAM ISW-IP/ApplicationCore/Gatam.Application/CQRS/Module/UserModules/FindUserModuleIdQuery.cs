@@ -44,6 +44,9 @@ namespace Gatam.Application.CQRS.Module.UserModules
         public async Task<UserModuleDTO> Handle(FindUserModuleIdQuery request, CancellationToken cancellationToken)
         {
             var userModule = await _uow.UserModuleRepository.FindByIdModuleWithIncludes(request.UserModuleId);
+            userModule.UserQuestions = userModule.UserQuestions
+           .OrderBy(q => q.QuestionPriority)
+           .ToList(); ;
             return _mapper.Map<UserModuleDTO>(userModule);
         }
     }
