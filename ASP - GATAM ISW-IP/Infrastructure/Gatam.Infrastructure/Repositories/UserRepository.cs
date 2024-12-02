@@ -73,8 +73,6 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
             .Where(u => u.UserModules.Any(um => um.ModuleId == moduleId))
             .Include(u => u.UserModules)
                 .ThenInclude(um => um.Module)
-             .Include(x => x.UserModules)
-                .ThenInclude(x => x.User)
             .AsNoTracking()
             .ToListAsync();
     }
