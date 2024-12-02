@@ -13,6 +13,7 @@ internal class Program {
         builder.Services.RegisterApplication();
         builder.Services.RegisterInfrastructure();
         builder.Services.AddControllers();
+        builder.Services.RegisterEncryption();
         builder.Services.RegisterJWTAuthentication(builder);
         builder.Services.RegisterPolicies();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
