@@ -8,6 +8,7 @@ ARG APP="Gatam.WebAPI"
 COPY *.sln .
 COPY ApplicationCore/Gatam.Application/*.csproj ./ApplicationCore/Gatam.Application/
 COPY ApplicationCore/Gatam.Domain/*.csproj ./ApplicationCore/Gatam.Domain/
+COPY ApplicationCore/Gatam.Shared/*.csproj ./ApplicationCore/Gatam.Shared/
 COPY Infrastructure/Gatam.Infrastructure/*.csproj ./Infrastructure/Gatam.Infrastructure/
 COPY Presentation/${APP}/*.csproj ./Presentation/${APP}/
 RUN dotnet restore ./Presentation/${APP}/${APP}.csproj # Restore dependencies voor het project dat gaat runnen.

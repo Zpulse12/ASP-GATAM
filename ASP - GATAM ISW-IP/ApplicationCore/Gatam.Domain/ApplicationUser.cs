@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 
-
 namespace Gatam.Domain
 {
     public class ApplicationUser 
