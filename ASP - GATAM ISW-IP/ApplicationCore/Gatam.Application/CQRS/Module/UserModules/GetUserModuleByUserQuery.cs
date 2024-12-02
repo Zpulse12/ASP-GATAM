@@ -21,7 +21,7 @@ namespace Gatam.Application.CQRS.Module.UserModules
                 .NotEmpty().WithMessage("UserId mag niet leeg zijn.");
             RuleFor(x => x.UserId).MustAsync(async (userId, CancellationToken) =>
             {
-                var user = _uow.UserRepository.FindById(userId);
+                var user = await _uow.UserRepository.FindById(userId);
                 return user != null;
             }).WithMessage("User bestaat niet");
         }
