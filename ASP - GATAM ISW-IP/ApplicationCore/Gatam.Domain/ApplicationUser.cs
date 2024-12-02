@@ -1,4 +1,4 @@
-using Gatam.Shared.Extensions.Attributes;
+using Gatam.Shared.Attributes;
 
 namespace Gatam.Domain
 {

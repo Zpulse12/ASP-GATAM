@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gatam.Application.Extensions.Attributes;
+using Gatam.Shared.Attributes;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Gatam.Application.Extensions.Encryption
