@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gatam.Application.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,23 +9,23 @@ namespace Gatam.Application.Extensions.Encryption
 {
     public class EncryptionKeyProvider : IEncryptionKeyProvider
     {
-        private readonly IList<byte[]> encryptionKeys;
+        private readonly IList<byte[]> _encryptionKeys;
         public EncryptionKeyProvider(IList<byte[]> encryptionKeys)
         {
-            this.encryptionKeys = encryptionKeys;
+            this._encryptionKeys = encryptionKeys;
         }
         public EncryptionKey GetCurrentEncryptionKey()
         {
-            return new EncryptionKey($"v{encryptionKeys.Count - 1}", encryptionKeys.Last());
+            return new EncryptionKey($"v{_encryptionKeys.Count - 1}", _encryptionKeys.Last());
         }
         public EncryptionKey GetEncryptionKeyById(string keyId)
         {
             var keyIndex = int.Parse(keyId[1..]);
-            return new EncryptionKey(keyId, encryptionKeys[keyIndex]);
+            return new EncryptionKey(keyId, _encryptionKeys[keyIndex]);
         }
         public void RotateKey(byte[] newKeyData)
         {
-            encryptionKeys.Add(newKeyData);
+            _encryptionKeys.Add(newKeyData);
         }
 
     }

@@ -1,20 +1,20 @@
-﻿using AES256_Rotating_Key.interfaces;
+﻿using Gatam.Application.Interfaces;
 
-namespace AES256_Rotating_Key
+namespace Gatam.Application.Extensions.Encryption
 {
     public class KraEncryptionService : IEncryptionService
     {
 
-        private readonly IEncryptionKeyProvider encryptionKeyProvider;
+        private readonly IEncryptionKeyProvider _encryptionKeyProvider;
 
         public KraEncryptionService(IEncryptionKeyProvider encryptionKeyProvider)
         {
-            this.encryptionKeyProvider = encryptionKeyProvider;
+            this._encryptionKeyProvider = encryptionKeyProvider;
         }
 
         public string Encrypt(string plainText)
         {
-            var encryptionKey = encryptionKeyProvider.GetCurrentEncryptionKey();
+            var encryptionKey = _encryptionKeyProvider.GetCurrentEncryptionKey();
 
             var encryptionService = new AuthEncryptionService(encryptionKey.KeyData);
             var base64EncryptedText = encryptionService.Encrypt(plainText);
@@ -24,7 +24,7 @@ namespace AES256_Rotating_Key
         public string Decrypt(string cipherText)
         {
             var versionedCiphertext = VersionedAesGcmCipherText.FromString(cipherText);
-            var encryptionKey = encryptionKeyProvider.GetEncryptionKeyById(versionedCiphertext.KeyId);
+            var encryptionKey = _encryptionKeyProvider.GetEncryptionKeyById(versionedCiphertext.KeyId);
             var encryptionService = new AuthEncryptionService(encryptionKey.KeyData);
             return encryptionService.Decrypt(versionedCiphertext.Ciphertext);
         }
