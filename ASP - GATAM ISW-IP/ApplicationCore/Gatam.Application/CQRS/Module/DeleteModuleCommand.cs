@@ -33,7 +33,7 @@ namespace Gatam.Application.CQRS.Module
 
                 return !usersWithModule.Any();
             })
-            .WithMessage("De module kan niet worden verwijderd omdat deze is toegewezen aan een gebruiker.");
+            .WithMessage("De module kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s)");
         }
     }
     public class DeleteModuleCommandHandler: IRequestHandler<DeleteModuleCommand, bool>

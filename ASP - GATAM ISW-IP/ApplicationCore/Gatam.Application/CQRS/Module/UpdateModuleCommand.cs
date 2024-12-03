@@ -32,7 +32,7 @@ namespace Gatam.Application.CQRS.Module
 
                return !usersWithModule.Any();
             })
-            .WithMessage("De module kan niet worden bewerkt omdat deze is toegewezen aan een gebruiker.");
+            .WithMessage("De module kan niet worden bewerkt omdat deze is toegewezen aan trajectvolger(s)");
 
         }
         private async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)

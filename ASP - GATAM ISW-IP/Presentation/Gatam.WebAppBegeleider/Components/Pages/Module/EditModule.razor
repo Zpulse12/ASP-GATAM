@@ -160,7 +160,7 @@
         @if (_showWarning)
         {
             <div class="alert alert-warning">
-                De module kan niet worden bewerkt omdat deze is toegewezen aan een trajectvolger(s).
+                De module kan niet worden bewerkt omdat deze is toegewezen aan trajectvolger(s).
             </div>
         }
         <h3>Module bewerken !</h3>
@@ -223,7 +223,7 @@
             </Grid>
             <Button Color="ButtonColor.Warning" @onclick="AddNewQuestionToModule">
                 <Icon Name="IconName.Plus" />
-                vraag opslaan
+                vraag(en) opslaan
             </Button>
         }
         else{
@@ -324,9 +324,9 @@
                 StateHasChanged();
             }
             else{
-                if (responseContent.Contains("is toegewezen aan een gebruiker"))
+                if (responseContent.Contains("is toegewezen aan trajectvolger(s)"))
                 {
-                    toastService.Notify(new(ToastType.Warning, $"De module {moduleBeingEdited.Title} kan niet worden bewerkt omdat deze is toegewezen aan een gebruiker."));
+                    toastService.Notify(new(ToastType.Warning, $"De module {moduleBeingEdited.Title} kan niet worden bewerkt omdat deze is toegewezen aan trajectvolger(s)."));
                     _showWarning = true;
                 }
                 else
@@ -423,7 +423,7 @@
 
                 if (createQuestionResponse.IsSuccessStatusCode)
                 {
-                    toastService.Notify(new(ToastType.Success, "Je vraag is succesvol aangemaakt in module", $"Vraag gemaakt op {newQuestion.CreatedAt}"));
+                    toastService.Notify(new(ToastType.Success, "Je vraag is succesvol toegvoegd in module", $"Vraag gemaakt op {newQuestion.CreatedAt}"));
                     ResetForm();
                 }
                 else
