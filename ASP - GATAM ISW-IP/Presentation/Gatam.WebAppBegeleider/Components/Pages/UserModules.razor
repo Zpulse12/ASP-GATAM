@@ -31,7 +31,7 @@ else if (_userModules?.Any() != true)
 }
 else
 {
-<CustomCards>
+    <CustomCards>
     <h3 class="mb-4">Modules per Gebruiker</h3>
     <div class="modules-container">
         @foreach (var userModule in _userModules)
@@ -58,38 +58,38 @@ else
 
 
 
-                <div class="module-content @(_expandedModules.Contains(userModule.Id) ? "show" : "")">
-                    @foreach (var questionSetting in userModule.UserQuestions)
-                    {
-                        <div class="question-item">
-                            <div class="question-content">
-                                <h6>@questionSetting.QuestionTitle</h6>
-                                <span class="question-type">@GetQuestionTypeText(questionSetting.QuestionType)</span>
-                            </div>
-                            <div class="priority-spacing mr-5">
-                                <span class="toggle-label">Prioriteit</span>
-                                <div class="priority-flex">
-                                    <InputSelect @bind-Value="questionSetting.QuestionPriority" class="form-control mb-3">
-                                        <option value="@QuestionPriority.HIGH">Hoog</option>
-                                        <option value="@QuestionPriority.MEDIUM">Gemiddeld</option>
-                                        <option value="@QuestionPriority.LOW">Laag</option>
-                                    </InputSelect>
-                                    <Button Color="ButtonColor.Primary" @onclick="async () => await UpdateQuestionPriority(questionSetting) ">Prioriteit opslaan</Button>
-                                </div>
-                            </div>
-                            <div class="visibility-toggle">
-                                
-                                    <label class="switch">
-                                        <input type="checkbox"
-                                               checked="@questionSetting.IsVisible"
-                                               @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
-                                        <span class="slider"></span>
-                                    </label>
-                                <span class="toggle-label">@(questionSetting.IsVisible ? "Zichtbaar" : "Verborgen")</span>
+            <div class="module-content @(_expandedModules.Contains(userModule.Id) ? "show" : "")">
+                @foreach (var questionSetting in userModule.UserQuestions)
+                {
+                    <div class="question-item">
+                        <div class="question-content">
+                            <h6>@questionSetting.QuestionTitle</h6>
+                            <span class="question-type">@GetQuestionTypeText(questionSetting.QuestionType)</span>
+                        </div>
+                        <div class="priority-spacing mr-5">
+                            <span class="toggle-label">Prioriteit</span>
+                            <div class="priority-flex">
+                                <InputSelect @bind-Value="questionSetting.QuestionPriority" class="form-control mb-3">
+                                    <option value="@QuestionPriority.HIGH">Hoog</option>
+                                    <option value="@QuestionPriority.MEDIUM">Gemiddeld</option>
+                                    <option value="@QuestionPriority.LOW">Laag</option>
+                                </InputSelect>
+                                <Button Color="ButtonColor.Primary" @onclick="async () => await UpdateQuestionPriority(questionSetting) ">Prioriteit opslaan</Button>
                             </div>
                         </div>
-                    }
-                </div>
+                        <div class="visibility-toggle">
+
+                            <label class="switch">
+                                <input type="checkbox"
+                                       checked="@questionSetting.IsVisible"
+                                       @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
+                                <span class="slider"></span>
+                            </label>
+                            <span class="toggle-label">@(questionSetting.IsVisible ? "Zichtbaar" : "Verborgen")</span>
+                        </div>
+                    </div>
+                }
+            </div>
         }
     </div>
     </CustomCards>
@@ -182,26 +182,26 @@ else
 
         foreach (var question in visibleQuestions)
         {
-            bool isAnswered = false; 
+            bool isAnswered = false;
             foreach (var answer in question.Question.Answers)
             {
                 if (isAnswered)
-                    break; 
+                    break;
 
                 var matchingAnswer = userModule.UserGivenAnswers
                     .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));
 
                 if (matchingAnswer != null)
                 {
-                    isAnswered = true; 
-                    answeredQuestionsCount++; 
+                    isAnswered = true;
+                    answeredQuestionsCount++;
                 }
             }
         }
         if (visibleQuestions.Count == 0)
-            return 0; 
+            return 0;
 
-            return (double)answeredQuestionsCount / visibleQuestions.Count * 100;
+        return (double)answeredQuestionsCount / visibleQuestions.Count * 100;
     }
 
     public string CalculateAnsweredPercentageLabel(UserModuleDTO userModule)
