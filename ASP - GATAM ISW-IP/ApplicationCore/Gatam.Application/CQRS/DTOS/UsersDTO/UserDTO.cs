@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Gatam.Application.CQRS.UserDTO
+namespace Gatam.Application.CQRS
 {
     public class UserDTO
     {
