@@ -12,197 +12,214 @@
 
 @attribute [Authorize(Policy = "RequireMakerRole")]
 
-
-<CustomCards>
-    <h3>Maak module aan</h3>
-
-    <div class="mb-3">
-        <label for="title">Titel</label>
-        <InputText id="title" class="form-control" @bind-Value="newModule.Title" />
-    </div>
-
-    <div class="mb-3">
-        <label for="category">Categorie</label>
-        <InputText id="category" class="form-control" @bind-Value="newModule.Category" />
-    </div>
-    <hr/>
-    <h3>Vragen voor module:</h3>
-    <hr />
-    <EditForm Model="newQuestion" OnValidSubmit="HandleValidSubmit" novalidate FormName="CreateModule">
-        <DataAnnotationsValidator />
-
-        <div class="form-group row mb-3">
-            <label class="col-md-2 col-form-label">Vraag: <span class="text-danger">*</span></label>
-            <div class="col-md-10">
-                <InputText class="form-control" @bind-Value="newQuestion.QuestionTitle" Placeholder="Wie zou je zijn zonder angsten?" />
-                <ValidationMessage For="@(() => newQuestion.QuestionTitle)" />
+<div class="create-module-container">
+    <div class="module-header">
+        <div class="header-content">
+            <i class="bi bi-journal-plus"></i>
+            <div class="header-text">
+                <h2>Maak module aan</h2>
+                <p>Vul de onderstaande velden in om een nieuwe module aan te maken</p>
             </div>
         </div>
-        <div class="form-group row mb-3">
-            <label class="col-md-2 col-form-label">Type vraag:<span class="text-danger">*</span></label>
-            <div class="col-md-10">
-                <InputSelect @bind-Value="selectedOption" class="form-control">
-                    <option value="@QuestionType.MULTIPLE_CHOICE">Meerkeuzevraag</option>
-                    <option value="@QuestionType.CHOICE_LIST">Keuzevraag</option>
-                    <option value="@QuestionType.OPEN">Open vraag</option>
-                    <option value="@QuestionType.TRUE_OR_FALSE">Waar / onwaar vraag</option>
-                </InputSelect>
-            </div>
-        </div>
-        <hr />
+    </div>
 
-        @if (selectedOption == QuestionType.OPEN)
-        {
-            <div class="form-group row mb-3">
-                <p class="text-center">Je hebt gekozen voor een open vraag. Je moet geen mogelijke antwoorden meegeven.</p>
+    <div class="content-wrapper">
+        <div class="section-card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i>
+                <h3>Module informatie</h3>
             </div>
-        }
-        @if (selectedOption == QuestionType.TRUE_OR_FALSE)
-        {
-            <div class="form-group row mb-3">
-                <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
-                <div class="col-md-10">
-                    <InputSelect @bind-Value="currentAnswer.Answer" class="form-control">
-                        <option value="true">Waar</option>
-                        <option value="false">Onwaar</option>
-                    </InputSelect>
-                    <ValidationMessage For="@(() => newQuestion.Answers)" />
-                </div>
+            <div class="form-section">
+                <label for="title" class="form-label">
+                    <i class="bi bi-bookmark-fill"></i>
+                    Titel <span class="required">*</span>
+                </label>
+                <InputText id="title" class="form-control" @bind-Value="newModule.Title" />
             </div>
-        }
-        @if (selectedOption == QuestionType.MULTIPLE_CHOICE)
-        {
-            <div class="form-group row mb-3">
-                <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
-                <div class="col-md-10">
-                    <InputText class="form-control mb-3" @bind-Value="currentAnswer.Answer" />
-                    <ValidationMessage For="@(() => currentAnswer.Answer)" />
-                    <InputSelect @bind-Value="currentAnswer.AnswerValue" class="form-control mb-3">
-                        <option value="true">Juist</option>
-                        <option value="false">Onjuist</option>
-                    </InputSelect>
-                </div>
-                <div class="col-md-12 text-left">
-                    <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
-                </div>
+
+            <div class="form-section">
+                <label for="category" class="form-label">
+                    <i class="bi bi-tag-fill"></i>
+                    Categorie <span class="required">*</span>
+                </label>
+                <InputText id="category" class="form-control" @bind-Value="newModule.Category" />
             </div>
-            <Grid TItem="QuestionAnswer"
-            @ref="answerGrid"
-            Class="table table-hover"
-            Data="answers"
-            HeaderRowCssClass="custom-header"
-            Responsive="true">
-                <GridColumns>
-                    <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
-                        @AnswerContext.Answer
-                    </GridColumn>
-                    <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
-                        @AnswerContext.AnswerValue
-                    </GridColumn>
-                    <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
-                        <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </GridColumn>
-                </GridColumns>
-            </Grid>
-        }
-        @if (selectedOption == QuestionType.CHOICE_LIST)
-        {
-            <div class="form-group row mb-3">
-                <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
-                <div class="col-md-10">
-                    <InputText class="form-control mb-3" @bind-Value="currentAnswer.Answer" />
-                    <ValidationMessage For="@(() => currentAnswer.Answer)" />
-                    <InputSelect @bind-Value="currentAnswer.AnswerValue" class="form-control mb-3">
-                        <option value="true">Juist</option>
-                        <option value="false">Onjuist</option>
-                    </InputSelect>
+
+            <div class="questions-overview">
+                <div class="card-header">
+                    <i class="bi bi-list-check"></i>
+                    <h3>Toegevoegde vragen (@questions.Count)</h3>
                 </div>
-                <div class="col-md-12 text-left">
-                    <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
-                </div>
+                @if (!questions.Any())
+                {
+                    <div class="info-message">
+                        <i class="bi bi-info-circle"></i>
+                        Nog geen vragen toegevoegd aan deze module.
+                    </div>
+                }
+                else
+                {
+                    <div class="questions-list">
+                        @foreach (var question in questions)
+                        {
+                            <div class="question-item">
+                                <div class="question-content">
+                                    <i class="bi bi-question-circle"></i>
+                                    <span>@question.QuestionTitle</span>
+                                </div>
+                                <button class="btn btn-outline-danger btn-sm" @onclick="() => RemoveQuestion(question)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
-            <Grid TItem="QuestionAnswer"
-            @ref="answerGrid"
-            Class="table table-hover"
-            Data="answers"
-            HeaderRowCssClass="custom-header"
-            Responsive="true">
-                <GridColumns>
-                    <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
-                        @AnswerContext.Answer
-                    </GridColumn>
-                    <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
-                        @AnswerContext.AnswerValue
-                    </GridColumn>
-                    <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
-                        <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </GridColumn>
-                </GridColumns>
-            </Grid>
-        }
-        <div class="row">
-            <div class="col-md-12 text-right">
-                <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="ResetForm">Verwijder data</Button>
-                <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@isLoading">
-                    @if (isLoading)
-                    {
-                        <Spinner Type="SpinnerType.Dots" />
-                    }
-                    else
-                    {
-                        <span>Aanmaken</span>
-                    }
+
+            <div class="form-actions">
+                <Button Type="ButtonType.Button" 
+                        Color="ButtonColor.Primary" 
+                        Class="btn-create-module" 
+                        @onclick="CreateNewModule">
+                    <Icon Name="IconName.Plus" /> Maak module aan
                 </Button>
             </div>
         </div>
-    </EditForm>
-    <hr />
-    <Grid TItem="Question"
-    @ref="questionGrid"
-    AllowRowClick="true"
-    AllowSorting="true"
-    Class="table table-hover"
-    AllowPaging="true"
-    Data="questions"
-    PageSize="10"
-    HeaderRowCssClass="custom-header"
-    Responsive="true">
-        <GridColumns>
-            <GridColumn TItem="Question" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
-                @context.QuestionTitle
-            </GridColumn>
-            <GridColumn TItem="Question" HeaderText="Type:" PropertyName="QuestionType" SortString="QuestionType" SortKeySelector="item => item.QuestionType">
-                @((QuestionType)@context.QuestionType)
-            </GridColumn>
-            @*           <GridColumn TItem="Question" HeaderText="Antwoord:" PropertyName="QuestionAnswer" SortString="QuestionTitle" SortKeySelector="item => item.QuestionAnswer">
-                @context.QuestionAnswer
-            </GridColumn> *@
-            <GridColumn TItem="Question" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
-                <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
-            </GridColumn>
-            <GridColumn TItem="Question" HeaderText="Aangepast op:" PropertyName="LastUpdatedAt" SortString="QuestionTitle" SortKeySelector="item => item.LastUpdatedAt">
-                <Tooltip Class="me-4" Title="@context.LastUpdatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.LastUpdatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
-            </GridColumn>
 
-            <GridColumn TItem="Question" HeaderText="Actie" Filterable="false">
-                <div>
-                    <button type="button"
-                    class="btn btn-outline-danger"
-                    @onclick="@(() => RemoveQuestion(context))">
-                        <i class="bi bi-trash"></i>
-                    </button>
+        <div class="section-card">
+            <div class="card-header">
+                <i class="bi bi-question-circle"></i>
+                <h3>Vraag toevoegen</h3>
+            </div>
+            
+            <EditForm Model="newQuestion" OnValidSubmit="HandleValidSubmit" novalidate FormName="CreateModule">
+                <DataAnnotationsValidator />
 
-
+                <div class="form-section">
+                    <label class="form-label">
+                        <i class="bi bi-chat-left-text-fill"></i>
+                        Vraag <span class="required">*</span>
+                    </label>
+                    <InputText class="form-control" @bind-Value="newQuestion.QuestionTitle" 
+                              placeholder="Wie zou je zijn zonder angsten?" />
+                    <ValidationMessage For="@(() => newQuestion.QuestionTitle)" />
                 </div>
-            </GridColumn>
-        </GridColumns>
-    </Grid>
-    <button class="btn" style="background-color:#4454D2; color:white" @onclick="CreateNewModule">Module Aanmaken</button>
-</CustomCards>
+
+                <div class="form-section">
+                    <label class="form-label">Type vraag <span class="required">*</span></label>
+                    <div class="type-options">
+                        <div class="type-option @(selectedOption == QuestionType.MULTIPLE_CHOICE ? "active" : "")"
+                             @onclick="() => selectedOption = QuestionType.MULTIPLE_CHOICE">
+                            <i class="bi bi-list-check"></i>
+                            <span>Meerkeuze</span>
+                        </div>
+                        <div class="type-option @(selectedOption == QuestionType.CHOICE_LIST ? "active" : "")"
+                             @onclick="() => selectedOption = QuestionType.CHOICE_LIST">
+                            <i class="bi bi-list-ul"></i>
+                            <span>Keuzelijst</span>
+                        </div>
+                        <div class="type-option @(selectedOption == QuestionType.OPEN ? "active" : "")"
+                             @onclick="() => selectedOption = QuestionType.OPEN">
+                            <i class="bi bi-pencil-square"></i>
+                            <span>Open vraag</span>
+                        </div>
+                        <div class="type-option @(selectedOption == QuestionType.TRUE_OR_FALSE ? "active" : "")"
+                             @onclick="() => selectedOption = QuestionType.TRUE_OR_FALSE">
+                            <i class="bi bi-check2-circle"></i>
+                            <span>Waar/Onwaar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                @if (selectedOption == QuestionType.OPEN)
+                {
+                    <div class="info-message">
+                        <i class="bi bi-info-circle"></i>
+                        Je hebt gekozen voor een open vraag. Je hoeft geen antwoordopties toe te voegen.
+                    </div>
+                }
+
+                @if (selectedOption == QuestionType.TRUE_OR_FALSE)
+                {
+                    <div class="form-section">
+                        <label class="form-label">Correct antwoord <span class="required">*</span></label>
+                        <InputSelect @bind-Value="currentAnswer.Answer" class="form-control">
+                            <option value="true">Waar</option>
+                            <option value="false">Onwaar</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => newQuestion.Answers)" />
+                    </div>
+                }
+
+                @if (selectedOption == QuestionType.MULTIPLE_CHOICE || selectedOption == QuestionType.CHOICE_LIST)
+                {
+                    <div class="answer-section">
+                        <div class="form-section">
+                            <label class="form-label">
+                                <i class="bi bi-check2-circle"></i>
+                                Antwoordoptie <span class="required">*</span>
+                            </label>
+                            <div class="input-group">
+                                <InputText class="form-control" @bind-Value="currentAnswer.Answer" />
+                                <InputSelect @bind-Value="currentAnswer.AnswerValue" class="form-select">
+                                    <option value="true">Juist</option>
+                                    <option value="false">Onjuist</option>
+                                </InputSelect>
+                                <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" 
+                                        Class="btn-add" @onclick="AddAnswerToList">
+                                    <Icon Name="IconName.Plus" /> Voeg toe
+                                </Button>
+                            </div>
+                            <ValidationMessage For="@(() => currentAnswer.Answer)" />
+                        </div>
+
+                        <div class="answers-table">
+                            <Grid TItem="QuestionAnswer"
+                                  @ref="answerGrid"
+                                  Class="table table-hover"
+                                  Data="answers"
+                                  HeaderRowCssClass="table-header"
+                                  Responsive="true">
+                                <GridColumns>
+                                    <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                                        @AnswerContext.Answer
+                                    </GridColumn>
+                                    <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                                        @AnswerContext.AnswerValue
+                                    </GridColumn>
+                                    <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </GridColumn>
+                                </GridColumns>
+                            </Grid>
+                        </div>
+                    </div>
+                }
+
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="ResetForm">Verwijder data</Button>
+                        <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <Spinner Type="SpinnerType.Dots" />
+                            }
+                            else
+                            {
+                                <span>Aanmaken</span>
+                            }
+                        </Button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<link href="css/create-module.css" rel="stylesheet" />
 
 @code {
     private ModuleDTO newModule = new ModuleDTO();
@@ -392,3 +409,4 @@
     }
     
 }
+
