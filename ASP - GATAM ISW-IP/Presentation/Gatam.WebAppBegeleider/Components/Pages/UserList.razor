@@ -4,7 +4,7 @@
 @page "/admin/user-list"
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApiClient apiClient
-
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
@@ -73,11 +73,11 @@
                         </button>
                     </div>
                 </GridColumn>
-                
+                <GridColumn TItem="UserDTO" HeaderText="Acties">
+                        <div class="">
                 @if (_isBeheerder)  
                 {
-                    <GridColumn TItem="UserDTO" HeaderText="Acties">
-                        <div class="">
+                    
                             <button type="button" @onclick="() => ShowDeleteModal(context.Id)"
                                     class="btn btn-outline-danger"
                                     data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
@@ -86,9 +86,15 @@
                             <a class="btn btn-outline-secondary" href="/admin/user/@(context.Id)" @onclick:stopPropagation>
                                 <i class="bi bi-pencil"></i>
                             </a>
-                        </div>
-                    </GridColumn>
+                     
                 }
+                    </div>
+                    <a class="btn btn-outline-secondary" @onclick="() => NavigateToSummary(context.Id)">
+                                 <Icon Name="IconName.InfoCircleFill" />
+                            </a>
+                </GridColumn>
+                        
+
             </GridColumns>
         </Grid>
     </div>
@@ -320,6 +326,10 @@
         {
             toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het wijzigen van de gebruiker status."));
         }
+    }
+    private void NavigateToSummary(string userId)
+    {
+        NavigationManager.NavigateTo($"/usersummary/{userId}");
     }
 }
 

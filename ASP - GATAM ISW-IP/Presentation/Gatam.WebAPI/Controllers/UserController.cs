@@ -28,7 +28,7 @@ namespace Gatam.WebAPI.Controllers
         }   
 
         [HttpGet]
-        [Authorize(Policy = "RequireManagementRole")]
+        /[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
 
         {
@@ -37,7 +37,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("{userId}")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsersById(string userId)
         {
             var userById = await _mediator.Send(new GetUserByIdQuery { UserId = userId });
@@ -96,7 +96,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("{userId}/roles")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
             List<string> roles = await _mediator.Send(new GetUserRolesQuery { UserId = userId });
