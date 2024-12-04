@@ -1,0 +1,275 @@
+.page-wrapper {
+    padding: 1.5rem;
+    height: 75vh;
+    background: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.content-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: calc(75vh - 6rem);
+    margin: 1.5rem;
+    overflow: hidden;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    padding-top: 2rem;
+}
+
+.banner {
+    background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+    padding: 2rem 3rem;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 4px 12px -2px rgba(73, 77, 126, 0.15);
+    margin: 1.5rem 1.5rem -16px 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.banner-icon {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1.25rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.banner-icon i {
+    font-size: 1.75rem;
+    color: white;
+}
+
+.banner-text h3 {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.banner-text p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0.5rem 0 0 0;
+    font-size: 1.1rem;
+}
+
+EditForm {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding: 3rem 3rem 0 3rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+}
+
+.form-group label {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.form-control {
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.form-actions {
+    padding: 1.5rem 3rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    border-radius: 0 0 16px 16px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    box-sizing: border-box;
+}
+
+.btn-submit, .btn-cancel {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+} 
+.btn-submit, .btn-cancel {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-submit {
+    background: linear-gradient(90deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(73, 77, 126, 0.2);
+}
+
+.btn-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(73, 77, 126, 0.3);
+}
+
+.btn-cancel {
+    background: white;
+    color: rgb(73, 77, 126);
+    border: 1px solid rgb(146, 175, 206);
+}
+
+.btn-cancel:hover {
+    background: rgb(146, 175, 206, 0.1);
+}
+
+button[type="button"].btn-icon,
+.btn-trajectvolger {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem;
+    cursor: pointer;
+    color: rgb(73, 77, 126);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+button[type="button"].btn-icon:hover,
+.btn-trajectvolger:hover {
+    background: #f8fafc;
+    border-color: rgb(146, 175, 206);
+    color: rgb(73, 77, 126);
+}
+
+button[type="button"].btn-icon:active,
+.btn-trajectvolger:active {
+    background: #f1f5f9;
+}
+
+button[type="button"].btn-icon i,
+.btn-trajectvolger i {
+    font-size: 1rem;
+}
+
+/* Algemene styling voor buttons */
+.btn-icon,
+.btn-show-password {
+    background: #f0f2f5;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: rgb(73, 77, 126);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-icon:hover,
+.btn-show-password:hover {
+    background: #e2e8f0;
+    border-color: rgb(146, 175, 206);
+    color: rgb(53, 57, 106);
+}
+
+.btn-icon:active,
+.btn-show-password:active {
+    background: #d1d5db;
+}
+
+.btn-icon i,
+.btn-show-password i {
+    font-size: 1rem;
+}
+
+.input-group {
+    display: flex;
+    align-items: stretch;
+}
+
+.input-group input {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+}
+
+/* Password toggle button */
+.password-input {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+.password-input .form-control {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+}
+
+.password-input .password-toggle {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    border-radius: 0 8px 8px 0;
+    color: rgb(73, 77, 126);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.password-toggle:hover {
+    background: #f8fafc;
+    border-color: rgb(146, 175, 206);
+}
+
+/* Role selection styling */
+.role-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1.5rem;
+}
+
