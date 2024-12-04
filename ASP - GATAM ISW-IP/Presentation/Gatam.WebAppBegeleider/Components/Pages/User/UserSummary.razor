@@ -1,10 +1,11 @@
-﻿@page "/usersummary/{UserId:guid}"
+﻿@page "/usersummary/{UserId}"
 @using System.Diagnostics
 @using Gatam.Application.CQRS
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
 @inject ApiClient ApiClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider authStateProvider
@@ -49,13 +50,14 @@
                         </div>
                         <div class="form-group mb-3">
                             <label for="begeleiderId">Begeleider</label>
-                            @if(mentor == null)
+                            @if(mentor != null&& user.BegeleiderId != null)
+                            {
+                                 <p>@mentor.Name @mentor.Surname</p>
+                            }
+                            else if(mentor == null|| user.BegeleiderId == null)
                             {
                                 <p>Volger is nog niet gekoppeld aan een begeleider.</p>
-                            }
-                            else if(mentor != null)
-                            {
-                                <p>@mentor.Name @mentor.Surname</p>
+                               
                             }
                             else
                             {
@@ -104,64 +106,120 @@
             </div>
         </Content>
     </Tab>
+      <AuthorizedView Policy="RequireAdminRole">
+                                      <Authorized>
+
     <Tab>
         <TitleTemplate>
-            <Icon Name="IconName.Gear" /> Beheerder Settings
+            <Icon Name="IconName.Gear" /> Beheerder Instellingen
         </TitleTemplate>
         <Content>
-           <Accordion>
+            <Accordion>
                 <AccordionItem Title="Toewijzing aanpassen">
-        <Content>
-            <b>This is the first item's accordion body.</b> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the .accordion-body, though the transition does limit overflow.
-        </Content>
-    </AccordionItem>
-    <AccordionItem Title="Accordion Item #2">
-        <Content>
-            <b>This is the second item's accordion body.</b> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the .accordion-body, though the transition does limit overflow.
-        </Content>
-    </AccordionItem>
-    <AccordionItem Title="Accordion Item #3">
-        <Content>
-            <b>This is the third item's accordion body.</b> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the .accordion-body, though the transition does limit overflow.
-        </Content>
-    </AccordionItem>
-</Accordion>
+                    <Content>
+                        <div>
+                            <p>
+                                Deze volger is momenteel 
+                                @if (mentor.Name != null && mentor.Surname != null)
+                                {
+                                    <p>toegewezen aan <b>@mentor.Name @mentor.Surname</b>.</p>
+                                }
+                                else
+                                {
+                                    <p>niet toegewezen aan een begeleider.</p>
+                                }
+                            </p>
+                            <div class="form-group">
+                                <label for="begeleiderDropdown">Kies een begeleider:</label>
+                                <select id="begeleiderDropdown" class="form-control" @bind="selectedMentorId">
+                                    <option value="">-- Selecteer een begeleider --</option>
+                                    @foreach (var begeleider in users) 
+                                    {
+                                        <option value="@begeleider.Id">@begeleider.Name @begeleider.Surname</option>
+                                    }
+                                </select>
+                            </div>
+                            <button class="btn btn-primary mt-3" @onclick="UpdateBegeleider" disabled="@string.IsNullOrEmpty(selectedMentorId)">
+                                Opslaan
+                            </button>
+                        </div>
+                    </Content>
+                </AccordionItem>
+            </Accordion>
         </Content>
     </Tab>
+            </Authorized>
+
+</AuthorizedView>
+
+
+
 </Tabs>
     }
 @code {
     [Parameter]
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
+    [Inject] 
+    protected ToastService toastService { get; set; } = default!;
     private UserDTO user = new();
     private UserDTO mentor = new();
-
+    private List<UserDTO> users = new();
     private List<UserModuleDTO> userModules = new List<UserModuleDTO>();
     private bool _isLoading = true;
     private bool _hasError = false;
+        private bool _isBeheerder = false;
+
+    private string selectedMentorId;
     protected override async Task OnInitializedAsync()
     {
         try
         {
             user = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{UserId}");
-            userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{UserId}/modules");
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"/api/user");
             mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{user.BegeleiderId}");
-
-                
+            userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{UserId}/modules");
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var currentUser = authState.User;
+            _isBeheerder = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
         }
         catch (HttpRequestException ex)
         {
-            _hasError = true;
+            //_hasError = true;
         }
         catch (Exception ex)
         {
-            _hasError = true;
+            //_hasError = true;
         }
         finally
         {
             _isLoading = false;
         }
-        
+
     }
+
+    private async Task UpdateBegeleider()
+    {
+        if (string.IsNullOrEmpty(selectedMentorId))
+        {
+            return;
+        }
+
+        else
+        {
+            var response = await ApiClient.PutAsJsonAsync($"api/user/{selectedMentorId}/AssignUsersToBegeleider", user);
+            mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{selectedMentorId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol toegewezen!"));
+                StateHasChanged();
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
+            }
+        }
+    }
+
 
 }
