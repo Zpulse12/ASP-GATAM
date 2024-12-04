@@ -10,207 +10,188 @@
 @inject AuthenticationStateProvider authStateProvider
 
 @attribute [Authorize(Policy = "RequireManagementRole")]
+<link href="css/assigning-modules.css" rel="stylesheet" />
 
-<link href="/css/modules.css" rel="stylesheet" />
+<div class="assignment-container">
+    <div class="assignment-header">
+        <div class="header-icon">
+            <i class="bi bi-journal-plus"></i>
+        </div>
+        <div class="header-text">
+            <h2>Module Toewijzing</h2>
+            <p>Beheer modules voor trajectvolgers</p>
+        </div>
+    </div>
 
-<div class="container-fluid py-3">
-    <div class="card shadow-sm border-0">
-        <div class="card-header" style="background-color: #4361ee">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <div class="icon-shape bg-white text-primary rounded-circle shadow-sm me-3 p-3">
-                        <i class="fas fa-book-reader fs-5"></i>
-                    </div>
-                    <div class="text-white">
-                        <h5 class="fw-bold mb-0 fs-4">Module Toewijzing</h5>
-                        <p class="mb-0 fs-6">Wijs modules toe aan trajectvolgers</p>
-                    </div>
+    @if (IsLoading)
+    {
+        <div class="loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Laden...</span>
+            </div>
+        </div>
+    }
+    else if (users != null && users.Any())
+    {
+        @if (!string.IsNullOrEmpty(SuccessMessage))
+        {
+            <div class="alert alert-success fade-in">@SuccessMessage</div>
+        }
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger fade-in">@ErrorMessage</div>
+        }
+
+        <div class="assignment-sections">
+            <div class="section-users">
+                <div class="section-header">
+                    <i class="bi bi-people"></i>
+                    <h3>Trajectvolgers</h3>
+                </div>
+                <div class="user-grid">
+                    <Grid TItem="ApplicationUser"
+                          @ref="userGrid"
+                          Data="@users"
+                          AllowFiltering="true"
+                          AllowSorting="true"
+                          AllowPaging="true"
+                          PageSize="8"
+                          ShowPager="true"
+                          Class="modern-table">
+                        <GridColumns>
+                            <GridColumn TItem="ApplicationUser" HeaderText="Naam" PropertyName="Name">
+                                <div class="user-info">
+                                    <img src="@context.Picture" alt="@context.Name" class="user-avatar" />
+                                    <span>@context.Name @context.Surname</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ApplicationUser" HeaderText="Email" PropertyName="Email">
+                                <div class="user-info">
+                                    <i class="bi bi-envelope"></i>
+                                    <span>@context.Email</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ApplicationUser" HeaderText="Actie">
+                                <button class="btn-select @(SelectedUserId == context.Id ? "selected" : "")" 
+                                        @onclick="@(() => SelectUser(context.Id))">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>@(SelectedUserId == context.Id ? "Geselecteerd" : "Selecteer")</span>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
+                </div>
+            </div>
+
+            <div class="section-modules">
+                <div class="section-header">
+                    <i class="bi bi-journal-text"></i>
+                    <h3>Beschikbare Modules</h3>
+                </div>
+                <div class="module-grid">
+                    <Grid TItem="ApplicationModule"
+                          @ref="moduleGrid"
+                          Data="@modules"
+                          AllowFiltering="true"
+                          AllowSorting="true"
+                          AllowPaging="true"
+                          PageSize="8"
+                          ShowPager="true"
+                          Class="modern-table">
+                        <GridColumns>
+                            <GridColumn TItem="ApplicationModule" HeaderText="Titel" PropertyName="Title">
+                                <div class="user-info">
+                                    <i class="bi bi-journal-text"></i>
+                                    <span>@context.Title</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ApplicationModule" HeaderText="Categorie" PropertyName="Category">
+                                <div class="user-info">
+                                    <i class="bi bi-tag"></i>
+                                    <span>@context.Category</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ApplicationModule" HeaderText="Actie">
+                                <button class="btn-select @(SelectedModuleId == context.Id ? "selected" : "")" 
+                                        @onclick="@(() => SelectModule(context.Id))">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>@(SelectedModuleId == context.Id ? "Geselecteerd" : "Selecteer")</span>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
                 </div>
             </div>
         </div>
 
-        @if (IsLoading)
-        {
-            <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
-                <div class="spinner-grow text-primary" role="status">
-                    <span class="visually-hidden">Laden...</span>
-                </div>
-            </div>
-        }
-        else if (users != null && users.Any())
-        {
-            
-
-            @if (!string.IsNullOrEmpty(SuccessMessage))
-            {
-                <div class="alert alert-success mt-3">@SuccessMessage</div>
-            }
-            @if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                <div class="alert alert-danger mt-3">@ErrorMessage</div>
-            }
-
-
-            <Accordion>
-                <AccordionItem>
-                    <TitleTemplate>
-                        <Icon Name="IconName.Person" Class="me-1" /> Selecteer een volger
-                          
-                    </TitleTemplate>
-                    <Content>
-                        <Grid TItem="ApplicationUser"
-                              @ref="userGrid"
-                              Data="@users"
-                              AllowFiltering="true"
-                              AllowSorting="true"
-                              AllowPaging="true"
-                              PageSize="10"
-                              ShowPager="true"
-                              Responsive="true"
-                              Class="table table-hover">
-                            <GridColumns>
-                                <GridColumn TItem="ApplicationUser"
-                                            HeaderText="Naam"
-                                            PropertyName="Name"
-                                            SortKeySelector="@(item => item.Name)">
-                                    @context.Name
-                                </GridColumn>
-                                <GridColumn TItem="ApplicationUser"
-                                            HeaderText="Achternaam"
-                                            PropertyName="Surname"
-                                            SortKeySelector="@(item => item.Surname)">
-                                    @context.Surname
-                                </GridColumn>
-                                <GridColumn TItem="ApplicationUser"
-                                            HeaderText="Email"
-                                            PropertyName="Email"
-                                            SortKeySelector="@(item => item.Email)">
-                                    @context.Email
-                                </GridColumn>
-                                <GridColumn TItem="ApplicationUser" HeaderText="Selecteren">
-                                    <button class="btn btn-primary" @onclick="@(() => SelectUser(context.Id))">Selecteer Gebruiker</button>
-</GridColumn>
-                            </GridColumns>
-                        </Grid>
-                        @if (!string.IsNullOrEmpty(SelectedUserId))
-                        {
-                            var selectedUser = users.FirstOrDefault(m => m.Id == SelectedUserId);
-                            <p>Geselecteerde volger: <strong>@selectedUser?.Name @selectedUser?.Surname</strong></p>
-                        }
-
-                    </Content>
-
-                </AccordionItem>
-                <AccordionItem>
-                    <TitleTemplate>
-                       <Icon Name="IconName.Book" Class="me-1" /> Selecteer een module
-                    </TitleTemplate>
-                    <Content>
-                        <Grid TItem="ApplicationModule"
-                              @ref="moduleGrid"
-                              Data="@modules"
-                              AllowFiltering="true"
-                              AllowSorting="true"
-                              AllowPaging="true"
-                              PageSize="10"
-                              ShowPager="true"
-                              Responsive="true"
-                              Class="table table-hover">
-                            <GridColumns>
-                                <GridColumn TItem="ApplicationModule" HeaderText="Titel" PropertyName="Title">
-                                    @context.Title
-                                </GridColumn>
-                                <GridColumn TItem="ApplicationModule" HeaderText="Categorie" PropertyName="Category">
-                                    @context.Category
-                                </GridColumn>
-                                <GridColumn TItem="ApplicationModule" HeaderText="Selecteren">
-    <button class="btn btn-primary" @onclick="@(() => SelectModule(@context.Id))">
-        Selecteer Module
-    </button>
-</GridColumn>
-                            </GridColumns>
-                        </Grid>
-
-                        @if (!string.IsNullOrEmpty(SelectedModuleId))
-                        {
-                            var selectedModule = modules.FirstOrDefault(m => m.Id == SelectedModuleId);
-                            <p>Geselecteerde module: <strong>@selectedModule?.Title</strong></p>
-                        }
-
-                    </Content>
-                </AccordionItem>
-            </Accordion>
-            <button @onclick="AssignModuleToUser" class="btn btn-primary mt-2"
-                    disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
-                Wijs Module toe
-            </button>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+        <button @onclick="AssignModuleToUser" class="btn btn-primary mt-2"
+                disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
+            Wijs Module toe
+        </button>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Trajectvolger</th>
+                        <th>Toegewezen Modules</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in users)
+                    {
                         <tr>
-                            <th>Trajectvolger</th>
-                            <th>Toegewezen Modules</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var user in users)
-                        {
-                            <tr>
-                                <td style="width: 30%">
-                                    <div class="d-flex align-items-center">
-                                        @if (!string.IsNullOrEmpty(user.Picture))
-                                        {
-                                            <img src="@user.Picture" class="rounded-circle me-2" width="32" height="32" alt="@user.Name" />
-                                        }
-                                        else
-                                        {
-                                            <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center"
-                                                 style="width: 32px; height: 32px">
-                                                <i class="fas fa-user text-white small"></i>
-                                            </div>
-                                        }
-                                        <div>
-                                            <div>@user.Name @user.Surname</div>
-                                            <small class="text-muted">@user.Email</small>
+                            <td style="width: 30%">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(user.Picture))
+                                    {
+                                        <img src="@user.Picture" class="rounded-circle me-2" width="32" height="32" alt="@user.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                             style="width: 32px; height: 32px">
+                                            <i class="fas fa-user text-white small"></i>
                                         </div>
+                                    }
+                                    <div>
+                                        <div>@user.Name @user.Surname</div>
+                                        <small class="text-muted">@user.Email</small>
                                     </div>
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @if (user.UserModules != null )
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @if (user.UserModules != null )
+                                    {
+                                        @foreach (var userModule in user.UserModules)
                                         {
-                                            @foreach (var userModule in user.UserModules)
-                                            {
-                                                <span class="badge bg-light text-dark border fs-7 py-2">
-                                                    <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.ModuleId).Title</span>
-                                                    <span class="ms-2 badge @(userModule.State == UserModuleState.NotStarted ? "bg-warning" : "bg-success") small">
-                                                        @(userModule.State == UserModuleState.NotStarted ? "Niet gestart" : "In progress")
-                                                    </span>
+                                            <span class="badge bg-light text-dark border fs-7 py-2">
+                                                <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.ModuleId).Title</span>
+                                                <span class="ms-2 badge @(userModule.State == UserModuleState.NotStarted ? "bg-warning" : "bg-success") small">
+                                                    @(userModule.State == UserModuleState.NotStarted ? "Niet gestart" : "In progress")
                                                 </span>
-                                            }
+                                            </span>
                                         }
-                                        else
-                                        {
-                                            <span class="text-muted small fst-italic">Geen modules toegewezen</span>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-                    </div>
-           
-        }
-        else
-        {
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small fst-italic">Geen modules toegewezen</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
         <div class="text-center">
             <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
         </div>
-        }
-    </div>
+    }
 </div>
-
 @code {
     private List<ApplicationUser> users = new();
     private List<ApplicationModule> modules = new();
@@ -279,40 +260,46 @@
     {
         if (string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))
         {
-            return;
-        }
-
-        var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
-        if (user?.UserModules?.Any(um => um.Module.Id == SelectedModuleId) == true)
-        {
-            toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
-            return;
-        }
-
-        try 
-        {
-            var response = await ApiClient.PutAsJsonAsync($"api/user/{SelectedUserId}/AssignUserModule?moduleId={SelectedModuleId}", new { });
-
-            if (response.IsSuccessStatusCode)
+            // Validatie checks
+            if (string.IsNullOrEmpty(SelectedUserId))
             {
-                await RefreshUserModules(SelectedUserId);
-                toastService.Notify(new(ToastType.Success, "Module succesvol toegewezen!"));
-                SelectedUserId = null;
-                SelectedModuleId = null;
+                toastService.Notify(new(ToastType.Warning, "Selecteer eerst een gebruiker"));
+                return;
             }
-            else
+
+            var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
+            if (user?.UserModules?.Any(um => um.Module.Id == SelectedModuleId) == true)
             {
-                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
+                toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
+                return;
             }
-        }
-        catch (Exception ex)
-        {
-            if (ex is not JSDisconnectedException)
+
+            try
             {
-                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
+                var response = await ApiClient.PutAsJsonAsync($"api/user/{SelectedUserId}/AssignUserModule?moduleId={SelectedModuleId}", new { });
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await RefreshUserModules(SelectedUserId);
+                    toastService.Notify(new(ToastType.Success, "Module succesvol toegewezen!"));
+                    SelectedUserId = null;
+                    SelectedModuleId = null;
+                }
+                else
+                {
+                    toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is not JSDisconnectedException)
+                {
+                    toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
+                }
             }
         }
     }
+
     private async Task LoadData()
     {
         try
