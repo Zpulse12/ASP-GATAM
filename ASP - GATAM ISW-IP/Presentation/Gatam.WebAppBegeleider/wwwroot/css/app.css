@@ -1,0 +1,132 @@
+:root {
+    /* Hoofdkleuren */
+    --primary: #273069;
+    --secondary: #9ac1d9;
+    --accent-1: #94cebb;
+    --accent-2: #f5d1b5;
+    --accent-3: #e33012;
+    --accent-4: #622345;
+    --accent-5: #dba900;
+
+    /* Achtergrond en tekst */
+    --background-main: #f8fafc;  /* Lichte, zachte achtergrond */
+    --text-dark: #273069;        /* Donkerblauw voor hoofdtekst */
+    --text-light: #ffffff;       /* Wit voor tekst op donkere achtergrond */
+}
+
+/* Basis stijlen */
+body {
+    background-color: var(--background-main);
+    color: var(--text-dark);
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+/* Tekst styling */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+p {
+    color: var(--text-dark);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+/* Card styling */
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(39, 48, 105, 0.1);
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Container padding */
+.container, 
+.container-fluid {
+    padding: 2rem;
+}
+
+/* Responsieve tekst groottes */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.3rem; }
+
+    .container, 
+    .container-fluid {
+        padding: 1rem;
+    }
+}
+
+/* Tabel styling voor betere leesbaarheid */
+.table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th {
+    background: var(--primary);
+    color: var(--text-light);
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.table td {
+    padding: 1rem;
+    color: var(--text-dark);
+}
+
+/* Button styling */
+.btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--text-light);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #324284;
+    transform: translateY(-1px);
+}
+
+/* Form controls */
+.form-control {
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--secondary);
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(39, 48, 105, 0.1);
+}
+
+/* Grid systeem verfijning */
+.row {
+    margin-left: -1rem;
+    margin-right: -1rem;
+}
+
+.col, [class^="col-"] {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
