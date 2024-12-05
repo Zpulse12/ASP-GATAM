@@ -53,7 +53,7 @@
                     @if (showWarning)
                     {
                         <div class="alert alert-warning">
-                            De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger(s).
+                            De module kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s).
                         </div>
                     }
                     <p>Weet je zeker dat je deze module wilt verwijderen?</p>
@@ -179,10 +179,10 @@
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                if (errorContent.Contains("in gebruik"))
+                var responseContent = await response.Content.ReadAsStringAsync();
+                if (responseContent.Contains("is toegewezen aan trajectvolger(s)"))
                 {
-                    toastService.Notify(new(ToastType.Warning, $"De module {selectedModule.Title} kan niet worden verwijderd omdat deze in gebruik is."));
+                    toastService.Notify(new(ToastType.Warning, $"De module {selectedModule.Title} kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s)."));
                     showWarning = true;
                 }
                 else

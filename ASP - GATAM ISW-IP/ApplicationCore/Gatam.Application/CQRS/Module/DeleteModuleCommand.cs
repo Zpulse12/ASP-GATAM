@@ -30,10 +30,10 @@ namespace Gatam.Application.CQRS.Module
             {
                 var usersWithModule = await _unitOfWork.UserRepository.GetUsersByModuleIdAsync(moduleId);
 
-                return !usersWithModule.SelectMany(u => u.UserModules)
-                                       .Any(um => um.ModuleId == moduleId && um.State == UserModuleState.InProgress);
+
+                return !usersWithModule.Any();
             })
-            .WithMessage("De module kan niet worden verwijderd omdat deze in gebruik is door een trajectvolger.");
+            .WithMessage("De module kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s)");
         }
     }
     public class DeleteModuleCommandHandler: IRequestHandler<DeleteModuleCommand, bool>
