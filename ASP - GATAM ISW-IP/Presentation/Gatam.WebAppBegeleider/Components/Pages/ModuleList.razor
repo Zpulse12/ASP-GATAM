@@ -6,6 +6,8 @@
 @using Gatam.WebAppBegeleider.Extensions
 @attribute [Authorize(Policy = "RequireMakerRole")]
 
+<link href="css/module-list.css" rel="stylesheet" />
+
 <div class="module-list-container">
     <div class="module-header">
         <div class="header-content">
@@ -18,9 +20,9 @@
     </div>
 
     <div class="module-actions">
-        <a href="/content/modules/create" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-2"></i>
-            Nieuwe Module
+        <a href="/content/modules/create" class="btn btn-primary" title="Maak een nieuwe module aan">
+            <i class="bi bi-plus-circle"></i>
+            <span>Nieuwe Module</span>
         </a>
     </div>
 
@@ -33,8 +35,8 @@
                     <div class="col-12 col-md-6 col-lg-4">
                         <div class="module-card">
                             <div class="card-header">
-                                <h3>@module.Title</h3>
-                                <span class="category-badge">@module.Category</span>
+                                <h3 title="@module.Title">@module.Title</h3>
+                                <span class="category-badge" title="Categorie: @module.Category">@module.Category</span>
                             </div>
                             <div class="card-body">
                                 <div class="stats">
@@ -70,76 +72,6 @@
         }
     </div>
 </div>
-
-<style>
-.module-list-container {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.module-header {
-    background: var(--primary-gradient);
-    padding: 2rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    color: white;
-}
-
-.header-content {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.header-icon {
-    font-size: 2rem;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 1rem;
-    border-radius: 12px;
-}
-
-.module-actions {
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.module-grid {
-    margin-top: 2rem;
-}
-
-.module-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.module-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
-}
-
-.card-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.card-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: var(--text-primary);
-}
-
-.category-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 12px;
-}
-</style>
 
 @code {
     private Grid<ApplicationModule> moduleGrid = new Grid<ApplicationModule>();

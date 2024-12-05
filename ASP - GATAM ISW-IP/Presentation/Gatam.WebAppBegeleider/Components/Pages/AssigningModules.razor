@@ -258,44 +258,47 @@
 
     private async Task AssignModuleToUser()
     {
-        if (string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))
+        // Validatie checks
+        if (string.IsNullOrEmpty(SelectedUserId))
         {
-            // Validatie checks
-            if (string.IsNullOrEmpty(SelectedUserId))
-            {
-                toastService.Notify(new(ToastType.Warning, "Selecteer eerst een gebruiker"));
-                return;
-            }
+            toastService.Notify(new(ToastType.Warning, "Selecteer eerst een gebruiker"));
+            return;
+        }
 
-            var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
-            if (user?.UserModules?.Any(um => um.Module.Id == SelectedModuleId) == true)
-            {
-                toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
-                return;
-            }
+        if (string.IsNullOrEmpty(SelectedModuleId))
+        {
+            toastService.Notify(new(ToastType.Warning, "Selecteer eerst een module"));
+            return;
+        }
 
-            try
-            {
-                var response = await ApiClient.PutAsJsonAsync($"api/user/{SelectedUserId}/AssignUserModule?moduleId={SelectedModuleId}", new { });
+        var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
+        if (user?.UserModules?.Any(um => um.ModuleId == SelectedModuleId) == true)
+        {
+            toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
+            return;
+        }
 
-                if (response.IsSuccessStatusCode)
-                {
-                    await RefreshUserModules(SelectedUserId);
-                    toastService.Notify(new(ToastType.Success, "Module succesvol toegewezen!"));
-                    SelectedUserId = null;
-                    SelectedModuleId = null;
-                }
-                else
-                {
-                    toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
-                }
-            }
-            catch (Exception ex)
+        try
+        {
+            var response = await ApiClient.PutAsJsonAsync($"api/user/{SelectedUserId}/AssignUserModule?moduleId={SelectedModuleId}", new { });
+
+            if (response.IsSuccessStatusCode)
             {
-                if (ex is not JSDisconnectedException)
-                {
-                    toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
-                }
+                await RefreshUserModules(SelectedUserId);
+                toastService.Notify(new(ToastType.Success, "Module succesvol toegewezen!"));
+                SelectedUserId = string.Empty;
+                SelectedModuleId = string.Empty;
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex is not JSDisconnectedException)
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
             }
         }
     }
