@@ -23,6 +23,17 @@
         </div>
     </div>
 
+    <div class="search-container">
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" 
+                   placeholder="Zoek op naam, email of module..." 
+                   @bind="searchTerm" 
+                   @bind:event="oninput"
+                   @onkeyup="HandleSearch" />
+        </div>
+    </div>
+
     @if (IsLoading)
     {
         <div class="loading-overlay">
@@ -51,8 +62,7 @@
                 <div class="user-grid">
                     <Grid TItem="ApplicationUser"
                           @ref="userGrid"
-                          Data="@users"
-                          AllowFiltering="true"
+                          Data="@filteredUsers"
                           AllowSorting="true"
                           AllowPaging="true"
                           PageSize="8"
@@ -91,8 +101,7 @@
                 <div class="module-grid">
                     <Grid TItem="ApplicationModule"
                           @ref="moduleGrid"
-                          Data="@modules"
-                          AllowFiltering="true"
+                          Data="@filteredModules"
                           AllowSorting="true"
                           AllowPaging="true"
                           PageSize="8"
@@ -204,12 +213,18 @@
     private Grid<ApplicationUser> userGrid = new();
     private Grid<ApplicationModule> moduleGrid = new();
 
+    private string searchTerm = "";
+    private Timer? _debounceTimer;
 
+    private List<ApplicationUser> filteredUsers = new();
+    private List<ApplicationModule> filteredModules = new();
 
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true;
         await LoadData();
+        filteredUsers = new List<ApplicationUser>(users);
+        filteredModules = new List<ApplicationModule>(modules);
     }
 
     private async Task OnUserSelected(ChangeEventArgs e)
@@ -376,5 +391,44 @@
         SelectedModuleId = moduleId;
     }
 
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        _debounceTimer?.Dispose();
+        _debounceTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                FilterItems();
+                StateHasChanged();
+            });
+        }, null, 300, Timeout.Infinite);
+    }
 
+    private void FilterItems()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            // Reset de gefilterde lijsten
+            filteredUsers = new List<ApplicationUser>(users);
+            filteredModules = new List<ApplicationModule>(modules);
+        }
+        else
+        {
+            // Filter gebruikers en modules op basis van de zoekterm
+            filteredUsers = users.Where(u => 
+                u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            filteredModules = modules.Where(m => 
+                m.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                m.Category.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+    }
 }

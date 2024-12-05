@@ -4,13 +4,16 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .assignment-header {
     background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
-    padding: 1.5rem 2rem;
-    border-radius: 12px;
+    padding: 2rem 3rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
     box-shadow: 0 8px 24px -4px rgba(73, 77, 126, 0.2);
     display: flex;
     align-items: center;
@@ -22,8 +25,8 @@
 
 .header-icon {
     background: rgba(255, 255, 255, 0.15);
-    padding: 1rem;
-    border-radius: 10px;
+    padding: 1.25rem;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -31,15 +34,15 @@
 }
 
 .header-icon i {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     color: white;
 }
 
 .header-text h2 {
     color: white;
-    font-size: 1.4rem;
-    font-weight: 600;
     margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
     letter-spacing: -0.5px;
 }
 
@@ -61,15 +64,16 @@
 .assignment-sections {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .section-users,
 .section-modules {
     background: white;
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 4px 12px -2px rgba(73, 77, 126, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
 }
@@ -131,10 +135,10 @@
 
 .table-responsive {
     background: white;
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 4px 12px -2px rgba(73, 77, 126, 0.08);
-    margin-top: auto;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-top: 1rem;
     overflow: auto;
 }
 
@@ -275,4 +279,100 @@
 .btn-select {
     padding: 0.35rem 0.75rem;
     font-size: 0.8rem;
-} 
+}
+
+.search-container {
+    margin: 0;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    width: 350px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-box:focus-within {
+    border-color: rgb(146, 175, 206);
+    box-shadow: 0 4px 12px -2px rgba(73, 77, 126, 0.12);
+    transform: translateY(-1px);
+}
+
+.search-box i {
+    color: rgb(73, 77, 126);
+    margin-right: 1rem;
+    font-size: 1.1rem;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 1rem;
+    color: #2d3748;
+    background: transparent;
+}
+
+.search-box input::placeholder {
+    color: #a0aec0;
+}
+
+.table-responsive .table thead.table-light,
+.table thead.table-light,
+.table-light {
+    background-color: rgb(146, 175, 206) !important;
+    color: white !important;
+    font-weight: 500;
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.table thead.table-light {
+    background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+}
+
+.table thead.table-light th {
+    color: white;
+    font-weight: 500;
+    border: none;
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+}
+
+/* Zorg voor consistente grid styling */
+::deep .modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+::deep .modern-table th,
+::deep .modern-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+}
+
+/* Consistente button styling */
+.btn-primary {
+    margin: 0 1.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+}
