@@ -30,10 +30,9 @@ namespace Gatam.Application.CQRS.Module
            {
                var usersWithModule = await _uow.UserRepository.GetUsersByModuleIdAsync(moduleId);
 
-               return !usersWithModule.SelectMany(u => u.UserModules)
-                                      .Any(um => um.ModuleId == moduleId && um.State == UserModuleState.InProgress);
-           })
-           .WithMessage("De module kan niet worden bewerkt omdat deze in gebruik is door een trajectvolger.");
+               return !usersWithModule.Any();
+            })
+            .WithMessage("De module kan niet worden bewerkt omdat deze is toegewezen aan trajectvolger(s)");
 
         }
         private async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
