@@ -148,105 +148,119 @@
         </EditForm>
     </BodyTemplate>
 </Modal> 
-<link href="css/assigning-modules.css" rel="stylesheet" />
-<CustomCards>
-    @if (_isLoading)
-    {
-        <div class="text-center">
-            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
-        </div>
-    }
-    else if (moduleBeingEdited != null)
-    {
-        @if (_showWarning)
-        {
-            <div class="alert alert-warning">
-                De module kan niet worden bewerkt omdat deze is toegewezen aan trajectvolger(s).
+<link href="css/edit-module.css" rel="stylesheet" />
+
+<div class="edit-module-container">
+    <!-- Header -->
+    <div class="module-header">
+        <div class="header-content">
+            <i class="bi bi-book"></i>
+            <div class="header-text">
+                <h2>Module Bewerken</h2>
+                <p>@moduleBeingEdited?.Title</p>
             </div>
-        }
-        <h3>Module bewerken !</h3>
-
-        <div class="mb-3">
-            <label for="title">Titel</label>
-            <InputText id="title" class="form-control" @bind-Value="moduleBeingEdited.Title" />
         </div>
+    </div>
 
-        <div class="mb-3">
-            <label for="category">Categorie</label>
-            <InputText id="category" class="form-control" @bind-Value="moduleBeingEdited.Category" />
-        </div>
-
-        <hr />
-
-        <button class="btn" style="background-color:#4454D2; color:white" @onclick="SaveModule">Module Opslaan</button>
-        <hr />
-        <h3>Vragen voor module:</h3>
-        <hr/>
-        @if (questions != null) 
-        {
-            <Grid TItem="Question"
-            @ref="questionGrid"
-            AllowRowClick="true"
-            AllowSorting="true"
-            Class="table table-hover"
-            AllowPaging="true"
-            Data="questions"
-            PageSize="10"
-            HeaderRowCssClass="custom-header"
-            Responsive="true">
-                <GridColumns>
-                    <GridColumn TItem="Question" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
-                        @context.QuestionTitle
-                    </GridColumn>
-                    <GridColumn TItem="Question" HeaderText="Type:" PropertyName="QuestionType" SortString="QuestionType" SortKeySelector="item => item.QuestionType">
-                        @((QuestionType)@context.QuestionType)
-                    </GridColumn>
-                    <GridColumn TItem="Question" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
-                        <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
-                    </GridColumn>
-                    <GridColumn TItem="Question" HeaderText="Aangepast op:" PropertyName="LastUpdatedAt" SortString="QuestionTitle" SortKeySelector="item => item.LastUpdatedAt">
-                        <Tooltip Class="me-4" Title="@context.LastUpdatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.LastUpdatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
-                    </GridColumn>
-
-                    <GridColumn TItem="Question" HeaderText="Actie" Filterable="false">
-                        <div>
-                            <button type="button"
-                            class="btn btn-outline-danger"
-                            @onclick="@(() => RemoveQuestion(context))">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            <a class="btn btn-outline-secondary" href="/question/@(context.Id)" @onclick:stopPropagation>
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                        </div>
-                    </GridColumn>
-                </GridColumns>
-            </Grid>
-            <Button Color="ButtonColor.Warning" @onclick="AddNewQuestionToModule">
-                <Icon Name="IconName.Plus" />
-                vraag(en) opslaan
-            </Button>
-        }
-        else{
-            <div class="alert alert-danger">
-                vraag niet gevonden.
+    <!-- Content -->
+    <div class="content-wrapper">
+        <!-- Module Info Card -->
+        <div class="section-card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i>
+                <h3>Module Informatie</h3>
             </div>
-        }
 
-    }
-    else
-    {
-        <div class="alert alert-danger">
-            Module niet gevonden.
+            @if (_showWarning)
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Module is toegewezen aan trajectvolger(s)</span>
+                </div>
+            }
+
+            <div class="form-section">
+                <label for="title">Titel</label>
+                <InputText id="title" class="form-control" @bind-Value="moduleBeingEdited.Title" />
+            </div>
+
+            <div class="form-section">
+                <label for="category">Categorie</label>
+                <InputText id="category" class="form-control" @bind-Value="moduleBeingEdited.Category" />
+            </div>
+
+            <div class="form-actions">
+                <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="SaveModule">
+                    <i class="bi bi-save"></i> Module Opslaan
+                </Button>
+            </div>
         </div>
-    }
-    <hr/>
-    <Button Color="ButtonColor.Primary" @onclick="OnShowModalClick">
-        <Icon Name="IconName.Plus" />
-        Nieuwe vraag
-    </Button>
-</CustomCards>
 
+        <!-- Questions Card -->
+        <div class="section-card">
+            <div class="card-header">
+                <i class="bi bi-list-check"></i>
+                <h3>Vragen</h3>
+            </div>
+
+            <div class="questions-actions">
+                <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="OnShowModalClick">
+                    <i class="bi bi-plus-circle"></i> Nieuwe Vraag
+                </Button>
+            </div>
+
+            @if (questions?.Any() == true)
+            {
+                <Grid @ref="questionGrid"
+                      TItem="Question"
+                      Class="table table-hover"
+                      Data="questions"
+                      AllowSorting="true"
+                      AllowPaging="true"
+                      PageSize="10"
+                      Responsive>
+                    <GridColumns>
+                        <GridColumn TItem="Question" HeaderText="Vraag" PropertyName="QuestionTitle">
+                            @context.QuestionTitle
+                        </GridColumn>
+                        <GridColumn TItem="Question" HeaderText="Type" PropertyName="QuestionType">
+                            @GetQuestionTypeText(context.QuestionType)
+                        </GridColumn>
+                        <GridColumn TItem="Question" HeaderText="Aangemaakt" PropertyName="CreatedAt">
+                            <Tooltip Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")">
+                                @context.CreatedAt.ToString("dd-MM-yyyy")
+                            </Tooltip>
+                        </GridColumn>
+                        <GridColumn TItem="Question" HeaderText="Acties">
+                            <div class="action-buttons">
+                                <Button Type="ButtonType.Button" Color="ButtonColor.Danger" 
+                                        @onclick="() => RemoveQuestion(context)">
+                                    <i class="bi bi-trash"></i>
+                                </Button>
+                                <a class="btn btn-outline-secondary" href="/question/@(context.Id)">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </GridColumn>
+                    </GridColumns>
+                </Grid>
+
+                <div class="mt-4">
+                    <Button Color="ButtonColor.Warning" @onclick="AddNewQuestionToModule">
+                        <i class="bi bi-save"></i> Vragen Opslaan
+                    </Button>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Nog geen vragen toegevoegd aan deze module.</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 @code {
     private Modal? modal;
@@ -498,6 +512,18 @@
     private async Task OnHideModalClick()
     {
         await modal.HideAsync();
+    }
+
+    private string GetQuestionTypeText(short questionType)
+    {
+        return questionType switch
+        {
+            (short)QuestionType.MULTIPLE_CHOICE => "Meerkeuze",
+            (short)QuestionType.CHOICE_LIST => "Keuzelijst",
+            (short)QuestionType.OPEN => "Open vraag",
+            (short)QuestionType.TRUE_OR_FALSE => "Waar/onwaar",
+            _ => "Onbekend"
+        };
     }
 
 }

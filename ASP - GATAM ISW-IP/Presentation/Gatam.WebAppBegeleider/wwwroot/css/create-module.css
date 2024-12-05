@@ -28,12 +28,14 @@
     margin: 0;
     font-size: 1.75rem;
     font-weight: 600;
+    color: white;
 }
 
 .header-text p {
     margin: 0.5rem 0 0;
     font-size: 1rem;
     opacity: 0.9;
+    color: white;
 }
 
 .content-wrapper {

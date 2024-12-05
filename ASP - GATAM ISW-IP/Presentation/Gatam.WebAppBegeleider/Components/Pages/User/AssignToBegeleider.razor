@@ -45,32 +45,40 @@
                     </div>
                 </div>
 
-                <Grid TItem="ApplicationUser"
-                      Class="table"
-                      Data="@usersWithBegeleiderId"
-                      AllowPaging="true"
-                      PageSize="5">
-                    <GridColumns>
-                        <GridColumn TItem="ApplicationUser" HeaderText="Gebruiker">
-                            <div class="user-info">
-                                <i class="bi bi-person-circle"></i>
-                                <span>@context.Username</span>
-                            </div>
-                        </GridColumn>
-                        <GridColumn TItem="ApplicationUser" HeaderText="Email">
-                            <div class="user-info">
-                                <i class="bi bi-envelope"></i>
-                                <span>@context.Email</span>
-                            </div>
-                        </GridColumn>
-                        <GridColumn TItem="ApplicationUser" HeaderText="Actie">
-                            <button class="btn-action remove" @onclick="() => UnassignVolgerToBegeleider(context)">
-                                <i class="bi bi-person-x-fill"></i>
-                                <span>Verwijderen</span>
-                            </button>
-                        </GridColumn>
-                    </GridColumns>
-                </Grid>
+                <div class="table-wrapper">
+                    <Grid TItem="ApplicationUser"
+                          Class="table"
+                          Data="@usersWithBegeleiderId"
+                          AllowPaging="true"
+                          PageSize="5">
+                        <GridColumns>
+                            <GridColumn TItem="ApplicationUser" 
+                                        HeaderText="Gebruiker" 
+                                        Width="250">
+                                <div class="user-info">
+                                    <i class="bi bi-person-circle"></i>
+                                    <span>@context.Username</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ApplicationUser" 
+                                        HeaderText="Email"
+                                        Width="350">
+                                <div class="user-info">
+                                    <i class="bi bi-envelope"></i>
+                                    <span>@context.Email</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ApplicationUser" 
+                                        HeaderText="Actie"
+                                        Width="250">
+                                <button class="btn-action remove" @onclick="() => UnassignVolgerToBegeleider(context)">
+                                    <i class="bi bi-person-x-fill"></i>
+                                    <span>Verwijderen</span>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
+                </div>
             </div>
 
             <div class="section-card">
@@ -90,19 +98,25 @@
                       AllowPaging="true"
                       PageSize="5">
                     <GridColumns>
-                        <GridColumn TItem="ApplicationUser" HeaderText="Gebruiker">
+                        <GridColumn TItem="ApplicationUser" 
+                                    HeaderText="Gebruiker" 
+                                    Width="200">
                             <div class="user-info">
                                 <i class="bi bi-person-circle"></i>
                                 <span>@context.Username</span>
                             </div>
                         </GridColumn>
-                        <GridColumn TItem="ApplicationUser" HeaderText="Email">
+                        <GridColumn TItem="ApplicationUser" 
+                                    HeaderText="Email"
+                                    Width="300">
                             <div class="user-info">
                                 <i class="bi bi-envelope"></i>
                                 <span>@context.Email</span>
                             </div>
                         </GridColumn>
-                        <GridColumn TItem="ApplicationUser" HeaderText="Actie">
+                        <GridColumn TItem="ApplicationUser" 
+                                    HeaderText="Actie"
+                                    Width="150">
                             <button class="btn-action assign" @onclick="() => AssignVolgerToBegeleider(context)">
                                 <i class="bi bi-person-plus-fill"></i>
                                 <span>Toewijzen</span>

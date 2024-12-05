@@ -1,7 +1,12 @@
 .page-wrapper {
-    min-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
     background: #f0f2f5;
-    padding: 1.5rem;
+    padding: 1rem 1rem 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .banner {
@@ -48,10 +53,13 @@
 }
 
 .content-container {
-    max-width: 1400px;
+    flex: 1;
+    padding: 1rem;
+    overflow: hidden;
+    max-width: 100%;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 0.75rem;
-    height: calc(75vh - 100px);
+    height: auto;
     display: flex;
     flex-direction: column;
 }
@@ -93,26 +101,31 @@
 .grid-section {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    margin: 0 auto;
-    height: 100%;
+    gap: 1rem;
+    width: 100%;
+    overflow: hidden;
+    padding: 0;
 }
 
 .section-card {
     background: white;
     border-radius: 16px;
-    padding: 1.5rem;
+    padding: 1rem;
     box-shadow: 0 8px 24px -4px rgba(73, 77, 126, 0.12);
     display: flex;
     flex-direction: column;
     max-height: 100%;
     overflow: hidden;
+    width: 100%;
+    min-width: 0;
 }
 
 ::deep .grid-container {
     flex: 1;
-    overflow: auto;
+    overflow: hidden;
     min-height: 0;
+    width: 100%;
+    min-width: 0;
 }
 
 .section-header {
@@ -158,26 +171,24 @@
 
 .table {
     width: 100%;
+    margin-bottom: 1rem;
     border-collapse: separate;
     border-spacing: 0;
 }
 
-.table th {
-    background: #f8fafc;
-    color: rgb(73, 77, 126);
-    font-weight: 600;
-    padding: 1rem 0.75rem;
-    text-align: left;
-    border-bottom: 2px solid #e2e8f0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.8rem;
-}
-
+.table th,
 .table td {
     padding: 0.75rem;
-    border-bottom: 1px solid #e2e8f0;
-    color: #2d3748;
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    padding-bottom: 1.5rem;
+}
+
+.table-wrapper {
+    overflow: hidden;
+    margin-bottom: 2rem;
 }
 
 .user-info {
@@ -249,4 +260,31 @@
         flex-direction: column;
         text-align: center;
     }
+}
+
+::deep .table {
+    table-layout: auto;
+    width: 100%;
+}
+
+::deep .table th,
+::deep .table td {
+    width: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+::deep .table th:nth-child(1),
+::deep .table td:nth-child(1) {
+    width: 20%;
+}
+
+::deep .table th:nth-child(2),
+::deep .table td:nth-child(2) {
+    width: 35%;
+}
+
+::deep .table th:nth-child(3),
+::deep .table td:nth-child(3) {
+    width: 20%;
 } 

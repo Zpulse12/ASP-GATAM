@@ -150,4 +150,43 @@
     .module-list-container {
         padding: 1rem;
     }
+}
+
+.module-details {
+    padding: 1rem;
+}
+
+.detail-row {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.detail-row strong {
+    min-width: 120px;
+    color: #666;
+}
+
+.question-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.question-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-item:last-child {
+    border-bottom: none;
+}
+
+.question-type {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
 } 

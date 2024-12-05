@@ -114,29 +114,24 @@ else
         }
     </div>
 
-    @if (_userModules?.Count > _pageSize)
+    @if (_totalPages > 1)
     {
         <div class="pagination-container">
-            <button class="pagination-button" 
-                    @onclick="PreviousPage" 
-                    disabled="@(_currentPage == 1)">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-            
-            @for (int i = 1; i <= _totalPages; i++)
-            {
-                var pageNumber = i;
-                <button class="pagination-button @(_currentPage == pageNumber ? "active" : "")"
-                        @onclick="() => GoToPage(pageNumber)">
-                    @pageNumber
+            <div class="pagination-controls">
+                <button class="pagination-button" 
+                        @onclick="PreviousPage" 
+                        disabled="@(_currentPage == 1)">
+                    <i class="bi bi-arrow-left"></i>
                 </button>
-            }
-            
-            <button class="pagination-button" 
-                    @onclick="NextPage" 
-                    disabled="@(_currentPage == _totalPages)">
-                <i class="bi bi-chevron-right"></i>
-            </button>
+                
+                <span class="pagination-current">@_currentPage / @_totalPages</span>
+                
+                <button class="pagination-button" 
+                        @onclick="NextPage" 
+                        disabled="@(_currentPage == _totalPages)">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
         </div>
     }
 }
@@ -210,9 +205,9 @@ else
     private List<UserModuleDTO> _userModules;
     private bool _loading = true;
     private HashSet<string> _expandedModules = new();
-    private int _pageSize = 6;
+    private int _pageSize = 3;
     private int _currentPage = 1;
-    private int _totalPages => (int)Math.Ceiling(_userModules?.Count ?? 0 / (double)_pageSize);
+    private int _totalPages => _userModules == null ? 0 : (int)Math.Ceiling(_userModules.Count / (double)_pageSize);
     
     private List<UserModuleDTO> _currentPageModules => _userModules?
         .Skip((_currentPage - 1) * _pageSize)
