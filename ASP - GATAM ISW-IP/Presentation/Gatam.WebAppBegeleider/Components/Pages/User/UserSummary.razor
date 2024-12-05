@@ -162,7 +162,7 @@
     private List<UserModuleDTO> userModules = new List<UserModuleDTO>();
     private bool _isLoading = true;
     private bool _hasError = false;
-        private bool _isMentor = false;
+    private bool _isMentor = false;
 
     private string selectedMentorId;
     protected override async Task OnInitializedAsync()
@@ -173,9 +173,11 @@
             users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"/api/user");
             mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{user.BegeleiderId}");
             userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{UserId}/modules");
+            LoadMentor();
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var currentUser = authState.User;
-            _isMentor = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
+           
+            _isMentor = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
         }
         catch (HttpRequestException ex)
         {
@@ -190,6 +192,20 @@
             _isLoading = false;
         }
 
+    }
+    private async Task LoadMentor()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var currentUser = authState.User;
+            _isMentor = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
+            StateHasChanged();
+        }
+        catch
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het laden van de mentor."));
+        }
     }
 
     private async Task UpdateBegeleider()
