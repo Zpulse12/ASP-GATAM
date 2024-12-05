@@ -106,9 +106,8 @@
             </div>
         </Content>
     </Tab>
-      <AuthorizedView Policy="RequireAdminRole">
-                                      <Authorized>
-
+        @if (_isMentor)
+        {
     <Tab>
         <TitleTemplate>
             <Icon Name="IconName.Gear" /> Beheerder Instellingen
@@ -148,13 +147,9 @@
             </Accordion>
         </Content>
     </Tab>
-            </Authorized>
-
-</AuthorizedView>
-
-
-
+        }
 </Tabs>
+
     }
 @code {
     [Parameter]
@@ -167,7 +162,7 @@
     private List<UserModuleDTO> userModules = new List<UserModuleDTO>();
     private bool _isLoading = true;
     private bool _hasError = false;
-        private bool _isBeheerder = false;
+        private bool _isMentor = false;
 
     private string selectedMentorId;
     protected override async Task OnInitializedAsync()
@@ -180,7 +175,7 @@
             userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{UserId}/modules");
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var currentUser = authState.User;
-            _isBeheerder = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
+            _isMentor = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
         }
         catch (HttpRequestException ex)
         {
