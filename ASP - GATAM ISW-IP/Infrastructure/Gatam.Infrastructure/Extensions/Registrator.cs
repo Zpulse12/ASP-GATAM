@@ -75,6 +75,11 @@ namespace Gatam.Infrastructure.Extensions
                     var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.MAKER);
                     policy.RequireRole(requiredRoleIds);
                 });
+                options.AddPolicy("RequireMentorRole", policy =>
+                {
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.MAKER, CustomRoles.BEGELEIDER);
+                    policy.RequireRole(requiredRoleIds);
+                });
                 options.AddPolicy("RequireAdminRole", policy =>
                 {
                     var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER);

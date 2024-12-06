@@ -219,10 +219,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        IsLoading = true;
-        await LoadData();
-        filteredUsers = new List<ApplicationUser>(users);
-        filteredModules = new List<ApplicationModule>(modules);
+        IsLoading = true; 
+        try
+        {
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Er is een fout opgetreden bij het laden van data.";
+        }
+        finally
+        {
+            IsLoading = false; 
+        }
     }
 
     private async Task OnUserSelected(ChangeEventArgs e)
@@ -318,15 +327,15 @@
 
     private async Task LoadData()
     {
+        IsLoading = true;
+        var authState = await authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/module") ?? new();
+        users = await ApiClient.GetFromJsonAsync<List<ApplicationUser>>($"api/user/{userId}/begeleider") ?? new();
+
         try
         {
-
-            var authState = await authStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            users = await ApiClient.GetFromJsonAsync<List<ApplicationUser>>($"api/user/{userId}/begeleider") ?? new();
-            modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/module") ?? new();
-
             if (users != null && users.Count > 0)
             {
                 users = users.Where(u => u.BegeleiderId == userId)
@@ -339,8 +348,7 @@
                     followers.Picture = "/images/default.png";
                 }
             }
-
-
+            IsLoading = false;
         }
         catch (Exception ex)
         {
@@ -350,6 +358,7 @@
         finally
         {
             IsLoading = false;
+            StateHasChanged();
         }
     }
 

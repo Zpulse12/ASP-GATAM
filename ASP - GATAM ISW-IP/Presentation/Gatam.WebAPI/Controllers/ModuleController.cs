@@ -18,7 +18,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequireMakerRole")]
+        [Authorize(Policy = "RequireMentorRole")]
         public async Task<IActionResult> GetAllModules()
         {
                 var modules = await _mediator.Send(new GetAllModulesQuery());
