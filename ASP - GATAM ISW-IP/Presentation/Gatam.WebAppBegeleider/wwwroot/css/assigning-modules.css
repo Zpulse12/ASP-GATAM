@@ -1,6 +1,6 @@
 .assignment-container {
     min-height: 85vh;
-    background: #f0f2f5;
+    background: #ffffff;
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
@@ -17,10 +17,16 @@
     box-shadow: 0 8px 24px -4px rgba(73, 77, 126, 0.2);
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    justify-content: space-between;
     width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .header-icon {
@@ -288,25 +294,19 @@
 }
 
 .search-box {
+    margin-left: auto;
     display: flex;
     align-items: center;
-    background: white;
+    background: rgba(255, 255, 255, 0.15);
     padding: 0.75rem 1.25rem;
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     width: 350px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.search-box:focus-within {
-    border-color: rgb(146, 175, 206);
-    box-shadow: 0 4px 12px -2px rgba(73, 77, 126, 0.12);
-    transform: translateY(-1px);
+    backdrop-filter: blur(8px);
 }
 
 .search-box i {
-    color: rgb(73, 77, 126);
+    color: white;
     margin-right: 1rem;
     font-size: 1.1rem;
 }
@@ -316,12 +316,12 @@
     outline: none;
     width: 100%;
     font-size: 1rem;
-    color: #2d3748;
+    color: white;
     background: transparent;
 }
 
 .search-box input::placeholder {
-    color: #a0aec0;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .table-responsive .table thead.table-light,
@@ -371,7 +371,16 @@
 
 /* Consistente button styling */
 .btn-primary {
-    margin: 0 1.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    width: auto;          
+    margin-left: auto;   
+    display: block;       
+    background: linear-gradient(135deg, rgb(73, 77, 126) 0%, rgb(73, 77, 126) 100%) !important;
+    border: none;
+    box-shadow: 0 2px 8px -2px rgba(73, 77, 126, 0.25);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, rgb(83, 87, 136) 0%, rgb(83, 87, 136) 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(73, 77, 126, 0.35);
 }

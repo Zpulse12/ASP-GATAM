@@ -246,8 +246,12 @@
                 </Grid>
 
                 <div class="mt-4">
-                    <Button Color="ButtonColor.Warning" @onclick="AddNewQuestionToModule">
-                        <i class="bi bi-save"></i> Vragen Opslaan
+                    <Button Type="ButtonType.Button" 
+                            Color="ButtonColor.Warning" 
+                            Class="d-flex align-items-center gap-2"
+                            @onclick="AddNewQuestionToModule">
+                        <i class="bi bi-save me-2"></i>
+                        Vraag(en) opslaan
                     </Button>
                 </div>
             }

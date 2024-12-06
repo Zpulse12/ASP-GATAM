@@ -293,4 +293,43 @@
     letter-spacing: 0.5px;
     text-align: left;
     white-space: nowrap;
+}
+
+.btn-action {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.btn-action i {
+    font-size: 16px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    line-height: 1;
+}
+
+.d-flex.gap-2 {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    padding-left: 15px;
+}
+
+/* Zorg dat de header ook gecentreerd is */
+::deep th[data-column-name="Acties"] {
+    text-align: center;
+}
+
+/* Cel inhoud links uitlijnen */
+::deep td:last-child {
+    text-align: left !important;
 } 

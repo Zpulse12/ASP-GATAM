@@ -6,43 +6,107 @@
 @inject ApiClient apiClient
 @inject NavigationManager Navigation
 
-
 @rendermode InteractiveServer
-
 @attribute [Authorize(Policy = "RequireMakerRole")]
 
-<Modal @ref="modal" Title="Annuleer het bewerken van de vraag">
-    <BodyTemplate>
-        @Message
-    </BodyTemplate>
-    <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Ja</Button>
-        <Button Color="ButtonColor.Success"@onclick="SaveQuestion">Wijzigingen opslaan</Button>
-    </FooterTemplate>
-</Modal>
-<CustomCards>
-    @if (_isLoading)
-    {
-        <div class="text-center">
-            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
-        </div>
-    }
-    else if (questionBeingEdited != null)
-    {
-        
-        <EditForm Model="questionBeingEdited" OnValidSubmit="SaveQuestion">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="mb-3">
-                <label for="Title" class="form-label">Titel</label>
-                <InputText id="Title" class="form-control" @bind-Value="questionBeingEdited.QuestionTitle" />
-                <ValidationMessage For="@(() => questionBeingEdited.QuestionTitle)" />
+<link href="css/edit-question.css" rel="stylesheet" />
+<div class="edit-question-container">
+    <div class="question-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-pencil-square"></i>
             </div>
+            <div class="header-text">
+                <h2>Vraag Bewerken</h2>
+                <p>Pas de vraag en antwoorden aan</p>
+            </div>
+        </div>
+    </div>
 
-            @if (questionBeingEdited.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
-            {
-                <div class="mb-3">
+    <Modal @ref="modal" Title="Annuleer het bewerken van de vraag">
+        <BodyTemplate>
+            @Message
+        </BodyTemplate>
+        <FooterTemplate>
+            <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Ja</Button>
+            <Button Color="ButtonColor.Success" @onclick="() => modal.HideAsync()">Nee</Button>
+        </FooterTemplate>
+    </Modal>
+
+        @if (_isLoading)
+        {
+            <div class="text-center">
+                <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+            </div>
+        }
+        else if (questionBeingEdited != null)
+        {
+            <EditForm Model="questionBeingEdited" OnValidSubmit="SaveQuestion">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group mb-4">
+                    <label for="Title" class="form-label">
+                        <i class="bi bi-chat-left-text me-2"></i>Titel
+                    </label>
+                    <InputText id="Title" class="form-control" @bind-Value="questionBeingEdited.QuestionTitle" />
+                    <ValidationMessage For="@(() => questionBeingEdited.QuestionTitle)" class="validation-message" />
+                </div>
+
+                @if (questionBeingEdited.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
+                {
+                    <div class="mb-3">
+                        <div class="form-group row mb-3">
+                            <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                            <div class="col-md-10">
+                                <InputText class="form-control mb-3" @bind-Value="answerBeingEdited.Answer" />
+                                <ValidationMessage For="@(() => answerBeingEdited.Answer)" />
+                                <InputSelect @bind-Value="answerBeingEdited.AnswerValue" class="form-control mb-3">
+                                    <option value="true">Juist</option>
+                                    <option value="false">Onjuist</option>
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-12 text-left">
+                                <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
+                            </div>
+                        </div>
+                    </div>
+                    <Grid TItem="QuestionAnswer"
+                          @ref="answerGrid"
+                          Class="table table-hover"
+                          Data="answers"
+                          HeaderRowCssClass="custom-header"
+                          Responsive="true">
+                        <GridColumns>
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                                @AnswerContext.Answer
+                            </GridColumn>
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                                @AnswerContext.AnswerValue
+                            </GridColumn>
+                            <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                                <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
+                }
+ 
+                else if (questionBeingEdited.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
+                {
+                    <div class="form-group row mb-3">
+                        <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
+                        <div class="col-md-10">
+                            <InputSelect @bind-Value="answerBeingEdited.Answer" class="form-control">
+                                <option value="true">Waar</option>
+                                <option value="false">Onwaar</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+                }
+                else if (questionBeingEdited.QuestionType == (short)QuestionType.CHOICE_LIST)
+                {
                     <div class="form-group row mb-3">
                         <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
                         <div class="col-md-10">
@@ -57,83 +121,32 @@
                             <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
                         </div>
                     </div>
-                </div>
-                <Grid TItem="QuestionAnswer"
-                      @ref="answerGrid"
-                      Class="table table-hover"
-                      Data="answers"
-                      HeaderRowCssClass="custom-header"
-                      Responsive="true">
-                    <GridColumns>
-                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
-                            @AnswerContext.Answer
-                        </GridColumn>
-                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
-                            @AnswerContext.AnswerValue
-                        </GridColumn>
-                        <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
-                            <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </GridColumn>
-                    </GridColumns>
-                </Grid>
-            }
- 
-            else if (questionBeingEdited.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
-            {
-                <div class="form-group row mb-3">
-                    <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
-                    <div class="col-md-10">
-                        <InputSelect @bind-Value="answerBeingEdited.Answer" class="form-control">
-                            <option value="true">Waar</option>
-                            <option value="false">Onwaar</option>
-                        </InputSelect>
-                    </div>
-                </div>
-            }
-            else if (questionBeingEdited.QuestionType == (short)QuestionType.CHOICE_LIST)
-            {
-                <div class="form-group row mb-3">
-                    <label class="col-md-2 col-form-label">Antwoord:<span class="text-danger">*</span></label>
-                    <div class="col-md-10">
-                        <InputText class="form-control mb-3" @bind-Value="answerBeingEdited.Answer" />
-                        <ValidationMessage For="@(() => answerBeingEdited.Answer)" />
-                        <InputSelect @bind-Value="answerBeingEdited.AnswerValue" class="form-control mb-3">
-                            <option value="true">Juist</option>
-                            <option value="false">Onjuist</option>
-                        </InputSelect>
-                    </div>
-                    <div class="col-md-12 text-left">
-                        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
-                    </div>
-                </div>
 
-                <Grid TItem="QuestionAnswer"
-                      @ref="answerGrid"
-                      Class="table table-hover"
-                      Data="answers"
-                      HeaderRowCssClass="custom-header"
-                      Responsive="true">
-                    <GridColumns>
-                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
-                            @AnswerContext.Answer
-                        </GridColumn>
-                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
-                            @AnswerContext.AnswerValue
-                        </GridColumn>
-                        <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
-                            <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </GridColumn>
-                    </GridColumns>
-                </Grid>
-            }
-                    <button type="submit" class="btn btn-primary">Opslaan</button>
-            <button type="button" class="btn btn-danger" @onclick="OnShowModalClick">Annuleren</button>
-
-
+                    <Grid TItem="QuestionAnswer"
+                          @ref="answerGrid"
+                          Class="table table-hover"
+                          Data="answers"
+                          HeaderRowCssClass="custom-header"
+                          Responsive="true">
+                        <GridColumns>
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                                @AnswerContext.Answer
+                            </GridColumn>
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                                @AnswerContext.AnswerValue
+                            </GridColumn>
+                            <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                                <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
+                }
+                        <div class="btn-action-group">
+                            <button type="submit" class="btn btn-primary">Opslaan</button>
+                            <button type="button" class="btn btn-danger" @onclick="OnShowModalClick">Annuleren</button>
+                        </div>
                 </EditForm>
             }
             else
@@ -142,11 +155,7 @@
                     Vraag niet gevonden.
                 </div>
             }
-           
-
-
-</CustomCards>
-
+    </div>
 @code {
     private Modal? modal;
     [Parameter] public string Id { get; set; } = "";

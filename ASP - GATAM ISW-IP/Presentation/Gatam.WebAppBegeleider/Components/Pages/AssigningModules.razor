@@ -11,16 +11,15 @@
 
 <div class="assignment-container">
     <div class="assignment-header">
-        <div class="header-icon">
-            <i class="bi bi-journal-plus"></i>
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="bi bi-journal-plus"></i>
+            </div>
+            <div class="header-text">
+                <h2>Module Toewijzing</h2>
+                <p>Beheer modules voor trajectvolgers</p>
+            </div>
         </div>
-        <div class="header-text">
-            <h2>Module Toewijzing</h2>
-            <p>Beheer modules voor trajectvolgers</p>
-        </div>
-    </div>
-
-    <div class="search-container">
         <div class="search-box">
             <i class="bi bi-search"></i>
             <input type="text" 
@@ -130,10 +129,12 @@
             </div>
         </div>
 
-        <button @onclick="AssignModuleToUser" class="btn btn-primary mt-2"
-                disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
-            Wijs Module toe
-        </button>
+        <div class="d-flex justify-content-end mb-3">
+            <button @onclick="AssignModuleToUser" class="btn btn-primary"
+                    disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
+                Wijs Module toe
+            </button>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
