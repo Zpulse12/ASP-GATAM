@@ -4,7 +4,7 @@
 @page "/admin/user-list"
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApiClient apiClient
-
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
@@ -34,6 +34,116 @@
                     <h3>Mijn Volgers</h3>
                     <p>Beheer uw toegewezen volgers</p>
                 }
+            </h5>
+        </div>
+
+        <Grid TItem="UserDTO"
+              @ref="userGrid"
+              AllowRowClick="true"
+              DataProvider="CustomersDataProvider"
+              AllowFiltering="true"
+              AllowSorting="true"
+              AllowPaging="true"
+              PageSize="10"
+              ShowPager="true"
+              Responsive="true"
+              OnRowClick="OnRowClick"
+              Class="table table-hover">
+            <GridColumns>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Naam" 
+                           PropertyName="Name"
+                           SortKeySelector="@(item => item.Name)">
+                    @context.Name
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Achternaam" 
+                           PropertyName="Surname"
+                           SortKeySelector="@(item => item.Surname)">
+                    @context.Surname
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Email" 
+                           PropertyName="Email"
+                           SortKeySelector="@(item => item.Email)">
+                    @context.Email
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Gsm-nummer" 
+                           PropertyName="PhoneNumber"
+                           SortKeySelector="@(item => item.PhoneNumber)">
+                    @context.PhoneNumber
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                           HeaderText="Status" 
+                           PropertyName="IsActive" 
+                           SortKeySelector="item => item.IsActive">
+                    <div class="">
+                        <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
+                                @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
+                            @(context.IsActive ? "Deactiveer" : "Activeer")
+                        </button>
+                    </div>
+                </GridColumn>
+                <GridColumn TItem="UserDTO" HeaderText="Acties">
+                        <div class="">
+                @if (_isBeheerder)  
+                {
+                    
+                            <button type="button" @onclick="() => ShowDeleteModal(context.Id)"
+                                    class="btn btn-outline-danger"
+                                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <a class="btn btn-outline-secondary" href="/admin/user/@(context.Id)" @onclick:stopPropagation>
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                     
+                }
+                    </div>
+                    <a class="btn btn-outline-secondary" @onclick="() => NavigateToSummary(context.Id)">
+                                 <Icon Name="IconName.InfoCircleFill" />
+                            </a>
+                </GridColumn>
+                        
+
+            </GridColumns>
+        </Grid>
+    </div>
+        @if (isRolesModalVisible)
+        {
+            <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="userDetailsModalLabel">Gebruikersgegevens</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Gebruikersnaam:</strong> @selectedUser?.Username</p>
+                            <p><strong>E-mail:</strong> @selectedUser?.Email</p>
+                            <p><strong>Rollen:</strong></p>
+                            <ul>
+                                @if (selectedUser?.Id != null && userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
+                                {
+                                    foreach (var role in roles)
+                                    {
+                                        <li>@role</li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li>Geen rollen gevonden</li>
+                                }
+                            </ul>
+                            <a class="btn" style="background-color:#4454D2; color:white" href="/admin/user/@(selectedUser.Id)">
+                                Role toewijzen
+                            </a>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" @onclick="@(() => CloseModal("Role"))">Sluiten</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -371,6 +481,11 @@
             toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het wijzigen van de gebruiker status."));
         }
     }
+    private void NavigateToSummary(string userId)
+    {
+        NavigationManager.NavigateTo($"/usersummary/{userId}");
+    }
+}
 
     private void HandleSearch(KeyboardEventArgs e)
     {

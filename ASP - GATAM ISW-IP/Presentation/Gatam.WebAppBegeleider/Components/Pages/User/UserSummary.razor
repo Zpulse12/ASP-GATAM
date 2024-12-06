@@ -1,0 +1,224 @@
+﻿@page "/usersummary/{UserId}"
+@using System.Diagnostics
+@using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Extensions
+@inject ApiClient ApiClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider authStateProvider
+@attribute [Authorize(Policy = "RequireManagementRole")]
+@if (_hasError)
+    {
+        <p>Oops, er liep iets mis</p>
+        
+    }
+    else if (user != null)
+    {
+<Tabs EnableFadeEffect="true">
+    <Tab Active="true">
+        <TitleTemplate>
+            <Icon Name="IconName.PersonCircle" /> Volger
+        </TitleTemplate>
+        <Content>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Gebruikersinformatie</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="name">Voornaam</label>
+                            <p id="name">@user.Name</p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="surname">Achternaam</label>
+                            <p id="surname">@user.Surname</p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="email">E-mail</label>
+                            <p id="email">@user.Email</p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="phoneNumber">Telefoonnummer</label>
+                            <p id="phoneNumber">@(!string.IsNullOrEmpty(user.PhoneNumber) ? user.PhoneNumber : "Niet opgegeven")</p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="isActive">Actief</label>
+                            <p id="isActive">@((user.IsActive) ? "Ja" : "Nee")</p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="begeleiderId">Begeleider</label>
+                            @if(mentor != null&& user.BegeleiderId != null)
+                            {
+                                 <p>@mentor.Name @mentor.Surname</p>
+                            }
+                            else if(mentor == null|| user.BegeleiderId == null)
+                            {
+                                <p>Volger is nog niet gekoppeld aan een begeleider.</p>
+                            }
+                            else
+                            {
+                                <p>Er liep iets mis</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+        </Content>
+    </Tab>
+    <Tab>
+        <TitleTemplate>
+            <Icon Name="IconName.Book" /> Modules
+        </TitleTemplate>
+        <Content>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Toegewezen Modules</h3>
+                </div>
+                <div class="card-body">
+                    @if (userModules == null || !userModules.Any())
+                    {
+                        <p>Er zijn geen modules toegewezen aan deze gebruiker.</p>
+                    }
+                    else if(userModules != null)
+                    {
+                        <div class="row">
+                            @foreach (var userModule in userModules)
+                            {
+                                <div class="col-md-4">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@userModule.Module?.Title</h5>
+                                            <p class="card-text"><b>Categorie:</b> @userModule.Module?.Category</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            </div>
+                        }
+                        else
+                        {
+                            <p>Er loopt iets mis</p>
+                        }
+                    </div>
+            </div>
+        </Content>
+    </Tab>
+        @if (_isMentor)
+        {
+    <Tab>
+        <TitleTemplate>
+            <Icon Name="IconName.Gear" /> Beheerder Instellingen
+        </TitleTemplate>
+        <Content>
+            <Accordion>
+                <AccordionItem Title="Toewijzing aanpassen">
+                    <Content>
+                        <div>
+                            <p>
+                                Deze volger is momenteel 
+                                @if (mentor.Name != null && mentor.Surname != null)
+                                {
+                                    <p>toegewezen aan <b>@mentor.Name @mentor.Surname</b>.</p>
+                                }
+                                else
+                                {
+                                    <p>niet toegewezen aan een begeleider.</p>
+                                }
+                            </p>
+                            <div class="form-group">
+                                <label for="begeleiderDropdown">Kies een begeleider:</label>
+                                <select id="begeleiderDropdown" class="form-control" @bind="selectedMentorId">
+                                    <option value="">-- Selecteer een begeleider --</option>
+                                    @foreach (var begeleider in users) 
+                                    {
+                                        <option value="@begeleider.Id">@begeleider.Name @begeleider.Surname</option>
+                                    }
+                                </select>
+                            </div>
+                            <button class="btn btn-primary mt-3" @onclick="UpdateBegeleider" disabled="@string.IsNullOrEmpty(selectedMentorId)">
+                                Opslaan
+                            </button>
+                        </div>
+                    </Content>
+                </AccordionItem>
+            </Accordion>
+        </Content>
+    </Tab>
+        }
+</Tabs>
+
+    }
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+    [Inject] 
+    protected ToastService toastService { get; set; } = default!;
+    private UserDTO user = new();
+    private UserDTO mentor = new();
+    private List<UserDTO> users = new();
+    private List<UserModuleDTO> userModules = new List<UserModuleDTO>();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    private bool _isMentor = false;
+
+    private string selectedMentorId;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            user = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{UserId}");
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"/api/user");
+            if(user.BegeleiderId != null)
+            {
+                mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{user.BegeleiderId}");
+            }
+            userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{UserId}/modules");
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var currentUser = authState.User;
+           
+            _isMentor = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
+    }
+    
+    private async Task UpdateBegeleider()
+    {
+        if (string.IsNullOrEmpty(selectedMentorId))
+        {
+            return;
+        }
+
+        else
+        {
+            var response = await ApiClient.PutAsJsonAsync($"api/user/{selectedMentorId}/AssignUsersToBegeleider", user);
+            mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{selectedMentorId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol toegewezen!"));
+                StateHasChanged();
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
+            }
+        }
+    }
+
+
+}
