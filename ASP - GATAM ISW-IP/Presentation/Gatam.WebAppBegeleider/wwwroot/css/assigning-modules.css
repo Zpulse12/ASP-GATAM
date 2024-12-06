@@ -235,7 +235,6 @@
     object-fit: cover;
 }
 
-/* Fix voor de filter headers */
 ::deep .e-grid .e-filterbarcell {
     padding: 0 !important;
     height: 40px !important;

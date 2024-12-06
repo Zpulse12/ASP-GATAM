@@ -63,7 +63,7 @@
 
 /* Tabel header styling */
 .custom-header {
-    background: linear-gradient(135deg, #9ac1d9, #232B6C) !important;
+    background: #232B6C !important;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
 }
@@ -92,11 +92,11 @@
 
 /* Extra specifieke regel voor de gradient */
 .table .custom-header {
-    background: linear-gradient(135deg, #9ac1d9, #232B6C) !important;
+    background: l#232B6C !important;
 }
 
 .table .custom-header:hover {
-    background: linear-gradient(135deg, #9ac1d9, #232B6C) !important;
+    background: #232B6C !important;
 }
 
 /* Filter en sort icons */
