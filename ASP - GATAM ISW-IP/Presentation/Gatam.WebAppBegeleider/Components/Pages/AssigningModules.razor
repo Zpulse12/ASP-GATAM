@@ -31,16 +31,17 @@
 
         @if (IsLoading)
         {
-            <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
-                <div class="spinner-grow text-primary" role="status">
-                    <span class="visually-hidden">Laden...</span>
-                </div>
+            <div class="text-center">
+                <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+                <p>Data laden...</p>
             </div>
+        }
+        else if (users.Count ==null  || !users.Any() || !modules.Any() || modules.Count == 0)
+        {
+            <div class="alert alert-info">Geen gebruikers of modules beschikbaar.</div>
         }
         else if (users != null && users.Any())
         {
-            
-
             @if (!string.IsNullOrEmpty(SuccessMessage))
             {
                 <div class="alert alert-success mt-3">@SuccessMessage</div>
@@ -50,7 +51,7 @@
                 <div class="alert alert-danger mt-3">@ErrorMessage</div>
             }
 
-
+            
             <Accordion>
                 <AccordionItem>
                     <TitleTemplate>
@@ -227,8 +228,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        IsLoading = true;
-        await LoadData();
+        IsLoading = true; 
+        try
+        {
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Er is een fout opgetreden bij het laden van data.";
+            Console.WriteLine($"Fout bij OnInitializedAsync: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false; 
+        }
     }
 
     private async Task OnUserSelected(ChangeEventArgs e)
@@ -315,15 +328,15 @@
     }
     private async Task LoadData()
     {
+        IsLoading = true;
+        var authState = await authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/module") ?? new();
+        users = await ApiClient.GetFromJsonAsync<List<ApplicationUser>>($"api/user/{userId}/begeleider") ?? new();
+
         try
         {
-
-            var authState = await authStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            users = await ApiClient.GetFromJsonAsync<List<ApplicationUser>>($"api/user/{userId}/begeleider") ?? new();
-            modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/module") ?? new();
-
             if (users != null && users.Count > 0)
             {
                 users = users.Where(u => u.BegeleiderId == userId)
@@ -336,8 +349,7 @@
                     followers.Picture = "/images/default.png";
                 }
             }
-
-
+            IsLoading = false;
         }
         catch (Exception ex)
         {
@@ -347,6 +359,7 @@
         finally
         {
             IsLoading = false;
+            StateHasChanged();
         }
     }
 
