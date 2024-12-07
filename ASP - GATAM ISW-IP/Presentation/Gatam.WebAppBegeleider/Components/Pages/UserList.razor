@@ -1,166 +1,198 @@
-@using Gatam.Application.CQRS
-@using Gatam.WebAppBegeleider.Components.Layout
-@using Gatam.WebAppBegeleider.Extensions
 @page "/admin/user-list"
+@using Gatam.Application.CQRS
+@using Gatam.WebAppBegeleider.Extensions
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApiClient apiClient
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
-<InactiveUserRedirect />
+<link href="css/userlist.css" rel="stylesheet" />
 
-<CustomCards>
-    <div class="card-body">
-        <div class="card-header">
-            <h5>
+<div class="page-wrapper">
+    <div class="banner">
+        <div class="banner-content animate-in">
+            <div class="banner-icon pulse">
                 @if (_isBeheerder)
                 {
-                    <span>Alle Gebruikers</span>
+                    <i class="bi bi-shield-fill"></i>
                 }
                 else
                 {
-                    <span>Mijn Volgers</span>
+                    <i class="bi bi-people-fill"></i>
                 }
-            </h5>
-        </div>
-
-        <Grid TItem="UserDTO"
-              @ref="userGrid"
-              AllowRowClick="true"
-              DataProvider="CustomersDataProvider"
-              AllowFiltering="true"
-              AllowSorting="true"
-              AllowPaging="true"
-              PageSize="10"
-              ShowPager="true"
-              Responsive="true"
-              OnRowClick="OnRowClick"
-              Class="table table-hover">
-            <GridColumns>
-                <GridColumn TItem="UserDTO" 
-                           HeaderText="Naam" 
-                           PropertyName="Name"
-                           SortKeySelector="@(item => item.Name)">
-                    @context.Name
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                           HeaderText="Achternaam" 
-                           PropertyName="Surname"
-                           SortKeySelector="@(item => item.Surname)">
-                    @context.Surname
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                           HeaderText="Email" 
-                           PropertyName="Email"
-                           SortKeySelector="@(item => item.Email)">
-                    @context.Email
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                           HeaderText="Gsm-nummer" 
-                           PropertyName="PhoneNumber"
-                           SortKeySelector="@(item => item.PhoneNumber)">
-                    @context.PhoneNumber
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                           HeaderText="Status" 
-                           PropertyName="IsActive" 
-                           SortKeySelector="item => item.IsActive">
-                    <div class="">
-                        <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
-                                @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" @onclick:stopPropagation>
-                            @(context.IsActive ? "Deactiveer" : "Activeer")
-                        </button>
-                    </div>
-                </GridColumn>
-                <GridColumn TItem="UserDTO" HeaderText="Acties">
-                        <div class="">
-                @if (_isBeheerder)  
+            </div>
+            <div class="banner-text">
+                @if (_isBeheerder)
                 {
-                    
-                            <button type="button" @onclick="() => ShowDeleteModal(context.Id)"
-                                    class="btn btn-outline-danger"
-                                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            <a class="btn btn-outline-secondary" href="/admin/user/@(context.Id)" @onclick:stopPropagation>
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                     
+                    <h3>Alle Gebruikers</h3>
+                    <p>Beheer alle gebruikers in het systeem</p>
                 }
-                    </div>
-                    <a class="btn btn-outline-secondary" @onclick="() => NavigateToSummary(context.Id)">
-                                 <Icon Name="IconName.InfoCircleFill" />
-                            </a>
-                </GridColumn>
-                        
-
-            </GridColumns>
-        </Grid>
-    </div>
-        @if (isRolesModalVisible)
-        {
-            <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="userDetailsModalLabel">Gebruikersgegevens</h4>
-                        </div>
-                        <div class="modal-body">
-                            <p><strong>Gebruikersnaam:</strong> @selectedUser?.Username</p>
-                            <p><strong>E-mail:</strong> @selectedUser?.Email</p>
-                            <p><strong>Rollen:</strong></p>
-                            <ul>
-                                @if (selectedUser?.Id != null && userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
-                                {
-                                    foreach (var role in roles)
-                                    {
-                                        <li>@role</li>
-                                    }
-                                }
-                                else
-                                {
-                                    <li>Geen rollen gevonden</li>
-                                }
-                            </ul>
-                            <a class="btn" style="background-color:#4454D2; color:white" href="/admin/user/@(selectedUser.Id)">
-                                Role toewijzen
-                            </a>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" @onclick="@(() => CloseModal("Role"))">Sluiten</button>
-                        </div>
-                    </div>
-                </div>
+                else
+                {
+                    <h3>Mijn Volgers</h3>
+                    <p>Beheer uw toegewezen volgers</p>
+                }
             </div>
-        }
-    @if (isDeleteModalVisible)
-    {
-        <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
-                        <button type="button" class="close" @onclick="@(() => CloseModal("Delete"))" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Weet je zeker dat je deze gebruiker wilt verwijderen?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-success" @onclick="@(() => CloseModal("Delete"))">Annuleer</button>
-                        <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
-                    </div>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <div class="actions-bar">
+            @if (_isBeheerder)
+            {
+                <a href="/admin/create" class="btn-new">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Nieuwe Gebruiker
+                </a>
+            }
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" 
+                       placeholder="Zoek op naam of email..." 
+                       @bind="searchTerm" 
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearch" />
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <Grid TItem="UserDTO"
+                  @ref="userGrid"
+                  DataProvider="CustomersDataProvider"
+                  AllowFiltering="false"
+                  AllowSorting="true"
+                  AllowPaging="true"
+                  PageSize="5"
+                  ShowPager="true"
+                  Class="table table-hover shadow-sm">
+                <GridColumns>
+                     <GridColumn TItem="UserDTO" 
+                    HeaderText="Naam" 
+                    PropertyName="Name"
+                    AllowFiltering="false"
+                    SortKeySelector="@(item => item.Name)">
+                <i class="bi bi-person me-2"></i>@context.Name
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                        HeaderText="Achternaam" 
+                        PropertyName="Surname"
+                        AllowFiltering="false"
+                        SortKeySelector="@(item => item.Surname)">
+                <i class="bi bi-person-badge me-2"></i>@context.Surname
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                        HeaderText="Email" 
+                        PropertyName="Email"
+                        AllowFiltering="false"
+                        SortKeySelector="@(item => item.Email)">
+                <i class="bi bi-envelope me-2"></i>@context.Email
+                </GridColumn>
+            <GridColumn TItem="UserDTO" 
+                            HeaderText="Gsm-nummer" 
+                            PropertyName="PhoneNumber"
+                            AllowFiltering="false"
+                            SortKeySelector="@(item => item.PhoneNumber)">
+                    <i class="bi bi-telephone me-2"></i>@context.PhoneNumber
+                </GridColumn>
+                <GridColumn TItem="UserDTO" 
+                            HeaderText="Status" 
+                            PropertyName="IsActive" 
+                            AllowFiltering="false"
+                            SortKeySelector="item => item.IsActive">
+                            <div class="d-flex justify-content-start">
+                                <button class="btn @(context.IsActive ? "btn-soft-danger" : "btn-soft-success")"
+                                        @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" 
+                                        @onclick:stopPropagation>
+                                    <i class="bi @(context.IsActive ? "bi-person-x" : "bi-person-check") me-2"></i>
+                                    @(context.IsActive ? "Deactiveer" : "Activeer")
+                                    </button>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="UserDTO" 
+                                       HeaderText="Acties"
+                                       AllowFiltering="false"
+                                       Width="120px">
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <button type="button" 
+                                            class="btn btn-outline-danger btn-action" 
+                                            @onclick="() => ShowDeleteModal(context.Id)"
+                                            @onclick:stopPropagation>
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                    <a class="btn btn-outline-primary btn-action" 
+                                       href="/admin/user/@(context.Id)" 
+                                       @onclick:stopPropagation>
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                </div>
+                            </GridColumn>
+                </GridColumns>
+            </Grid>
+        </div>
+    </div>
+</div>
+
+@if (isRolesModalVisible)
+{
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="userDetailsModalLabel">Gebruikersgegevens</h4>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Gebruikersnaam:</strong> @selectedUser?.Username</p>
+                    <p><strong>E-mail:</strong> @selectedUser?.Email</p>
+                    <p><strong>Rollen:</strong></p>
+                    <ul>
+                        @if (selectedUser?.Id != null && userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
+                        {
+                            foreach (var role in roles)
+                            {
+                                <li>@role</li>
+                            }
+                        }
+                        else
+                        {
+                            <li>Geen rollen gevonden</li>
+                        }
+                    </ul>
+                    <a class="btn" style="background-color:#4454D2; color:white" href="/admin/user/@(selectedUser.Id)">
+                        Role toewijzen
+                    </a>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @onclick="@(() => CloseModal("Role"))">Sluiten</button>
                 </div>
             </div>
         </div>
-        <div class="modal-backdrop fade show"></div>
+    </div>
+}
+@if (isDeleteModalVisible)
+{
+    <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
+                    <button type="button" class="close" @onclick="@(() => CloseModal("Delete"))" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Weet je zeker dat je deze gebruiker wilt verwijderen?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-success" @onclick="@(() => CloseModal("Delete"))">Annuleer</button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
 
-    }
-
-</CustomCards>
-
+}
 
 @code {
     [Inject] ModalService ModalService { get; set; } = default!;
@@ -184,6 +216,9 @@
     private string _currentUserId;
 
     private Grid<UserDTO> userGrid = new();
+
+    private string searchTerm = "";
+    private Timer? _debounceTimer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -249,6 +284,15 @@
             else
             {
                 users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/begeleider");
+            }
+
+            // Filter users based on search term
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                users = users.Where(u => 
+                    u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
             }
 
             return request.ApplyTo(users ?? new List<UserDTO>());
@@ -331,5 +375,23 @@
     {
         NavigationManager.NavigateTo($"/usersummary/{userId}");
     }
-}
 
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        // Debounce de zoekopdracht
+        _debounceTimer?.Dispose();
+        _debounceTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await userGrid.RefreshDataAsync();
+                StateHasChanged();
+            });
+        }, null, 300, Timeout.Infinite);
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+    }
+}

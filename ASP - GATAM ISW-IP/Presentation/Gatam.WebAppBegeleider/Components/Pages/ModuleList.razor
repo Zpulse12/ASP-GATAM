@@ -6,136 +6,132 @@
 @using Gatam.WebAppBegeleider.Extensions
 @attribute [Authorize(Policy = "RequireMakerRole")]
 
+<link href="css/module-list.css" rel="stylesheet" />
 
-<CustomCards>
-    <Modal @ref="modal" @bind-IsOpen="isModalOpen" Title="Module Details" Size="ModalSize.Large">
-        <HeaderTemplate>
-            <h5 class="modal-title">Details van @selectedModule?.Title</h5>
-        </HeaderTemplate>
-        <BodyTemplate>
-            @if (selectedModule != null)
-            {
-                <div>
-                    <p><strong>Title:</strong> @selectedModule.Title</p>
-                    <p><strong>Category:</strong> @selectedModule.Category</p>
-                    <h5>Vragen:</h5>
-                    @if (selectedModule.Questions != null && selectedModule.Questions.Any())
-                    {
-                        <ul>
-                            @foreach (var question in selectedModule.Questions)
-                            {
-                                <li>
-                                    @question.QuestionTitle - <em>@((QuestionType)question.QuestionType)</em>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <p>Geen vragen gekoppeld aan deze module.</p>
-                    }
-                </div>
-            }
-        </BodyTemplate>
-        <FooterTemplate>
-            <button class="btn btn-danger" @onclick="OnHideModalClick">Sluiten</button>
-        </FooterTemplate>
-    </Modal>
+<div class="module-list-container">
+    <div class="module-header">
+        <div class="header-content">
+            <i class="bi bi-collection-fill header-icon"></i>
+            <div>
+                <h2 class="text-white mb-0">Modules</h2>
+                <p class="text-light mb-0">Beheer alle beschikbare modules</p>
+            </div>
+        </div>
+    </div>
 
-    <Modal @ref="modal" @bind-IsOpen="isModalOpen" Title="Module Details" Size="ModalSize.Large">
-        <HeaderTemplate>
-            <h5 class="modal-title">Details van @selectedModule?.Title</h5>
-        </HeaderTemplate>
-        <BodyTemplate>
-            @if (selectedModule != null)
-            {
-                <div class="modal-body">
-                    @if (showWarning)
-                    {
-                        <div class="alert alert-warning">
-                            De module kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s).
+    <div class="module-actions">
+        <a href="/content/modules/create" class="btn btn-primary" title="Maak een nieuwe module aan">
+            <i class="bi bi-plus-circle"></i>
+            <span>Nieuwe Module</span>
+        </a>
+    </div>
+
+    <div class="module-grid">
+        @if (modules != null && modules.Any())
+        {
+            <div class="row g-4">
+                @foreach (var module in modules)
+                {
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="module-card">
+                            <div class="card-header">
+                                <h3 title="@module.Title">@module.Title</h3>
+                                <span class="category-badge" title="Categorie: @module.Category">@module.Category</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="stats">
+                                    <div class="stat-item">
+                                        <i class="bi bi-question-circle"></i>
+                                        <span>@(module.Questions?.Count ?? 0) vragen</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-outline-primary btn-sm" @onclick="() => OnShowModalClick(module)">
+                                    <i class="bi bi-eye me-1"></i>Details
+                                </button>
+                                <a href="/content/modules/@module.Id" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Bewerken
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" @onclick="() => OnShowDeleteModalClick(module)">
+                                    <i class="bi bi-trash me-1"></i>Verwijderen
+                                </button>
+                            </div>
                         </div>
-                    }
-                    <p>Weet je zeker dat je deze module wilt verwijderen?</p>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-collection-fill"></i>
+                <h3>Geen modules gevonden</h3>
+                <p>Begin met het maken van een nieuwe module</p>
+            </div>
+        }
+    </div>
+</div>
+
+<Modal @ref="modal" @bind-IsOpen="isModalOpen" Title="Module Details" Size="ModalSize.Large">
+    <HeaderTemplate>
+        <h5 class="modal-title">@(showWarning ? "Module Verwijderen" : "Details van") @selectedModule?.Title</h5>
+    </HeaderTemplate>
+    <BodyTemplate>
+        @if (selectedModule != null)
+        {
+            @if (showWarning)
+            {
+                <div class="alert alert-warning mb-3">
+                    De module kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s).
                 </div>
-                <hr />
-                <div>
-                    <p><strong>Title:</strong> @selectedModule.Title</p>
-                    <p><strong>Category:</strong> @selectedModule.Category</p>
-                    <h5>Vragen:</h5>
+                <p>Weet je zeker dat je deze module wilt verwijderen?</p>
+            }
+            else
+            {
+                <div class="module-details">
+                    <div class="detail-row">
+                        <strong>Titel:</strong>
+                        <span>@selectedModule.Title</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Categorie:</strong>
+                        <span>@selectedModule.Category</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Aangemaakt op:</strong>
+                        <span>@selectedModule.CreatedAt.ToString("dd-MM-yyyy HH:mm")</span>
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">Vragen:</h5>
                     @if (selectedModule.Questions != null && selectedModule.Questions.Any())
                     {
-                        <ul>
+                        <ul class="question-list">
                             @foreach (var question in selectedModule.Questions)
                             {
-                                <li>
-                                    @question.QuestionTitle - <em>@((QuestionType)question.QuestionType)</em>
+                                <li class="question-item">
+                                    <span class="question-title">@question.QuestionTitle</span>
+                                    <span class="question-type">@GetQuestionTypeText(question.QuestionType)</span>
                                 </li>
                             }
                         </ul>
                     }
                     else
                     {
-                        <p>Geen vragen gekoppeld aan deze module.</p>
+                        <p class="text-muted">Geen vragen gekoppeld aan deze module.</p>
                     }
                 </div>
             }
-        </BodyTemplate>
-        <FooterTemplate>
-            <button type="button" class="btn btn-outline-danger" @onclick="Delete" disabled="@showWarning">Verwijder</button>
-            <button class="btn btn-primary" @onclick="OnHideModalClick">Sluiten</button>
-        </FooterTemplate>
-    </Modal>
-
-    <h2>Modulen</h2>
-    <NavLink class="nav-link" href="/content/create" >
-        <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold; margin-bottom:10px;">
-            Module toevoegen
-        </button>
-
-    </NavLink>
-
-    <Grid TItem="ApplicationModule"
-    @ref="moduleGrid"
-    AllowRowClick="true"
-    AllowSorting="true"
-    Class="table table-hover"
-    AllowPaging="true"
-    Data="modules"
-    PageSize="10"
-    HeaderRowCssClass="custom-header"
-    Responsive="true">
-        <GridColumns>
-            <GridColumn TItem="ApplicationModule" HeaderText="Title" PropertyName="Title" SortString="Title" SortKeySelector="item => item.Title">
-                @context.Title
-            </GridColumn>
-            <GridColumn TItem="ApplicationModule" HeaderText="Category:" PropertyName="Category" SortString="Category" SortKeySelector="item => item.Category">
-                @context.Category
-            </GridColumn>
-            <GridColumn TItem="ApplicationModule" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
-                <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
-            </GridColumn>
-            <GridColumn TItem="ApplicationModule" HeaderText="Actie" Filterable="false">
-                <div>
-                    <a class="btn btn-outline-secondary" href="/content/modules/@(context.Id)" @onclick:stopPropagation>
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <button type="button" @onclick="@(() => OnShowDeleteModalClick(@context))"
-                    class="btn btn-outline-danger"
-                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
-                        <i class="bi bi-trash"></i>
-                    </button>
-                    <button type="button"
-                    class="btn" style="background-color:#4454D2; color:white"
-                            @onclick="@(() => OnShowModalClick(@context))" @onclick:stopPropagation>
-                        <i class="bi bi-info-circle"></i> Details Bekijken
-                    </button>
-                </div>
-            </GridColumn>
-        </GridColumns>
-    </Grid>
-</CustomCards>
-
+        }
+    </BodyTemplate>
+    <FooterTemplate>
+        @if (showWarning)
+        {
+            <button type="button" class="btn btn-danger" @onclick="Delete" disabled="@showWarning">Verwijderen</button>
+        }
+        <button class="btn btn-secondary" @onclick="OnHideModalClick">Sluiten</button>
+    </FooterTemplate>
+</Modal>
 
 @code {
     private Grid<ApplicationModule> moduleGrid = new Grid<ApplicationModule>();
@@ -200,8 +196,10 @@
     private async Task OnShowModalClick(ApplicationModule module)
     {
         selectedModule = module;
+        showWarning = false;
         isModalOpen = true;
-        await modal.ShowAsync();
+        StateHasChanged();
+        await modal!.ShowAsync();
     }
 
     private async Task OnHideModalClick()
@@ -212,9 +210,19 @@
     private async Task OnShowDeleteModalClick(ApplicationModule module)
     {
         selectedModule = module;
+        showWarning = true;
         isModalOpen = true;
-        await modal.ShowAsync();
+        StateHasChanged();
+        await modal!.ShowAsync();
     }
-   
 
+    private string GetQuestionTypeText(int questionType) => questionType switch
+    {
+        0 => "Meerkeuze vraag",
+        1 => "Open vraag",
+        2 => "Waar/Onwaar vraag",
+        3 => "Keuzelijst vraag",
+        _ => "Onbekend type"
+    };
 }
+

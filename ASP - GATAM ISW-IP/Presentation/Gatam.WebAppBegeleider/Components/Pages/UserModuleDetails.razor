@@ -9,142 +9,154 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider authStateProvider
 @attribute [Authorize(Policy = "RequireManagementRole")]
+<link href="css/user-module-details.css" rel="stylesheet" />
 
-<div class="container mt-5">
+<div class="user-module-details">
     @if (_hasError)
     {
-        <p>Oops, er liep iets mis</p>
+        <div class="alert alert-danger">
+            <p>Oops, er liep iets mis</p>
+        </div>
     }
     else if (userModule?.Module != null)
     {
-        <div class="alert alert-info">
-            <p><strong>Volger:</strong> @userModule.User.Name @userModule.User.Surname</p>
-            <p><strong>Aantal zichtbare vragen:</strong> @userModule.UserQuestions.Where(q => q.IsVisible).Count()</p>
-            <p><strong>Percentage beantwoorde vragen:</strong> @CalculateAnsweredPercentageLabel(userModule)</p>
+        <div class="details-header">
+            <div class="user-info">
+                <div class="user-avatar">
+                    @if (!string.IsNullOrEmpty(userModule.User.Picture))
+                    {
+                        <img src="@userModule.User.Picture" alt="" />
+                    }
+                    else
+                    {
+                        <div class="avatar-placeholder">
+                            @userModule.User.Name.FirstOrDefault()@userModule.User.Surname.FirstOrDefault()
+                        </div>
+                    }
+                </div>
+                <div class="user-details">
+                    <h2>@userModule.User.Name @userModule.User.Surname</h2>
+                    <div class="module-stats">
+                        <div class="stat-item">
+                            <i class="bi bi-eye"></i>
+                            <span>@userModule.UserQuestions.Where(q => q.IsVisible).Count() zichtbare vragen</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>@CalculateAnsweredPercentageLabel(userModule) beantwoord</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="module-info">
+                <h3>@userModule.Module.Title</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: @CalculateAnsweredPercentageLabel(userModule)"></div>
+                </div>
+            </div>
         </div>
-
-            <h3 class="module-title">@userModule.Module.Title</h3>
-            <p class="module-category text-muted">@userModule.Module.Category</p>
-
-       
 
         @if (userModule.UserQuestions != null && userModule.UserQuestions.Any())
         {
-            @foreach (var question in userModule.UserQuestions.Where(x => x.IsVisible))
-            {
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <p style="font-size: 0.8em; color: gray;">Vraag:</p>
-                        <h5 class="card-title">@question.QuestionTitle</h5>
-                        @if ((short)question.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
-                        {
-                            <div class="form-check-group">
-                                @foreach (var answer in question.Question.Answers)
-                                {
-                                    var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
-                                    <div class="form-check">
-                                        <input disabled type="checkbox" class="form-check-input" checked="@( userAnswer.GivenAnswer == answer.Answer)">
-                                        <label class="form-check-label" for="answer-@answer.Id">
-                                            @answer.Answer
-                                        </label>
-                                    </div>
-                                }
-                                <div class="mt-2">
-                                    <span class="text-muted">Correcte antwoorden:</span>
-                                    <ul class="list-unstyled">
-                                        @foreach (var answer in question.Question.Answers.Where(a => a.AnswerValue == "true"))
-                                        {
-                                            <li>- @answer.Answer</li>
-                                        }
-                                    </ul>
-                                </div>
+            <div class="questions-list">
+                @foreach (var question in userModule.UserQuestions.Where(x => x.IsVisible))
+                {
+                    <div class="question-card">
+                        <div class="question-header">
+                            <div class="question-type">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Vraag @(userModule.UserQuestions.ToList().IndexOf(question) + 1)</span>
                             </div>
-                        }
-                        else if ((short)question.QuestionType == (short)QuestionType.OPEN)
-                        {
-                            @foreach (var answer in question.Question.Answers)
-                            {
-                                <div class="form-group mt-3">
+                            <h4>@question.QuestionTitle</h4>
+                        </div>
 
-                                    <label for="open-answer-@question.Id">Uw antwoord:</label>
-                                    <textarea disabled class="form-control"
-                                              id="open-answer-@question.Id" rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer</textarea>
-                                </div>
-                            }
-                        }
-                        else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
-                        {
-                            <div class="form-check-group">
-                                @foreach (var answer in question.Question.Answers)
-                                {
-                                    var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
-                                    <div class="form-check">
-                                        <input disabled class="form-check-input" type="radio" name="truefalse-@question.Id"  value="@answer.Answer" id="answer-@answer.Id"
-                                               checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)">
-                                        <label class="form-check-label" for="answer-@answer.Id">
-                                            @answer.Answer
-                                        </label>
-                                    </div>
-                                }
-                                 <div class="mt-2">
-                                    <span class="text-muted">Correcte antwoorden:</span>
-                                    <ul class="list-unstyled">
-                                        @foreach (var answer in question.Question.Answers.Where(a => a.AnswerValue == "true"))
-                                        {
-                                            <li>- @answer.Answer</li>
-                                        }
-                                    </ul>
-                                </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="form-group mt-3">
-                                <label for="select-answer-@question.Id">Kies een optie:</label>
-                                <select disabled class="form-select"  id="select-answer-@question.Id"
-                                        value="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.FirstOrDefault(a => a.Id == x.QuestionAnswerId)?.Id)?.GivenAnswer">
-                                    <option value="">Kies een antwoord</option>
+                        <div class="answers-section">
+                            @if ((short)question.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
+                            {
+                                <div class="multiple-choice-answers">
                                     @foreach (var answer in question.Question.Answers)
                                     {
-                                        <option value="@answer.Answer"
-                                                selected="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer)">
-                                            @answer.Answer
-                                        </option>
+                                        var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
+                                        <label class="answer-option">
+                                            <input type="checkbox" checked="@(userAnswer?.GivenAnswer == answer.Answer)" disabled>
+                                            <span>@answer.Answer</span>
+                                        </label>
                                     }
-                                </select>
-                                <div class="mt-2">
-                                    <span class="text-muted">Correcte antwoorden:</span>
-                                    <ul class="list-unstyled">
+                                </div>
+                            }
+                            else if ((short)question.QuestionType == (short)QuestionType.OPEN)
+                            {
+                                <div class="open-answer">
+                                    <textarea disabled rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer</textarea>
+                                </div>
+                            }
+                            else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
+                            {
+                                <div class="true-false-answers">
+                                    @foreach (var answer in question.Question.Answers)
+                                    {
+                                        var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
+                                        <label class="answer-option">
+                                            <input type="radio" name="truefalse-@question.Id" checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)" disabled>
+                                            <span>@answer.Answer</span>
+                                        </label>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="dropdown-answer">
+                                    <select disabled>
+                                        <option value="">Kies een antwoord</option>
+                                        @foreach (var answer in question.Question.Answers)
+                                        {
+                                            <option value="@answer.Answer" 
+                                                    selected="@(userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer) != null)">
+                                                @answer.Answer
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+
+                            @if (question.Question.Answers.Any(a => a.AnswerValue == "true"))
+                            {
+                                <div class="correct-answers">
+                                    <h5>Correcte antwoorden:</h5>
+                                    <ul>
                                         @foreach (var answer in question.Question.Answers.Where(a => a.AnswerValue == "true"))
                                         {
-                                            <li>- @answer.Answer</li>
+                                            <li>@answer.Answer</li>
                                         }
                                     </ul>
                                 </div>
-                            </div>
-
-                        }
+                            }
+                        </div>
                     </div>
-                </div>
-
-            }
+                }
+            </div>
         }
-
         else
         {
-            <p>Oops er zijn nog geen vragen beschikbaar voor deze module. <a onclick="Back">Druk hier om terug te gaan</a></p>
+            <div class="alert alert-info">
+                <p>Er zijn nog geen vragen beschikbaar voor deze module.</p>
+            </div>
         }
-        <button class="btn btn-primary" @onclick="Back">
-            <Icon Name="IconName.ArrowLeft"></Icon> Terug
-        </button>
+
+        <div class="details-footer">
+            <button class="btn-back" @onclick="Back">
+                <i class="bi bi-arrow-left"></i>
+                Terug
+            </button>
+        </div>
     }
     else
     {
-        <p>Modulegegevens niet beschikbaar.</p>
+        <div class="alert alert-warning">
+            <p>Modulegegevens niet beschikbaar.</p>
+        </div>
     }
-
-
-
 </div>
 
 @code {

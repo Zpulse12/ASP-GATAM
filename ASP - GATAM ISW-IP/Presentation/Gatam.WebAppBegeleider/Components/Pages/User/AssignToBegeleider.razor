@@ -8,59 +8,138 @@
 @attribute [Authorize(Policy = "RequireManagementRole")]
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<CustomCards>
-    <h3>Mijn trajectvolgers</h3>
-    <Grid TItem="ApplicationUser"
-          Class="table table-hover"
-          Data="@usersWithBegeleiderId"
-          AllowPaging="true"
-          PageSize="5"
-          HeaderRowCssClass="custom-header"
-          Responsive="true">
-        <GridColumns>
-            <GridColumn TItem="ApplicationUser" HeaderText="Username">
-                @context.Username
-            </GridColumn>
-            <GridColumn TItem="ApplicationUser" HeaderText="Email">
-                @context.Email
-            </GridColumn>
-            <GridColumn TItem="ApplicationUser" HeaderText="Toewijzing verwijderen">
-                <button type="button" class="btn btn-outline-danger" @onclick="() => UnassignVolgerToBegeleider(context)">Verwijder</button>
-            </GridColumn>
-        </GridColumns>
-    </Grid>
+<div class="page-wrapper">
+    <div class="banner">
+        <div class="banner-content">
+            <div class="banner-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="banner-text">
+                <h3>Trajectvolgers Beheren</h3>
+                <p>Wijs trajectvolgers toe aan begeleiders</p>
+            </div>
+        </div>
+    </div>
 
-    <h3>Niet toegewezen trajectvolgers</h3>
-    <Grid TItem="ApplicationUser"
-          Class="table table-hover"
-          Data="@usersWithoutBegeleiderId"
-          AllowPaging="true"
-          PageSize="5"
-          HeaderRowCssClass="custom-header"
-          Responsive="true">
-        <GridColumns>
-            <GridColumn TItem="ApplicationUser" HeaderText="Username">
-                @context.Username
-            </GridColumn>
-            <GridColumn TItem="ApplicationUser" HeaderText="Email">
-                @context.Email
-            </GridColumn>
-            <GridColumn TItem="ApplicationUser" HeaderText="Toewijzen">
-                <button class="btn btn-primary" @onclick="() => AssignVolgerToBegeleider(context)">
-                    Toewijzen
-                </button>
-            </GridColumn>
-        </GridColumns>
-    </Grid>
+    <div class="content-container">
+        <div class="actions-bar">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" 
+                       placeholder="Zoek op naam of email..." 
+                       @bind="searchTerm" 
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearch" />
+            </div>
+        </div>
 
-</CustomCards>
+        <div class="grid-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="header-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="header-text">
+                        <h4>Mijn Trajectvolgers</h4>
+                        <p>Trajectvolgers die aan u zijn toegewezen</p>
+                    </div>
+                </div>
 
+                <div class="table-wrapper">
+                    <Grid TItem="ApplicationUser"
+                          Class="table"
+                          Data="@usersWithBegeleiderId"
+                          AllowPaging="true"
+                          PageSize="5">
+                        <GridColumns>
+                            <GridColumn TItem="ApplicationUser" 
+                                        HeaderText="Gebruiker" 
+                                        Width="250">
+                                <div class="user-info">
+                                    <i class="bi bi-person-circle"></i>
+                                    <span>@context.Username</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ApplicationUser" 
+                                        HeaderText="Email"
+                                        Width="350">
+                                <div class="user-info">
+                                    <i class="bi bi-envelope"></i>
+                                    <span>@context.Email</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ApplicationUser" 
+                                        HeaderText="Actie"
+                                        Width="250">
+                                <button class="btn-action remove" @onclick="() => UnassignVolgerToBegeleider(context)">
+                                    <i class="bi bi-person-x-fill"></i>
+                                    <span>Verwijderen</span>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="header-icon available">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <div class="header-text">
+                        <h4>Beschikbare Trajectvolgers</h4>
+                        <p>Trajectvolgers die nog niet zijn toegewezen</p>
+                    </div>
+                </div>
+
+                <Grid TItem="ApplicationUser"
+                      Class="table"
+                      Data="@usersWithoutBegeleiderId"
+                      AllowPaging="true"
+                      PageSize="5">
+                    <GridColumns>
+                        <GridColumn TItem="ApplicationUser" 
+                                    HeaderText="Gebruiker" 
+                                    Width="200">
+                            <div class="user-info">
+                                <i class="bi bi-person-circle"></i>
+                                <span>@context.Username</span>
+                            </div>
+                        </GridColumn>
+                        <GridColumn TItem="ApplicationUser" 
+                                    HeaderText="Email"
+                                    Width="300">
+                            <div class="user-info">
+                                <i class="bi bi-envelope"></i>
+                                <span>@context.Email</span>
+                            </div>
+                        </GridColumn>
+                        <GridColumn TItem="ApplicationUser" 
+                                    HeaderText="Actie"
+                                    Width="150">
+                            <button class="btn-action assign" @onclick="() => AssignVolgerToBegeleider(context)">
+                                <i class="bi bi-person-plus-fill"></i>
+                                <span>Toewijzen</span>
+                            </button>
+                        </GridColumn>
+                    </GridColumns>
+                </Grid>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="css/assigntobegeleider.css" rel="stylesheet" />
 
 @code {
     [Inject] protected ToastService toastService { get; set; } = default!;
 
     private List<ApplicationUser> usersWithBegeleiderId = new();
     private List<ApplicationUser> usersWithoutBegeleiderId = new();
+    private string searchTerm = "";
+    private Timer? _debounceTimer;
+    private List<ApplicationUser> _originalUsersWithBegeleiderId = new();
+    private List<ApplicationUser> _originalUsersWithoutBegeleiderId = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,13 +150,17 @@
 
         if (usersResponse != null && usersResponse.Count > 0)
         {
-            usersWithBegeleiderId = usersResponse
+            _originalUsersWithBegeleiderId = usersResponse
                 .Where(u => u.BegeleiderId == userId)
                 .ToList();
 
-            usersWithoutBegeleiderId = usersResponse
+            _originalUsersWithoutBegeleiderId = usersResponse
                 .Where(u => string.IsNullOrEmpty(u.BegeleiderId))
                 .ToList();
+
+            // Initialize displayed lists
+            usersWithBegeleiderId = new List<ApplicationUser>(_originalUsersWithBegeleiderId);
+            usersWithoutBegeleiderId = new List<ApplicationUser>(_originalUsersWithoutBegeleiderId);
         }
     }
 
@@ -148,7 +231,44 @@
         }
     }
 
-   
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        _debounceTimer?.Dispose();
+        _debounceTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                FilterUsers();
+                StateHasChanged();
+            });
+        }, null, 300, Timeout.Infinite);
+    }
 
+    private void FilterUsers()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            usersWithBegeleiderId = new List<ApplicationUser>(_originalUsersWithBegeleiderId);
+            usersWithoutBegeleiderId = new List<ApplicationUser>(_originalUsersWithoutBegeleiderId);
+        }
+        else
+        {
+            usersWithBegeleiderId = _originalUsersWithBegeleiderId
+                .Where(u => 
+                    u.Username.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
+            usersWithoutBegeleiderId = _originalUsersWithoutBegeleiderId
+                .Where(u => 
+                    u.Username.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+    }
 }

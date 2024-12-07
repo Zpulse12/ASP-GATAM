@@ -1,0 +1,357 @@
+.create-module-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+}
+
+.module-header {
+    background: linear-gradient(135deg, #9ac1d9, #232B6C);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(35, 43, 108, 0.15);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.header-content i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.header-text h2 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: white;
+}
+
+.header-text p {
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+    opacity: 0.9;
+    color: white;
+}
+
+.content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.section-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.75rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.card-header i {
+    color: #9ac1d9;
+    font-size: 1.5rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-section {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-label i {
+    font-size: 1.1rem;
+    color: #9ac1d9;
+}
+
+.form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #9ac1d9;
+    box-shadow: 0 0 0 4px rgba(154, 193, 217, 0.1);
+}
+
+.type-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.type-option {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.type-option i {
+    color: #232B6C;
+}
+
+.type-option span {
+    color: #4a5568;
+}
+
+.type-option:hover {
+    border-color: #9ac1d9;
+    background: #f8fafc;
+}
+
+.type-option.active {
+    background: #232B6C;
+    border-color: #232B6C;
+    color: white;
+}
+
+.type-option.active i,
+.type-option.active span {
+    color: white;
+}
+
+.info-message {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #232B6C;
+}
+
+.info-message i {
+    color: #9ac1d9;
+}
+
+.answers-table {
+    margin-top: 1.5rem;
+    border: 1px solid rgba(35, 43, 108, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-header {
+    background-color: rgba(68, 84, 210, 0.05);
+    font-weight: 600;
+    color: #232B6C;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 42px;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    color: white;
+    border: none;
+    background: #9ac1d9;
+    margin: 0.5rem;
+}
+
+.btn:hover {
+    background: #232B6C;
+}
+
+.btn-primary {
+    background: #232B6C;
+}
+
+.btn-primary:hover {
+    background: #1a2052;
+}
+
+.btn-secondary {
+    background: #9ac1d9;
+}
+
+.btn-secondary:hover {
+    background: #85adc5;
+}
+
+.btn-outline-danger {
+    background: white;
+    color: #232B6C;
+    border: 1px solid #232B6C;
+}
+
+.btn-outline-danger:hover {
+    background: #232B6C;
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    background: #e5e7eb;
+}
+
+.required {
+    color: #dc2626;
+    margin-left: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .type-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .module-header {
+        padding: 1.5rem;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+}
+
+/* Spinner styling */
+.spinner {
+    color: #4454D2;
+}
+
+/* Validation messages */
+.validation-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.validation-message::before {
+    content: "!";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #dc2626;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.questions-overview {
+    margin-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 1rem;
+}
+
+.questions-list {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.question-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #9ac1d9;
+    margin-bottom: 0.5rem;
+}
+
+.question-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 80%;
+}
+
+.question-content span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.question-content i {
+    color: #9ac1d9;
+    flex-shrink: 0;
+}
+
+.question-item .btn-outline-danger {
+    margin-left: 1rem;
+    flex-shrink: 0;
+}
+
+.form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn i + span,
+.btn span + i {
+    display: none;
+}
+
+/* Button container */
+.button-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}

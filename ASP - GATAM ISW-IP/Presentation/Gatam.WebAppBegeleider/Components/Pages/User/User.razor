@@ -10,7 +10,7 @@
 @rendermode InteractiveServer
 
 @attribute [Authorize(Policy = "RequireManagementRole")]
-
+<link href="css/user-modules.css" rel="stylesheet" />
 <Modal @ref="removeRoleModal" Title="Verwijderen van rol.">
     <BodyTemplate>
         <p>Bent u zeker dat u de rol <strong>@RoleMapper.GetKeyBasedOnValue(selectedDeleteRole).ToString()</strong> van @userBeingEdited.Username wilt verwijderen?</p>
