@@ -34,7 +34,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("{moduleId}")]
-        [Authorize(Policy = "RequireMakerRole")]
+       // [Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> UpdateModule(string moduleId, [FromBody] ModuleDTO module)
         {
             var returnedModule = await _mediator.Send(new UpdateModuleCommand() { Module = module, Id = moduleId });
@@ -51,7 +51,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpDelete]
         [Route("delete/{moduleId}")]
-        [Authorize(Policy = "RequireMakerRole")]
+      //  [Authorize(Policy = "RequireMakerRole")]
         public async Task<IActionResult> DeleteModule(string moduleId)
         {
             var response = await _mediator.Send(new DeleteModuleCommand() { ModuleId = moduleId });

@@ -21,11 +21,11 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
         
         RuleFor(command => command.FollowerId)
             .NotEmpty()
-            .WithMessage("FollowerId is required.");
+            .WithMessage("VolgerID mag niet leeg zijn.");
 
         RuleFor(command => command.ModuleId)
             .NotEmpty()
-            .WithMessage("ModuleId is required.");
+            .WithMessage("ModuleId mag niet leeg zijn.");
 
         RuleFor(x => x.FollowerId)
             .MustAsync(async (userId, token) =>
@@ -33,7 +33,7 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
                 var user = await _uow.UserRepository.FindById(userId);
                 return user != null;
             })
-            .WithMessage("The user does not exist"); 
+            .WithMessage("De gebruiker bestaat niet."); 
 
         RuleFor(x => x.ModuleId)
             .MustAsync(async (moduleId, token) =>
@@ -41,7 +41,7 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
                 var module = await _uow.ModuleRepository.FindById(moduleId);
                 return module != null;
             })
-            .WithMessage("The module does not exist"); 
+            .WithMessage("De module bestaat niet."); 
 
         RuleFor(command => command)
             .MustAsync(async (command, cancellation) =>
@@ -49,7 +49,7 @@ public class AssignModulesToUserCommandValidator : AbstractValidator<AssignModul
                 var user = await _uow.UserRepository.FindById(command.FollowerId);
                 return user != null && !user.UserModules.Any(um => um.ModuleId == command.ModuleId);
             })
-            .WithMessage("Module is already assigned to this user");
+            .WithMessage("Deze module is al toegewezen aan deze volger.");
     }
 }
 public class AssignModulesToUserCommandHandler : IRequestHandler<AssignModulesToUserCommand, UserModuleDTO>

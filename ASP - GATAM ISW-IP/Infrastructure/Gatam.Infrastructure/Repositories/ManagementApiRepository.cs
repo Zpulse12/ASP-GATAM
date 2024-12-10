@@ -104,7 +104,7 @@ public class ManagementApiRepository: IManagementApi
                     Email = createdUser.Email,
                     PasswordHash = user.PasswordHash,
                     Picture = createdUser.UserMetadata?.Picture,
-                    BegeleiderId = user.BegeleiderId,
+                    MentorId = user.MentorId,
                     PhoneNumber = user.PhoneNumber,
                     IsActive = true,
                     UserRoles = new List<UserRole>

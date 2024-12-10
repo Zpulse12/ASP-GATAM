@@ -38,7 +38,7 @@ namespace Gatam.Application.CQRS
         
         public string? Picture { get; set; }
 
-        public string? BegeleiderId { get; set; }
+        public string? MentorId { get; set; }
    
         public bool IsActive { get; set; }
       

@@ -141,7 +141,7 @@
             if(isAddedToUserSelected)
             {
                 string userId = authUser.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                user.BegeleiderId = userId;
+                user.MentorId = userId;
             }
             try
             {

@@ -10,25 +10,25 @@ namespace UnitTesting.CQRSTest.ApplicationUser
     {
         private Mock<IUnitOfWork> _uowMock;
         private Mock<IMapper> _mapperMock;
-        private AssignUserToBegeleiderCommandHandler _handler;
+        private AssignUserToMentorCommandHandler _handler;
 
         public AssignUserToBegeleiderCommandTest()
         {
             _uowMock = new Mock<IUnitOfWork>();
             _mapperMock = new Mock<IMapper>();
-            _handler = new AssignUserToBegeleiderCommandHandler(_uowMock.Object, _mapperMock.Object);
+            _handler = new AssignUserToMentorCommandHandler(_uowMock.Object, _mapperMock.Object);
         }
 
         [TestMethod]
         public void Validator_Should_Fail_When_VolgerId_Is_Empty()
         {
-            var command = new AssignUserToBegeleiderCommand
+            var command = new AssignUserToMentorCommand
             {
-                VolgerId = string.Empty,
-                BegeleiderId = "someBegeleiderId"
+                FollowerId = string.Empty,
+                MentorId = "someBegeleiderId"
             };
 
-            var validator = new AssignUserToBegeleiderCommandValidator();
+            var validator = new AssignUserToMentorCommandValidator();
 
             var result = validator.Validate(command);
 
@@ -39,13 +39,13 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         [TestMethod]
         public void Validator_Should_Fail_When_BegeleiderId_Is_Empty()
         {
-            var command = new AssignUserToBegeleiderCommand
+            var command = new AssignUserToMentorCommand
             {
-                VolgerId = "someVolgerId",
-                BegeleiderId = string.Empty
+                FollowerId = "someVolgerId",
+                MentorId = string.Empty
             };
 
-            var validator = new AssignUserToBegeleiderCommandValidator();
+            var validator = new AssignUserToMentorCommandValidator();
 
             var result = validator.Validate(command);
 
@@ -56,15 +56,15 @@ namespace UnitTesting.CQRSTest.ApplicationUser
         [TestMethod]
         public async Task Handler_Should_Assign_BegeleiderId_To_User()
         {
-            var command = new AssignUserToBegeleiderCommand
+            var command = new AssignUserToMentorCommand
             {
-                VolgerId = "someVolgerId",
-                BegeleiderId = "someBegeleiderId"
+                FollowerId = "someVolgerId",
+                MentorId = "someBegeleiderId"
             };
 
             var user = new Gatam.Domain.ApplicationUser { Id = "someVolgerId" };
 
-            _uowMock.Setup(u => u.UserRepository.FindById(command.VolgerId))
+            _uowMock.Setup(u => u.UserRepository.FindById(command.FollowerId))
                     .ReturnsAsync(user);  
 
             _uowMock.Setup(u => u.UserRepository.Update(user))
@@ -76,7 +76,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(command.BegeleiderId, result.BegeleiderId);  
+            Assert.AreEqual(command.MentorId, result.MentorId);  
             _uowMock.Verify(u => u.UserRepository.Update(user), Times.Once); 
             _uowMock.Verify(u => u.Commit(), Times.Once);  
         }

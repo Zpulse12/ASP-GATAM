@@ -29,10 +29,10 @@ namespace UnitTesting.ControllerTest.ApplicationUser
             _mediatorMock.Setup(m => m.Send(It.IsAny<FindUserByIdQuery>(), default))
                          .ReturnsAsync(new UserDTO() { Id = "volgerId" });
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<Gatam.Application.CQRS.User.BegeleiderAssignment.AssignUserToBegeleiderCommand>(), default))
-                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId", BegeleiderId = begeleiderId });
+            _mediatorMock.Setup(m => m.Send(It.IsAny<Gatam.Application.CQRS.User.BegeleiderAssignment.AssignUserToMentorCommand>(), default))
+                         .ReturnsAsync(new Gatam.Domain.ApplicationUser { Id = "volgerId", MentorId = begeleiderId });
 
-            var result = await _controller.AssignUsersToBegeleider(user, begeleiderId);
+            var result = await _controller.AssignFollowerToMentor(user, begeleiderId);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);

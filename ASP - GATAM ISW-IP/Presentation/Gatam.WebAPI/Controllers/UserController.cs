@@ -28,7 +28,7 @@ namespace Gatam.WebAPI.Controllers
         }   
 
         [HttpGet]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
 
         {
@@ -92,7 +92,7 @@ namespace Gatam.WebAPI.Controllers
            {
                return Ok(response);
            }
-           return NotFound("User doesnt exists");
+           return NotFound("User bestaat niet");
         }
 
         [HttpGet("{userId}/roles")]
@@ -144,35 +144,21 @@ namespace Gatam.WebAPI.Controllers
             return Ok(returnedUser);
         }
 
-
-        [HttpGet("AssignUsersToBegeleider")]
+        [HttpPut("{id}/users-assignment")]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> GetAllUsersWithBegeleiderId()
-        {
-            var assignUsersToBegeleider = await _mediator.Send(new GetAllUsersWithBegeleiderIdQuery());
-            return Ok(assignUsersToBegeleider);
-        }
-
-        [HttpPut("{id}/AssignUsersToBegeleider")]
-        [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> AssignUsersToBegeleider([FromBody] ApplicationUser user, string id)
+        public async Task<IActionResult> AssignFollowerToMentor([FromBody] ApplicationUser user, string id)
         {
 
-            var updateBegeleiderId = await _mediator.Send(new AssignUserToBegeleiderCommand() { VolgerId = user.Id, BegeleiderId = id });
+            var updateBegeleiderId = await _mediator.Send(new AssignUserToMentorCommand() { FollowerId = user.Id, MentorId = id });
             return Ok(updateBegeleiderId);
 
         }
 
-        [HttpPut("UnassignUsersToBegeleider")]
+        [HttpPut("users-assignment/removal")]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> UnassignUsersToBegeleider([FromBody] ApplicationUser user)
+        public async Task<IActionResult> UnassignFollowerToMentor([FromBody] ApplicationUser user)
         {
-            var volger = await _mediator.Send(new GetUserByIdQuery { UserId = user.Id });
-            if (volger == null)
-            {
-                return NotFound("De volger is niet gevonden.");
-            }
-            var updateBegeleiderId = await _mediator.Send(new UnassignUserCommand { VolgerId = volger.Id, User = volger });
+            var updateBegeleiderId = await _mediator.Send(new UnassignUserCommand { FollowerId = user.Id });
             return Ok(updateBegeleiderId);
         }
         [HttpPatch("{id}/roles")]
@@ -182,12 +168,12 @@ namespace Gatam.WebAPI.Controllers
             var command = await _mediator.Send(new DeleteUserRolesCommand() { UserId = id, Roles = rolesDTO });
             return Ok(command);
         }
-        [HttpGet("{mentorId}/begeleider")]
+        [HttpGet("{mentorId}/mentor")]
         //[Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> GetUsersForBegeleider([FromRoute] string mentorId)
+        public async Task<IActionResult> GetUsersForFollower([FromRoute] string mentorId)
         {
-            var begeleiderDto = await _mediator.Send(new GetFollowersByMentorIdQuery() { MentorId = mentorId });
-            return Ok(begeleiderDto);
+            var mentorDto = await _mediator.Send(new GetFollowersByMentorIdQuery() { MentorId = mentorId });
+            return Ok(mentorDto);
         }
     }
 

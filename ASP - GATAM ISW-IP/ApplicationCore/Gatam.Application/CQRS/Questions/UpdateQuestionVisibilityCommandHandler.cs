@@ -17,14 +17,14 @@ namespace Gatam.Application.CQRS.Questions
         {
             RuleFor(x => x.UserQuestionId)
                 .NotEmpty()
-                .WithMessage("QuestionSetting ID is required");
+                .WithMessage("QuestionSetting ID mag niet leeg zijn");
             RuleFor(x => x.UserQuestionId)
                 .MustAsync(async (UserQuestionId, cancellationToken) =>
                 {
                     var setting = await uow.UserQuestionRepository.GetQuestionSettingById(UserQuestionId);
                     return setting != null;
 
-                }).WithMessage("Question setting doesn't exist");
+                }).WithMessage("Question setting bestaat niet");
         }
     }
     public class UpdateQuestionVisibilityCommandHandler : IRequestHandler<UpdateQuestionVisibilityCommand, UserQuestion>

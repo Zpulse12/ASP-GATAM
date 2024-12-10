@@ -82,7 +82,7 @@ namespace Gatam.Infrastructure.Contexts
                 Email = "john.doe@example.com",
                 PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false,
-                BegeleiderId = GLOBALTESTUSER.Id
+                MentorId = GLOBALTESTUSER.Id
             };
             ApplicationUser jane = new ApplicationUser()
             {

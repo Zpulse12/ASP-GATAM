@@ -25,7 +25,7 @@ namespace Gatam.Application.CQRS.User.BegeleiderAssignment
 
         public async Task<List<UserDTO>> Handle(GetFollowersByMentorIdQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<List<UserDTO>>(await _uow.UserRepository.GetUsersForBegeleiderAsync(request.MentorId));
+            return _mapper.Map<List<UserDTO>>(await _uow.UserRepository.GetUsersFoMentorAsync(request.MentorId));
         }
     }
 }

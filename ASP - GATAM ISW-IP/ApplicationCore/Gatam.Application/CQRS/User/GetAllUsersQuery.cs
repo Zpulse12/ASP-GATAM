@@ -7,10 +7,6 @@ namespace Gatam.Application.CQRS.User
 {
     public class GetAllUsersQuery : IRequest<IEnumerable<UserDTO>>
     {
-        //public  UserDTO _user { get; set; }
-        public GetAllUsersQuery()
-        {
-        }
     }
     public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDTO>>
     {

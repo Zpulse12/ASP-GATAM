@@ -48,10 +48,10 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
             .ToListAsync();
     }
 
-    public async Task<List<ApplicationUser>> GetUsersForBegeleiderAsync(string begeleiderId)
+    public async Task<List<ApplicationUser>> GetUsersFoMentorAsync(string mentorId)
     {
         return await _context.Users
-        .Where(u => u.BegeleiderId == begeleiderId)
+        .Where(u => u.MentorId == mentorId)
         .Include(x => x.UserModules)
         .ThenInclude(x => x.Module)
         .ThenInclude(x => x.Questions)

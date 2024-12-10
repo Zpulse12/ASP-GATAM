@@ -144,7 +144,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var usersResponse = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/user/AssignUsersToBegeleider");
+        var usersResponse = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/user");
         var authState = await authStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -152,11 +152,11 @@
         if (usersResponse != null && usersResponse.Count > 0)
         {
             _originalUsersWithBegeleiderId = usersResponse
-                .Where(u => u.BegeleiderId == userId)
+                .Where(u => u.MentorId == userId)
                 .ToList();
 
             _originalUsersWithoutBegeleiderId = usersResponse
-                .Where(u => string.IsNullOrEmpty(u.BegeleiderId))
+                .Where(u => string.IsNullOrEmpty(u.MentorId))
                 .ToList();
 
             // Initialize displayed lists
@@ -179,13 +179,13 @@
                 return;
             }
 
-            var response = await apiClient.PutAsJsonAsync($"api/user/{begeleiderId}/AssignUsersToBegeleider", user);
+            var response = await apiClient.PutAsJsonAsync($"api/user/{begeleiderId}/users-assignment", user);
 
             if (response.IsSuccessStatusCode)
             {
                 usersWithoutBegeleiderId.Remove(user);
                 usersWithBegeleiderId.Add(user);
-                user.BegeleiderId = begeleiderId; 
+                user.MentorId = begeleiderId;
 
                 usersWithoutBegeleiderId = new List<UserDTO>(usersWithoutBegeleiderId);
                 usersWithBegeleiderId = new List<UserDTO>(usersWithBegeleiderId);
@@ -207,13 +207,13 @@
     {
         try 
         {
-            var response = await apiClient.PutAsJsonAsync($"api/user/UnassignUsersToBegeleider", user);
+            var response = await apiClient.PutAsJsonAsync($"api/user/users-assignment/removal", user);
 
             if (response.IsSuccessStatusCode)
             {
                 usersWithoutBegeleiderId.Add(user);
                 usersWithBegeleiderId.Remove(user);
-                user.BegeleiderId = null;
+                user.MentorId = null;
                 
                 usersWithoutBegeleiderId = new List<UserDTO>(usersWithoutBegeleiderId);
                 usersWithBegeleiderId = new List<UserDTO>(usersWithBegeleiderId);
