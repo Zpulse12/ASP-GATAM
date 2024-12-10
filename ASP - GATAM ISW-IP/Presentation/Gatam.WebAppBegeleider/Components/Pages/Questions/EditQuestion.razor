@@ -1,5 +1,6 @@
 ﻿@page "/question/{Id}"
 
+@using Gatam.Application.CQRS.DTOS.QuestionsDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
@@ -71,20 +72,20 @@
                             </div>
                         </div>
                     </div>
-                    <Grid TItem="QuestionAnswer"
+                    <Grid TItem="QuestionAnswerDTO"
                           @ref="answerGrid"
                           Class="table table-hover"
                           Data="answers"
                           HeaderRowCssClass="custom-header"
                           Responsive="true">
                         <GridColumns>
-                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                                 @AnswerContext.Answer
                             </GridColumn>
-                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
                                 @AnswerContext.AnswerValue
                             </GridColumn>
-                            <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                            <GridColumn TItem="QuestionAnswerDTO" HeaderText="Actie" Filterable="false" Context="AnswerContext">
                                 <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -122,20 +123,20 @@
                         </div>
                     </div>
 
-                    <Grid TItem="QuestionAnswer"
+                    <Grid TItem="QuestionAnswerDTO"
                           @ref="answerGrid"
                           Class="table table-hover"
                           Data="answers"
                           HeaderRowCssClass="custom-header"
                           Responsive="true">
                         <GridColumns>
-                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                                 @AnswerContext.Answer
                             </GridColumn>
-                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
                                 @AnswerContext.AnswerValue
                             </GridColumn>
-                            <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                            <GridColumn TItem="QuestionAnswerDTO" HeaderText="Actie" Filterable="false" Context="AnswerContext">
                                 <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -159,11 +160,11 @@
 @code {
     private Modal? modal;
     [Parameter] public string Id { get; set; } = "";
-    private Question questionBeingEdited;
-    private QuestionAnswer answerBeingEdited;
-    private List<QuestionAnswer> answers = new List<QuestionAnswer>();
-    private Grid<QuestionAnswer> answerGrid = new Grid<QuestionAnswer>();
-    private Question newQuestion = new Question();
+    private QuestionDTO questionBeingEdited;
+    private QuestionAnswerDTO answerBeingEdited;
+    private List<QuestionAnswerDTO> answers = new List<QuestionAnswerDTO>();
+    private Grid<QuestionAnswerDTO> answerGrid = new Grid<QuestionAnswerDTO>();
+    private QuestionDTO newQuestion = new QuestionDTO();
 
     [Inject] protected ToastService toastService { get; set; } = default!;
     [Parameter] public string Message { get; set; } = "Weet u zeker dat u wilt annuleren zonder uw wijzigingen op te slaan?";
@@ -179,8 +180,8 @@
 
         try
         {
-            answerBeingEdited = new QuestionAnswer { AnswerValue = "true" };
-            questionBeingEdited = await apiClient.GetFromJsonAsync<Question>($"/api/question/{Id}");
+            answerBeingEdited = new QuestionAnswerDTO { AnswerValue = "true" };
+            questionBeingEdited = await apiClient.GetFromJsonAsync<QuestionDTO>($"/api/question/{Id}");
             if (questionBeingEdited == null)
             {
                 _hasError = true;
@@ -189,21 +190,21 @@
             }
             else
             {
-                answers = questionBeingEdited.Answers?.ToList() ?? new List<QuestionAnswer>();
+                answers = questionBeingEdited.QuestionAnswers?.ToList() ?? new List<QuestionAnswerDTO>();
                 answerGrid.Data = answers;
 
 
                 if (questionBeingEdited.QuestionType == (short)QuestionType.CHOICE_LIST)
                 {
-                    answers = questionBeingEdited.Answers?.ToList() ?? new List<QuestionAnswer>();
+                    answers = questionBeingEdited.QuestionAnswers?.ToList() ?? new List<QuestionAnswerDTO>();
                 }
                 else if (questionBeingEdited.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
                 {
-                    answers = questionBeingEdited.Answers?.ToList() ?? new List<QuestionAnswer>();
+                    answers = questionBeingEdited.QuestionAnswers?.ToList() ?? new List<QuestionAnswerDTO>();
                 }
                 else if (questionBeingEdited.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
                 {
-                    var trueFalseAnswer = questionBeingEdited.Answers?.FirstOrDefault();
+                    var trueFalseAnswer = questionBeingEdited.QuestionAnswers?.FirstOrDefault();
                     if (trueFalseAnswer != null)
                     {
                         answerBeingEdited.Answer = trueFalseAnswer.Answer;
@@ -211,7 +212,7 @@
                     }
                     else
                     {
-                        answerBeingEdited = new QuestionAnswer { AnswerValue = "true" };
+                        answerBeingEdited = new QuestionAnswerDTO { AnswerValue = "true" };
                     }
                 }
             }
@@ -236,9 +237,9 @@
             if (questionBeingEdited.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
             {
 
-                answers = new List<QuestionAnswer>
+                answers = new List<QuestionAnswerDTO>
             {
-                new QuestionAnswer
+                new QuestionAnswerDTO
                 {
                     Answer = answerBeingEdited.Answer,
                     AnswerValue = answerBeingEdited.AnswerValue,
@@ -246,7 +247,7 @@
                 }
             };
             }
-            questionBeingEdited.Answers = answers;
+            questionBeingEdited.QuestionAnswers = answers;
 
             var response = await apiClient.PutAsJsonAsync($"/api/question/{questionBeingEdited.Id}", questionBeingEdited);
 
@@ -283,11 +284,11 @@
             toastService.Notify(new(ToastType.Warning, "Antwoord mag niet leeg zijn"));
             return; 
         }
-        answers.Add(new QuestionAnswer() { Answer = answerBeingEdited.Answer, AnswerValue = answerBeingEdited.AnswerValue, QuestionId = newQuestion.Id });
+        answers.Add(new QuestionAnswerDTO() { Answer = answerBeingEdited.Answer, AnswerValue = answerBeingEdited.AnswerValue, QuestionId = newQuestion.Id });
         await answerGrid.RefreshDataAsync();
-        answerBeingEdited = new QuestionAnswer() { AnswerValue = "true" };
+        answerBeingEdited = new QuestionAnswerDTO() { AnswerValue = "true" };
     }
-    private async void RemoveAnswerFromList(QuestionAnswer answer)
+    private async void RemoveAnswerFromList(QuestionAnswerDTO answer)
     {
         answers.Remove(answer);
         await answerGrid.RefreshDataAsync();

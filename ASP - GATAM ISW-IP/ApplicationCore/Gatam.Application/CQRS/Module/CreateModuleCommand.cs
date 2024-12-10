@@ -44,9 +44,11 @@ namespace Gatam.Application.CQRS.Module
         public async Task<ApplicationModule> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
         {
             await _uow.ModuleRepository.Create(_mapper.Map<ApplicationModule>(request._module));
-            foreach(var question in request._module.Questions)
-        {
-                await _uow.QuestionRepository.Create(question);
+            foreach (var question in request._module.Questions)
+            {
+                var mappedQuestion = _mapper.Map<Question>(question);
+                mappedQuestion.ApplicationModuleId = request._module.Id;
+                await _uow.QuestionRepository.Create(mappedQuestion);
             }
             await _uow.Commit();
 

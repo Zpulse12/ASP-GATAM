@@ -1,26 +1,30 @@
-﻿using Gatam.Application.Interfaces;
+﻿using AutoMapper;
+using Gatam.Application.CQRS.DTOS.QuestionsDTO;
+using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
 
 namespace Gatam.Application.CQRS.Questions
 {
-    public class GetQuestionByIdQuery: IRequest<Question>
+    public class GetQuestionByIdQuery: IRequest<QuestionDTO>
     {
         public string Id { get; set; }
     }
 
-    public class GetQuestionByIdQueryHandler : IRequestHandler<GetQuestionByIdQuery, Question>
+    public class GetQuestionByIdQueryHandler : IRequestHandler<GetQuestionByIdQuery, QuestionDTO>
     {
 
         private readonly IUnitOfWork _uow;
-        public GetQuestionByIdQueryHandler(IUnitOfWork uow)
+        private readonly IMapper _mapper;
+        public GetQuestionByIdQueryHandler(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
+            _mapper = mapper;
         }
 
-        public async Task<Question> Handle(GetQuestionByIdQuery request, CancellationToken cancellationToken)
+        public async Task<QuestionDTO> Handle(GetQuestionByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _uow.QuestionRepository.GetQuestionAndAnswers(request.Id);
+            return _mapper.Map<QuestionDTO>(await _uow.QuestionRepository.GetQuestionAndAnswers(request.Id));
         }
 
     }

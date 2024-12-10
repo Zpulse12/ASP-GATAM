@@ -1,4 +1,6 @@
-﻿namespace Gatam.Application.CQRS.DTOS.QuestionsDTO;
+﻿using Gatam.Application.CQRS.DTOS.ModulesDTO;
+
+namespace Gatam.Application.CQRS.DTOS.QuestionsDTO;
 
 public class QuestionDTO
 {
@@ -10,5 +12,7 @@ public class QuestionDTO
     public DateTime LastUpdatedAt { get; set; }
     public string LastUpdatedUserId { get; set; }
     public string ApplicationModuleId { get; set; }
-    public UserQuestionDTO UserQuestion { get; set; }
+    public string UserQuestionId { get; set; }
+    public ModuleDTO? Module { get; set; }
+    public ICollection<QuestionAnswerDTO> QuestionAnswers { get; set; } = new List<QuestionAnswerDTO>();
 }

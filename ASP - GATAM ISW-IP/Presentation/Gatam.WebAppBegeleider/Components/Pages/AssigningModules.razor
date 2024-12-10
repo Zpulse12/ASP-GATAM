@@ -1,4 +1,6 @@
 ﻿@page "/content/AssigningModules"
+@using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
 @inject ApiClient ApiClient
@@ -56,7 +58,7 @@
                     <h3>Trajectvolgers</h3>
                 </div>
                 <div class="user-grid">
-                    <Grid TItem="ApplicationUser"
+                    <Grid TItem="UserDTO"
                           @ref="userGrid"
                           Data="@filteredUsers"
                           AllowSorting="true"
@@ -65,19 +67,19 @@
                           ShowPager="true"
                           Class="modern-table">
                         <GridColumns>
-                            <GridColumn TItem="ApplicationUser" HeaderText="Naam" PropertyName="Name">
+                            <GridColumn TItem="UserDTO" HeaderText="Naam" PropertyName="Name">
                                 <div class="user-info">
                                     <img src="@context.Picture" alt="@context.Name" class="user-avatar" />
                                     <span>@context.Name @context.Surname</span>
                                 </div>
                             </GridColumn>
-                            <GridColumn TItem="ApplicationUser" HeaderText="Email" PropertyName="Email">
+                            <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email">
                                 <div class="user-info">
                                     <i class="bi bi-envelope"></i>
                                     <span>@context.Email</span>
                                 </div>
                             </GridColumn>
-                            <GridColumn TItem="ApplicationUser" HeaderText="Actie">
+                            <GridColumn TItem="UserDTO" HeaderText="Actie">
                                 <button class="btn-select @(SelectedUserId == context.Id ? "selected" : "")" 
                                         @onclick="@(() => SelectUser(context.Id))">
                                     <i class="bi bi-check2-circle"></i>
@@ -95,7 +97,7 @@
                     <h3>Beschikbare Modules</h3>
                 </div>
                 <div class="module-grid">
-                    <Grid TItem="ApplicationModule"
+                    <Grid TItem="ModuleDTO"
                           @ref="moduleGrid"
                           Data="@filteredModules"
                           AllowSorting="true"
@@ -104,19 +106,19 @@
                           ShowPager="true"
                           Class="modern-table">
                         <GridColumns>
-                            <GridColumn TItem="ApplicationModule" HeaderText="Titel" PropertyName="Title">
+                            <GridColumn TItem="ModuleDTO" HeaderText="Titel" PropertyName="Title">
                                 <div class="user-info">
                                     <i class="bi bi-journal-text"></i>
                                     <span>@context.Title</span>
                                 </div>
                             </GridColumn>
-                            <GridColumn TItem="ApplicationModule" HeaderText="Categorie" PropertyName="Category">
+                            <GridColumn TItem="ModuleDTO" HeaderText="Categorie" PropertyName="Category">
                                 <div class="user-info">
                                     <i class="bi bi-tag"></i>
                                     <span>@context.Category</span>
                                 </div>
                             </GridColumn>
-                            <GridColumn TItem="ApplicationModule" HeaderText="Actie">
+                            <GridColumn TItem="ModuleDTO" HeaderText="Actie">
                                 <button class="btn-select @(SelectedModuleId == context.Id ? "selected" : "")" 
                                         @onclick="@(() => SelectModule(context.Id))">
                                     <i class="bi bi-check2-circle"></i>
@@ -173,7 +175,7 @@
                                         @foreach (var userModule in user.UserModules)
                                         {
                                             <span class="badge bg-light text-dark border fs-7 py-2">
-                                                <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.ModuleId).Title</span>
+                                                <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.Module.Id).Title</span>
                                                 <span class="ms-2 badge @(userModule.State == UserModuleState.NotStarted ? "bg-warning" : "bg-success") small">
                                                     @(userModule.State == UserModuleState.NotStarted ? "Niet gestart" : "In progress")
                                                 </span>
@@ -200,22 +202,22 @@
     }
 </div>
 @code {
-    private List<ApplicationUser> users = new();
-    private List<ApplicationModule> modules = new();
+    private List<UserDTO> users = new();
+    private List<ModuleDTO> modules = new();
     private string SelectedUserId = "";
     private string SelectedModuleId= "";
     private string? SuccessMessage;
     private string? ErrorMessage;
     private bool IsLoading = false;
 
-    private Grid<ApplicationUser> userGrid = new();
-    private Grid<ApplicationModule> moduleGrid = new();
+    private Grid<UserDTO> userGrid = new();
+    private Grid<ModuleDTO> moduleGrid = new();
 
     private string searchTerm = "";
     private Timer? _debounceTimer;
 
-    private List<ApplicationUser> filteredUsers = new();
-    private List<ApplicationModule> filteredModules = new();
+    private List<UserDTO> filteredUsers = new();
+    private List<ModuleDTO> filteredModules = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -244,7 +246,7 @@
                 var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
                 if (user != null)
                 {
-                    var userModules = await ApiClient.GetFromJsonAsync<List<UserModule>>($"api/user/{SelectedUserId}/modules");
+                    var userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"api/user/{SelectedUserId}/modules");
                     if (userModules != null)
                     {
                         user.UserModules = userModules;
@@ -294,7 +296,7 @@
         }
 
         var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
-        if (user?.UserModules?.Any(um => um.ModuleId == SelectedModuleId) == true)
+        if (user?.UserModules?.Any(um => um.Module.Id == SelectedModuleId) == true)
         {
             toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
             return;
@@ -331,9 +333,10 @@
         var authState = await authStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/module") ?? new();
-        users = await ApiClient.GetFromJsonAsync<List<ApplicationUser>>($"api/user/{userId}/begeleider") ?? new();
-
+        modules = await ApiClient.GetFromJsonAsync<List<ModuleDTO>>($"api/module") ?? new();
+        users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{userId}/begeleider") ?? new();
+        filteredModules = modules;
+        filteredUsers = users;
         try
         {
             if (users != null && users.Count > 0)
@@ -369,13 +372,12 @@
             var user = users.FirstOrDefault(u => u.Id == userId);
             if (user != null)
             {
-                var modules = await ApiClient.GetFromJsonAsync<List<ApplicationModule>>($"api/user/{userId}/modules");
+                var modules = await ApiClient.GetFromJsonAsync<List<ModuleDTO>>($"api/user/{userId}/modules");
                 if (modules != null)
                 {
-                    user.UserModules = modules.Select(m => new UserModule 
+                    user.UserModules = modules.Select(m => new UserModuleDTO 
                     {
                         Module = m,
-                        ModuleId = m.Id,
                         UserId = userId,
                         State = UserModuleState.NotStarted
                     }).ToList();
@@ -416,8 +418,8 @@
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
             // Reset de gefilterde lijsten
-            filteredUsers = new List<ApplicationUser>(users);
-            filteredModules = new List<ApplicationModule>(modules);
+            filteredUsers = new List<UserDTO>(users);
+            filteredModules = new List<ModuleDTO>(modules);
         }
         else
         {

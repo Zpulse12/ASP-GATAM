@@ -2,6 +2,7 @@
 @inject ApiClient apiClient
 @rendermode InteractiveServer
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Application.CQRS.DTOS.QuestionsDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
@@ -146,7 +147,7 @@
                             <option value="true">Waar</option>
                             <option value="false">Onwaar</option>
                         </InputSelect>
-                        <ValidationMessage For="@(() => newQuestion.Answers)" />
+                        <ValidationMessage For="@(() => newQuestion.QuestionAnswers)" />
                     </div>
                 }
 
@@ -173,20 +174,20 @@
                         </div>
 
                         <div class="answers-table">
-                            <Grid TItem="QuestionAnswer"
+                            <Grid TItem="QuestionAnswerDTO"
                                   @ref="answerGrid"
                                   Class="table table-hover"
                                   Data="answers"
                                   HeaderRowCssClass="table-header"
                                   Responsive="true">
                                 <GridColumns>
-                                    <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                                    <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                                         @AnswerContext.Answer
                                     </GridColumn>
-                                    <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                                    <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
                                         @AnswerContext.AnswerValue
                                     </GridColumn>
-                                    <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                                    <GridColumn TItem="QuestionAnswerDTO" HeaderText="Actie" Filterable="false" Context="AnswerContext">
                                         <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -222,16 +223,16 @@
     private ModuleDTO newModule = new ModuleDTO();
 
     // private EditContext editContext;
-    private AutoComplete<Question> search;
-    private Question newQuestion = new Question();
+    private AutoComplete<QuestionDTO> search;
+    private QuestionDTO newQuestion = new QuestionDTO();
     private QuestionType selectedOption = QuestionType.OPEN;
     private bool isLoading = false;
     private string searchValue;
-    private List<Question> questions = new List<Question>();
-    private List<QuestionAnswer> answers = new List<QuestionAnswer>();
-    private Grid<Question> questionGrid = new Grid<Question>();
-    private Grid<QuestionAnswer> answerGrid = new Grid<QuestionAnswer>();
-    private QuestionAnswer currentAnswer = new QuestionAnswer();
+    private List<QuestionDTO> questions = new List<QuestionDTO>();
+    private List<QuestionAnswerDTO> answers = new List<QuestionAnswerDTO>();
+    private Grid<QuestionDTO> questionGrid = new Grid<QuestionDTO>();
+    private Grid<QuestionAnswerDTO> answerGrid = new Grid<QuestionAnswerDTO>();
+    private QuestionAnswerDTO currentAnswer = new QuestionAnswerDTO();
 
 
     [Inject] protected ToastService toastService { get; set; } = default!;
@@ -252,7 +253,7 @@
                 foreach (var question in questions)
                 {
                     question.ApplicationModuleId = newModule.Id;
-                    HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", question);
+                    HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<QuestionDTO>("/api/question", question);
 
                     if (createQuestionResponse.IsSuccessStatusCode)
                     {
@@ -270,7 +271,7 @@
                 var responseData = await result.Content.ReadFromJsonAsync<ModuleDTO>();
                 toastService.Notify(new(ToastType.Success, "Module en vragen succesvol aangemaakt!"));
                 newModule = responseData ?? new ModuleDTO();
-                questions = responseData?.Questions.ToList() ?? new List<Question>();
+                questions = responseData?.Questions.ToList() ?? new List<QuestionDTO>();
                 Navigation.NavigateTo("/content/modules");
             }
             else
@@ -316,7 +317,7 @@
         {
             answers.Add(currentAnswer);
         }
-        newQuestion.Answers = answers;
+        newQuestion.QuestionAnswers = answers;
 
 
         if (user.Identity != null && user.Identity.IsAuthenticated)
@@ -327,12 +328,12 @@
             try
             {
                 newQuestion.ApplicationModuleId = newModule.Id;
-                questions.Add(new Question() { Id = newQuestion.Id, 
+                questions.Add(new QuestionDTO() { Id = newQuestion.Id, 
                     CreatedAt = newQuestion.CreatedAt, 
                     CreatedUserId = newQuestion.LastUpdatedUserId, 
                     LastUpdatedAt = newQuestion.LastUpdatedAt,  
                     LastUpdatedUserId = newQuestion.LastUpdatedUserId,
-                    Answers = newQuestion.Answers,
+                    QuestionAnswers = newQuestion.QuestionAnswers,
                     QuestionTitle = newQuestion.QuestionTitle,
                     QuestionType = newQuestion.QuestionType
                 });
@@ -357,7 +358,7 @@
             return;
         }
     }
-    private async Task RemoveQuestion(Question question)
+    private async Task RemoveQuestion(QuestionDTO question)
     {
         if (question == null)
             return;
@@ -376,12 +377,12 @@
             toastService.Notify(new(ToastType.Warning, "Antwoord mag niet leeg zijn"));
             return;
         }
-        answers.Add(new QuestionAnswer() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
+        answers.Add(new QuestionAnswerDTO() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
         await answerGrid.RefreshDataAsync();
-        currentAnswer = new QuestionAnswer() { AnswerValue = "true" };
+        currentAnswer = new QuestionAnswerDTO() { AnswerValue = "true" };
     }
 
-    private async void RemoveAnswerFromList(QuestionAnswer answer)
+    private async void RemoveAnswerFromList(QuestionAnswerDTO answer)
     {
         answers.Remove(answer);
         await answerGrid.RefreshDataAsync();
@@ -396,9 +397,9 @@
     
     private void ResetForm()
     {
-        newQuestion = new Question();
+        newQuestion = new QuestionDTO();
         answers.Clear();
-        QuestionAnswer newAnswer = new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id };
+        QuestionAnswerDTO newAnswer = new QuestionAnswerDTO() { Answer = "OPEN", QuestionId = newQuestion.Id };
         answers.Append(newAnswer);
         currentAnswer = newAnswer;
         // editContext = new EditContext(newQuestion);

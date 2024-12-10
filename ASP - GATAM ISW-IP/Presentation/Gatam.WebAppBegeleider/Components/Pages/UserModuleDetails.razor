@@ -23,19 +23,19 @@
         <div class="details-header">
             <div class="user-info">
                 <div class="user-avatar">
-                    @if (!string.IsNullOrEmpty(userModule.User.Picture))
+                    @if (!string.IsNullOrEmpty(userModule.UserPicture))
                     {
-                        <img src="@userModule.User.Picture" alt="" />
+                        <img src="@userModule.UserPicture" alt="" />
                     }
                     else
                     {
                         <div class="avatar-placeholder">
-                            @userModule.User.Name.FirstOrDefault()@userModule.User.Surname.FirstOrDefault()
+                            @userModule.UserFirstName.FirstOrDefault()@userModule.UserLastName.FirstOrDefault()
                         </div>
                     }
                 </div>
                 <div class="user-details">
-                    <h2>@userModule.User.Name @userModule.User.Surname</h2>
+                    <h2>@userModule.UserFirstName @userModule.UserLastName</h2>
                     <div class="module-stats">
                         <div class="stat-item">
                             <i class="bi bi-eye"></i>
@@ -75,7 +75,7 @@
                             @if ((short)question.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
                             {
                                 <div class="multiple-choice-answers">
-                                    @foreach (var answer in question.Question.Answers)
+                                    @foreach (var answer in question.Answers)
                                     {
                                         var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
                                         <label class="answer-option">
@@ -88,13 +88,13 @@
                             else if ((short)question.QuestionType == (short)QuestionType.OPEN)
                             {
                                 <div class="open-answer">
-                                    <textarea disabled rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer</textarea>
+                                    <textarea disabled rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Answers.First().Id)?.GivenAnswer</textarea>
                                 </div>
                             }
                             else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
                             {
                                 <div class="true-false-answers">
-                                    @foreach (var answer in question.Question.Answers)
+                                    @foreach (var answer in question.Answers)
                                     {
                                         var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
                                         <label class="answer-option">
@@ -109,7 +109,7 @@
                                 <div class="dropdown-answer">
                                     <select disabled>
                                         <option value="">Kies een antwoord</option>
-                                        @foreach (var answer in question.Question.Answers)
+                                        @foreach (var answer in question.Answers)
                                         {
                                             <option value="@answer.Answer" 
                                                     selected="@(userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer) != null)">
@@ -120,12 +120,12 @@
                                 </div>
                             }
 
-                            @if (question.Question.Answers.Any(a => a.AnswerValue == "true"))
+                            @if (question.Answers.Any(a => a.AnswerValue == "true"))
                             {
                                 <div class="correct-answers">
                                     <h5>Correcte antwoorden:</h5>
                                     <ul>
-                                        @foreach (var answer in question.Question.Answers.Where(a => a.AnswerValue == "true"))
+                                        @foreach (var answer in question.Answers.Where(a => a.AnswerValue == "true"))
                                         {
                                             <li>@answer.Answer</li>
                                         }
@@ -216,7 +216,7 @@
         foreach (var question in visibleQuestions)
         {
             bool isAnswered = false;
-            foreach (var answer in question.Question.Answers)
+            foreach (var answer in question.Answers)
             {
                 if (isAnswered)
                     break;

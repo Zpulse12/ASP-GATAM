@@ -1,3 +1,4 @@
+using Azure.Core;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
@@ -26,8 +27,9 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
                 .ThenInclude(um => um.UserQuestions)
                     .ThenInclude(qs => qs.Question)
                     .ThenInclude(q => q.Answers)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == userId);
+           .AsNoTracking()
+        .Where(u => u.Id == userId)
+        .FirstOrDefaultAsync();
     }
     public async Task<List<ApplicationUser>> GetUsersWithModulesAsync()
     {

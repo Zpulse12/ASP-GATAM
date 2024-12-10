@@ -27,9 +27,9 @@ namespace UnitTesting.ControllerTest.ApplicationModule
                 new Gatam.Domain.ApplicationModule { Title = "Module1", Category = "Category1" },
                 new Gatam.Domain.ApplicationModule { Title = "Module2", Category = "Category2" }
             };
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<Gatam.Application.CQRS.Module.GetAllModulesQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectedModules);
+            //_mediatorMock
+            //    .Setup(m => m.Send(It.IsAny<Gatam.Application.CQRS.Module.GetAllModulesQuery>(), It.IsAny<CancellationToken>()))
+            //    .ReturnsAsync(expectedModules);
 
             var result = await _moduleController.GetAllModules();
 

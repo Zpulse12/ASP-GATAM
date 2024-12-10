@@ -16,9 +16,17 @@ namespace Gatam.WebAPI.Controllers
         {
             _mediator = mediator;
         }
-       
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllUserModules()
+        {
+            var query = new GetAllUserModules();
+            var modules = await _mediator.Send(query);
+            return Ok(modules);
+        }
+
         [HttpGet("user/{userId}/modules")]
-        [Authorize(Policy = "RequireVolgersRole")]
+        //[Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> GetUserModules(string userId)
         {
             var query = new GetUserModuleByUserQuery() { UserId = userId};
@@ -28,7 +36,7 @@ namespace Gatam.WebAPI.Controllers
 
         
         [HttpGet("{usermoduleId}")]
-       [Authorize(Policy = "RequireVolgersRole")]
+      // [Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> GetUserModuleById(string usermoduleId)
         {
             var query = new FindUserModuleIdQuery() { UserModuleId = usermoduleId };

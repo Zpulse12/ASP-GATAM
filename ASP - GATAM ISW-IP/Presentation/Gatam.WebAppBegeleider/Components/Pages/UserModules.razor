@@ -58,8 +58,8 @@ else
                 <div class="module-card__content">
                     <div class="module-card__header">
                         <div class="user-info">
-                            <img src="@userModule.User.Picture" alt="" class="user-avatar" />
-                            <span class="user-name">@userModule.User.Username</span>
+                            <img src="@userModule.UserPicture" alt="" class="user-avatar" />
+                            <span class="user-name">@userModule.UserFirstName@userModule.UserLastName</span>
                         </div>
                         <div class="module-info">
                             <h3 class="module-card__title">@userModule.Module.Title</h3>
@@ -299,7 +299,7 @@ else
         foreach (var question in visibleQuestions)
         {
             bool isAnswered = false;
-            foreach (var answer in question.Question.Answers)
+            foreach (var answer in question.Answers)
             {
                 if (isAnswered)
                     break;

@@ -10,7 +10,6 @@ namespace Gatam.Domain
         public string Answer {  get; set; }
         public string? AnswerValue { get; set; }
         public string QuestionId { get; set; }
-        [JsonIgnore]
         public Question? Question { get; set; }
         public List<UserAnswer>? GivenUserAnswers { get; set; } = new List<UserAnswer>();
 
