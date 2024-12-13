@@ -5,11 +5,7 @@ using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Gatam.Application.CQRS.User
 {
@@ -23,7 +19,6 @@ namespace Gatam.Application.CQRS.User
         public CreateAuth0UserCommandValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-
             RuleFor(u => u._user.Name)
                 .NotNull().NotEmpty()
                 .WithMessage("Voornaam mag niet leeg zijn");
@@ -48,7 +43,6 @@ namespace Gatam.Application.CQRS.User
             RuleFor(u => u._user.PhoneNumber)
                 .NotNull().NotEmpty()
                 .WithMessage("Gsm-nummer moet ingevuld zijn");
-
         }
     }
     public class CreateAuth0UserCommandHandler : IRequestHandler<CreateAuth0UserCommand, UserDTO>
