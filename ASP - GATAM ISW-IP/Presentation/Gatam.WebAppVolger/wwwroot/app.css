@@ -182,3 +182,50 @@ h1:focus {
             min-width: 100%; /* Zorg ervoor dat het dropdown-menu breed genoeg is */
         }
 }
+/* Bestaande CSS behouden... */
+
+/* Layout container styling */
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.nav-container {
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex: 1;
+    padding: 1rem;
+    width: 100%;
+}
+
+/* Media queries voor responsive gedrag */
+@media (max-width: 768px) {
+    .main-content {
+        padding-bottom: calc(70px + 1rem); /* Ruimte voor mobile navbar */
+    }
+
+    .nav-container {
+        display: none; /* Verberg desktop nav op mobiel */
+    }
+}
+
+@media (min-width: 769px) {
+    .layout-container {
+        flex-direction: row;
+    }
+
+    .nav-container {
+        width: 250px;
+        min-width: 250px;
+        display: block; /* Toon desktop nav */
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+/* Rest van de bestaande CSS behouden... */
