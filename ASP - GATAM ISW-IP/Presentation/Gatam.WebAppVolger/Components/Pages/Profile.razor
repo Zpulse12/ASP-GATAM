@@ -35,9 +35,16 @@
             <div class="profile-content">
                 <div class="profile-image-section">
                     <div class="profile-image">
-                        <div class="profile-placeholder">
-                            <i class="bi bi-person"></i>
-                        </div>
+                        @if (!string.IsNullOrEmpty(user?.Picture))
+                        {
+                            <img src="@user.Picture" alt="Profile Picture" />
+                        }
+                        else
+                        {
+                            <div class="profile-placeholder">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                        }
                     </div>
                 </div>
 

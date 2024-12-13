@@ -43,8 +43,26 @@ namespace Gatam.Application.CQRS.Module.UserModules
         public async Task<UserModule> Handle(UpdateUserModuleStatusCommand request, CancellationToken cancellationToken)
         {
             var userModule = await _uow.UserModuleRepository.FindByIdModuleWithIncludes(request.UserModuleId);
-            userModule.State = request.State;
+            
+            var visibleQuestionsCount = userModule.UserQuestions.Where(q => q.IsVisible).Count();
+            var answeredQuestionsCount = userModule.UserGivenAnswers
+                .Where(a => !string.IsNullOrEmpty(a.GivenAnswer))
+                .Select(a => a.QuestionAnswer.QuestionId)
+                .Distinct()
+                .Count();
+
+            if (answeredQuestionsCount > 0 && answeredQuestionsCount < visibleQuestionsCount)
+            {
+                userModule.State = UserModuleState.InProgress;
+            }
+            else if (answeredQuestionsCount >= visibleQuestionsCount)
+            {
+                userModule.State = UserModuleState.Done;
+            }
+
             await _uow.UserModuleRepository.Update(userModule);
+            await _uow.Commit(); 
+            
             return userModule;
         }
     }
