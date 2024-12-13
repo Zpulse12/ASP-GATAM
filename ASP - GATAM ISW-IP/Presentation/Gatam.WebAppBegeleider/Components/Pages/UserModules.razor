@@ -1,0 +1,413 @@
+@page "/modules-per-gebruiker"
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Application.CQRS.DTOS.QuestionsDTO
+@using Gatam.WebAppBegeleider.Extensions.RequestObjects
+@using Gatam.WebAppBegeleider.Components.Layout
+@inject ApiClient ApiClient
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@attribute [Authorize(Policy = "RequireManagementRole")]
+
+<link href="css/gatam-shared.css" rel="stylesheet" />
+<link href="css/user-modules.css" rel="stylesheet" />
+
+<div class="gatam-header">
+    <div class="header-icon">
+        <i class="bi bi-journal-text"></i>
+    </div>
+    <div>
+        <h2 class="mb-0">Modules per Gebruiker</h2>
+        <p class="mb-0 opacity-75">Bekijk en beheer modules voor alle gebruikers</p>
+    </div>
+</div>
+
+@if (_loading)
+{
+    <div class="loading-container">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_userModules?.Any() != true)
+{
+    <div class="gatam-card">
+        <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            Geen gebruikers of modules gevonden.
+        </div>
+    </div>
+}
+else
+{
+    <div class="modules-grid">
+        @foreach (var userModule in _currentPageModules)
+        {
+            <div class="module-card">
+                <div class="module-card__image" @onclick="() => NavigateToModule(userModule.Id)">
+                    <img src="@GetRandomModuleImage(userModule.Id)" alt="@userModule.Module.Title" />
+                    <div class="module-card__overlay">
+                        <div class="module-status @userModule.State.ToString().ToLower()">
+                            @GetStatusText(userModule.State)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="module-card__content">
+                    <div class="module-card__header">
+                        <div class="user-info">
+                            <img src="@userModule.UserPicture" alt="" class="user-avatar" />
+                            <span class="user-name">@userModule.UserFirstName@userModule.UserLastName</span>
+                        </div>
+                        <div class="module-info">
+                            <h3 class="module-card__title">@userModule.Module.Title</h3>
+                            <div class="module-stats">
+                                <span class="stat">
+                                    <i class="bi bi-question-circle"></i>
+                                    @userModule.UserQuestions.Count vragen
+                                </span>
+                                <span class="stat">
+                                    <i class="bi bi-check-circle"></i>
+                                    @userModule.UserQuestions.Count(q => q.IsVisible) zichtbaar
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <span>Voortgang</span>
+                            <span class="progress-percentage">@CalculateAnsweredPercentageLabel(userModule)</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: @CalculateAnsweredPercentageLabel(userModule); background: @GetBadgeColor(userModule)"></div>
+                        </div>
+                    </div>
+
+                    <div class="questions-preview">
+                        @{
+                            var visibleQuestions = userModule.UserQuestions.Where(q => q.IsVisible).Take(3).ToList();
+                        }
+                        @foreach (var question in visibleQuestions)
+                        {
+                            <div class="question-item">
+                                <div class="question-type">
+                                    <i class="bi @GetQuestionTypeIcon(question.QuestionType)"></i>
+                                </div>
+                                <div class="question-details">
+                                    <span class="question-title">@(question.QuestionTitle.Length > 40 ? $"{question.QuestionTitle[..40]}..." : question.QuestionTitle)</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="module-card__footer" @onclick="() => OpenQuestionsModal(userModule)">
+                        <span class="view-more">
+                            <i class="bi bi-list-ul"></i>
+                            Bekijk vragen
+                        </span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (_totalPages > 1)
+    {
+        <div class="pagination-container">
+            <div class="pagination-controls">
+                <button class="pagination-button" 
+                        @onclick="PreviousPage" 
+                        disabled="@(_currentPage == 1)">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+                
+                <span class="pagination-current">@_currentPage / @_totalPages</span>
+                
+                <button class="pagination-button" 
+                        @onclick="NextPage" 
+                        disabled="@(_currentPage == _totalPages)">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    }
+}
+
+@if (_selectedModule != null)
+{
+    <div class="custom-modal" @onclick="@(() => CloseModal())">
+        <div class="custom-modal-dialog" @onclick:stopPropagation>
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h5 class="custom-modal-title">Vragen voor @_selectedModule.Module.Title</h5>
+                    <button type="button" class="custom-btn-close" @onclick="CloseModal">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="custom-modal-body">
+                    <table class="questions-table">
+                        <thead>
+                            <tr>
+                                <th class="col-question">Vraag</th>
+                                <th class="col-type">Type</th>
+                                <th class="col-priority">Prioriteit</th>
+                                <th class="col-visibility">Zichtbaarheid</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var questionSetting in _selectedModule.UserQuestions)
+                            {
+                                <tr>
+                                    <td class="col-question">@questionSetting.QuestionTitle</td>
+                                    <td class="col-type">
+                                        <span class="question-type-badge">
+                                            <i class="bi @GetQuestionTypeIcon(questionSetting.QuestionType)"></i>
+                                            @GetQuestionTypeText(questionSetting.QuestionType)
+                                        </span>
+                                    </td>
+                                    <td class="col-priority">
+                                        <div class="priority-select">
+                                            <InputSelect @bind-Value="questionSetting.QuestionPriority" class="form-control">
+                                                <option value="@QuestionPriority.HIGH">Hoog</option>
+                                                <option value="@QuestionPriority.MEDIUM">Gemiddeld</option>
+                                                <option value="@QuestionPriority.LOW">Laag</option>
+                                            </InputSelect>
+                                            <Button Color="ButtonColor.Primary" @onclick="async () => await UpdateQuestionPriority(questionSetting)">
+                                                <i class="bi bi-check2"></i>
+                                            </Button>
+                                        </div>
+                                    </td>
+                                    <td class="col-visibility">
+                                        <div class="visibility-toggle">
+                                            <label class="switch">
+                                                <input type="checkbox"
+                                                       checked="@questionSetting.IsVisible"
+                                                       @onchange="async () => await ToggleQuestionVisibility(questionSetting)" />
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span>@(questionSetting.IsVisible ? "Zichtbaar" : "Verborgen")</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<UserModuleDTO> _userModules;
+    private bool _loading = true;
+    private HashSet<string> _expandedModules = new();
+    private int _pageSize = 3;
+    private int _currentPage = 1;
+    private int _totalPages => _userModules == null ? 0 : (int)Math.Ceiling(_userModules.Count / (double)_pageSize);
+    
+    private List<UserModuleDTO> _currentPageModules => _userModules?
+        .Skip((_currentPage - 1) * _pageSize)
+        .Take(_pageSize)
+        .ToList() ?? new List<UserModuleDTO>();
+
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
+    private UserModuleDTO _selectedModule;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserModules();
+    }
+
+    private async Task LoadUserModules()
+    {
+        try
+        {
+            _loading = true;
+            _userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>("api/user/usersWithModules");
+
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het ophalen van de gebruikers modules.", ex.Message));
+            _userModules = new List<UserModuleDTO>();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task ToggleQuestionVisibility(UserQuestionDTO userQuestion)
+    {
+        if (userQuestion == null) return;
+
+        try
+        {
+            userQuestion.IsVisible = !userQuestion.IsVisible;
+            await ApiClient.PutAsync($"api/question/visibility?userQuestionId={userQuestion.Id}&isVisible={userQuestion.IsVisible}");
+        }
+        catch (Exception ex)
+        {
+            userQuestion.IsVisible = !userQuestion.IsVisible;
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanpassen van de zichtbaar.", ex.Message));
+        }
+    }
+    private async Task UpdateQuestionPriority(UserQuestionDTO userQuestion)
+    {
+        if (userQuestion == null) return;
+        if (!Enum.IsDefined(typeof(QuestionPriority), userQuestion.QuestionPriority))
+        {
+            toastService.Notify(new(ToastType.Warning, "Ongeldige prioriteit opgegeven"));
+            return;
+        }
+        try
+        {
+            await ApiClient.PatchAsJsonAsync<UpdateQuestionPriorityRequestObject>($"api/question/{userQuestion.Id}/priority", new UpdateQuestionPriorityRequestObject() { QuestionPriority = userQuestion.QuestionPriority });
+            toastService.Notify(new(ToastType.Success, "Prioriteit succesvol aangepast"));
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanpassen van de prioriteit", ex.Message));
+        }
+    }
+
+    private string GetQuestionTypeText(int questionType) => questionType switch
+    {
+        0 => "Meerkeuze",
+        1 => "Open vraag",
+        2 => "Waar/Onwaar",
+        3 => "Keuzelijst",
+        _ => "Onbekend type"
+    };
+
+    private void ToggleModule(string moduleId)
+    {
+        if (_expandedModules.Contains(moduleId))
+            _expandedModules.Remove(moduleId);
+        else
+            _expandedModules.Add(moduleId);
+    }
+    public double CalculateAnsweredPercentage(UserModuleDTO userModule)
+    {
+        var visibleQuestions = userModule.UserQuestions.Where(q => q.IsVisible).ToList();
+        int answeredQuestionsCount = 0;
+
+        foreach (var question in visibleQuestions)
+        {
+            bool isAnswered = false;
+            foreach (var answer in question.Answers)
+            {
+                if (isAnswered)
+                    break;
+
+                var matchingAnswer = userModule.UserGivenAnswers
+                    .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));
+
+                if (matchingAnswer != null)
+                {
+                    isAnswered = true;
+                    answeredQuestionsCount++;
+                }
+            }
+        }
+        if (visibleQuestions.Count == 0)
+            return 0;
+
+        return (double)answeredQuestionsCount / visibleQuestions.Count * 100;
+    }
+
+    public string CalculateAnsweredPercentageLabel(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+        return $"{percentage:0.##}%";
+    }
+    private string GetBadgeColor(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+
+        if (userModule.State == UserModuleState.Done) return "#28a745"; 
+        if (percentage >= 50) return "#ffc107"; 
+        return "#dc3545"; 
+    }
+    private string GetProgressStyle(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+        var color = GetBadgeColor(userModule);
+        return $"--progress: {percentage}%; --color: {color};";
+    }
+
+    private string GetQuestionTypeIcon(int questionType) => questionType switch
+    {
+        0 => "bi-list-check",
+        1 => "bi-pencil-square",
+        2 => "bi-check2-circle",
+        3 => "bi-list-ul",
+        _ => "bi-question-circle"
+    };
+
+    private void NavigateToModule(string userModuleId)
+    {
+        NavigationManager.NavigateTo($"/modules-per-gebruiker/{userModuleId}");
+    }
+
+    private void NextPage()
+    {
+        if (_currentPage < _totalPages)
+            _currentPage++;
+    }
+
+    private void PreviousPage()
+    {
+        if (_currentPage > 1)
+            _currentPage--;
+    }
+
+    private void GoToPage(int page)
+    {
+        _currentPage = page;
+    }
+
+    private readonly Random _random = new();
+    private Dictionary<string, string> _moduleImages = new();
+
+    private string GetRandomModuleImage(string moduleId)
+    {
+        if (_moduleImages.TryGetValue(moduleId, out string existingUrl))
+        {
+            return existingUrl;
+        }
+
+        var randomSeed = _random.Next(1, 1000);
+        var imageUrl = $"https://picsum.photos/seed/{randomSeed}/400/300";
+        _moduleImages[moduleId] = imageUrl;
+        
+        return imageUrl;
+    }
+
+    private void OpenQuestionsModal(UserModuleDTO module)
+    {
+        _selectedModule = module;
+    }
+
+    private void CloseModal()
+    {
+        _selectedModule = null;
+    }
+
+    private string GetStatusText(UserModuleState state)
+    {
+        return state switch
+        {
+            UserModuleState.NotStarted => "Niet gestart",
+            UserModuleState.InProgress => "In uitvoering",
+            UserModuleState.Done => "Voltooid",         
+            _ => "Onbekend"
+        };
+    }
+}
+

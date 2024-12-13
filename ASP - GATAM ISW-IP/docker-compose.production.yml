@@ -32,11 +32,27 @@ services:
       - BASE_URI=${BASE_URI}
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - KEY=${KEY}
+      - API_KEY=${API_KEY}
     depends_on:
       - mssql-server
     networks:
       - database
       - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.production-webapi-http.entrypoints=http"
+      - "traefik.http.routers.production-webapi-http.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`) "
+      - "traefik.http.routers.production-webapi-http.middlewares=production-webapi-redirect-to-https"
+      - "traefik.http.middlewares.production-webapi-redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.production-webapi-secure.entrypoints=https"
+      - "traefik.http.routers.production-webapi-secure.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.production-webapi-secure.tls=true"
+      - "traefik.http.routers.production-webapi-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.production-webapi-secure.tls.domains[0].main=${DOMAIN} && PathPrefix(`/api`)"
+      - "traefik.http.routers.production-webapi-secure.middlewares=sslheader"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.services.production-webapi.loadbalancer.server.port=8080"
   webappbegeleider:
     build:
       context: .
@@ -76,6 +92,13 @@ services:
       dockerfile: ./Presentation/Gatam.WebAppVolger/Dockerfile
     restart: always
     container_name: ${ENVIRONMENT}-webappvolger
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ENVIRONMENT=${ENVIRONMENT}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_CLIENTSECRET=${AUTH0_CLIENTSECRET}
     depends_on:
       - webapi
       - mssql-server

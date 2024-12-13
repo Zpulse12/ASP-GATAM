@@ -1,57 +1,55 @@
 ﻿@page "/"
-@using Gatam.WebAppBegeleider.Components.Layout
 
 @attribute [AllowAnonymous]
 <PageTitle>Home</PageTitle>
-
-<div class="container mt-5">
-    <h1 class="text-center">Welkom bij</h1>
-
-    <div class="row mb-4 zigzag-left">
-        <div class="col-md-6">
-            <div class="card">
-                <img src="/images/h1.jpeg" class="card-img-top" alt="Afbeelding 1">
-                <div class="card-body">
-                    <h5 class="card-title">De Eerste Stappen</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-4 zigzag-right">
-        <div class="col-md-6 offset-md-6">
-            <div class="card">
-                <img src="/images/h2.jpeg" class="card-img-top" alt="Afbeelding 2">
-                <div class="card-body">
-                    <h5 class="card-title">Onderzoek en Ontdekking</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-4 zigzag-left">
-        <div class="col-md-6">
-            <div class="card">
-                <img src="/images/h3.png" class="card-img-top" alt="Afbeelding 3">
-                <div class="card-body">
-                    <h5 class="card-title" >Toepassen van Kennis</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-4 zigzag-right">
-        <div class="col-md-6 offset-md-6">
-            <div class="card">
-                <img src="/images/h4.webp" class="card-img-top" alt="Afbeelding 4">
-                <div class="card-body">
-                    <h5 class="card-title">Reflectie en Groei</h5>
-                </div>
-            </div>
-        </div>
+<link href="css/home.css" rel="stylesheet" />
+<div class="welcome-hero">
+    <div class="container">
+        <h1 class="hero-title">Welkom bij GATAM</h1>
+        <p class="hero-subtitle">Ontdek, Leer en Groei</p>
     </div>
 </div>
 
-<h3 class="text-center">
-    GATAM 
-</h3>
+<div class="container content-section">
+    <div class="feature-grid">
+        <div class="feature-card fade-in">
+            <div class="card-image-wrapper">
+                <img src="/images/h1.jpeg" alt="Eerste Stappen" class="feature-image">
+            </div>
+            <div class="card-content">
+                <h3>De Eerste Stappen</h3>
+                <p>Begin je reis naar kennis en ontwikkeling</p>
+            </div>
+        </div>
+
+        <div class="feature-card fade-in" style="animation-delay: 0.2s">
+            <div class="card-image-wrapper">
+                <img src="/images/h2.jpeg" alt="Onderzoek" class="feature-image">
+            </div>
+            <div class="card-content">
+                <h3>Onderzoek en Ontdekking</h3>
+                <p>Verken nieuwe mogelijkheden en inzichten</p>
+            </div>
+        </div>
+
+        <div class="feature-card fade-in" style="animation-delay: 0.4s">
+            <div class="card-image-wrapper">
+                <img src="/images/h3.png" alt="Kennis Toepassen" class="feature-image">
+            </div>
+            <div class="card-content">
+                <h3>Toepassen van Kennis</h3>
+                <p>Pas je geleerde kennis toe in praktijksituaties</p>
+            </div>
+        </div>
+
+        <div class="feature-card fade-in" style="animation-delay: 0.6s">
+            <div class="card-image-wrapper">
+                <img src="/images/h4.webp" alt="Reflectie" class="feature-image">
+            </div>
+            <div class="card-content">
+                <h3>Reflectie en Groei</h3>
+                <p>Reflecteer op je ervaringen en groei</p>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -1,78 +1,211 @@
 ﻿@page "/admin/create"
 @inject IHttpClientFactory HttpClientFactory
-@using Gatam.Domain
+@using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.DTOS.RolesDTO
+@using Gatam.Application.CQRS.DTOS.UsersDTO
 @using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+
 @rendermode InteractiveServer
+
+@inject ApiClient apiClient
+@inject AuthenticationStateProvider authenticationStateProvider
+
 @attribute [Authorize(Policy = "RequireManagementRole")]
 <InactiveUserRedirect />
-<div class="container mt-3">
-    @if (isSuccess)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @response
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
 
+<div class="page-wrapper">
+    <div class="banner">
+        <div class="banner-content">
+            <div class="banner-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div class="banner-text">
+                <h3>Nieuwe Gebruiker Toevoegen</h3>
+                <p>Vul het formulier in om een nieuwe gebruiker aan te maken</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <EditForm Model="@user" FormName="createUser" OnSubmit="OnFormSubmit">
+            <DataAnnotationsValidator />
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="Name">
+                        <i class="bi bi-person"></i>
+                        Voornaam <span class="required">*</span>
+                    </label>
+                    <InputText id="Name" @bind-Value="user.Name" class="form-control" placeholder="Voer voornaam in..." />
+                    <ValidationMessage For="@(() => user.Name)" />
+                </div>
+                <div class="form-group">
+                    <label for="Surname">
+                        <i class="bi bi-person"></i>
+                        Achternaam <span class="required">*</span>
+                    </label>
+                    <InputText id="Surname" @bind-Value="user.Surname" class="form-control" placeholder="Voer achternaam in..." />
+                    <ValidationMessage For="@(() => user.Surname)" />
+                </div>
+                <div class="form-group">
+                    <label for="Email">
+                        <i class="bi bi-envelope"></i>
+                        E-mailadres <span class="required">*</span>
+                    </label>
+                    <InputText id="Email" @bind-Value="user.Email" class="form-control" placeholder="naam@voorbeeld.com" />
+                    <ValidationMessage For="@(() => user.Email)" />
+                </div>
+                <div class="form-group">
+                    <label for="PhoneNumber">
+                        <i class="bi bi-phone"></i>
+                        Gsm-nummer <span class="required">*</span>
+                    </label>
+                    <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control" placeholder="+32 ..." />
+                    <ValidationMessage For="@(() => user.PhoneNumber)" />
+                </div>
+                <div class="form-group">
+                    <label for="Password">
+                        <i class="bi bi-key"></i>
+                        Wachtwoord <span class="required">*</span>
+                    </label>
+                    <div class="password-input">
+                        <InputText 
+                            type="@(showPassword ? "text" : "password")" 
+                            id="Password" 
+                            @bind-Value="user.PasswordHash" 
+                            class="form-control" 
+                            placeholder="Voer wachtwoord in..." 
+                        />
+                        <button type="button" class="password-toggle" @onclick="TogglePasswordVisibility">
+                            <i class="bi @(showPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => user.PasswordHash)" />
+                </div>
+                <div class="form-group role-selection">
+                    <label class="role-label">
+                        <i class="bi bi-person-badge"></i>
+                        Gebruikersrol
+                    </label>
+                    <div class="role-options">
+                        <label class="role-card @(isFollowerRoleSelected ? "active" : "")">
+                            <InputCheckbox @bind-Value="isFollowerRoleSelected" />
+                            <i class="bi bi-person-follow"></i>
+                            <span>Trajectvolger</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-cancel">
+                    <i class="bi bi-x-lg"></i>
+                    Annuleren
+                </button>
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-person-plus"></i>
+                    Gebruiker Aanmaken
+                </button>
+            </div>
+        </EditForm>
+    </div>
 </div>
-<CustomCards>
-    <h3 style="">Maak gebruiker aan!</h3>
 
-    <EditForm Model="@user" FormName="createUser" OnValidSubmit="@OnFormSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="UserName">Gebruikersnaam</label>
-                <InputText id="UserName" @bind-Value="user.UserName" class="form-control rounded-pill" />
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="Password">Wachtwoord</label>
-                <InputText id="Password" @bind-Value="user.PasswordHash" class="form-control rounded-pill"/>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="Email">E-mailadres</label>
-                <InputText id="Email" @bind-Value="user.Email" class="form-control rounded-pill"/>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="PhoneNumber">Telefoonnummer</label>
-                <InputText id="PhoneNumber" @bind-Value="user.PhoneNumber" class="form-control rounded-pill"/>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="text-center">
-                <button class="w-25 btn rounded-pill" style="background-color:#4454D2; color:white" type="submit">Aanmaken</button>
-            </div>
-        </div>
-    </EditForm>
-</CustomCards>
+<link href="css/createuser.css" rel="stylesheet" />
 
 @code {
-    string response = "";
-    bool isSuccess = false;
-    ApplicationUser user = new ApplicationUser()  ;
+    private string response = "";
+    private bool isSuccess = false;
+    private bool showPassword = false;
+    private CreateUserDTO user = new CreateUserDTO();
+    private bool isFollowerRoleSelected = true;
+    private bool isAddedToUserSelected = false;
+    private int currentStep = 1;
+
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
 
     private async Task OnFormSubmit() 
     {
-        
-        var client = HttpClientFactory.CreateClient("ApiClient");
-        HttpResponseMessage result = await client.PostAsJsonAsync("/api/user", user);
+        AuthenticationState authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        ClaimsPrincipal authUser = authState.User;
 
-        if(result.IsSuccessStatusCode)
+        if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue(CustomRoles.VOLGER, out var FollowerRoleId))
         {
-            response = "Gebruiker is aangemaakt";
-            isSuccess = true;
+            user.RolesIds = isFollowerRoleSelected
+    ? new List<UserRoleDTO>
+        {
+        new UserRoleDTO
+        {
+            RoleId = FollowerRoleId.Id,
+            UserId = user.Id
+        }
+        }
+    : new List<UserRoleDTO>();
 
-            user = new ApplicationUser();
+            user.Username = user.Email.Split('@')[0];
+
+            if(isAddedToUserSelected)
+            {
+                string userId = authUser.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                user.MentorId = userId;
+            }
+            try
+            {
+                var result = await apiClient.PostAsJsonAsync<CreateUserDTO>("/api/user", user);
+                if(result.IsSuccessStatusCode)
+                {
+                  //var createdUser = await result.Content.ReadFromJsonAsync<UserDTO>();
+                    toastService.Notify(new(ToastType.Success, "Je gebruiker is succesvol aangemaakt"));
+                } else
+                {
+                    ValidationException errorResponse = await result.Content.ReadFromJsonAsync<ValidationException>();
+                    string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : result.ReasonPhrase;
+                    toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van de gebruiker.", errors));
+                }
+            } catch(Exception e)
+            {
+                toastService.Notify(new(ToastType.Danger, "Er ging iets mis met het aanmaken van de gebruiker", e.Message));
+            } finally
+            {
+                user = new CreateUserDTO();
+                StateHasChanged();
+            }
         } else
         {
-            response = await result.Content.ReadAsStringAsync();
-            isSuccess = false;
+            toastService.Notify(new(ToastType.Danger, "Geen gebruiker gevonden in de huidige context. Ben je ingelogd?", "Geen gebruiker id gevonden."));
+            return;
         }
-        StateHasChanged();
+    }
+
+    private void GoToStep(int step)
+    {
+        if (step >= 1 && step <= 3)
+        {
+            currentStep = step;
+        }
+    }
+
+    private void NextStep()
+    {
+        if (currentStep < 3)
+        {
+            currentStep++;
+            StateHasChanged();
+        }
+    }
+
+    private void PreviousStep()
+    {
+        if (currentStep > 1)
+        {
+            currentStep--;
+            StateHasChanged();
+        }
     }
 }

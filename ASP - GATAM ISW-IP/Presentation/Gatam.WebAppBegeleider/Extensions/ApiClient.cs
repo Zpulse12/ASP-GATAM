@@ -1,7 +1,4 @@
-﻿using Auth0.ManagementApi.Models;
-using Gatam.WebAppBegeleider.Interfaces;
-using Newtonsoft.Json.Linq;
-using System.Net.Http.Headers;
+﻿using Gatam.WebAppBegeleider.Interfaces;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {
@@ -33,7 +30,7 @@ namespace Gatam.WebAppBegeleider.Extensions
 
         public async Task<HttpResponseMessage> DeleteAsync(string requestUri)
         {
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await _httpClient.DeleteAsync(requestUri);
             return response;
         }
 
@@ -41,6 +38,14 @@ namespace Gatam.WebAppBegeleider.Extensions
         {
             var response = await _httpClient.PutAsJsonAsync(requestUri, content);
             return response;
+        }
+        public async Task<HttpResponseMessage> PutAsync(string requestUri)
+        {
+            return await _httpClient.PutAsync(requestUri, null);
+        }
+        public async Task<HttpResponseMessage> PostAsync(string requestUri)
+        {
+            return await _httpClient.PostAsync(requestUri, null);
         }
     }
 }

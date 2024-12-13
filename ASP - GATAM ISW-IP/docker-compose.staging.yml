@@ -1,6 +1,6 @@
 services:
   mssql-server:
-    image: mcr.microsoft.com/azure-sql-edge:latest
+    image: mcr.microsoft.com/azure-sql-edge:1.0.7
     container_name: ${ENVIRONMENT}-mssql
     restart: always
     ports: 
@@ -34,11 +34,27 @@ services:
       - BASE_URI=${BASE_URI}
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - KEY=${KEY}
+      - API_KEY=${API_KEY}
     depends_on:
       - mssql-server
     networks:
       - database
       - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.staging-webapi-http.entrypoints=http"
+      - "traefik.http.routers.staging-webapi-http.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`) "
+      - "traefik.http.routers.staging-webapi-http.middlewares=staging-webapi-redirect-to-https"
+      - "traefik.http.middlewares.staging-webapi-redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.staging-webapi-secure.entrypoints=https"
+      - "traefik.http.routers.staging-webapi-secure.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.staging-webapi-secure.tls=true"
+      - "traefik.http.routers.staging-webapi-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.staging-webapi-secure.tls.domains[0].main=${DOMAIN} && PathPrefix(`/api`)"
+      - "traefik.http.routers.staging-webapi-secure.middlewares=sslheader"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.services.staging-webapi.loadbalancer.server.port=8080"
   webappbegeleider:
     build:
       context: .
@@ -85,6 +101,13 @@ services:
     depends_on:
       - webapi
       - mssql-server
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ENVIRONMENT=${ENVIRONMENT}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENTID=${AUTH0_CLIENTID}
+      - AUTH0_CLIENTSECRET=${AUTH0_CLIENTSECRET}
     networks:
       - database
       - proxy

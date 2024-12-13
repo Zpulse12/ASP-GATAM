@@ -1,20 +1,58 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@using Gatam.WebAppVolger.Components.Layout
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+    <CustomNavMenu>
+        <ul class="navbar-nav d-flex flex-row align-items-center" style="width: 100%; padding: 0; margin: 0;">
+            <AuthorizeView Policy="RequireVolgersRole">
+                <Authorized>
+                    <div class="d-flex justify-content-center" style="width: 100%; gap: 4rem;">
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/ModulesOfUser">
+                                <i class="bi bi-collection"></i> Mijn modules
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/progress">
+                                <i class="bi bi-graph-up"></i> Voortgang
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/profile">
+                                <i class="bi bi-person"></i> Profiel
+                            </NavLink>
+                        </li>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+        </ul>
+    </CustomNavMenu>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-            <Login />
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+    <main class="main-content" style="flex: 1;">
+        @Body
     </main>
+
+    <Footer />
+
+    <AuthorizeView Policy="RequireVolgersRole">
+        <Authorized>
+            <nav class="mobile-navbar d-lg-none">
+                <NavLink href="/ModulesOfUser" class="nav-item">
+                    <i class="bi bi-collection"></i>
+                    <span>Modules</span>
+                </NavLink>
+                <NavLink href="/progress" class="nav-item">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Voortgang</span>
+                </NavLink>
+                <NavLink href="/profile" class="nav-item">
+                    <i class="bi bi-person"></i>
+                    <span>Profiel</span>
+                </NavLink>
+            </nav>
+        </Authorized>
+    </AuthorizeView>
 </div>
 
 <div id="blazor-error-ui">
@@ -22,3 +60,4 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+<Toasts @rendermode="InteractiveServer" class="p-3" AutoHide="true" Delay="4000" Placement="ToastsPlacement.TopRight" />

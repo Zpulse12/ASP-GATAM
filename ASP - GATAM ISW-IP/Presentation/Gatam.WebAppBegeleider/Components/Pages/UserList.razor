@@ -1,137 +1,181 @@
-@using Gatam.Application.CQRS
-@using Gatam.WebAppBegeleider.Components.Layout
-@using Gatam.WebAppBegeleider.Extensions
 @page "/admin/user-list"
-@using System.Diagnostics
-@using Gatam.Application.CQRS.User
-@using Gatam.Domain
-@using Microsoft.AspNetCore.Components.QuickGrid
-
-@using Gatam.Infrastructure.Repositories
-
+@using Gatam.Application.CQRS
+@using Gatam.WebAppBegeleider.Extensions
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApiClient apiClient
-@using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor httpContextAccessor
-
-
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireManagementRole")]
 
-<InactiveUserRedirect />
-<CustomCards>
-    <div class="card-body">
-        <div class="card-header">
-            <h5>
-                Gebruikers overzicht
-            </h5>
-        </div>
-        @if (_isLoading)
-        {
-        <div class="text-center">
-                <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
-        </div>
-        }
-        @if (_hasError)
-        {
-            <Callout Color="CalloutColor.Danger" >
-                <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van de gebruikerslijst.
-           </Callout>
-        }
+<link href="css/userlist.css" rel="stylesheet" />
 
-        else
-        {
-               <Grid TItem="UserDTO"
-                          AllowRowClick="true"
-                          AllowSorting="true"
-                          Class="table table-hover"
-                          DataProvider="CustomersDataProvider"
-                          AllowPaging="true"
-                          PageSize="5"
-                  HeaderRowCssClass="custom-header"
-                          OnRowClick="OnRowClick"
-                          Responsive="true">
-                        <GridColumns>
-                            <GridColumn TItem="UserDTO" HeaderText="Username" PropertyName="Username" SortString="Username" SortKeySelector="item => item.Nickname">
-                                @context.Nickname
-                            </GridColumn>
-                            <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email" SortString="Email" SortKeySelector="item => item.Email">
-                                @context.Email
-                            </GridColumn>
-                            <GridColumn TItem="UserDTO" HeaderText="Status" PropertyName="IsActive" SortKeySelector="item => item.IsActive" >
-                                <div class="text-center">
-                                    <button class="btn @(context.IsActive ? "btn-danger" : "btn-success")"
-                                    @onclick="() => ToggleUserActiveStatus(context,context.Id, !context.IsActive)" @onclick:stopPropagation>
-                                        @(context.IsActive ? "Deactiveer" : "Activeer")
-                                    </button>
-                                </div>
-                            </GridColumn>
-                            <!-- Actie Column -->
-                            <GridColumn TItem="UserDTO" HeaderText="Actie">
-                                <div>
-                                    <button type="button" @onclick="() => ShowDeleteModal(context.Id)"
-                                            class="btn btn-outline-danger"
-                                    data-toggle="modal" data-target="#exampleModal" @onclick:stopPropagation>
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                            <a class="btn btn-outline-secondary" href="/admin/user/@(context.Id)" @onclick:stopPropagation>
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                </div>
-                            </GridColumn>
-                        </GridColumns>
-                      </Grid>
-        }
+<div class="page-wrapper">
+    <div class="banner">
+        <div class="banner-content animate-in">
+            <div class="banner-icon pulse">
+                @if (_isBeheerder)
+                {
+                    <i class="bi bi-shield-fill"></i>
+                }
+                else
+                {
+                    <i class="bi bi-people-fill"></i>
+                }
+            </div>
+            <div class="banner-text">
+                @if (_isBeheerder)
+                {
+                    <h3>Alle Gebruikers</h3>
+                    <p>Beheer alle gebruikers in het systeem</p>
+                }
+                else
+                {
+                    <h3>Mijn Volgers</h3>
+                    <p>Beheer uw toegewezen volgers</p>
+                }
+            </div>
+        </div>
     </div>
-        @if (isModalVisible)
-        {
-            <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="userDetailsModalLabel">Gebruikersgegevens</h4>
+
+    <div class="content-container">
+        <div class="actions-bar">
+            @if (_isBeheerder)
+            {
+                <a href="/admin/create" class="btn-new">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Nieuwe Gebruiker
+                </a>
+            }
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text"
+                       placeholder="Zoek op naam of email..."
+                       @bind="searchTerm"
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearch" />
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <Grid TItem="UserDTO"
+                  @ref="userGrid"
+                  DataProvider="CustomersDataProvider"
+                  AllowFiltering="false"
+                  AllowSorting="true"
+                  AllowPaging="true"
+                  PageSize="5"
+                  ShowPager="true"
+                  Class="table table-hover shadow-sm">
+                <GridColumns>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Naam" 
+                                PropertyName="Name"
+                                Width="15%">
+                        <i class="bi bi-person me-2"></i>@context.Name
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Achternaam" 
+                                PropertyName="Surname"
+                                Width="15%">
+                        <i class="bi bi-person-badge me-2"></i>@context.Surname
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Email" 
+                                PropertyName="Email"
+                                Width="25%">
+                        <i class="bi bi-envelope me-2"></i>@context.Email
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Gsm-nummer" 
+                                PropertyName="PhoneNumber"
+                                Width="15%">
+                        <i class="bi bi-telephone me-2"></i>@context.PhoneNumber
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Status" 
+                                PropertyName="IsActive"
+                                Width="15%">
+                        <div class="d-flex justify-content-start">
+                            <button class="btn @(context.IsActive ? "btn-soft-danger" : "btn-soft-success")"
+                                    @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" 
+                                    @onclick:stopPropagation>
+                                <i class="bi @(context.IsActive ? "bi-person-x" : "bi-person-check") me-2"></i>
+                                @(context.IsActive ? "Deactiveer" : "Activeer")
+                            </button>
                         </div>
-                        <div class="modal-body">
-                            <p><strong>Gebruikersnaam:</strong> @selectedUser?.Nickname</p>
-                            <p><strong>E-mail:</strong> @selectedUser?.Email</p>
-                            <p><strong>Rollen:</strong></p>
-                            <ul>
-                                @if (userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
-                                {
-                                    foreach (var role in roles)
-                                    {
-                                        <li>@role</li>
-                                    }
-                                }
-                                else
-                                {
-                                    <li>Geen rollen gevonden</li>
-                                }
-                            </ul>
-                            <a class="btn" style="background-color:#4454D2; color:white" href="/admin/user/@(selectedUser.Id)">
-                                Role toewijzen
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Acties"
+                                Width="15%">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="button" 
+                                    class="btn btn-outline-danger btn-action" 
+                                    @onclick="() => ShowDeleteModal(context.Id)"
+                                    @onclick:stopPropagation>
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                            <a class="btn btn-outline-primary btn-action" 
+                               href="/admin/user/@(context.Id)" 
+                               @onclick:stopPropagation>
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <a class="btn btn-outline-info btn-action" 
+                               href="/usersummary/@(context.Id)"
+                               @onclick:stopPropagation>
+                                <i class="bi bi-eye-fill"></i>
                             </a>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" @onclick="CloseModal">Sluiten</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    @* <!-- Modal -->
+                    </GridColumn>
+                </GridColumns>
+            </Grid>
         </div>
     </div>
-    <div class="modal-backdrop fade show"></div>
-    }
-    <!-- Modal -->
-    @if (isModalVisible)
-    {
+</div>
+
+@if (isRolesModalVisible)
+{
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="userDetailsModalLabel">Gebruikersgegevens</h4>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Gebruikersnaam:</strong> @selectedUser?.Username</p>
+                    <p><strong>E-mail:</strong> @selectedUser?.Email</p>
+                    <p><strong>Rollen:</strong></p>
+                    <ul>
+                        @if (selectedUser?.Id != null && userRolesMap.TryGetValue(selectedUser?.Id, out var roles))
+                        {
+                            foreach (var role in roles)
+                            {
+                                <li>@role</li>
+                            }
+                        }
+                        else
+                        {
+                            <li>Geen rollen gevonden</li>
+                        }
+                    </ul>
+                    <a class="btn" style="background-color:#4454D2; color:white" href="/admin/user/@(selectedUser.Id)">
+                        Role toewijzen
+                    </a>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @onclick="@(() => CloseModal("Role"))">Sluiten</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (isDeleteModalVisible)
+{
     <div class="modal fade show shadow-sm" tabindex="-1" role="dialog" style="display:block;" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="exampleModalLabel">Bevestig Verwijdering</h4>
-                    <button type="button" class="close" @onclick="CloseModal" aria-label="Close">
+                    <button type="button" class="close" @onclick="@(() => CloseModal("Delete"))" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -139,7 +183,7 @@
                     Weet je zeker dat je deze gebruiker wilt verwijderen?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-success" @onclick="CloseModal">Annuleer</button>
+                    <button type="button" class="btn btn-outline-success" @onclick="@(() => CloseModal("Delete"))">Annuleer</button>
                     <button type="button" class="btn btn-outline-danger" @onclick="Delete">Verwijder</button>
                 </div>
             </div>
@@ -147,19 +191,16 @@
     </div>
     <div class="modal-backdrop fade show"></div>
 
-    } *@
-
-</CustomCards>
-
+}
 
 @code {
     [Inject] ModalService ModalService { get; set; } = default!;
+    [Inject] protected ToastService toastService { get; set; } = default!;
 
     private List<UserDTO> _users = new List<UserDTO>();
 
     private UserDTO userBeingEdited = null;
 
-    private HashSet<UserDTO> selectedUsers = new();
     private UserDTO selectedUser;
 
     private Dictionary<string, List<string>> userRolesMap = new();
@@ -167,145 +208,194 @@
     private bool _isLoading = true;
     private bool _hasError = false;
 
-    private string errorMessage = string.Empty;
-    private string successMessage = string.Empty;
-
-    // Boolean to control modal 
-    private bool isModalVisible = false;
+    private bool isDeleteModalVisible = false;
+    private bool isRolesModalVisible = false;
     private string selectedUserId;
+    private bool _isBeheerder = false;
+    private string _currentUserId;
+
+    private Grid<UserDTO> userGrid = new();
+
+    private string searchTerm = "";
+    private Timer? _debounceTimer;
 
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
+            _currentUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await LoadUsers();
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het initialiseren van de pagina."));
+        }
+    }
+
+ 
+
+    private async Task LoadUsers()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            _isBeheerder = authState.User.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
+
+
+            if (_isBeheerder)
+            {
+                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
+            }
+            else
+            {
+                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/mentor");
+            }
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            _users = _users.Where(user => user.Id != userId).ToList();
+            StateHasChanged();
+        }
+        catch
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het laden van de gebruikers."));
+        }
+    }
 
     private void ShowDeleteModal(string userId)
     {
         selectedUserId = userId;
-        isModalVisible = false;  
+        isDeleteModalVisible = true;
     }
 
     private async Task<GridDataProviderResult<UserDTO>> CustomersDataProvider(GridDataProviderRequest<UserDTO> request)
     {
-        if (!_users.Any())
+        try
         {
-            try
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
+
+            List<UserDTO> users;
+            if (_isBeheerder)
             {
-                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/users");
+                users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
             }
-            catch (HttpRequestException ex)
+            else
             {
-                _hasError = true;
-                Console.WriteLine($"Request error: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                _hasError = true;
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/mentor");
             }
 
+            // Filter users based on search term
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                users = users.Where(u =>
+                    u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+            }
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            users = users.Where(user => user.Id != userId).ToList();
+            return request.ApplyTo(users ?? new List<UserDTO>());
         }
-        return await Task.FromResult(request.ApplyTo(_users));
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het ophalen van de gebruikers."));
+            return request.ApplyTo(new List<UserDTO>());
+        }
     }
-
 
     private async Task OnRowClick(GridRowEventArgs<UserDTO> args)
     {
         selectedUser = args.Item;
         userRolesMap[selectedUser.Id] = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{selectedUser.Id}/roles");
-        isModalVisible = true;
+        isRolesModalVisible = true;
     }
 
-
-    protected override async Task OnInitializedAsync()
+    private void CloseModal(string modalType)
     {
-        _isLoading = true; 
-
-        try
+        if (modalType == "Delete")
         {
-            _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/user");
-            _hasError = !_users.Any();
-
-        } catch (HttpRequestException ex)
-        {
-            _hasError = true;  
-            Console.WriteLine($"Request error: {ex.Message}");
+            isDeleteModalVisible = false;
+            selectedUserId = null;
         }
-        catch (Exception ex)
+        else if (modalType == "Role")
         {
-            _hasError = true; 
-            Console.WriteLine($"An error occurred: {ex.Message}");
-        } finally
-        {
-            _isLoading = false; 
+            isRolesModalVisible = false;
+            selectedUser = null;
         }
-    }
-
-    private void CloseModal()
-    {
-        isModalVisible = false;
-        selectedUser = null;
     }
 
     async Task Delete()
     {
         try
         {
-            var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
+            var response = await apiClient.DeleteAsync($"/api/user/{selectedUserId}/delete");
             if (response.IsSuccessStatusCode)
             {
-                var userToRemove = _users.FirstOrDefault(u => u.Id == selectedUserId);
-                if (userToRemove != null)
-                {
-                    _users.Remove(userToRemove);
-                    StateHasChanged();
-                    isModalVisible = false;
-                }
+                await userGrid.RefreshDataAsync();
+                selectedUser = null;
+                selectedUserId = null;
+                CloseModal("Delete");
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol verwijderd."));
             }
             else
             {
-                Debug.WriteLine($"Failed to delete user {selectedUserId}: {response.ReasonPhrase}");
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error deleting user: {ex.Message}");
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));
         }
     }
 
-    private async Task ToggleUserActiveStatus(UserDTO user, string userId, bool isActive)
+    private async Task ToggleUserActiveStatus(string userId, bool isActive)
     {
         try
         {
-            var command = new DeactivateUserCommand
-            {
-                UserId = userId,  
-                IsActive = isActive
-            };
-
-            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate/{userId}", command);
+            var command = new { UserId = userId, IsActive = isActive };
+            var response = await apiClient.PatchAsJsonAsync($"/api/User/setactivestate", command);
 
             if (response.IsSuccessStatusCode)
             {
-                var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
-                if (updatedUser != null)
-                {
-                    var localUser = _users.FirstOrDefault(u => u.Id == userId);
-                    if (localUser != null)
-                    {
-                        localUser.IsActive = updatedUser.IsActive;
-                    }
-                    StateHasChanged();
-                }
+                await userGrid.RefreshDataAsync();
+                toastService.Notify(new(ToastType.Success, $"Gebruiker status succesvol {(isActive ? "geactiveerd" : "gedeactiveerd")}."));
             }
             else
             {
-                Console.WriteLine($"Error updating user status: {response.ReasonPhrase}");
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het wijzigen van de gebruiker status."));
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error during status update: {ex.Message}");
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het wijzigen van de gebruiker status."));
         }
     }
+    private void NavigateToSummary(string userId)
+    {
+        NavigationManager.NavigateTo($"/usersummary/{userId}");
+    }
 
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        // Debounce de zoekopdracht
+        _debounceTimer?.Dispose();
+        _debounceTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await userGrid.RefreshDataAsync();
+                StateHasChanged();
+            });
+        }, null, 300, Timeout.Infinite);
+    }
 
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+    }
 }
-

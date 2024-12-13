@@ -1,15 +1,9 @@
 using Gatam.Application.Extensions;
-using Gatam.Application.Interfaces;
-using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
 using Gatam.Infrastructure.Extensions;
-using Gatam.Infrastructure.Repositories;
-using Gatam.Infrastructure.UOW;
 using Gatam.WebAPI.Extensions;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
-using System.IdentityModel.Tokens.Jwt;
+
 internal class Program {
     private static void Main(string[] args)
     {
@@ -19,8 +13,10 @@ internal class Program {
         builder.Services.RegisterApplication();
         builder.Services.RegisterInfrastructure();
         builder.Services.AddControllers();
+        builder.Services.RegisterEncryption();
         builder.Services.RegisterJWTAuthentication(builder);
         builder.Services.RegisterPolicies();
+        builder.Services.RegisterFilters();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -31,7 +27,7 @@ internal class Program {
         {
             ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             dbContext.Database.EnsureCreated();
-        } 
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -48,7 +44,7 @@ internal class Program {
 
         app.UseErrorHandlingMiddleware();
 
-        // app.UseHttpsRedirection();
+        app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();

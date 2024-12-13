@@ -1,6 +1,5 @@
 ﻿using Auth0.AspNetCore.Authentication;
 using Gatam.WebAppBegeleider.Extensions.EnvironmentHelper;
-using System.Net.Http.Headers;
 
 namespace Gatam.WebAppBegeleider.Extensions
 {
@@ -10,6 +9,7 @@ namespace Gatam.WebAppBegeleider.Extensions
         {
             ServiceProvider serviceProvider = services.BuildServiceProvider();
             EnvironmentWrapper env = serviceProvider.GetRequiredService<EnvironmentWrapper>();
+
             services.AddAuth0WebAppAuthentication(options =>
             {
 
@@ -21,11 +21,13 @@ namespace Gatam.WebAppBegeleider.Extensions
             }).WithAccessToken(options =>
             {
                 options.Audience = env.AUTH0AUDIENCE;
-            }); ;
+            });
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
             return services;
         }
         public static IServiceCollection RegisterCustomApiClient(this IServiceCollection services) 
@@ -43,15 +45,20 @@ namespace Gatam.WebAppBegeleider.Extensions
                 httpClient.BaseAddress = new Uri(_host);
 
 #if DEBUG
-                httpClient.BaseAddress = new Uri("http://localhost:5000");
+                if (env.ENVIRONMENT == "development")
+                {
+                    httpClient.BaseAddress = new Uri("http://localhost:5292");
+                }
+                else
+                {
+                    httpClient.BaseAddress = new Uri("http://localhost:5000");
+                }
 #endif
             })
             .AddHttpMessageHandler<HeaderHandler>();
             return services;
 
         }
-
-
         public static IServiceCollection RegisterPolicies(this IServiceCollection services)
         {
 
@@ -59,20 +66,21 @@ namespace Gatam.WebAppBegeleider.Extensions
             {
                 options.AddPolicy("RequireManagementRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "BEGELEIDER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.BEGELEIDER);
                     policy.RequireRole(requiredRoleIds);
 
                 });
                 options.AddPolicy("RequireMakerRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER", "MAKER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER, CustomRoles.MAKER);
                     policy.RequireRole(requiredRoleIds);
                 });
                 options.AddPolicy("RequireAdminRole", policy =>
                 {
-                    var requiredRoleIds = RoleMapper.GetRoleValues("BEHEERDER");
+                    var requiredRoleIds = RoleMapper.GetListOfRoleNames(CustomRoles.BEHEERDER);
                     policy.RequireRole(requiredRoleIds);
                 });
+
             });
             return services;
         }

@@ -2,14 +2,73 @@
 
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Application.CQRS.DTOS.RolesDTO
 @using Gatam.Application.CQRS
-@using Gatam.Infrastructure.Repositories
-@using System.Diagnostics
 @inject ApiClient apiClient
 
 @rendermode InteractiveServer
 
 @attribute [Authorize(Policy = "RequireManagementRole")]
+<link href="css/user-edit.css" rel="stylesheet" />
+<Modal @ref="removeRoleModal" Title="Verwijderen van rol.">
+    <BodyTemplate>
+        <p>Bent u zeker dat u de rol <strong>@RoleMapper.GetKeyBasedOnValue(selectedDeleteRole).ToString()</strong> van @userBeingEdited.Username wilt verwijderen?</p>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="() => OnHideModalClick(removeRoleModal)">Annuleren</Button>
+        <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@_isRequestLoading" @onclick="() => DeleteUserRoles(selectedDeleteRole)">
+            @if (_isLoading)
+            {
+                <Spinner Type="SpinnerType.Dots" />
+            }
+            else
+            {
+                <span>Bevestigen</span>
+            }
+        </Button>
+    </BodyTemplate>
+</Modal>
+<Modal @ref="editUserNameModal" Title="Naam aanpassen.">
+    <BodyTemplate>
+        <EditForm Model="userBeingEdited" OnValidSubmit="HandleNicknameUpdate">
+            <div class="mb-3">
+                <label for="Username" class="form-label">Gebruikersnaam</label>
+                <InputText @bind-Value="userBeingEdited.Username" class="form-control" />
+            </div>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="() => OnHideModalClick(editUserNameModal)">Annuleren</Button>
+            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@_isRequestLoading">
+                @if (_isLoading)
+                {
+                    <Spinner Type="SpinnerType.Dots" />
+                }
+                else
+                {
+                    <span>Bevestigen</span>
+                }
+            </Button>
+        </EditForm>
+    </BodyTemplate>
+</Modal>
+<Modal @ref="editUserEmailModal" Title="Email aanpassen.">
+    <BodyTemplate>
+        <EditForm Model="userBeingEdited" OnValidSubmit="HandleEmailUpdate">
+            <div class="mb-3">OnHideModalClick
+                <label for="Email" class="form-label">Email</label>
+                <InputText @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
+            </div>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="() => OnHideModalClick(editUserEmailModal)">Annuleren</Button>
+            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@_isRequestLoading">
+                @if (_isLoading)
+                {
+                    <Spinner Type="SpinnerType.Dots" />
+                }
+                else
+                {
+                    <span>Bevestigen</span>
+                }
+            </Button>
+        </EditForm>
+    </BodyTemplate>
+</Modal>
+
 <div class="container mt-3">
     @if (isSuccess)
     {
@@ -20,124 +79,147 @@
     }
 
 </div>
-<CustomCards>
-    <h3>Bewerken van gebruiker</h3>
+<div class="banner">
+    <div class="banner-content">
+        <div class="banner-icon">
+            <i class="bi bi-person-gear"></i>
+        </div>
+        <div class="banner-text">
+            <h3>Gebruiker Bewerken</h3>
+            <p>Beheer gebruikersgegevens en rollen</p>
+        </div>
+    </div>
+</div>
 
-
-    @if (_isLoading)
-    {
+@if (_isLoading)
+{
+    <div class="loading-state">
         <div class="text-center">
             <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
         </div>
-    }
-    else if (_hasError)
-    {
+    </div>
+}
+else if (_hasError)
+{
+    <div class="error-state">
         <Callout Color="CalloutColor.Danger">
             <strong>Error:</strong> @response_Msg
         </Callout>
-    }
-    else if (userBeingEdited != null)
-    {
+    </div>
+}
+else if (userBeingEdited != null)
+{
+    <div class="user-info-section">
+        <div class="user-info-item">
+            <span class="info-label">@userBeingEdited.Username</span>
+            <span class="info-value"></span>
+            <button class="edit-button" @onclick='() => OnShowModalClick(editUserNameModal)'>
+                <i class="bi bi-pencil-square"></i> Bewerken
+            </button>
+        </div>
+        
+        <div class="user-info-item">
+            <span class="info-label">@userBeingEdited.Email</span>
+            <span class="info-value"></span>
+            <button class="edit-button" @onclick='() => OnShowModalClick(editUserEmailModal)'>
+                <i class="bi bi-pencil-square"></i> Bewerken
+            </button>
+        </div>
 
-        <EditForm Model="userBeingEdited" OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+        <Grid TItem="string" Class="roles-grid"
+              @ref="userRolesGrid"
+              Data="userRoles"
+              HeaderRowCssClass="custom-header"
+              Responsive="true">
+            <GridColumns>
+                <GridColumn Context="RoleContext" TItem="string" HeaderText="Rol:" >
+                    @RoleMapper.GetKeyBasedOnValue(RoleContext).ToString()
+                </GridColumn>
+                <GridColumn TItem="String" HeaderText="Actie" Filterable="false" Context="RoleContext">
+                    <button type="button" class="btn btn-outline-danger"
+                            @onclick="() => {
+                                selectedDeleteRole = RoleContext;
+                                OnShowModalClick(removeRoleModal);
+                            }">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </GridColumn>
+            </GridColumns>
+        </Grid>
 
             <div class="form-group mt-3">
-                <label for="Username">Gebruikersnaam</label>
-                <InputText id="Username" @bind-Value="userBeingEdited.Nickname" class="form-control" />
-            </div>
-
-            <div class="form-group mt-3">
-                <label for="Email">Email</label>
-                <InputText id="Email" @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
-            </div>
-            <div class="form-group mt-3">
-                <label for="IsActive">Actief</label>
-                <InputCheckbox id="IsActive" @bind-Value="userBeingEdited.IsActive" />
-            </div>
-
-        </EditForm>
-       
-        <Callout Color="CalloutColor.Info">
-            <p><strong>@userBeingEdited.Nickname heeft momenteel volgende rol(len):</strong></p>
-                <ul>
-                    @if (userRolesMap.TryGetValue(userBeingEdited?.Id, out var roles))
+                <label for="Role" class="fw-bold text-muted">Rol Toewijzen</label>
+                <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
+                    @foreach (var role in RoleMapper.Roles)
                     {
-                        foreach (var role in roles)
+                        if (!userRoles.Contains(role.Value.Id))
                         {
-                            <li>@role</li>
+                            <option value="@role.Value.Id">@role.Key</option>
                         }
                     }
-                    else
-                    {
-                        <li>Geen rollen gevonden</li>
-                    }
-                </ul>
-    
-            <hr/>
-        </Callout>
-    <div class="form-group mt-3">
-            <label for="Role">Rol Toewijzen</label>
-            <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
-                @foreach (var role in RoleMapper.Roles)
-                {
-                    <option value="@role.Value">@role.Key</option>
-                }
-            </InputSelect>
+                </InputSelect>
+            </div>
+            <button type="submit" @onclick="HandleValidSubmit" class="btn btn-sm btn-custom mt-4" style="background-color:#4454D2; color:white"><i class="bi bi-plus me-1"></i>Toewijzen</button>
         </div>
-        <button type="submit" onclick="@HandleValidSubmit" class="btn btn-primary mt-4">Opslaan</button>
+
     }
     else
     {
         <p>Gebruiker niet gevonden.</p>
     }
-</CustomCards>
 
 @code {
     [Parameter] public string Id { get; set; } = "";
 
-    private List<UserDTO> _users = new();
-    private HashSet<UserDTO> selectedUsers = new();
-    private Dictionary<string, List<string>> userRolesMap = new();
+    private Modal? removeRoleModal;
+    private Modal? editUserNameModal;
+    private Modal? editUserEmailModal;
     private UserDTO selectedUser;
+    private string selectedRoles { get; set; } = "";
+    private string selectedDeleteRole { get; set; } = "";
 
     string response_Msg = "";
     bool isSuccess = false;
-    private UserDTO userBeingEdited;
-    public string selectedRoles { get; set; } = "";
+    private UserDTO userBeingEdited = new UserDTO();
+    private Grid<string> userRolesGrid = new Grid<string>();
+    private List<string> userRoles = new List<string>();
+
 
     private bool _hasError = false;
     private bool _isLoading = true;
+    private bool _isRequestLoading = false;
+
+
+    [Inject] protected ToastService toastService { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
         try
         {
-
             userBeingEdited = await apiClient.GetFromJsonAsync<UserDTO>($"/api/user/{Id}");
+
             if (userBeingEdited == null)
             {
                 _hasError = true;
                 response_Msg = "Gebruiker niet gevonden.";
+            } 
+            else 
+            {
+                userRoles = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{Id}/roles");
+                userRolesGrid.Data = userRoles;
+                userRolesGrid.RefreshDataAsync();
             }
-            var roles = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{userBeingEdited.Id}/roles");
-            userRolesMap[userBeingEdited.Id] = roles;
-            
         }
         catch (Exception ex)
         {
             _hasError = true;
             response_Msg = $"Fout bij het ophalen van de gebruiker";
-            
         }
         finally
         {
             _isLoading = false;
         }
-
-        
     }
 
     private async Task HandleValidSubmit()
@@ -148,41 +230,142 @@
             response_Msg = "Geen gebruiker om te updaten.";
             return;
         }
-
         try
         {
-            userBeingEdited.RolesIds = new List<string>() {selectedRoles};
-            var roleUpdateResponse = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", userBeingEdited); 
+            RolesDTO roles = new RolesDTO() { Roles = new List<string?> { selectedRoles } };
+            var roleUpdateResponse = await apiClient.PostAsJsonAsync($"/api/user/{userBeingEdited.Id}/roles", roles);
+
             if (roleUpdateResponse.IsSuccessStatusCode)
             {
-                isSuccess = true;
-                response_Msg = "Gebruiker succesvol bijgewerkt.";
-                StateHasChanged();
 
-                // (Nils - 05/11/2024) Update hier is geen scope van mij om deployment omgeving te laten werken. Snelle debug geeft geen resultaat voor een mogelijke fix. Tony omdat je issue toch update user data is kan jij dit bekijken?
-                // var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", userBeingEdited);
-                // if (response.IsSuccessStatusCode)
-                // {
-                //     isSuccess = true;
-                //     response_Msg = "Gebruiker succesvol bijgewerkt.";
-                //     StateHasChanged();
-                // }
-                // else
-                // {
-                //     response_Msg = $"Fout bij het bijwerken van de gebruiker: {response.ReasonPhrase}";
-                //     _hasError = true;
-                // }
+                toastService.Notify(new(ToastType.Success, "Rol toegevoegd", $"Rol succesvol toegevoegd aan gebruiker {userBeingEdited.Username}"));
+                UpdateTableData();
             }
             else
             {
-                response_Msg = "Fout bij het bijwerken van de rollen.";
-                _hasError = true;
+                ValidationException errorResponse = await roleUpdateResponse.Content.ReadFromJsonAsync<ValidationException>();
+                string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : roleUpdateResponse.ReasonPhrase;
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het bewerken van de rollen", errors));
             }
         }
         catch (Exception ex)
         {
-            response_Msg = $"Fout bij het bijwerken van de gebruiker: {ex.Message}";
-            _hasError = true;
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis", ex.Message));
         }
-    }  
+    }
+    private async Task UpdateUserPropertyAsync(string successMessage, string errorMessage, Action onSuccess)
+    {
+        if (userBeingEdited == null)
+        {
+            toastService.Notify(new(ToastType.Warning, "Kan gebruiker niet bewerken", "Geen gebruiker gevonden"));
+            return;
+        }
+
+        try
+        {
+            var payload = new
+            {
+                // name = userBeingEdited.Name,
+                // surname = userBeingEdited.Surname,
+                username = userBeingEdited.Username,
+                email = userBeingEdited.Email,
+                rolesIds = userBeingEdited.RolesIds,
+                id = userBeingEdited.Id
+            };
+
+            var response = await apiClient.PutAsJsonAsync($"/api/user/{userBeingEdited.Id}", payload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                toastService.Notify(new(ToastType.Success, "Gebruiker bewerkt", $"Gebruiker succesvol bewerkt..."));
+                onSuccess?.Invoke();
+            }
+            else
+            {
+                ValidationException errorResponse = await response.Content.ReadFromJsonAsync<ValidationException>();
+                string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : response.ReasonPhrase;
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het bewerken van de gebruiker", errors));
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis", ex.Message));
+        }
+    }
+
+    private async Task HandleNicknameUpdate()
+    {
+        await UpdateUserPropertyAsync(
+            "Gebruikersnaam succesvol bijgewerkt.",
+            "Fout bij het bijwerken van de gebruikersnaam",
+            () => OnHideModalClick(editUserNameModal)
+        );
+    }
+
+    private async Task HandleEmailUpdate()
+    {
+        await UpdateUserPropertyAsync(
+            "Email succesvol bijgewerkt.",
+            "Fout bij het bijwerken van de email",
+            () => OnHideModalClick(editUserEmailModal)
+        );
+    }
+    private async Task OnShowModalClick(Modal inModal)
+    {
+        await inModal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick(Modal inModal)
+    {
+        await inModal.HideAsync();
+    }
+    private async Task UpdateTableData()
+    {
+        try 
+        {
+            userBeingEdited = await apiClient.GetFromJsonAsync<UserDTO>($"/api/user/{Id}");
+            userRoles = await apiClient.GetFromJsonAsync<List<string>>($"api/user/{Id}/roles");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis bij het verversen van de data", ex.Message));
+        }
+    }
+    private async void DeleteUserRoles(string role)
+    {
+        _isRequestLoading = true;
+        try
+        {
+            var roleId = RoleMapper.Roles.FirstOrDefault(r => r.Value.Name == role).Value.Id;
+            
+            RolesDTO payload = new RolesDTO() { Roles = new List<string?>() { roleId } };
+            var request = await apiClient.PatchAsJsonAsync<RolesDTO>($"/api/user/{Id}/roles", payload);
+
+            if(request.IsSuccessStatusCode)
+            {
+                userBeingEdited = await request.Content.ReadFromJsonAsync<UserDTO>();
+               // userRoles = userBeingEdited.RolesIds;
+                userRolesGrid.Data = userRoles;
+                userRolesGrid.RefreshDataAsync();
+                toastService.Notify(new(ToastType.Success, "Rol verwijderd", $"Rol succesvol verwijderd van gebruiker {userBeingEdited.Username}"));
+                _isRequestLoading = false;
+                await OnHideModalClick(removeRoleModal);
+            }
+            else
+            {
+                ValidationException errorResponse = await request.Content.ReadFromJsonAsync<ValidationException>();
+                string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : request.ReasonPhrase;
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het verwijderen van de rollen", errors));
+            }
+        }
+        catch(Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis", ex.Message));
+        }
+        finally
+        {
+            _isRequestLoading = false;
+        }
+    }
 }

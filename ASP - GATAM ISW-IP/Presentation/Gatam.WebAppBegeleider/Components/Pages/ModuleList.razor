@@ -1,74 +1,235 @@
 ﻿@page "/content/modules"
 @inject ApiClient apiClient
 @rendermode InteractiveServer
-@using BlazorBootstrap;
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
 @attribute [Authorize(Policy = "RequireMakerRole")]
 
+<link href="css/module-list.css" rel="stylesheet" />
 
-<CustomCards>
-    <h2>Modules</h2>
-    <NavLink class="nav-link" href="/content/create" >
-        <button class="btn" style="background-color: #4454D2; color:white; font-weight:bold; margin-bottom:10px;">
-            Module toevoegen
-        </button>
-        
-    </NavLink>
-   
-    <div class="layout-container">
-@if (modules != null && modules.Count > 0)
-{
-    <nav>
-        <ul class="module-navbar">
-            @foreach (var module in modules.OrderBy(m => m.Title))
+<div class="module-list-container">
+    <div class="module-header">
+        <div class="header-content">
+            <i class="bi bi-collection-fill header-icon"></i>
+            <div>
+                <h2 class="text-white mb-0">Modules</h2>
+                <p class="text-light mb-0">Beheer alle beschikbare modules</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-actions">
+        <a href="/content/create" class="btn btn-primary" title="Maak een nieuwe module aan">
+            <i class="bi bi-plus-circle"></i>
+            <span>Nieuwe Module</span>
+        </a>
+    </div>
+
+    <div class="module-grid">
+        @if (modules != null && modules.Any())
+        {
+            <div class="row g-4">
+                @foreach (var module in modules)
+                {
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="module-card">
+                            <div class="card-header">
+                                <h3 title="@module.Title">@module.Title</h3>
+                                <span class="category-badge" title="Categorie: @module.Category">@module.Category</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="stats">
+                                    <div class="stat-item">
+                                        <i class="bi bi-question-circle"></i>
+                                        <span>@(module.Questions?.Count ?? 0) vragen</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-outline-primary btn-sm" @onclick="() => OnShowModalClick(module)">
+                                    <i class="bi bi-eye me-1"></i>Details
+                                </button>
+                                <a href="/content/modules/@module.Id" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Bewerken
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" @onclick="() => OnShowDeleteModalClick(module)">
+                                    <i class="bi bi-trash me-1"></i>Verwijderen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-collection-fill"></i>
+                <h3>Geen modules gevonden</h3>
+                <p>Begin met het maken van een nieuwe module</p>
+            </div>
+        }
+    </div>
+</div>
+
+<Modal @ref="modal" @bind-IsOpen="isModalOpen" Title="Module Details" Size="ModalSize.Large">
+    <HeaderTemplate>
+        <h5 class="modal-title">@(isDeleteMode ? "Module Verwijderen" : "Details van") @selectedModule?.Title</h5>
+    </HeaderTemplate>
+    <BodyTemplate>
+        @if (selectedModule != null)
+        {
+            @if (isDeleteMode)
             {
-                    <li style="list-style-type: none">
-                    <a @onclick="() => OpenModuleDetails(module.Id)">@module.Title</a>
-                </li>
+                @if (showWarning)
+                {
+                    <div class="alert alert-warning mb-3">
+                        De module kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s).
+                    </div>
+                }
+                <p>Weet je zeker dat je deze module wilt verwijderen?</p>
             }
-        </ul>
-    </nav>
-}
-else
-{
-    <p>Geen modules gevonden.</p>
-}
-
-@if (selectedModule != null)
-{
-           
-    <div class="module-details">
-                <h3>@selectedModule.Title</h3>
-                <p>Category: @selectedModule.Category</p>
-                <p>Created At: @selectedModule.CreatedAt.ToString("g")</p>
-            <h5>Vragen</h5>
-           
-    </div>
-}
-    </div>
-</CustomCards>
-
+            else
+            {
+                <div class="module-details">
+                    <div class="detail-row">
+                        <strong>Titel:</strong>
+                        <span>@selectedModule.Title</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Categorie:</strong>
+                        <span>@selectedModule.Category</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Aangemaakt op:</strong>
+                        <span>@selectedModule.CreatedAt.ToString("dd-MM-yyyy HH:mm")</span>
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">Vragen:</h5>
+                    @if (selectedModule.Questions != null && selectedModule.Questions.Any())
+                    {
+                        <ul class="question-list">
+                            @foreach (var question in selectedModule.Questions)
+                            {
+                                <li class="question-item">
+                                    <span class="question-title">@question.QuestionTitle</span>
+                                    <span class="question-type">@GetQuestionTypeText(question.QuestionType)</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Geen vragen gekoppeld aan deze module.</p>
+                    }
+                </div>
+            }
+        }
+    </BodyTemplate>
+    <FooterTemplate>
+        @if (isDeleteMode)
+        {
+            <button type="button" class="btn btn-danger" @onclick="Delete">Verwijderen</button>
+        }
+        <button class="btn btn-secondary" @onclick="OnHideModalClick">Sluiten</button>
+    </FooterTemplate>
+</Modal>
 
 @code {
-    
-    private List<ApplicationModule> modules = new();
-    private ApplicationModule selectedModule;
+    private Grid<ModuleDTO> moduleGrid = new Grid<ModuleDTO>();
+    private List<ModuleDTO> modules = new();
+
+    private Modal? modal;
+    private ModuleDTO? selectedModule;
+    private bool isModalOpen;
+    private bool showWarning = false;
+    private bool isDeleteMode = false;
+
+    [Inject] protected ToastService toastService { get; set; } = default!;
 
 
     protected override async Task OnInitializedAsync()
     {
-        var modulesResponse = await apiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module");
-        if (modulesResponse != null && modulesResponse.Count > 0)
+        var modulesResponse = await apiClient.GetFromJsonAsync<List<ModuleDTO>>("api/module");
+        if (modulesResponse != null)
         {
             modules = modulesResponse;
         }
+        await base.OnInitializedAsync();
     }
 
-    private void OpenModuleDetails(string moduleId)
+
+    private async Task Delete()
     {
-        selectedModule = modules.FirstOrDefault(m => m.Id == moduleId);
+        try
+        {
+            var response = await apiClient.DeleteAsync($"api/module/delete/{selectedModule.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var moduleToRemove = modules.FirstOrDefault(u => u.Id == selectedModule.Id);
+                if (moduleToRemove != null)
+                {
+                    modules.Remove(moduleToRemove);
+                    modules = modules.ToList();
+                    selectedModule = null;
+                    OnHideModalClick();
+                    toastService.Notify(new(ToastType.Success, $"Module {moduleToRemove.Title} is succesvol verwijderd"));
+                }
+            }
+            else
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                if (responseContent.Contains("is toegewezen aan trajectvolger(s)"))
+                {
+                    showWarning = true;
+                    toastService.Notify(new(ToastType.Warning, $"De module {selectedModule.Title} kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s)."));
+                }
+                else
+                {
+                    toastService.Notify(new(ToastType.Danger, "Er is een onverwachte fout opgetreden."));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een onverwachte fout opgetreden bij het versturen van de aanvraag."));
+        }
     }
 
+    private async Task OnShowModalClick(ModuleDTO module)
+    {
+        selectedModule = module;
+        showWarning = false;
+        isDeleteMode = false;
+        isModalOpen = true;
+        StateHasChanged();
+        await modal!.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
+
+    private async Task OnShowDeleteModalClick(ModuleDTO module)
+    {
+        selectedModule = module;
+        showWarning = false;
+        isDeleteMode = true;
+        isModalOpen = true;
+        StateHasChanged();
+        await modal!.ShowAsync();
+    }
+
+    private string GetQuestionTypeText(int questionType) => questionType switch
+    {
+        0 => "Meerkeuze vraag",
+        1 => "Open vraag",
+        2 => "Waar/Onwaar vraag",
+        3 => "Keuzelijst vraag",
+        _ => "Onbekend type"
+    };
 }
+

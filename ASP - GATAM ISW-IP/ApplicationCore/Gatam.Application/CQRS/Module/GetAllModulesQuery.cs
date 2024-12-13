@@ -1,23 +1,19 @@
 ﻿using AutoMapper;
+using Gatam.Application.CQRS.DTOS.ModulesDTO;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS.Module
 {
-    public class GetAllModulesQuery : IRequest<IEnumerable<ApplicationModule>>
+    public class GetAllModulesQuery : IRequest<IEnumerable<ModuleDTO>>
     {
         public GetAllModulesQuery()
         {
             
         }
     }
-    public class GetAllModulesQueryHandler : IRequestHandler<GetAllModulesQuery, IEnumerable<ApplicationModule>>
+    public class GetAllModulesQueryHandler : IRequestHandler<GetAllModulesQuery, IEnumerable<ModuleDTO>>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
@@ -28,10 +24,9 @@ namespace Gatam.Application.CQRS.Module
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ApplicationModule>> Handle(GetAllModulesQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ModuleDTO>> Handle(GetAllModulesQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<IEnumerable<ApplicationModule>>(await _uow.ModuleRepository.GetAllAsync(
-                ));
+            return _mapper.Map<IEnumerable<ModuleDTO>>(await _uow.ModuleRepository.GetAllAsync(x => x.Questions ));
         }
     }
 }

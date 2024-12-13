@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using MediatR;
 
@@ -10,7 +9,6 @@ public class UpdateUserCommand:IRequest<UserDTO>
 {
     public string Id { get; set; }
     public required UserDTO User { get; set; }
-
 }
 
 public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
@@ -20,22 +18,22 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     public UpdateUserCommandValidator(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
-        RuleFor(x => x.User.Nickname)
-            .NotEmpty().WithMessage("Nickname cannot be empty")
-            .MustAsync(async (userCommand, nickname, cancellationToken) =>
-            {
-                var existingUser = await _unitOfWork.UserRepository.FindByProperty("Nickname", nickname);
-                return existingUser == null || existingUser.Id == userCommand.Id;
-            }).WithMessage("Username already exists.");
+        RuleFor(x => x.User.Username)
+           .NotEmpty().WithMessage("Nickname mag niet leeg zijn")
+           .MustAsync(async (userCommand, nickname, cancellationToken) =>
+           {
+               var existingUser = await _unitOfWork.UserRepository.FindByProperty("Nickname", nickname);
+               return existingUser == null || existingUser.Id == userCommand.Id;
+           }).WithMessage("Username bestaat al");
 
         RuleFor(x => x.User.Email)
-            .NotEmpty().WithMessage("Email cannot be empty")
-            .EmailAddress().WithMessage("Invalid email format")
-            .MustAsync(async (userCommand, email, cancellationToken) =>
-            {
-                var existingUser = await _unitOfWork.UserRepository.FindByProperty("Email", email);
-                return existingUser == null || existingUser.Id == userCommand.Id;
-            }).WithMessage("Email already exists.");
+           .NotEmpty().WithMessage("Email mag niet leeg zijn")
+           .EmailAddress().WithMessage("Ongeldig e-mailformaat")
+           .MustAsync(async (userCommand, email, cancellationToken) =>
+           {
+               var existingUser = await _unitOfWork.UserRepository.FindByProperty("Email", email);
+               return existingUser == null || existingUser.Id == userCommand.Id;
+           }).WithMessage("Email bestaat al.");
     }
 }
 
@@ -54,9 +52,16 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
 
     public async Task<UserDTO> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var updatedPerson = await _auth0Repository.UpdateUserAsync(request.Id, request.User);
-        return _mapper.Map<UserDTO>(updatedPerson);
-    }
+        await _auth0Repository.UpdateUserNicknameAsync(request.User);
+        await _auth0Repository.UpdateUserEmailAsync(request.User);
+        var user = await _uow.UserRepository.FindById(request.Id);
 
-    
+        user.Email = request.User.Email;
+        user.Username = request.User.Username;
+
+        await _uow.UserRepository.Update(user);
+        await _uow.Commit();
+
+        return _mapper.Map<UserDTO>(user);
+    }
 }

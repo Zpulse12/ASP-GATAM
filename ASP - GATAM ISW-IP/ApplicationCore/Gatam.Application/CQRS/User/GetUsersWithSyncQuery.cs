@@ -1,6 +1,4 @@
-﻿using Gatam.Application.Interfaces;
-using Gatam.Domain;
-using MediatR;
+﻿using MediatR;
 
 namespace Gatam.Application.CQRS.User;
 
@@ -9,38 +7,27 @@ public class GetUsersWithSyncQuery : IRequest<List<UserDTO>> { }
 public class GetUsersWithSyncQueryHandler : IRequestHandler<GetUsersWithSyncQuery, List<UserDTO>>
 {
     private readonly IMediator _mediator;
-    public GetUsersWithSyncQueryHandler(IMediator mediator, IUnitOfWork unitOfWork)
+
+    public GetUsersWithSyncQueryHandler(IMediator mediator)
     {
         _mediator = mediator;
     }
 
     public async Task<List<UserDTO>> Handle(GetUsersWithSyncQuery request, CancellationToken cancellationToken)
     {
-        var auth0Users = await _mediator.Send(new GetAllUsersQuery());
-
-        var usersWithLocalStatus = new List<UserDTO>();
+        var auth0Users = await _mediator.Send(new GetAllAuth0UsersQuery());
+        var syncedUsers = new List<UserDTO>();
 
         foreach (var auth0User in auth0Users)
         {
-            var localUser = await _mediator.Send(new FindUserByIdQuery(auth0User.Id));
-
-            if (localUser == null)
+            var syncedUser = await _mediator.Send(new SyncUserCommand
             {
-                await _mediator.Send(new CreateUserCommand { _user = new ApplicationUser
-                {
-                    Id = auth0User.Id,
-                    IsActive = true,
-                } });
-                auth0User.IsActive = true;
-            }
-            else
-            {
-                auth0User.IsActive = localUser.IsActive;
-            }
+                Auth0User = auth0User
+            }, cancellationToken);
 
-            usersWithLocalStatus.Add(auth0User);
+            syncedUsers.Add(syncedUser);
         }
 
-        return usersWithLocalStatus;
+        return syncedUsers;
     }
 }

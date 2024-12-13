@@ -1,0 +1,245 @@
+﻿@page "/modules-per-gebruiker/{CurrentUserModuleId:guid}"
+@using System.Diagnostics
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Extensions
+@using Gatam.Application.CQRS.DTOS.QuestionsDTO
+@inject ApiClient ApiClient
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider authStateProvider
+@attribute [Authorize(Policy = "RequireManagementRole")]
+<link href="css/user-module-details.css" rel="stylesheet" />
+
+<div class="user-module-details">
+    @if (_hasError)
+    {
+        <div class="alert alert-danger">
+            <p>Oops, er liep iets mis</p>
+        </div>
+    }
+    else if (userModule?.Module != null)
+    {
+        <div class="details-header">
+            <div class="user-info">
+                <div class="user-avatar">
+                    @if (!string.IsNullOrEmpty(userModule.UserPicture))
+                    {
+                        <img src="@userModule.UserPicture" alt="" />
+                    }
+                    else
+                    {
+                        <div class="avatar-placeholder">
+                            @userModule.UserFirstName.FirstOrDefault()@userModule.UserLastName.FirstOrDefault()
+                        </div>
+                    }
+                </div>
+                <div class="user-details">
+                    <h2>@userModule.UserFirstName @userModule.UserLastName</h2>
+                    <div class="module-stats">
+                        <div class="stat-item">
+                            <i class="bi bi-eye"></i>
+                            <span>@userModule.UserQuestions.Where(q => q.IsVisible).Count() zichtbare vragen</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>@CalculateAnsweredPercentageLabel(userModule) beantwoord</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="module-info">
+                <h3>@userModule.Module.Title</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: @CalculateAnsweredPercentageLabel(userModule)"></div>
+                </div>
+            </div>
+        </div>
+
+        @if (userModule.UserQuestions != null && userModule.UserQuestions.Any())
+        {
+            <div class="questions-list">
+                @foreach (var question in userModule.UserQuestions.Where(x => x.IsVisible))
+                {
+                    <div class="question-card">
+                        <div class="question-header">
+                            <div class="question-type">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Vraag @(userModule.UserQuestions.ToList().IndexOf(question) + 1)</span>
+                            </div>
+                            <h4>@question.QuestionTitle</h4>
+                        </div>
+
+                        <div class="answers-section">
+                            @if ((short)question.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
+                            {
+                                <div class="multiple-choice-answers">
+                                    @foreach (var answer in question.Answers)
+                                    {
+                                        var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
+                                        <label class="answer-option">
+                                            <input type="checkbox" checked="@(userAnswer?.GivenAnswer == answer.Answer)" disabled>
+                                            <span>@answer.Answer</span>
+                                        </label>
+                                    }
+                                </div>
+                            }
+                            else if ((short)question.QuestionType == (short)QuestionType.OPEN)
+                            {
+                                <div class="open-answer">
+                                    <textarea disabled rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Answers.First().Id)?.GivenAnswer</textarea>
+                                </div>
+                            }
+                            else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
+                            {
+                                <div class="true-false-answers">
+                                    @foreach (var answer in question.Answers)
+                                    {
+                                        var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
+                                        <label class="answer-option">
+                                            <input type="radio" name="truefalse-@question.Id" checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)" disabled>
+                                            <span>@answer.Answer</span>
+                                        </label>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="dropdown-answer">
+                                    <select disabled>
+                                        <option value="">Kies een antwoord</option>
+                                        @foreach (var answer in question.Answers)
+                                        {
+                                            <option value="@answer.Answer" 
+                                                    selected="@(userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer) != null)">
+                                                @answer.Answer
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+
+                            @if (question.Answers.Any(a => a.AnswerValue == "true"))
+                            {
+                                <div class="correct-answers">
+                                    <h5>Correcte antwoorden:</h5>
+                                    <ul>
+                                        @foreach (var answer in question.Answers.Where(a => a.AnswerValue == "true"))
+                                        {
+                                            <li>@answer.Answer</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>Er zijn nog geen vragen beschikbaar voor deze module.</p>
+            </div>
+        }
+
+        <div class="details-footer">
+            <button class="btn-back" @onclick="Back">
+                <i class="bi bi-arrow-left"></i>
+                Terug
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <p>Modulegegevens niet beschikbaar.</p>
+        </div>
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public Guid CurrentUserModuleId { get; set; }
+    private UserModuleDTO userModule = new UserModuleDTO();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    private bool isAnswersModalVisible = false;
+    private string loggedInUserId;
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        userModule = await ApiClient.GetFromJsonAsync<UserModuleDTO>($"api/usermodule/{CurrentUserModuleId}");
+
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadQuestions();
+    }
+
+    private async Task LoadQuestions()
+    {
+        _isLoading = true;
+        try
+        {
+            userModule = await ApiClient.GetFromJsonAsync<UserModuleDTO>($"api/usermodule/{CurrentUserModuleId}");
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void Back()
+    {
+        NavigationManager.NavigateTo($"/modules-per-gebruiker");
+    }
+
+    public double CalculateAnsweredPercentage(UserModuleDTO userModule)
+    {
+        var visibleQuestions = userModule.UserQuestions.Where(q => q.IsVisible).ToList();
+        int answeredQuestionsCount = 0;
+
+        foreach (var question in visibleQuestions)
+        {
+            bool isAnswered = false;
+            foreach (var answer in question.Answers)
+            {
+                if (isAnswered)
+                    break;
+
+                var matchingAnswer = userModule.UserGivenAnswers
+                    .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));
+
+                if (matchingAnswer != null)
+                {
+                    isAnswered = true;
+                    answeredQuestionsCount++;
+                }
+            }
+        }
+        if (visibleQuestions.Count == 0)
+            return 0;
+
+        return (double)answeredQuestionsCount / visibleQuestions.Count * 100;
+    }
+
+    public string CalculateAnsweredPercentageLabel(UserModuleDTO userModule)
+    {
+        var percentage = CalculateAnsweredPercentage(userModule);
+        return $"{percentage:0.##}%";
+    }
+}

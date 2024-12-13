@@ -1,6 +1,7 @@
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
+
 
 a, .btn-link {
     color: #006bb7;
@@ -12,8 +13,14 @@ a, .btn-link {
     border-color: #1861ac;
 }
 
+.search-container {
+    margin-top: 15px;
+    align-items: center;
+    border-radius: 10px;
+}
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -49,3 +56,177 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+.team-card {
+    border: 3px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+
+.card-content {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    margin: 5px;
+}
+
+.layout-container {
+    display: flex; /* Flexbox gebruiken */
+}
+
+.module-navbar {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+}
+
+.module-details {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-left: 10px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-nav .dropdown-menu {
+    border: none;
+    min-width: 180px;
+}
+
+.navbar-nav .dropdown-item {
+    color: white; /* Witte tekstkleur */
+    font-weight: 500; /* Maakt de tekst iets dikker voor betere leesbaarheid */
+}
+
+    .navbar-nav .dropdown-item:hover {
+        background-color: #7d85c5; /* Lichte blauwe kleur bij hover */
+        color: white; /* Witte tekstkleur blijft behouden */
+    }
+
+.nav-link {
+    background-clip: text;
+    font-weight: bold;
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+    background-color: #232B6C;
+    margin-top: 0; /* Zorg dat het menu netjes aansluit */
+}
+
+.nav-item.dropdown .dropdown-toggle::after {
+    display: none;
+}
+
+.navbar .navbar-nav .dropdown-menu {
+    background-color: #232B6C !important;
+    border: none;
+}
+
+.navbar .navbar-nav .dropdown-item:hover {
+    background-color: #7d85c5 !important;
+    color: white !important;
+}
+
+.nav-link.dropdown-toggle .bi-caret-down-fill {
+    margin-left: 5px; /* Ruimte tussen de tekst en het pijltje */
+    color: white; /* Kleur van het pijltje */
+}
+
+.custom-header {
+    background-color: #4454D2 !important;
+    color: white !important;
+    border-bottom: 0 !important;
+}
+.module-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+}
+
+.user-module-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.module-title {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.user-module-footer {
+    margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+    .navbar-nav {
+        /* Bijvoorbeeld: geen marge of padding voor nav items in kleine schermen */
+        padding: 0;
+    }
+
+        .navbar-nav .dropdown-menu {
+            min-width: 100%; /* Zorg ervoor dat het dropdown-menu breed genoeg is */
+        }
+}
+/* Bestaande CSS behouden... */
+
+/* Layout container styling */
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.nav-container {
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex: 1;
+    background-color: #f0f2f5;
+    min-height: fit-content;  /* In plaats van 100vh */
+    position: relative;      /* Verwijder position: absolute als die er staat */
+}
+
+/* Media queries voor responsive gedrag */
+@media (max-width: 768px) {
+    .main-content {
+        padding-bottom: calc(70px + 1rem); /* Ruimte voor mobile navbar */
+    }
+
+    .nav-container {
+        display: none; /* Verberg desktop nav op mobiel */
+    }
+}
+
+@media (min-width: 769px) {
+    .layout-container {
+        flex-direction: row;
+    }
+
+    .nav-container {
+        width: 250px;
+        min-width: 250px;
+        display: block; /* Toon desktop nav */
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+/* Rest van de bestaande CSS behouden... */

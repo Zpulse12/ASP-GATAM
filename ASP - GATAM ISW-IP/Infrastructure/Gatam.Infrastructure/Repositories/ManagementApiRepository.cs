@@ -1,12 +1,13 @@
-﻿using System.Diagnostics;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Gatam.Application.CQRS;
 using Gatam.Application.Extensions.EnvironmentHelper;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
-using Auth0.ManagementApi.Models;
+using Gatam.Application.Extensions.httpExtensions;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Gatam.Application.CQRS.DTOS.UsersDTO;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -14,40 +15,46 @@ public class ManagementApiRepository: IManagementApi
 {
     private readonly HttpClient _httpClient;
     private readonly EnvironmentWrapper _environmentWrapper;
-    public ManagementApiRepository(HttpClient httpClient, EnvironmentWrapper environmentWrapper)
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IHttpWrapper _httpWrapper;
+    private readonly string _baseURL;
+    public ManagementApiRepository(IUnitOfWork uow,HttpClient httpClient, EnvironmentWrapper environmentWrapper)
     {
         _httpClient = httpClient;
+        _unitOfWork = uow;
         _environmentWrapper = environmentWrapper;
         _httpClient.BaseAddress = new Uri(_environmentWrapper.BASEURI);
         _httpClient.DefaultRequestHeaders.Add("Authorization", @$"Bearer {_environmentWrapper.TOKEN}");
+        _httpWrapper = new HttpWrapper(_httpClient);
+        _baseURL = _environmentWrapper.BASEURI;
     }
 
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<JsonElement>("users");
-        var userDtos = new List<UserDTO>();
-
-        foreach (var user in response.EnumerateArray())
+        try
         {
-
-            var userId = user.GetProperty("user_id").GetString();
-
-
-            var userDto = new UserDTO
+            var response = await _httpClient.GetFromJsonAsync<JsonElement>("users");
+            return response.EnumerateArray().Select(user => new UserDTO
             {
-                Id = userId,
-                Email = user.GetProperty("email").GetString(),
-                Nickname = user.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
-                Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
-                IsActive = !user.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-                RolesIds = new List<string>()
-            };
-
-            userDto.RolesIds = (await GetRolesByUserId(userId)).ToList();
-            userDtos.Add(userDto);
+                Id = user.TryGetProperty("user_id", out var id) ? id.GetString() : string.Empty,
+                Username = user.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
+                Email = user.TryGetProperty("email", out var email) ? email.GetString() : string.Empty,
+                Name = user.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
+                Surname = user.TryGetProperty("nickname", out var nickname) ? nickname.GetString() : string.Empty,
+                Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : string.Empty,
+                PhoneNumber = user.TryGetProperty("phone_number", out var phone) ? phone.GetString() : string.Empty,
+                RolesIds = user.TryGetProperty("roles", out var roles) ? roles.EnumerateArray().Select(role => new UserRoleDTO
+                {
+                    RoleId = role.GetProperty("id").GetString(),
+                    UserId = user.TryGetProperty("user_id", out var id) ? id.GetString() : string.Empty
+                })
+           .ToList() : new List<UserRoleDTO>()
+            });
         }
-
-        return userDtos;
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     public async Task<UserDTO> GetUserByIdAsync(string userId)
@@ -56,81 +63,155 @@ public class ManagementApiRepository: IManagementApi
         UserDTO _user = new UserDTO
         {
             Id = userId,
-            Email = _response.GetProperty("email").GetString(),
-            Nickname = _response.TryGetProperty("nickname", out var name) ? name.GetString() : string.Empty,
-            Picture = _response.TryGetProperty("picture", out var picture) ? picture.GetString() : null,
+            Name = _response.TryGetProperty("name", out var name) ? name.GetString() : string.Empty,
+            Surname = _response.TryGetProperty("surname", out var surname) ? surname.GetString() : string.Empty,
+            Username = _response.TryGetProperty("username", out var username) ? username.GetString() : string.Empty,
+            Email = _response.TryGetProperty("email", out var email) ? username.GetString() : string.Empty,
+            PhoneNumber = _response.TryGetProperty("phoneNumber", out var phoneNumber) ? phoneNumber.GetString() : string.Empty,
             IsActive = !_response.TryGetProperty("blocked", out var blocked) || !blocked.GetBoolean(),
-            RolesIds = new List<string>()
+           // RolesIds = new List<string>()
         };
         return _user; 
     }
-    public async Task<ApplicationUser> CreateUserAsync(ApplicationUser user)
+    public async Task<Result<CreateUserDTO>> CreateUserAsync(CreateUserDTO user)
     {
         var payload = new
         {
+            name = user.Name,
+            nickname = user.Surname,
+            username = user.Username,
             email = user.Email,
-            username = user.UserName,
-            password = user.PasswordHash, 
-            connection = "Username-Password-Authentication" 
+            password = user.PasswordHash,
+            connection = "Username-Password-Authentication",
+            user_metadata = new
+            {
+                picture = user.Picture,
+            },
         };
+        
         try
         {
             var response = await _httpClient.PostAsJsonAsync("/api/v2/users", payload);
 
             if (response.IsSuccessStatusCode)
             {
-                var createdUser = await response.Content.ReadFromJsonAsync<ApplicationUser>();
-
+                var createdUser = await response.Content.ReadFromJsonAsync<Auth0ResponseUsers>();
                 if (createdUser == null)
                 {
-                    Console.WriteLine("Failed to parse created user.");
-                    return null;
-                }
+                    return Result<CreateUserDTO>.Fail(new Exception("Could not convert auth response to Auth0ResponseUsers object"));
+                } 
 
-                Console.WriteLine("User created successfully.");
+                var applicationUser = new CreateUserDTO
+                {
+                    Id = createdUser.UserId,  
+                    Name = createdUser.Name,
+                    Surname = createdUser.Nickname,
+                    Username = createdUser.Username,
+                    Email = createdUser.Email,
+                    PasswordHash = user.PasswordHash,
+                    Picture = createdUser.UserMetadata?.Picture,
+                    MentorId = user.MentorId,
+                    PhoneNumber = user.PhoneNumber,
+                    IsActive = true,
+                    //UserRoles = new List<UserRole>
+                    //{
+                    //    new UserRole
+                    //    {
+                    //        RoleId = RoleMapper.Roles[CustomRoles.VOLGER].Id
+                    //    }
+                    //}
+                };
 
-
-                return createdUser;
+                return Result<CreateUserDTO>.Ok(applicationUser);
             }
             else
             {
                 var errorDetails = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error creating user: {response.StatusCode} - {errorDetails}");
-                return null;
+                return Result<CreateUserDTO>.Fail(new Exception(errorDetails));
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occurred while creating the user: {ex.Message}");
-            return null;
+            return Result<CreateUserDTO>.Fail(ex);
         }
     }
 
-    public Task<bool> DeleteUserAsync(string userId)
-    {
-        throw new NotImplementedException();
+    public async Task<bool> DeleteUserAsync(string userId)
+    {        
+       var response = await _httpClient.DeleteAsync($"/api/v2/users/{userId}");
+       return response.IsSuccessStatusCode;
     }
 
-    public async Task<UserDTO> UpdateUserAsync(string userId, UserDTO user)
+    public async Task<UserDTO> UpdateUserAsync(UserDTO user)
     {
-        
-        var response = await _httpClient.PostAsJsonAsync($"users/{userId}", user);
+        var payload = new
+        {
+            name = user.Username,
+            email=user.Email,
+            username = user.Username
+
+        };
+
+        var _userId = user.Id;
+
+        var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
+
 
         if (response.IsSuccessStatusCode)
         {
-            var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
-            if (updatedUser == null)
-            {
-                Console.WriteLine("Fout bij het parsen van de gebruiker na update.");
-            }
-            return updatedUser;
+            return user;
+            
         }
 
         var errorDetails = await response.Content.ReadAsStringAsync();
         Console.WriteLine($"Error updating user: {response.StatusCode} - {errorDetails}");
-        return user;
+        return null;
     }
 
+    public async Task<UserDTO> UpdateUserNicknameAsync(UserDTO user)
+    {
+        var payload = new
+        {
+            nickname = user.Username,
+            username = user.Username,  
+        };
+
+        var _userId = user.Id;
+
+        var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
+
+
+        if (response.IsSuccessStatusCode)
+        {
+            return user;
+        }
+
+        var errorDetails = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Error updating nickname: {response.StatusCode} - {errorDetails}");
+        return null;
+    }
+
+    public async Task<UserDTO> UpdateUserEmailAsync(UserDTO user)
+    {
+        var payload = new
+        {
+            email = user.Email,  
+        };
+
+        var _userId = user.Id;
+
+        var response = await _httpClient.PatchAsJsonAsync($"/api/v2/users/{_userId}", payload);
+
+
+        if (response.IsSuccessStatusCode)
+        {
+            return user;
+        }
+
+        var errorDetails = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Error updating email: {response.StatusCode} - {errorDetails}");
+        return null;
+    }
     public async Task<UserDTO> UpdateUserStatusAsync(string userId, bool isActive)
     {
         var payload = new 
@@ -151,30 +232,39 @@ public class ManagementApiRepository: IManagementApi
         return updatedUser;
     }
 
-    public async Task<UserDTO> UpdateUserRoleAsync(UserDTO user)
+    public async Task<Result<bool>> UpdateUserRoleAsync(string userId, RolesDTO roles)
     {
-       
-        var payload = new
+        try
         {
-            roles = user.RolesIds.ToArray()
-        };
+            var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{userId}/roles", roles);
+            if (!response.IsSuccessStatusCode)
+            {
+                return Result<bool>.Fail(new Exception(response.ReasonPhrase));
+            }
 
-        
-        Debug.WriteLine(payload);
-        string json = JsonSerializer.Serialize(payload);
-        Debug.WriteLine($"Payload sent to Auth0: {json}");
-        
-        var response = await _httpClient.PostAsJsonAsync($"/api/v2/users/{user.Id}/roles", payload);
+            var user = await _unitOfWork.UserRepository.FindById(userId);
+            if (user == null)
+            {
+                return Result<bool>.Fail(new Exception("User not found"));
+            }
 
-        if (response.IsSuccessStatusCode)
-        {
-            Debug.WriteLine("Roles updated successfully in Auth0.");
-            return user;
+            foreach (var roleId in roles.Roles)
+            {
+                if (!user.UserRoles.Any(ur => ur.RoleId == roleId))
+                {
+                    user.UserRoles.Add(new UserRole { UserId = userId, RoleId = roleId });
+                }
+            }
+
+            await _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.Commit();
+
+            return Result<bool>.Ok(true);
         }
-
-        var errorDetails = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"Error updating user roles: {response.StatusCode} - {errorDetails}");
-        return null;
+        catch (Exception ex)
+        {
+            return Result<bool>.Fail(ex);
+        }
     }
 
     public async Task<IEnumerable<string>> GetRolesByUserId(string userId)
@@ -190,7 +280,7 @@ public class ManagementApiRepository: IManagementApi
                 return response.EnumerateArray()
                                .Select(role => role.GetProperty("name").GetString())
                                .Where(name => !string.IsNullOrEmpty(name))
-                               .Select(name => RoleMapper.Roles.FirstOrDefault(r => r.Key == name).Key)
+                               .Select(name => RoleMapper.Roles.FirstOrDefault(role => role.Value.Name == name).Value.Name)
                                .ToList();
             }
 
@@ -203,5 +293,14 @@ public class ManagementApiRepository: IManagementApi
         }
     }
 
-    
+    public async Task<Result<bool>> DeleteUserRoles(string userId, RolesDTO roles)
+    {
+        Result<HttpResponseMessage> request =  await _httpWrapper.SendDeleteWithBody<RolesDTO>( $"{_baseURL}users/{userId}/roles", roles);
+        if (request.Success) { 
+            return Result<bool>.Ok(true);
+        } else
+        {
+            return Result<bool>.Fail(request.Exception);
+        }
+    }
 }

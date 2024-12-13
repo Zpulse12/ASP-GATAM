@@ -1,0 +1,383 @@
+﻿@page "/usersummary/{UserId}"
+@using System.Diagnostics
+@using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Application.CQRS.DTOS.RolesDTO
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Extensions
+@inject ApiClient ApiClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider authStateProvider
+@attribute [Authorize(Policy = "RequireManagementRole")]
+<link href="css/user-summary.css" rel="stylesheet" />
+@if (_hasError)
+    {
+        <p>Oops, er liep iets mis</p>
+        
+    }
+    else if (user != null)
+    {
+<Tabs EnableFadeEffect="true" Class="content-tabs">
+    <Tab Active="true">
+        <TitleTemplate>
+            <div class="tab-title">
+                <i class="bi bi-person-badge-fill"></i>
+                <span>Volger Info</span>
+            </div>
+        </TitleTemplate>
+        <Content>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Gebruikersinformatie</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="name">Voornaam</label>
+                            <p id="name" class="@(string.IsNullOrEmpty(user.Name) ? "text-muted" : "")">
+                                @(string.IsNullOrEmpty(user.Name) ? "Leeg" : user.Name)
+                            </p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="surname">Achternaam</label>
+                            <p id="surname" class="@(string.IsNullOrEmpty(user.Surname) ? "text-muted" : "")">
+                                @(string.IsNullOrEmpty(user.Surname) ? "Leeg" : user.Surname)
+                            </p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="email">E-mail</label>
+                            <p id="email" class="@(string.IsNullOrEmpty(user.Email) ? "text-muted" : "")">
+                                @(string.IsNullOrEmpty(user.Email) ? "Leeg" : user.Email)
+                            </p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="phoneNumber">Telefoonnummer</label>
+                            <p id="phoneNumber" class="@(string.IsNullOrEmpty(user.PhoneNumber) ? "text-muted" : "")">
+                                @(string.IsNullOrEmpty(user.PhoneNumber) ? "Leeg" : user.PhoneNumber)
+                            </p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="isActive">Actief</label>
+                            <p id="isActive">
+                                @((user.IsActive) ? "Ja" : "Nee")
+                            </p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="begeleiderId">Begeleider</label>
+                            @if (mentor != null && user.MentorId != null)
+                            {
+                                <p>@mentor.Name @mentor.Surname</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Volger is nog niet gekoppeld aan een begeleider.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+        </Content>
+    </Tab>
+    <Tab>
+        <TitleTemplate>
+            <div class="tab-title">
+                <i class="bi bi-journal-text"></i>
+                <span>Modules Overzicht</span>
+            </div>
+        </TitleTemplate>
+        <Content>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Toegewezen Modules</h3>
+                </div>
+                <div class="card-body">
+                    @if (userModules == null || !userModules.Any())
+                    {
+                        <p>Er zijn geen modules toegewezen aan deze gebruiker.</p>
+                    }
+                    else if(userModules != null)
+                    {
+                        <div class="row">
+                            @foreach (var userModule in userModules)
+                            {
+                                <div class="col-md-4">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@userModule.Module?.Title</h5>
+                                            <p class="card-text"><b>Categorie:</b> @userModule.Module?.Category</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </Content>
+    </Tab>
+        @if (_isMentor)
+        {
+    <Tab>
+        <TitleTemplate>
+            <div class="tab-title">
+                <i class="bi bi-sliders"></i>
+                <span>Beheer Instellingen</span>
+            </div>
+        </TitleTemplate>
+        <Content>
+            <Accordion>
+                <AccordionItem Title="Toewijzing aanpassen">
+                    <Content>
+                        <div>
+                            <p>
+                                Deze volger is momenteel 
+                                @if (mentor.Name != null && mentor.Surname != null)
+                                {
+                                    <p>toegewezen aan <b>@mentor.Name @mentor.Surname</b>.</p>
+                                }
+                                else
+                                {
+                                    <p>niet toegewezen aan een begeleider.</p>
+                                }
+                            </p>
+                            <div class="form-group">
+                                <label for="begeleiderDropdown">Kies een begeleider:</label>
+                                <select id="begeleiderDropdown" class="form-control" @bind="selectedMentorId">
+                                    <option value="">-- Selecteer een begeleider --</option>
+                                    @foreach (var begeleider in users) 
+                                    {
+                                        <option value="@begeleider.Id">@begeleider.Name @begeleider.Surname</option>
+                                    }
+                                </select>
+                            </div>
+                            <button class="btn btn-primary mt-3" @onclick="UpdateBegeleider" disabled="@string.IsNullOrEmpty(selectedMentorId)">
+                                Opslaan
+                            </button>
+                        </div>
+                    </Content>
+                </AccordionItem>
+            </Accordion>
+            <Accordion>
+                <AccordionItem Title="Rollen beheren">
+                    <Content>
+                                    <Grid TItem="string"
+                                          @ref="userRolesGrid"
+                                          Class="table table-hover"
+                                          Data="userRoles"
+                                          HeaderRowCssClass="custom-header"
+                                          Responsive="true">
+                                        <GridColumns>
+                                            <GridColumn Context="RoleContext" TItem="string" HeaderText="Rol:">
+                                                @RoleMapper.GetKeyBasedOnValue(RoleContext).ToString()
+                                            </GridColumn>
+                                            <GridColumn TItem="String" HeaderText="Actie" Filterable="false" Context="RoleContext">
+                                                <button type="button" class="btn btn-outline-danger"
+                                                        @onclick="() => {
+                                    selectedDeleteRole = RoleContext;
+                                    OnShowModalClick(removeRoleModal);
+                                }">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </GridColumn>
+                                        </GridColumns>
+                                    </Grid>
+
+                                    <div class="form-group mt-3">
+                                        <label for="Role" class="fw-bold text-muted">Rol Toewijzen</label>
+                                        <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
+                                            @foreach (var role in RoleMapper.Roles)
+                                            {
+                                                <option value="@role.Value.Id">@role.Key</option>
+                                            }
+                                        </InputSelect>
+                                    </div>
+                                    <button type="submit" @onclick="HandleValidSubmit" class="btn btn-sm btn-custom mt-4" style="background-color:#4454D2; color:white"><i class="bi bi-plus me-1"></i>Toewijzen</button>
+                    </Content>
+                </AccordionItem>
+               
+            </Accordion>
+        </Content>
+    </Tab>
+        }
+</Tabs>
+    }
+<Modal @ref="removeRoleModal" Title="Verwijderen van rol.">
+    <BodyTemplate>
+        <p>Bent u zeker dat u de rol <strong>@RoleMapper.GetKeyBasedOnValue(selectedDeleteRole).ToString()</strong> van @user.Username wilt verwijderen?</p>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="() => OnHideModalClick(removeRoleModal)">Annuleren</Button>
+        <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@_isRequestLoading" @onclick="() => DeleteUserRoles(selectedDeleteRole)">
+            @if (_isLoading)
+            {
+                <Spinner Type="SpinnerType.Dots" />
+            }
+            else
+            {
+                <span>Bevestigen</span>
+            }
+        </Button>
+    </BodyTemplate>
+</Modal>
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+    [Inject] 
+    protected ToastService toastService { get; set; } = default!;
+    private UserDTO user = new();
+    private UserDTO mentor = new();
+    private List<UserDTO> users = new();
+    private List<UserModuleDTO> userModules = new List<UserModuleDTO>();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    private bool _isMentor = false;
+
+    private bool _isRequestLoading = false;
+    private Grid<string> userRolesGrid = new Grid<string>();
+    private List<string> userRoles = new List<string>();
+    private string selectedRoles { get; set; } = "";
+    private string selectedDeleteRole { get; set; } = "";
+    private Modal? removeRoleModal;
+
+    private string selectedMentorId;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            user = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{UserId}");
+            string roleId = RoleMapper.Roles[CustomRoles.BEGELEIDER].Id;
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
+            if (user.MentorId != null)
+            {
+                mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{user.MentorId}");
+            }
+            userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{UserId}/modules");
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var currentUser = authState.User;
+
+            userRoles = await ApiClient.GetFromJsonAsync<List<string>>($"api/user/{user.Id}/roles");
+            userRolesGrid.Data = userRoles;
+            userRolesGrid.RefreshDataAsync();
+            _isMentor = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
+        }
+        catch (HttpRequestException ex)
+        {
+            _hasError = true;
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
+    }
+
+    private async Task UpdateBegeleider()
+    {
+        if (string.IsNullOrEmpty(selectedMentorId))
+        {
+            return;
+        }
+
+        else
+        {
+            var response = await ApiClient.PutAsJsonAsync($"api/user/{selectedMentorId}/users-assignment", user);
+            mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{selectedMentorId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol toegewezen!"));
+                StateHasChanged();
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
+            }
+        }
+    }
+    private async Task OnHideModalClick(Modal inModal)
+    {
+        await inModal.HideAsync();
+    }
+    private async Task OnShowModalClick(Modal inModal)
+    {
+        await inModal.ShowAsync();
+    }
+    private async Task HandleValidSubmit()
+    {
+        if (user == null)
+        {
+            _hasError = true;
+            return;
+        }
+        try
+        {
+            RolesDTO roles = new RolesDTO() { Roles = new List<string?> { selectedRoles } };
+            var roleUpdateResponse = await ApiClient.PostAsJsonAsync($"/api/user/{user.Id}/roles", roles);
+
+            if (roleUpdateResponse.IsSuccessStatusCode)
+            {
+
+                toastService.Notify(new(ToastType.Success, "Rol toegevoegd", $"Rol succesvol toegevoegd aan gebruiker {user.Username}"));
+                StateHasChanged();
+            }
+            else
+            {
+                ValidationException errorResponse = await roleUpdateResponse.Content.ReadFromJsonAsync<ValidationException>();
+                string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : roleUpdateResponse.ReasonPhrase;
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het bewerken van de rollen", errors));
+            }
+            StateHasChanged();
+
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis", ex.Message));
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+    private async void DeleteUserRoles(string role)
+    {
+        _isRequestLoading = true;
+        try
+        {
+            var roleId = RoleMapper.Roles.FirstOrDefault(r => r.Value.Name == role).Value.Id;
+
+            RolesDTO payload = new RolesDTO() { Roles = new List<string?>() { roleId } };
+            var request = await ApiClient.PatchAsJsonAsync<RolesDTO>($"/api/user/{user.Id}/roles", payload);
+
+            if (request.IsSuccessStatusCode)
+            {
+                user = await request.Content.ReadFromJsonAsync<UserDTO>();
+               // userRoles = user.RolesIds;
+                userRolesGrid.Data = userRoles;
+                userRolesGrid.RefreshDataAsync();
+                toastService.Notify(new(ToastType.Success, "Rol verwijderd", $"Rol succesvol verwijderd van gebruiker {user.Username}"));
+                _isRequestLoading = false;
+                await OnHideModalClick(removeRoleModal);
+            }
+            else
+            {
+                ValidationException errorResponse = await request.Content.ReadFromJsonAsync<ValidationException>();
+                string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : request.ReasonPhrase;
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het verwijderen van de rollen", errors));
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis", ex.Message));
+        }
+        finally
+        {
+            _isRequestLoading = false;
+            StateHasChanged();
+        }
+    }
+
+
+}

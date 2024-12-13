@@ -1,0 +1,277 @@
+﻿@page "/AssignToBegeleider"
+@inject ApiClient apiClient
+@rendermode InteractiveServer
+@using Gatam.Application.CQRS
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Components.Layout
+@using Gatam.WebAppBegeleider.Extensions
+@inject AuthenticationStateProvider authStateProvider
+@attribute [Authorize(Policy = "RequireManagementRole")]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="page-wrapper">
+    <div class="banner">
+        <div class="banner-content">
+            <div class="banner-left">
+                <div class="banner-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="banner-text">
+                    <h3>Trajectvolgers Beheren</h3>
+                    <p>Wijs trajectvolgers toe aan begeleiders</p>
+                </div>
+            </div>
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" 
+                       placeholder="Zoek op naam of email..." 
+                       @bind="searchTerm" 
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearch" />
+            </div>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <div class="grid-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="header-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="header-text">
+                        <h4>Mijn Trajectvolgers</h4>
+                        <p>Trajectvolgers die aan u zijn toegewezen</p>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <Grid TItem="UserDTO"
+                          Class="table"
+                          Data="@usersWithBegeleiderId"
+                          AllowPaging="true"
+                          PageSize="5">
+                        <GridColumns>
+                            <GridColumn TItem="UserDTO"
+                                        HeaderText="Gebruiker" 
+                                        Width="250">
+                                <div class="user-info">
+                                    <i class="bi bi-person-circle"></i>
+                                    <span>@context.Username</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="UserDTO"
+                                        HeaderText="Email"
+                                        Width="350">
+                                <div class="user-info">
+                                    <i class="bi bi-envelope"></i>
+                                    <span>@context.Email</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="UserDTO"
+                                        HeaderText="Actie"
+                                        Width="250">
+                                <button class="btn-action remove" @onclick="() => UnassignVolgerToBegeleider(context)">
+                                    <i class="bi bi-person-x-fill"></i>
+                                    <span>Verwijderen</span>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="header-icon available">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <div class="header-text">
+                        <h4>Beschikbare Trajectvolgers</h4>
+                        <p>Trajectvolgers die nog niet zijn toegewezen</p>
+                    </div>
+                </div>
+
+                <Grid TItem="UserDTO"
+                      Class="table"
+                      Data="@usersWithoutBegeleiderId"
+                      AllowPaging="true"
+                      PageSize="5">
+                    <GridColumns>
+                        <GridColumn TItem="UserDTO"
+                                    HeaderText="Gebruiker" 
+                                    Width="200">
+                            <div class="user-info">
+                                <i class="bi bi-person-circle"></i>
+                                <span>@context.Username</span>
+                            </div>
+                        </GridColumn>
+                        <GridColumn TItem="UserDTO"
+                                    HeaderText="Email"
+                                    Width="300">
+                            <div class="user-info">
+                                <i class="bi bi-envelope"></i>
+                                <span>@context.Email</span>
+                            </div>
+                        </GridColumn>
+                        <GridColumn TItem="UserDTO"
+                                    HeaderText="Actie"
+                                    Width="150">
+                            <button class="btn-action assign" @onclick="() => AssignVolgerToBegeleider(context)">
+                                <i class="bi bi-person-plus-fill"></i>
+                                <span>Toewijzen</span>
+                            </button>
+                        </GridColumn>
+                    </GridColumns>
+                </Grid>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="css/assigntobegeleider.css" rel="stylesheet" />
+
+@code {
+    [Inject] protected ToastService toastService { get; set; } = default!;
+
+    private List<UserDTO> usersWithBegeleiderId = new();
+    private List<UserDTO> usersWithoutBegeleiderId = new();
+    private string searchTerm = "";
+    private Timer? _debounceTimer;
+    private List<UserDTO> _originalUsersWithBegeleiderId = new();
+    private List<UserDTO> _originalUsersWithoutBegeleiderId = new();
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        string roleId = RoleMapper.Roles[CustomRoles.VOLGER].Id;
+        var usersResponse = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
+        var authState = await authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (usersResponse != null && usersResponse.Count > 0)
+        {
+            _originalUsersWithBegeleiderId = usersResponse
+                .Where(u => u.MentorId == userId)
+                .ToList();
+
+            _originalUsersWithoutBegeleiderId = usersResponse
+                .Where(u => string.IsNullOrEmpty(u.MentorId))
+                .ToList();
+
+            // Initialize displayed lists
+            usersWithBegeleiderId = new List<UserDTO>(_originalUsersWithBegeleiderId);
+            usersWithoutBegeleiderId = new List<UserDTO>(_originalUsersWithoutBegeleiderId);
+        }
+    }
+
+    private async Task AssignVolgerToBegeleider(UserDTO user)
+    {
+        try 
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var currentUser = authState.User;
+            var begeleiderId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(begeleiderId))
+            {
+                toastService.Notify(new(ToastType.Warning, "Gebruiker niet gevonden"));
+                return;
+            }
+
+            var response = await apiClient.PutAsJsonAsync($"api/user/{begeleiderId}/users-assignment", user);
+
+            if (response.IsSuccessStatusCode)
+            {
+                usersWithoutBegeleiderId.Remove(user);
+                usersWithBegeleiderId.Add(user);
+                user.MentorId = begeleiderId;
+
+                usersWithoutBegeleiderId = new List<UserDTO>(usersWithoutBegeleiderId);
+                usersWithBegeleiderId = new List<UserDTO>(usersWithBegeleiderId);
+                await InvokeAsync(StateHasChanged);
+
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol toegewezen!"));
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
+        }
+    }
+    private async Task UnassignVolgerToBegeleider(UserDTO user)
+    {
+        try 
+        {
+            var response = await apiClient.PutAsJsonAsync($"api/user/users-assignment/removal", user);
+
+            if (response.IsSuccessStatusCode)
+            {
+                usersWithoutBegeleiderId.Add(user);
+                usersWithBegeleiderId.Remove(user);
+                user.MentorId = null;
+                
+                usersWithoutBegeleiderId = new List<UserDTO>(usersWithoutBegeleiderId);
+                usersWithBegeleiderId = new List<UserDTO>(usersWithBegeleiderId);
+                
+                await InvokeAsync(StateHasChanged);
+                toastService.Notify(new(ToastType.Success, "Gebruiker succesvol verwijderd!"));
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verwijderen van de gebruiker."));
+        }
+    }
+
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        _debounceTimer?.Dispose();
+        _debounceTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                FilterUsers();
+                StateHasChanged();
+            });
+        }, null, 300, Timeout.Infinite);
+    }
+
+    private void FilterUsers()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            usersWithBegeleiderId = new List<UserDTO>(_originalUsersWithBegeleiderId);
+            usersWithoutBegeleiderId = new List<UserDTO>(_originalUsersWithoutBegeleiderId);
+        }
+        else
+        {
+            usersWithBegeleiderId = _originalUsersWithBegeleiderId
+                .Where(u => 
+                    u.Username.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            usersWithoutBegeleiderId = _originalUsersWithoutBegeleiderId
+                .Where(u => 
+                    u.Username.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+    }
+}

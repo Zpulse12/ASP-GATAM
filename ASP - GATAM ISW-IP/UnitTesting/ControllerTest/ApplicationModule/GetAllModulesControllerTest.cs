@@ -1,13 +1,8 @@
-﻿using Gatam.WebAPI.Controllers;
+﻿using Gatam.Application.CQRS.Module;
+using Gatam.WebAPI.Controllers;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnitTesting.ControllerTest.ApplicationModule
 {
@@ -28,23 +23,28 @@ namespace UnitTesting.ControllerTest.ApplicationModule
         [TestMethod]
         public async Task GetAllModules_ReturnsOkResult_WithListOfModules()
         {
-            var expectedModules = new List<Gatam.Domain.ApplicationModule>
+            // Arrange
+            var expectedModules = new List<Gatam.Application.CQRS.DTOS.ModulesDTO.ModuleDTO>
             {
-                new Gatam.Domain.ApplicationModule { Title = "Module1", Category = "Category1" },
-                new Gatam.Domain.ApplicationModule { Title = "Module2", Category = "Category2" }
+                new Gatam.Application.CQRS.DTOS.ModulesDTO.ModuleDTO { Title = "Module1", Category = "Category1" },
+                new Gatam.Application.CQRS.DTOS.ModulesDTO.ModuleDTO { Title = "Module2", Category = "Category2" }
             };
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<Gatam.Application.CQRS.Module.GetAllModulesQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectedModules);
 
+            _mediatorMock
+        .Setup(m => m.Send(It.IsAny<GetAllModulesQuery>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(expectedModules);
+
+            // Act
             var result = await _moduleController.GetAllModules();
 
+            // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
-            var modules = okResult.Value as List<Gatam.Domain.ApplicationModule>;
-            Assert.IsNotNull(modules);
-            Assert.AreEqual(expectedModules.Count, modules.Count);
+            Assert.IsNotNull(okResult, "Expected OkObjectResult but got null.");
+            Assert.AreEqual(200, okResult.StatusCode, "Expected status code 200.");
+
+            var modules = okResult.Value as List<Gatam.Application.CQRS.DTOS.ModulesDTO.ModuleDTO>;
+            Assert.IsNotNull(modules, "Expected a list of modules in the response.");
+            Assert.AreEqual(expectedModules.Count, modules.Count, "Module count does not match.");
         }
 
     }

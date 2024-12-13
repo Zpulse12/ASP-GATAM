@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Gatam.Domain\Gatam.Domain.csproj" />
+    <ProjectReference Include="..\Gatam.Shared\Gatam.Shared.csproj" />
   </ItemGroup>
 
 </Project>

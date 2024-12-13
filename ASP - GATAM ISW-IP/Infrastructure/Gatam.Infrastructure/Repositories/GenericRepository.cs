@@ -1,14 +1,7 @@
 ﻿using Gatam.Application.Interfaces;
-using Gatam.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Gatam.Domain;
 
 namespace Gatam.Infrastructure.Repositories
 {
@@ -39,6 +32,16 @@ namespace Gatam.Infrastructure.Repositories
         {
             var response = await _dbSet.FindAsync(id);
             return response;
+
+        }
+        public async Task<T> FindByIdWithIncludes(string id, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+            return await query.FirstOrDefaultAsync(e => EF.Property<string>(e, "Id") == id);
         }
 
         public async Task<T?> FindByProperty(string propertyName, string value)
@@ -55,7 +58,6 @@ namespace Gatam.Infrastructure.Repositories
         {
             return  await _dbSet.ToListAsync();
         }
-
         public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
         { 
             IQueryable<T> query = _dbSet; 
@@ -65,7 +67,6 @@ namespace Gatam.Infrastructure.Repositories
             } 
             return await query.ToListAsync();
         }
-
         public Task<T> Update(T entity)
         {
             EntityEntry<T> response = _dbSet.Update(entity); 

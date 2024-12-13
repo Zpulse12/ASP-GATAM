@@ -1,10 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace Gatam.Application.Interfaces
 {
@@ -16,8 +10,10 @@ namespace Gatam.Application.Interfaces
         Task<T> Update(T entity);
         Task Delete(T entity);
         Task<T?> FindById(string id);
+        Task<T> FindByIdWithIncludes(string id, params Expression<Func<T, object>>[] includes);
         Task<T?> FindByProperty(string propertyName, string value);
         Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate);
+
 
     }
 }

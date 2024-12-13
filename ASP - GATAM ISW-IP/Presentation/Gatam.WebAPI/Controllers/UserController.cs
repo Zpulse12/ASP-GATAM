@@ -1,10 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Gatam.Application.CQRS;
+using Gatam.Application.CQRS.Module;
 using MediatR;
 using Gatam.Domain;
 using Gatam.Application.CQRS.User;
 using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
+using Gatam.Application.CQRS.User.BegeleiderAssignment;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Gatam.Application.CQRS.DTOS.UsersDTO;
+using Gatam.WebAPI.Extensions.Filters;
+using Gatam.WebAPI.Extensions.RequestObjects;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -17,17 +23,30 @@ namespace Gatam.WebAPI.Controllers
         {
             _mediator = mediator;
         }
-
+        [HttpPost("sync")]
+        public async Task<IActionResult> SyncUsers()
+        {
+            var result = await _mediator.Send(new GetUsersWithSyncQuery());
+            return Ok(result);
+        }   
 
         [HttpGet]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsers()
 
         {
-            var usersWithLocalStatus = await _mediator.Send(new GetUsersWithSyncQuery());
+            var usersWithLocalStatus = await _mediator.Send(new GetAllUsersQuery());
             return Ok(usersWithLocalStatus);
         }
 
+        [HttpGet("{roleId}/userbyrole")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUsersByRole(string roleId)
+
+        {
+            var usersWithLocalStatus = await _mediator.Send(new GetUsersByRoleQuery() { RoleId = roleId});
+            return Ok(usersWithLocalStatus);
+        }
         [HttpGet("{userId}")]
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsersById(string userId)
@@ -44,25 +63,46 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpPost]
         [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> CreateUser([FromBody] ApplicationUser user)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO user)
         {
+            var result = await _mediator.Send(new CreateAuth0UserCommand() { _user = user });
+            return Created("", result);
+        }
+
+        [HttpPost]
+        [Route("auth0")]
+        [AllowAnonymous]
+        [ServiceFilter(typeof(IsAuthenticatedApiKey))]
+        public async Task<IActionResult> CreateAuth0User([FromBody] Auth0UserRequestObject userRequestObject)
+        {
+            var user = new CreateUserDTO()
+            {
+                Email = userRequestObject.Email,
+                Id = userRequestObject.UserId,
+                IsActive = false,
+                Username = userRequestObject.Username,
+                Surname = userRequestObject.Name,
+                Name = userRequestObject.Name,
+                Picture = userRequestObject.ProfilePicture,
+                PasswordHash = "None!1234",
+                PhoneNumber = "+3200"
+            };
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
-            return result == null ? BadRequest(result) : Created("", result);
+            return Created("", result);
         }
 
         [HttpPatch]
-        [Route("setactivestate/{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
-        public async Task<IActionResult> SetActiveState(string id, [FromBody] DeactivateUserCommand command)
+        [Route("setactivestate")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> SetActiveState([FromBody] DeactivateUserCommand command)
         {
-            command.UserId = id;
-            return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = id, IsActive = command.IsActive }));
+            return Ok(await _mediator.Send(new DeactivateUserCommand() { UserId = command.UserId, IsActive = command.IsActive }));
         }
-        [HttpGet("status/{auth0UserId}")]
+        [HttpGet("{auth0UserId}/status")]
         [Authorize(Policy = "RequireAdminRole")]
-        public async Task<IActionResult> GetUserStatus(string auth0UserId)
+        public async Task<IActionResult> GetUserStatus(string userId)
         {
-            var user = await _mediator.Send(new FindUserByIdQuery(auth0UserId));
+            var user = await _mediator.Send(new GetUserByIdQuery(){UserId = userId});
             return Ok(new { IsActive = user.IsActive });
         }
 
@@ -70,21 +110,13 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UserDTO user)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (userId != user.Id)
-            {
-                return BadRequest("The user ID in the URL does not match the user ID in the body.");
-            }
-            var returnedUser = await _mediator.Send(new UpdateUserCommand() { Id = userId, User = user });
+            
+            var returnedUser = await _mediator.Send(new UpdateUserCommand() {User = user, Id = userId });
             return Ok(returnedUser);
         }
 
         [HttpDelete]
-        [Route("delete/{id}")]
+        [Route("{id}/delete")]
         [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -93,7 +125,7 @@ namespace Gatam.WebAPI.Controllers
            {
                return Ok(response);
            }
-           return NotFound("User doesnt exists");
+           return NotFound("User bestaat niet");
         }
 
         [HttpGet("{userId}/roles")]
@@ -109,16 +141,72 @@ namespace Gatam.WebAPI.Controllers
 
             return Ok(roles);
         }
-
-
-        [HttpPut("{userId}/roles")]
+        
+        [HttpPut("{userId}/AssignUserModule")]
         [Authorize(Policy = "RequireManagementRole")]
-
-        public async Task<IActionResult> AssignUserRole(string userId, [FromBody] UserDTO user)
+        public async Task<IActionResult> AssignUserModule(string userId, [FromQuery] string moduleId)
         {
-            
-            var returnedUser = await _mediator.Send(new AssignUserRoleCommand { User = user, Id = userId});
+            var assignedUser = await _mediator.Send(new AssignModulesToUserCommand() {FollowerId = userId, ModuleId = moduleId });
+            return Ok(assignedUser);
+        }
+        [HttpGet("{userId}/modules")]
+        [Authorize(Policy = "RequireVolgersRole")]
+        public async Task<IActionResult> GetUserModules(string userId)
+        {
+            var query = new GetUserModulesQuery(userId);
+            var modules = await _mediator.Send(query);
+            if (modules == null || modules.Count == 0)
+                return NotFound("No modules found for this user.");
+            return Ok(modules);
+        }
+
+        [HttpGet("usersWithModules")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUsersWithModules()
+        {
+            var users = await _mediator.Send(new GetUsersWithModulesQuery());
+            return Ok(users);
+        }
+
+
+        [HttpPost("{userId}/roles")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> AssignUserRole(string userId, [FromBody] RolesDTO roles)
+        {
+            var returnedUser = await _mediator.Send(new UpdateUserRoleCommand { Roles = roles, Id = userId});
             return Ok(returnedUser);
+        }
+
+        [HttpPut("{id}/users-assignment")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> AssignFollowerToMentor([FromBody] ApplicationUser user, string id)
+        {
+
+            var updateBegeleiderId = await _mediator.Send(new AssignUserToMentorCommand() { FollowerId = user.Id, MentorId = id });
+            return Ok(updateBegeleiderId);
+
+        }
+
+        [HttpPut("users-assignment/removal")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> UnassignFollowerToMentor([FromBody] ApplicationUser user)
+        {
+            var updateBegeleiderId = await _mediator.Send(new UnassignUserCommand { FollowerId = user.Id });
+            return Ok(updateBegeleiderId);
+        }
+        [HttpPatch("{id}/roles")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> RemoveUserRoles([FromBody] RolesDTO rolesDTO, string id)
+        {
+            var command = await _mediator.Send(new DeleteUserRolesCommand() { UserId = id, Roles = rolesDTO });
+            return Ok(command);
+        }
+        [HttpGet("{mentorId}/mentor")]
+        [Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUsersForFollower([FromRoute] string mentorId)
+        {
+            var mentorDto = await _mediator.Send(new GetFollowersByMentorIdQuery() { MentorId = mentorId });
+            return Ok(mentorDto);
         }
     }
 

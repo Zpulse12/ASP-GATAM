@@ -1,0 +1,500 @@
+﻿@page "/content/AssigningModules"
+@using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Domain
+@using Gatam.WebAppBegeleider.Extensions
+@inject ApiClient ApiClient
+@inject ToastService toastService
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [Authorize(Policy = "RequireManagementRole")]
+<link href="css/assigning-modules.css" rel="stylesheet" />
+
+<div class="assignment-container">
+    <div class="assignment-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="bi bi-journal-plus"></i>
+            </div>
+            <div class="header-text">
+                <h2>Module Toewijzing</h2>
+                <p>Beheer modules voor trajectvolgers</p>
+            </div>
+        </div>
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" 
+                   placeholder="Zoek op naam, email of module..." 
+                   @bind="searchTerm" 
+                   @bind:event="oninput"
+                   @onkeyup="HandleSearch" />
+        </div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Laden...</span>
+            </div>
+        </div>
+    }
+    else if (users != null && users.Any())
+    {
+        @if (!string.IsNullOrEmpty(SuccessMessage))
+        {
+            <div class="alert alert-success fade-in">@SuccessMessage</div>
+        }
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger fade-in">@ErrorMessage</div>
+        }
+
+        <div class="assignment-sections">
+            <div class="section-users">
+                <div class="section-header">
+                    <i class="bi bi-people"></i>
+                    <h3>Trajectvolgers</h3>
+                </div>
+                <div class="user-grid">
+                    <Grid TItem="UserDTO"
+                          @ref="userGrid"
+                          Data="@filteredUsers"
+                          AllowSorting="true"
+                          AllowPaging="true"
+                          PageSize="8"
+                          ShowPager="true"
+                          Class="modern-table">
+                        <GridColumns>
+                            <GridColumn TItem="UserDTO" HeaderText="Naam" PropertyName="Name">
+                                <div class="user-info">
+                                    <img src="@context.Picture" alt="@context.Name" class="user-avatar" />
+                                    <span>@context.Name @context.Surname</span>
+                                    @if (!context.IsActive)
+                                    {
+                                        <span class="deactivated-badge">Gedeactiveerd</span>
+                                    }
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email">
+                                <div class="user-info">
+                                    <i class="bi bi-envelope"></i>
+                                    <span>@context.Email</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="UserDTO" HeaderText="Actie">
+                                <button class="btn-select @(SelectedUserId == context.Id ? "selected" : "")" 
+                                        @onclick="@(() => SelectUser(context.Id))"
+                                        disabled="@(!context.IsActive)"
+                                        title="@(!context.IsActive ? "Gedeactiveerde gebruiker" : "")">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>@(SelectedUserId == context.Id ? "Geselecteerd" : "Selecteer")</span>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
+                </div>
+            </div>
+
+            <div class="section-modules">
+                <div class="section-header">
+                    <i class="bi bi-journal-text"></i>
+                    <h3>Beschikbare Modules</h3>
+                </div>
+                <div class="module-grid">
+                    <Grid TItem="ModuleDTO"
+                          @ref="moduleGrid"
+                          Data="@filteredModules"
+                          AllowSorting="true"
+                          AllowPaging="true"
+                          PageSize="8"
+                          ShowPager="true"
+                          Class="modern-table">
+                        <GridColumns>
+                            <GridColumn TItem="ModuleDTO" HeaderText="Titel" PropertyName="Title">
+                                <div class="user-info">
+                                    <i class="bi bi-journal-text"></i>
+                                    <span>@context.Title</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ModuleDTO" HeaderText="Categorie" PropertyName="Category">
+                                <div class="user-info">
+                                    <i class="bi bi-tag"></i>
+                                    <span>@context.Category</span>
+                                </div>
+                            </GridColumn>
+                            <GridColumn TItem="ModuleDTO" HeaderText="Actie">
+                                <button class="btn-select @(SelectedModuleId == context.Id ? "selected" : "")" 
+                                        @onclick="@(() => SelectModule(context.Id))">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>@(SelectedModuleId == context.Id ? "Geselecteerd" : "Selecteer")</span>
+                                </button>
+                            </GridColumn>
+                        </GridColumns>
+                    </Grid>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mb-3">
+            <button @onclick="AssignModuleToUser" class="btn btn-primary"
+                    disabled="@(string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedModuleId))">
+                Wijs Module toe
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Trajectvolger</th>
+                        <th>Toegewezen Modules</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in users)
+                    {
+                        <tr class="@(!user.IsActive ? "deactivated-row" : "")">
+                            <td style="width: 30%">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(user.Picture))
+                                    {
+                                        <img src="@user.Picture" class="rounded-circle me-2" width="32" height="32" alt="@user.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                             style="width: 32px; height: 32px">
+                                            <i class="fas fa-user text-white small"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <div>@user.Name @user.Surname</div>
+                                        <small class="text-muted">@user.Email</small>
+                                        @if (!user.IsActive)
+                                        {
+                                            <span class="deactivated-badge ms-2">Gedeactiveerd</span>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @if (user.UserModules != null )
+                                    {
+                                        @foreach (var userModule in user.UserModules)
+                                        {
+                                            <span class="badge bg-light text-dark border fs-7 py-2">
+                                                <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.ModuleId).Title</span>
+                                                <span class="ms-2 badge @GetStatusBadgeClass(userModule.State) small">
+                                                    @GetStatusText(userModule.State)
+                                                </span>
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small fst-italic">Geen modules toegewezen</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center">
+            <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
+        </div>
+    }
+
+</div>
+@code {
+    private List<UserDTO> users = new();
+    private List<ModuleDTO> modules = new();
+    private string SelectedUserId = "";
+    private string SelectedModuleId= "";
+    private string? SuccessMessage;
+    private string? ErrorMessage;
+    private bool IsLoading = false;
+
+    private Grid<UserDTO> userGrid = new();
+    private Grid<ModuleDTO> moduleGrid = new();
+
+    private string searchTerm = "";
+    private Timer? _debounceTimer;
+
+    private List<UserDTO> filteredUsers = new();
+    private List<ModuleDTO> filteredModules = new();
+
+    private bool _isAdmin = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsLoading = true; 
+        try
+        {
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Er is een fout opgetreden bij het laden van data.";
+        }
+        finally
+        {
+            IsLoading = false; 
+        }
+    }
+
+    private async Task OnUserSelected(ChangeEventArgs e)
+    {
+        try 
+        {
+            SelectedUserId = e.Value?.ToString();
+            if (!string.IsNullOrEmpty(SelectedUserId))
+            {
+                var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
+                if (user != null)
+                {
+                    var userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"api/user/{SelectedUserId}/modules");
+                    if (userModules != null)
+                    {
+                        user.UserModules = userModules;
+                        StateHasChanged();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex is not JSDisconnectedException)
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het ophalen van de modules."));
+            }
+        }
+    }
+
+    private void OnModuleSelected(ChangeEventArgs e)
+    {
+        try 
+        {
+            SelectedModuleId = e.Value?.ToString();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            if (ex is not JSDisconnectedException)
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het selecteren van de module."));
+            }
+        }
+    }
+
+    private async Task AssignModuleToUser()
+    {
+        if (string.IsNullOrEmpty(SelectedUserId))
+        {
+            toastService.Notify(new(ToastType.Warning, "Selecteer eerst een gebruiker"));
+            return;
+        }
+
+        if (string.IsNullOrEmpty(SelectedModuleId))
+        {
+            toastService.Notify(new(ToastType.Warning, "Selecteer eerst een module"));
+            return;
+        }
+
+        var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
+        
+        if (!user?.IsActive == true)
+        {
+            toastService.Notify(new(ToastType.Warning, "Je kunt geen modules toewijzen aan een gedeactiveerde gebruiker."));
+            return;
+        }
+
+        if (user?.UserModules?.Any(um => um.ModuleId == SelectedModuleId) == true)
+        {
+            toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
+            return;
+        }
+
+        try
+        {
+            var response = await ApiClient.PutAsJsonAsync($"api/user/{SelectedUserId}/AssignUserModule?moduleId={SelectedModuleId}", new { });
+
+            if (response.IsSuccessStatusCode)
+            {
+                await RefreshUserModules(SelectedUserId);
+                toastService.Notify(new(ToastType.Success, "Module succesvol toegewezen!"));
+                SelectedUserId = string.Empty;
+                SelectedModuleId = string.Empty;
+            }
+            else
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex is not JSDisconnectedException)
+            {
+                toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de module."));
+            }
+        }
+    }
+
+    private async Task LoadData()
+    {
+        IsLoading = true;
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        modules = await ApiClient.GetFromJsonAsync<List<ModuleDTO>>($"api/module") ?? new();
+        var userresponse = await ApiClient.GetFromJsonAsync<UserDTO>($"api/user/{userId}");
+        var beheerder = RoleMapper.Roles[CustomRoles.BEHEERDER].Id;
+        if (userresponse.RolesIds.Any(x => x.RoleId == beheerder))
+        {
+            string roleId = RoleMapper.Roles[CustomRoles.VOLGER].Id;
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
+            _isAdmin = true;
+        }
+        else 
+        {
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{userId}/mentor") ?? new();
+        }
+
+
+        filteredModules = modules;
+        filteredUsers = users;
+        try
+        {
+            if (!_isAdmin)
+            {
+                if (users != null && users.Count > 0)
+                {
+                    users = users.Where(u => u.MentorId == userId)
+                         .ToList();
+                }
+                foreach (var followers in users)
+                {
+                    if (string.IsNullOrEmpty(followers.Picture) || followers.Picture.Trim().ToLower() == "png")
+                    {
+                        followers.Picture = "/images/default.png";
+                    }
+                }
+                IsLoading = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Er is een fout opgetreden bij het laden van de data.";
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RefreshUserModules(string userId)
+    {
+        try
+        {
+            var user = users.FirstOrDefault(u => u.Id == userId);
+            if (user != null)
+            {
+                var modules = await ApiClient.GetFromJsonAsync<List<ModuleDTO>>($"api/user/{userId}/modules");
+                if (modules != null)
+                {
+                    user.UserModules = modules.Select(m => new UserModuleDTO 
+                    {
+                        Module = m,
+                        UserId = userId,
+                        State = UserModuleState.NotStarted
+                    }).ToList();
+                    
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het verversen van de modules."));
+        }
+    }
+    private void SelectUser(string userId)
+    {
+        SelectedUserId = userId;
+    }
+    private void SelectModule(string moduleId)
+    {
+        SelectedModuleId = moduleId;
+    }
+
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        _debounceTimer?.Dispose();
+        _debounceTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                FilterItems();
+                StateHasChanged();
+            });
+        }, null, 300, Timeout.Infinite);
+    }
+
+    private void FilterItems()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            // Reset de gefilterde lijsten
+            filteredUsers = new List<UserDTO>(users);
+            filteredModules = new List<ModuleDTO>(modules);
+        }
+        else
+        {
+            // Filter gebruikers en modules op basis van de zoekterm
+            filteredUsers = users.Where(u => 
+                u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            filteredModules = modules.Where(m => 
+                m.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                m.Category.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+    }
+
+    private string GetStatusBadgeClass(UserModuleState state)
+    {
+        return state switch
+        {
+            UserModuleState.NotStarted => "bg-danger",   
+            UserModuleState.InProgress => "bg-warning",   
+            UserModuleState.Done => "bg-success",        
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusText(UserModuleState state)
+    {
+        return state switch
+        {
+            UserModuleState.NotStarted => "Niet gestart",
+            UserModuleState.InProgress => "In uitvoering",
+            UserModuleState.Done => "Voltooid",         
+            _ => "Onbekend"
+        };
+    }
+}

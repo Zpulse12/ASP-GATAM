@@ -17,297 +17,294 @@ namespace Gatam.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Gatam.Domain.ApplicationModule", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Modules");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "cf91760c-0153-4222-9e97-94f562e9f619",
+                            Category = "SollicitatieTraining",
+                            CreatedAt = new DateTime(2024, 11, 23, 16, 45, 56, 591, DateTimeKind.Utc).AddTicks(4515),
+                            Title = "Solliciteren voor beginners"
+                        });
+                });
 
             modelBuilder.Entity("Gatam.Domain.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
+                    b.Property<string>("BegeleiderId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("EmailConfirmed")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
+                    b.Property<string>("Picture")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+                    b.Property<string>("RolesIds")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<string>("Surname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("_role")
-                        .HasColumnType("int");
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
                         {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "63b93d36-6394-4079-be94-4096bfff3e04",
-                            Email = "john.doe@example.com",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
-                            NormalizedUserName = "JOHNDOE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKs6k3odID6YVDh8kv5g5EBT8pgVodqs5yykymppEoBHfpJbM9wyM06hpitEkD27wA==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "d3afe8e3-ff4e-4726-aaa2-b04b7b4823d6",
-                            TwoFactorEnabled = false,
-                            UserName = "JohnDoe",
-                            _role = 0
+                            Id = "96b82fa0-f8b4-4bbb-908d-345580008078",
+                            Email = "admin@app.com",
+                            IsActive = false,
+                            Name = "admin",
+                            PasswordHash = "AQAAAAIAAYagAAAAELzFIAUEjrRBCRR0uX3SDFLt7VFxT7vVw9Wziu5iog3Gnrf3LDZMqYcAoyUULR2log==",
+                            PhoneNumber = "+32 9966554411",
+                            Picture = "png",
+                            RolesIds = "[\"rol_3BsJHRFokYkbjr5O\"]",
+                            Surname = "Suradmin",
+                            Username = "adminSuradmin"
                         },
                         new
                         {
-                            Id = "2",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "e40a3a64-bbc2-4fa3-ad95-22bfc2f33828",
+                            Id = "502cb1a5-f321-4dba-8ee7-224f955d6e66",
+                            Email = "john.doe@example.com",
+                            IsActive = false,
+                            Name = "JohnDoe",
+                            PasswordHash = "AQAAAAIAAYagAAAAEONNkSH8zIbcPZPkbeTqZjTQovNY2yvvF+sl6oYr9enaHeADGQ8w3OpiUAL0VxVQjg==",
+                            PhoneNumber = "+32 456789166",
+                            Picture = "png",
+                            RolesIds = "[\"rol_2SgoYL1AoK9tXYXW\"]",
+                            Surname = "JOHNDOE",
+                            Username = "JohnDoeJOHNDOE"
+                        },
+                        new
+                        {
+                            Id = "2e907a03-1af2-4b23-9fab-6a184bbd776c",
                             Email = "jane.doe@example.com",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
-                            NormalizedUserName = "JANEDOE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOpmwFQOj7WKJv7/u27sfySWie4YnPD/VO5IoX8CjJKHp3oBdePMDZys4NRe1h6zHQ==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "bc62b443-9460-4cf0-8052-798b69701dd8",
-                            TwoFactorEnabled = false,
-                            UserName = "JaneDoe",
-                            _role = 0
+                            IsActive = false,
+                            Name = "JaneDoe",
+                            PasswordHash = "AQAAAAIAAYagAAAAENRvzPJyHB5eD9NKp6W4s6bLlIm/Q0Mkm59+j/RfUz84Y7V6WX/S3IVD9PvFjUuqPA==",
+                            PhoneNumber = "+32 568779633",
+                            Picture = "png",
+                            RolesIds = "[\"rol_tj8keS38380ZU4NR\"]",
+                            Surname = "JANEDOE",
+                            Username = "JaneDoeJANEDOE"
+                        },
+                        new
+                        {
+                            Id = "db869a62-e9a8-454c-ae7d-9dd4a313f492",
+                            Email = "lautje.doe@example.com",
+                            IsActive = false,
+                            Name = "Lautje",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJMklvEYOOXWKvyNwK8Zq6r/AUDIgNeOr/Rgw0Ljv2NjrwOrBa3EcgsBGIx4DLXWmQ==",
+                            PhoneNumber = "+23 7896544336",
+                            Picture = "png",
+                            RolesIds = "[\"rol_tj8keS38380ZU4NR\"]",
+                            Surname = "LAUTJE",
+                            Username = "LautjeLAUTJE"
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            modelBuilder.Entity("Gatam.Domain.Question", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
+                    b.Property<string>("ApplicationModuleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<string>("LastUpdatedUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QuestionTitle")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<short>("QuestionType")
+                        .HasColumnType("smallint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                    b.HasIndex("ApplicationModuleId");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Questions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "31a796ad-84fa-4159-b683-e6cc4c53142a",
+                            CreatedAt = new DateTime(2024, 11, 23, 16, 45, 56, 592, DateTimeKind.Utc).AddTicks(2040),
+                            CreatedUserId = "123",
+                            LastUpdatedAt = new DateTime(2024, 11, 23, 16, 45, 56, 592, DateTimeKind.Utc).AddTicks(2042),
+                            LastUpdatedUserId = "123",
+                            QuestionTitle = "Wat wil je later bereiken? ",
+                            QuestionType = (short)1
+                        });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Gatam.Domain.QuestionAnswer", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RoleId")
+                    b.Property<string>("Answer")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AnswerValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QuestionId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("QuestionId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("Answers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "1e042bcc-0e5a-463a-af54-2ed62067429c",
+                            Answer = "OPEN",
+                            QuestionId = "31a796ad-84fa-4159-b683-e6cc4c53142a"
+                        });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Gatam.Domain.UserModule", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ModuleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ModuleId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("UserModule");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Gatam.Domain.Question", b =>
                 {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasOne("Gatam.Domain.ApplicationModule", "ApplicationModule")
+                        .WithMany("Questions")
+                        .HasForeignKey("ApplicationModuleId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.Navigation("ApplicationModule");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Gatam.Domain.QuestionAnswer", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasOne("Gatam.Domain.Question", "Question")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Gatam.Domain.UserModule", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
+                    b.HasOne("Gatam.Domain.ApplicationModule", "Module")
+                        .WithMany("UserModules")
+                        .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("Gatam.Domain.ApplicationUser", null)
-                        .WithMany()
+                    b.HasOne("Gatam.Domain.ApplicationUser", "User")
+                        .WithMany("UserModules")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Module");
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Gatam.Domain.ApplicationModule", b =>
                 {
-                    b.HasOne("Gatam.Domain.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Questions");
+
+                    b.Navigation("UserModules");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Gatam.Domain.ApplicationUser", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Gatam.Domain.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("UserModules");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Gatam.Domain.Question", b =>
                 {
-                    b.HasOne("Gatam.Domain.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Answers");
                 });
 #pragma warning restore 612, 618
         }

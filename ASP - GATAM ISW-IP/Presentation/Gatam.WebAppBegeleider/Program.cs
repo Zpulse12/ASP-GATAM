@@ -20,6 +20,7 @@ internal class Program
         builder.Services.RegisterCustomApiClient();
         builder.Services.AddScoped<Auth0UserStateService>();
         builder.Services.RegisterPolicies();
+        
 
         builder.Services.AddBlazorBootstrap();
 
@@ -38,6 +39,7 @@ internal class Program
             ForwardedHeaders = ForwardedHeaders.XForwardedProto
         });
 
+        
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
@@ -48,7 +50,6 @@ internal class Program
         app.UseAuthorization();
         app.UseAntiforgery();
         app.MapRazorPages();
-        
         app.MapGet("account/login", async (HttpContext httpContext, string redirectUri = "/") =>
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
