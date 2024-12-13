@@ -1,6 +1,7 @@
 ﻿@page "/admin/create"
 @inject IHttpClientFactory HttpClientFactory
 @using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.DTOS.RolesDTO
 @using Gatam.Application.CQRS.DTOS.UsersDTO
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
@@ -136,7 +137,17 @@
 
         if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue(CustomRoles.VOLGER, out var FollowerRoleId))
         {
-            user.RolesIds = isFollowerRoleSelected ? new List<string> { FollowerRoleId.Name } : new List<string>();
+            user.RolesIds = isFollowerRoleSelected
+    ? new List<UserRoleDTO>
+        {
+        new UserRoleDTO
+        {
+            RoleId = FollowerRoleId.Id,
+            UserId = user.Id
+        }
+        }
+    : new List<UserRoleDTO>();
+
             user.Username = user.Email.Split('@')[0];
 
             if(isAddedToUserSelected)

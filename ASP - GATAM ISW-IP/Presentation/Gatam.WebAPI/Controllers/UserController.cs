@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
 using Gatam.Application.CQRS.DTOS.UsersDTO;
+using Gatam.WebAPI.Extensions.Filters;
+using Gatam.WebAPI.Extensions.RequestObjects;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -63,6 +65,28 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO user)
         {
+            var result = await _mediator.Send(new CreateAuth0UserCommand() { _user = user });
+            return Created("", result);
+        }
+
+        [HttpPost]
+        [Route("auth0")]
+        [AllowAnonymous]
+        [ServiceFilter(typeof(IsAuthenticatedApiKey))]
+        public async Task<IActionResult> CreateAuth0User([FromBody] Auth0UserRequestObject userRequestObject)
+        {
+            var user = new CreateUserDTO()
+            {
+                Email = userRequestObject.Email,
+                Id = userRequestObject.UserId,
+                IsActive = false,
+                Username = userRequestObject.Username,
+                Surname = userRequestObject.Name,
+                Name = userRequestObject.Name,
+                Picture = userRequestObject.ProfilePicture,
+                PasswordHash = "None!1234",
+                PhoneNumber = "+3200"
+            };
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
             return Created("", result);
         }

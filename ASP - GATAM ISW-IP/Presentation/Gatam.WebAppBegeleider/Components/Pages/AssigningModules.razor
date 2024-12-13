@@ -71,6 +71,10 @@
                                 <div class="user-info">
                                     <img src="@context.Picture" alt="@context.Name" class="user-avatar" />
                                     <span>@context.Name @context.Surname</span>
+                                    @if (!context.IsActive)
+                                    {
+                                        <span class="deactivated-badge">Gedeactiveerd</span>
+                                    }
                                 </div>
                             </GridColumn>
                             <GridColumn TItem="UserDTO" HeaderText="Email" PropertyName="Email">
@@ -81,7 +85,9 @@
                             </GridColumn>
                             <GridColumn TItem="UserDTO" HeaderText="Actie">
                                 <button class="btn-select @(SelectedUserId == context.Id ? "selected" : "")" 
-                                        @onclick="@(() => SelectUser(context.Id))">
+                                        @onclick="@(() => SelectUser(context.Id))"
+                                        disabled="@(!context.IsActive)"
+                                        title="@(!context.IsActive ? "Gedeactiveerde gebruiker" : "")">
                                     <i class="bi bi-check2-circle"></i>
                                     <span>@(SelectedUserId == context.Id ? "Geselecteerd" : "Selecteer")</span>
                                 </button>
@@ -148,7 +154,7 @@
                 <tbody>
                     @foreach (var user in users)
                     {
-                        <tr>
+                        <tr class="@(!user.IsActive ? "deactivated-row" : "")">
                             <td style="width: 30%">
                                 <div class="d-flex align-items-center">
                                     @if (!string.IsNullOrEmpty(user.Picture))
@@ -165,6 +171,10 @@
                                     <div>
                                         <div>@user.Name @user.Surname</div>
                                         <small class="text-muted">@user.Email</small>
+                                        @if (!user.IsActive)
+                                        {
+                                            <span class="deactivated-badge ms-2">Gedeactiveerd</span>
+                                        }
                                     </div>
                                 </div>
                             </td>
@@ -175,9 +185,9 @@
                                         @foreach (var userModule in user.UserModules)
                                         {
                                             <span class="badge bg-light text-dark border fs-7 py-2">
-                                                <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.Module.Id).Title</span>
-                                                <span class="ms-2 badge @(userModule.State == UserModuleState.NotStarted ? "bg-warning" : "bg-success") small">
-                                                    @(userModule.State == UserModuleState.NotStarted ? "Niet gestart" : "In progress")
+                                                <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.ModuleId).Title</span>
+                                                <span class="ms-2 badge @GetStatusBadgeClass(userModule.State) small">
+                                                    @GetStatusText(userModule.State)
                                                 </span>
                                             </span>
                                         }
@@ -200,6 +210,7 @@
             <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.ExtraLarge" />
         </div>
     }
+
 </div>
 @code {
     private List<UserDTO> users = new();
@@ -284,7 +295,6 @@
 
     private async Task AssignModuleToUser()
     {
-        // Validatie checks
         if (string.IsNullOrEmpty(SelectedUserId))
         {
             toastService.Notify(new(ToastType.Warning, "Selecteer eerst een gebruiker"));
@@ -298,7 +308,14 @@
         }
 
         var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
-        if (user?.UserModules?.Any(um => um.Module.Id == SelectedModuleId) == true)
+        
+        if (!user?.IsActive == true)
+        {
+            toastService.Notify(new(ToastType.Warning, "Je kunt geen modules toewijzen aan een gedeactiveerde gebruiker."));
+            return;
+        }
+
+        if (user?.UserModules?.Any(um => um.ModuleId == SelectedModuleId) == true)
         {
             toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
             return;
@@ -457,5 +474,27 @@
     public void Dispose()
     {
         _debounceTimer?.Dispose();
+    }
+
+    private string GetStatusBadgeClass(UserModuleState state)
+    {
+        return state switch
+        {
+            UserModuleState.NotStarted => "bg-danger",   
+            UserModuleState.InProgress => "bg-warning",   
+            UserModuleState.Done => "bg-success",        
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusText(UserModuleState state)
+    {
+        return state switch
+        {
+            UserModuleState.NotStarted => "Niet gestart",
+            UserModuleState.InProgress => "In uitvoering",
+            UserModuleState.Done => "Voltooid",         
+            _ => "Onbekend"
+        };
     }
 }

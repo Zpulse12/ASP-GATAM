@@ -1,0 +1,441 @@
+:root {
+    --bottom-nav-height: 4rem;
+    --gradient-start: rgb(146, 175, 206);
+    --gradient-end: rgb(73, 77, 126);
+    --accent-color: #32CD32;    
+    --warning-color: #ff9800;   
+    --error-color: #dc2626;     
+}
+
+.modules-container {
+    min-height: fit-content;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f2f5;
+}
+
+.modules-header {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    padding: 1.5rem;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.header-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.module-grid {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.module-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    margin: 0 0.5rem;
+}
+
+.module-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+.module-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gradient-end);
+    margin-bottom: 0.5rem;
+}
+
+.module-category {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #718096;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.progress-info {
+    background: var(--background-color);
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.info-item:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    margin-bottom: 0.5rem;
+}
+
+.info-label {
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.info-value {
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.module-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+}
+
+.btn-details {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-details:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.progress-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.search-box {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 30px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.search-box i {
+    color: white;
+    font-size: 1.2rem;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.search-box input:focus {
+    outline: none;
+}
+
+/* Responsive Design */
+@media (min-width: 640px) {
+    .header-wrapper {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .search-box {
+        width: 250px;
+    }
+}
+
+@media (min-width: 768px) {
+    .modules-header {
+        margin: 1rem;
+        border-radius: 16px;
+    }
+
+    .module-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        padding: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .modules-header {
+        margin: 1.5rem;
+        padding: 2rem;
+    }
+
+    .module-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .search-box {
+        width: 300px;
+    }
+}
+
+@media (max-width: 767px) {
+    .modules-container {
+        min-height: calc(100vh - var(--bottom-nav-height));
+        padding-bottom: calc(var(--bottom-nav-height) + 60px);
+    }
+
+    .modules-header {
+        padding: 0.75rem;
+        margin: 0.5rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    }
+
+    .header-wrapper {
+        gap: 0.5rem;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+
+    .header-text h2 {
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    .header-text p {
+        font-size: 0.8rem;
+        margin: 0;
+        opacity: 0.8;
+    }
+
+    .search-box {
+        margin-top: 0.5rem;
+    }
+
+    .search-box input {
+        height: 40px;
+        font-size: 0.875rem;
+    }
+
+    .module-card {
+        margin: 0 0.5rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .module-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .module-category {
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .progress-info {
+        padding: 0.75rem;
+    }
+
+    .info-item {
+        padding: 0.5rem 0;
+    }
+
+    .info-label, .info-value {
+        font-size: 0.8rem;
+    }
+
+    .btn-details {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .progress-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+    }
+
+    .pagination-container {
+        padding: 0.75rem 1rem;
+    }
+
+    .btn-pagination {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+
+    .page-info {
+        font-size: 1rem;
+    }
+}
+
+.module-state {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+}
+
+.state-niet-gestart {
+    background: #fee2e2;
+    color: var(--error-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.state-in-uitvoering {
+    background: #fff7e6;
+    color: var(--warning-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.state-voltooid {
+    background: rgba(50, 205, 50, 0.1);
+    color: var(--accent-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    position: fixed;
+    bottom: var(--bottom-nav-height);
+    left: 0;
+    right: 0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 100;
+}
+
+.btn-pagination {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+.btn-pagination:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #e9ecef;
+}
+
+.btn-pagination:active {
+    transform: scale(0.95);
+}
+
+.page-info {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gradient-end);
+}
+
+@media (min-width: 1024px) {
+    .pagination-container {
+        position: static;
+        width: 100%;
+        margin: 0;
+        padding: 1rem;
+        box-shadow: none;
+        background-color: #f0f2f5;
+    }
+}
+@media (max-width: 768px) {
+    .modules-header {
+        padding: 1rem;
+    }
+
+    .header-wrapper {
+        flex-direction: column;
+    }
+
+    .search-box {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.2);  
+        margin-top: 1.5rem;
+        padding: 0.8rem 1.2rem;  
+    }
+
+    .search-box input {
+        font-size: 16px;  
+        padding: 0.3rem;
+    }
+
+    .search-box input::placeholder {
+        opacity: 0.9; 
+    }
+}

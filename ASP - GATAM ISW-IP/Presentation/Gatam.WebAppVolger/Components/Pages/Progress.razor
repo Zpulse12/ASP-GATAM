@@ -1,0 +1,226 @@
+@page "/progress"
+@using System.Security.Claims
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.WebAppVolger.Extensions
+@inject ApiClient ApiClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+@attribute [Authorize(Policy = "RequireVolgersRole")]
+
+<link href="css/progress.css" rel="stylesheet" />
+
+<div class="progress-container">
+    <div class="progress-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="header-text">
+                <h2>Mijn Voortgang</h2>
+                <p>Bekijk je leertraject</p>
+            </div>
+        </div>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="loading-state">
+            <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+        </div>
+    }
+    else
+    {
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon completed">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">@_completedModules</span>
+                    <span class="stat-label">Voltooide Modules</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">@_inProgressModules</span>
+                    <span class="stat-label">Modules in Uitvoering</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-journal"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">@_notStartedModules</span>
+                    <span class="stat-label">Niet Gestarte Modules</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">@_totalAnsweredQuestions</span>
+                    <span class="stat-label">Beantwoorde Vragen</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="modules-progress">
+            <h3>Module Voortgang</h3>
+            @foreach (var module in _userModules)
+            {
+                <div class="progress-card">
+                    <div class="progress-info">
+                        <div class="module-info">
+                            <h4>@module.Module.Title</h4>
+                            <span class="category">@module.Module.Category</span>
+                        </div>
+                        <div class="progress-percentage">
+                            @CalculateProgressPercentage(module)%
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: @(CalculateProgressPercentage(module))%"></div>
+                    </div>
+                    <div class="progress-details">
+                        <span>@GetAnsweredQuestionsCount(module) van @module.UserQuestions?.Count(q => q.IsVisible) vragen beantwoord</span>
+                        <span class="status @GetStatusClass(module.State, module)">@GetStatusText(module.State, module)</span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (_hasError)
+    {
+        <div class="alert alert-danger m-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span>Er is een fout opgetreden bij het laden van je voortgang. Probeer het later opnieuw.</span>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<UserModuleDTO> _userModules = new();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    private int _completedModules => _userModules.Count(IsModuleComplete);
+    private int _inProgressModules => _userModules.Count(m => !IsModuleComplete(m) && m.State == Domain.UserModuleState.InProgress);
+    private int _notStartedModules => _userModules.Count(m => m.State == Domain.UserModuleState.NotStarted);
+    private int _totalAnsweredQuestions => _userModules.Sum(m => GetAnsweredQuestionsCount(m));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserProgress();
+    }
+
+    private async Task LoadUserProgress()
+    {
+        _isLoading = true;
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                _userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{userId}/modules") ?? new();
+            }
+            else
+            {
+                _hasError = true;
+            }
+        }
+        catch (Exception)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private double CalculateProgressPercentage(UserModuleDTO userModule)
+    {
+        var visibleQuestions = userModule.UserQuestions?.Where(q => q.IsVisible).ToList() ?? new();
+        int answeredQuestionsCount = 0;
+
+        foreach (var question in visibleQuestions)
+        {
+            bool isAnswered = false;
+            foreach (var answer in question.Answers)
+            {
+                if (isAnswered)
+                    break;
+
+                var matchingAnswer = userModule.UserGivenAnswers
+                    .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));
+
+                if (matchingAnswer != null)
+                {
+                    isAnswered = true;
+                    answeredQuestionsCount++;
+                }
+            }
+        }
+
+        if (visibleQuestions.Count == 0)
+            return 0;
+
+        return Math.Round((double)answeredQuestionsCount / visibleQuestions.Count * 100, 1);
+    }
+
+    private string GetStatusClass(Domain.UserModuleState state, UserModuleDTO module)
+    {
+        var percentage = CalculateProgressPercentage(module);
+        if (percentage >= 100) return "status-completed";
+        if (percentage > 0) return "status-progress";
+        return "status-not-started";
+    }
+
+    private string GetStatusText(Domain.UserModuleState state, UserModuleDTO module)
+    {
+        var percentage = CalculateProgressPercentage(module);
+        if (percentage >= 100) return "Voltooid";
+        if (percentage > 0) return "In Uitvoering";
+        return "Niet Gestart";
+    }
+
+    private bool IsModuleComplete(UserModuleDTO module)
+    {
+        return CalculateProgressPercentage(module) >= 100;
+    }
+
+    private int GetAnsweredQuestionsCount(UserModuleDTO module)
+    {
+        var visibleQuestions = module.UserQuestions?.Where(q => q.IsVisible).ToList() ?? new();
+        int answeredCount = 0;
+
+        foreach (var question in visibleQuestions)
+        {
+            foreach (var answer in question.Answers)
+            {
+                var matchingAnswer = module.UserGivenAnswers
+                    .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));
+
+                if (matchingAnswer != null)
+                {
+                    answeredCount++;
+                    break;
+                }
+            }
+        }
+
+        return answeredCount;
+    }
+} 
