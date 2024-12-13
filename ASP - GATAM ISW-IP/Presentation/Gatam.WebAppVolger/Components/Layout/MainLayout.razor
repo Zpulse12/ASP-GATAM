@@ -4,24 +4,26 @@
 
 <div style="min-height: 100vh; display: flex; flex-direction: column;">
     <CustomNavMenu>
-        <ul class="navbar-nav d-flex flex-row align-items-center justify-content-center" style="width: 100%; padding: 0; gap: 2rem;">
+        <ul class="navbar-nav d-flex flex-row align-items-center" style="width: 100%; padding: 0; margin: 0;">
             <AuthorizeView Policy="RequireVolgersRole">
                 <Authorized>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="/ModulesOfUser">
-                            <i class="bi bi-collection"></i> Mijn modules
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="/progress">
-                            <i class="bi bi-graph-up"></i> Voortgang
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="/profile">
-                            <i class="bi bi-person"></i> Profiel
-                        </NavLink>
-                    </li>
+                    <div class="d-flex justify-content-center" style="width: 100%; gap: 4rem;">
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/ModulesOfUser">
+                                <i class="bi bi-collection"></i> Mijn modules
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/progress">
+                                <i class="bi bi-graph-up"></i> Voortgang
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/profile">
+                                <i class="bi bi-person"></i> Profiel
+                            </NavLink>
+                        </li>
+                    </div>
                 </Authorized>
             </AuthorizeView>
         </ul>
