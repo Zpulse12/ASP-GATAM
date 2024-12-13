@@ -112,7 +112,7 @@
                             <GridColumn TItem="UserDTO" 
                                        HeaderText="Acties"
                                        AllowFiltering="false"
-                                       Width="120px">
+                                       Width="180px">
                                 <div class="d-flex gap-2 justify-content-center">
                                     <button type="button" 
                                             class="btn btn-outline-danger btn-action" 
@@ -124,6 +124,11 @@
                                        href="/admin/user/@(context.Id)" 
                                        @onclick:stopPropagation>
                                         <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    <a class="btn btn-outline-info btn-action" 
+                                       href="/usersummary/@(context.Id)"
+                                       @onclick:stopPropagation>
+                                        <i class="bi bi-eye-fill"></i>
                                     </a>
                                 </div>
                             </GridColumn>

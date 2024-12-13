@@ -1,17 +1,17 @@
 .page-wrapper {
-    padding: 2rem;
+    padding: clamp(1rem, 3vw, 2rem);
     min-height: 100vh;
-    background: #f0f2f5;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    background: #f0f2f5;
 }
 
 .banner {
     background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
-    padding: 2.5rem 3rem;
-    border-radius: 20px;
-    box-shadow: 0 8px 24px -4px rgba(73, 77, 126, 0.2);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(73, 77, 126, 0.2);
 }
 
 .banner-content {
@@ -53,14 +53,11 @@
 
 .content-container {
     background: white;
-    border-radius: 20px;
-    box-shadow: 0 8px 24px -4px rgba(73, 77, 126, 0.12);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    height: calc(100vh - 200px);
-    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: clamp(1rem, 3vw, 1.5rem);
+    height: auto;
+    overflow: visible;
 }
 
 .actions-bar {
@@ -128,11 +125,8 @@
 }
 
 .table-wrapper {
-    background: white;
-    border-radius: 16px;
-    flex: 1;
-    overflow: auto;
-    min-height: 0;
+    margin-top: 1rem;
+    overflow: visible;
 }
 
 .table {
