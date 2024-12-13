@@ -1,4 +1,5 @@
-﻿using Gatam.WebAPI.Middleware;
+﻿using Gatam.WebAPI.Extensions.Filters;
+using Gatam.WebAPI.Middleware;
 
 namespace Gatam.WebAPI.Extensions
 {
@@ -8,6 +9,11 @@ namespace Gatam.WebAPI.Extensions
         {
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             return app;
+        }
+        public static IServiceCollection RegisterFilters(this IServiceCollection services)
+        {
+            services.AddScoped<IsAuthenticatedApiKey>();
+            return services;
         }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
 using Gatam.WebAPI.Extensions.RequestObjects;
+using Gatam.WebAPI.Extensions.Filters;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -62,6 +63,7 @@ namespace Gatam.WebAPI.Controllers
         [HttpPost]
         [Route("auth0")]
         [AllowAnonymous]
+        [ServiceFilter(typeof(IsAuthenticatedApiKey))]
         public async Task<IActionResult> CreateAuth0User([FromBody] Auth0UserRequestObject userRequestObject)
         {
             var user = new UserDTO()

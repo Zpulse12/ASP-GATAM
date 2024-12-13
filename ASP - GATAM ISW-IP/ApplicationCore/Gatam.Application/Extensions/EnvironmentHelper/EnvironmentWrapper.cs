@@ -53,7 +53,5 @@ namespace Gatam.Application.Extensions.EnvironmentHelper
             Match m = DotEnvLoader.ValidateWithExpression("/(,\\d{4})$/g", DATABASEHOST);
             if (m.Success) { throw new InvalidEnvironmentVariableException($"{DATABASEHOST} Invalid port. Check your environment file..."); }
         }
-
-
     }
 }
