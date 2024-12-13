@@ -37,6 +37,14 @@ namespace Gatam.WebAPI.Controllers
             return Ok(usersWithLocalStatus);
         }
 
+        [HttpGet("{roleId}/userbyrole")]
+        //[Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> GetUsersByRole(string roleId)
+
+        {
+            var usersWithLocalStatus = await _mediator.Send(new GetUsersByRoleQuery() { RoleId = roleId});
+            return Ok(usersWithLocalStatus);
+        }
         [HttpGet("{userId}")]
        // [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUsersById(string userId)

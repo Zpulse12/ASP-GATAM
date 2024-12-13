@@ -142,9 +142,12 @@
     private List<UserDTO> _originalUsersWithBegeleiderId = new();
     private List<UserDTO> _originalUsersWithoutBegeleiderId = new();
 
+
+
     protected override async Task OnInitializedAsync()
     {
-        var usersResponse = await apiClient.GetFromJsonAsync<List<UserDTO>>("api/user");
+        string roleId = RoleMapper.Roles[CustomRoles.VOLGER].Id;
+        var usersResponse = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
         var authState = await authStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
