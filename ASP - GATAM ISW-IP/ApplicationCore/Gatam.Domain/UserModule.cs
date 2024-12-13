@@ -27,5 +27,5 @@ public class UserModule
 
 public enum UserModuleState
 {
-    NotStarted, InProgress
+    NotStarted, InProgress, Done
 }

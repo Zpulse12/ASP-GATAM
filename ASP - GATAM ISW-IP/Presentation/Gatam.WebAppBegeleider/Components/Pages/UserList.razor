@@ -67,66 +67,65 @@
                   ShowPager="true"
                   Class="table table-hover shadow-sm">
                 <GridColumns>
-                     <GridColumn TItem="UserDTO" 
-                    HeaderText="Naam" 
-                    PropertyName="Name"
-                    AllowFiltering="false"
-                    SortKeySelector="@(item => item.Name)">
-                <i class="bi bi-person me-2"></i>@context.Name
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                        HeaderText="Achternaam" 
-                        PropertyName="Surname"
-                        AllowFiltering="false"
-                        SortKeySelector="@(item => item.Surname)">
-                <i class="bi bi-person-badge me-2"></i>@context.Surname
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                        HeaderText="Email" 
-                        PropertyName="Email"
-                        AllowFiltering="false"
-                        SortKeySelector="@(item => item.Email)">
-                <i class="bi bi-envelope me-2"></i>@context.Email
-                </GridColumn>
-            <GridColumn TItem="UserDTO" 
-                            HeaderText="Gsm-nummer" 
-                            PropertyName="PhoneNumber"
-                            AllowFiltering="false"
-                            SortKeySelector="@(item => item.PhoneNumber)">
-                    <i class="bi bi-telephone me-2"></i>@context.PhoneNumber
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                            HeaderText="Status" 
-                            PropertyName="IsActive" 
-                            AllowFiltering="false"
-                            SortKeySelector="item => item.IsActive">
-                            <div class="d-flex justify-content-start">
-                                <button class="btn @(context.IsActive ? "btn-soft-danger" : "btn-soft-success")"
-                                        @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" 
-                                        @onclick:stopPropagation>
-                                    <i class="bi @(context.IsActive ? "bi-person-x" : "bi-person-check") me-2"></i>
-                                    @(context.IsActive ? "Deactiveer" : "Activeer")
-                                    </button>
-                                </div>
-                            </GridColumn>
-                            <GridColumn TItem="UserDTO" 
-                                       HeaderText="Acties"
-                                       AllowFiltering="false"
-                                       Width="120px">
-                                <div class="d-flex gap-2 justify-content-center">
-                                    <button type="button" 
-                                            class="btn btn-outline-danger btn-action" 
-                                            @onclick="() => ShowDeleteModal(context.Id)"
-                                            @onclick:stopPropagation>
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                    <a class="btn btn-outline-primary btn-action" 
-                                       href="/admin/user/@(context.Id)" 
-                                       @onclick:stopPropagation>
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </a>
-                                </div>
-                            </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Naam" 
+                                PropertyName="Name"
+                                Width="15%">
+                        <i class="bi bi-person me-2"></i>@context.Name
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Achternaam" 
+                                PropertyName="Surname"
+                                Width="15%">
+                        <i class="bi bi-person-badge me-2"></i>@context.Surname
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Email" 
+                                PropertyName="Email"
+                                Width="25%">
+                        <i class="bi bi-envelope me-2"></i>@context.Email
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Gsm-nummer" 
+                                PropertyName="PhoneNumber"
+                                Width="15%">
+                        <i class="bi bi-telephone me-2"></i>@context.PhoneNumber
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Status" 
+                                PropertyName="IsActive"
+                                Width="15%">
+                        <div class="d-flex justify-content-start">
+                            <button class="btn @(context.IsActive ? "btn-soft-danger" : "btn-soft-success")"
+                                    @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" 
+                                    @onclick:stopPropagation>
+                                <i class="bi @(context.IsActive ? "bi-person-x" : "bi-person-check") me-2"></i>
+                                @(context.IsActive ? "Deactiveer" : "Activeer")
+                            </button>
+                        </div>
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO" 
+                                HeaderText="Acties"
+                                Width="15%">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="button" 
+                                    class="btn btn-outline-danger btn-action" 
+                                    @onclick="() => ShowDeleteModal(context.Id)"
+                                    @onclick:stopPropagation>
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                            <a class="btn btn-outline-primary btn-action" 
+                               href="/admin/user/@(context.Id)" 
+                               @onclick:stopPropagation>
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <a class="btn btn-outline-info btn-action" 
+                               href="/usersummary/@(context.Id)"
+                               @onclick:stopPropagation>
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                        </div>
+                    </GridColumn>
                 </GridColumns>
             </Grid>
         </div>
@@ -220,6 +219,7 @@
     private string searchTerm = "";
     private Timer? _debounceTimer;
 
+
     protected override async Task OnInitializedAsync()
     {
         try 
@@ -236,6 +236,8 @@
             toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het initialiseren van de pagina."));
         }
     }
+
+ 
 
     private async Task LoadUsers()
     {

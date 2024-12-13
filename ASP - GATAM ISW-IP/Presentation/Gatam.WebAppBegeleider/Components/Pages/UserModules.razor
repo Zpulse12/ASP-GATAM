@@ -49,8 +49,8 @@ else
                 <div class="module-card__image" @onclick="() => NavigateToModule(userModule.Id)">
                     <img src="@GetRandomModuleImage(userModule.Id)" alt="@userModule.Module.Title" />
                     <div class="module-card__overlay">
-                        <div class="module-status @(userModule.State == UserModuleState.NotStarted ? "not-started" : "in-progress")">
-                            @(userModule.State == UserModuleState.NotStarted ? "Niet gestart" : "In progress")
+                        <div class="module-status @userModule.State.ToString().ToLower()">
+                            @GetStatusText(userModule.State)
                         </div>
                     </div>
                 </div>
@@ -329,9 +329,9 @@ else
     {
         var percentage = CalculateAnsweredPercentage(userModule);
 
-        if (percentage >= 80) return "#28a745"; // Groen (succes)
-        if (percentage >= 50) return "#ffc107"; // Geel (waarschuwing)
-        return "#dc3545"; // Rood (fout)
+        if (userModule.State == UserModuleState.Done) return "#28a745"; 
+        if (percentage >= 50) return "#ffc107"; 
+        return "#dc3545"; 
     }
     private string GetProgressStyle(UserModuleDTO userModule)
     {
@@ -376,13 +376,11 @@ else
 
     private string GetRandomModuleImage(string moduleId)
     {
-        // Als we al een afbeelding hebben voor deze module, gebruik die
         if (_moduleImages.TryGetValue(moduleId, out string existingUrl))
         {
             return existingUrl;
         }
 
-        // Anders, genereer een nieuwe afbeelding URL en sla deze op
         var randomSeed = _random.Next(1, 1000);
         var imageUrl = $"https://picsum.photos/seed/{randomSeed}/400/300";
         _moduleImages[moduleId] = imageUrl;
@@ -398,6 +396,17 @@ else
     private void CloseModal()
     {
         _selectedModule = null;
+    }
+
+    private string GetStatusText(UserModuleState state)
+    {
+        return state switch
+        {
+            UserModuleState.NotStarted => "Niet gestart",
+            UserModuleState.InProgress => "In uitvoering",
+            UserModuleState.Done => "Voltooid",         
+            _ => "Onbekend"
+        };
     }
 }
 

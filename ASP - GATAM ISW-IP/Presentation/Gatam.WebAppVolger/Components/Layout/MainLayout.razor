@@ -1,33 +1,56 @@
 ﻿@inherits LayoutComponentBase
-<div >
-    <div >
-        <CustomNavMenu>
-            <input type="checkbox" title="Navigation menu" class="navbar-toggler" hidden />
+@inject NavigationManager NavigationManager
+@using Gatam.WebAppVolger.Components.Layout
 
-            <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <AuthorizeView Policy="RequireVolgersRole">
-                            <Authorized>
-                                <li class="nav-item">
-                                    <NavLink class="nav-link" href="/ModulesOfUser" style="color:white; font-weight:bold;">
-                                        <i class="bi bi-people-fill"></i> Mijn modules
-                                    </NavLink>
-                                </li>
-                            </Authorized>
-                        </AuthorizeView>
-                    </ul>
-                </div>
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+    <CustomNavMenu>
+        <ul class="navbar-nav d-flex flex-row align-items-center justify-content-center" style="width: 100%; padding: 0; gap: 2rem;">
+            <AuthorizeView Policy="RequireVolgersRole">
+                <Authorized>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/ModulesOfUser">
+                            <i class="bi bi-collection"></i> Mijn modules
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/progress">
+                            <i class="bi bi-graph-up"></i> Voortgang
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/profile">
+                            <i class="bi bi-person"></i> Profiel
+                        </NavLink>
+                    </li>
+                </Authorized>
+            </AuthorizeView>
+        </ul>
+    </CustomNavMenu>
 
-            </div>
-
-        </CustomNavMenu>
-    </div>
-    <main class="main-content">
-        <article class="article-content">
-            @Body
-        </article>
+    <main class="main-content" style="flex: 1;">
+        @Body
     </main>
+
+    <Footer />
+
+    <AuthorizeView Policy="RequireVolgersRole">
+        <Authorized>
+            <nav class="mobile-navbar d-lg-none">
+                <NavLink href="/ModulesOfUser" class="nav-item">
+                    <i class="bi bi-collection"></i>
+                    <span>Modules</span>
+                </NavLink>
+                <NavLink href="/progress" class="nav-item">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Voortgang</span>
+                </NavLink>
+                <NavLink href="/profile" class="nav-item">
+                    <i class="bi bi-person"></i>
+                    <span>Profiel</span>
+                </NavLink>
+            </nav>
+        </Authorized>
+    </AuthorizeView>
 </div>
 
 <div id="blazor-error-ui">

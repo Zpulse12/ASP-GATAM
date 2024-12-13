@@ -10,6 +10,7 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider authStateProvider
 @attribute [Authorize(Policy = "RequireManagementRole")]
+<link href="css/user-summary.css" rel="stylesheet" />
 @if (_hasError)
     {
         <p>Oops, er liep iets mis</p>
@@ -17,10 +18,13 @@
     }
     else if (user != null)
     {
-<Tabs EnableFadeEffect="true">
+<Tabs EnableFadeEffect="true" Class="content-tabs">
     <Tab Active="true">
         <TitleTemplate>
-            <Icon Name="IconName.PersonCircle" /> Volger
+            <div class="tab-title">
+                <i class="bi bi-person-badge-fill"></i>
+                <span>Volger Info</span>
+            </div>
         </TitleTemplate>
         <Content>
 
@@ -70,7 +74,10 @@
     </Tab>
     <Tab>
         <TitleTemplate>
-            <Icon Name="IconName.Book" /> Modules
+            <div class="tab-title">
+                <i class="bi bi-journal-text"></i>
+                <span>Modules Overzicht</span>
+            </div>
         </TitleTemplate>
         <Content>
             <div class="card">
@@ -110,7 +117,10 @@
         {
     <Tab>
         <TitleTemplate>
-            <Icon Name="IconName.Gear" /> Beheerder Instellingen
+            <div class="tab-title">
+                <i class="bi bi-sliders"></i>
+                <span>Beheer Instellingen</span>
+            </div>
         </TitleTemplate>
         <Content>
             <Accordion>

@@ -20,7 +20,7 @@
     </div>
 
     <div class="module-actions">
-        <a href="/content/modules/create" class="btn btn-primary" title="Maak een nieuwe module aan">
+        <a href="/content/create" class="btn btn-primary" title="Maak een nieuwe module aan">
             <i class="bi bi-plus-circle"></i>
             <span>Nieuwe Module</span>
         </a>
@@ -75,16 +75,19 @@
 
 <Modal @ref="modal" @bind-IsOpen="isModalOpen" Title="Module Details" Size="ModalSize.Large">
     <HeaderTemplate>
-        <h5 class="modal-title">@(showWarning ? "Module Verwijderen" : "Details van") @selectedModule?.Title</h5>
+        <h5 class="modal-title">@(isDeleteMode ? "Module Verwijderen" : "Details van") @selectedModule?.Title</h5>
     </HeaderTemplate>
     <BodyTemplate>
         @if (selectedModule != null)
         {
-            @if (showWarning)
+            @if (isDeleteMode)
             {
-                <div class="alert alert-warning mb-3">
-                    De module kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s).
-                </div>
+                @if (showWarning)
+                {
+                    <div class="alert alert-warning mb-3">
+                        De module kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s).
+                    </div>
+                }
                 <p>Weet je zeker dat je deze module wilt verwijderen?</p>
             }
             else
@@ -125,9 +128,9 @@
         }
     </BodyTemplate>
     <FooterTemplate>
-        @if (showWarning)
+        @if (isDeleteMode)
         {
-            <button type="button" class="btn btn-danger" @onclick="Delete" disabled="@showWarning">Verwijderen</button>
+            <button type="button" class="btn btn-danger" @onclick="Delete">Verwijderen</button>
         }
         <button class="btn btn-secondary" @onclick="OnHideModalClick">Sluiten</button>
     </FooterTemplate>
@@ -141,6 +144,7 @@
     private ApplicationModule? selectedModule;
     private bool isModalOpen;
     private bool showWarning = false;
+    private bool isDeleteMode = false;
 
     [Inject] protected ToastService toastService { get; set; } = default!;
 
@@ -178,8 +182,8 @@
                 var responseContent = await response.Content.ReadAsStringAsync();
                 if (responseContent.Contains("is toegewezen aan trajectvolger(s)"))
                 {
-                    toastService.Notify(new(ToastType.Warning, $"De module {selectedModule.Title} kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s)."));
                     showWarning = true;
+                    toastService.Notify(new(ToastType.Warning, $"De module {selectedModule.Title} kan niet worden verwijderd omdat deze is toegewezen aan trajectvolger(s)."));
                 }
                 else
                 {
@@ -197,6 +201,7 @@
     {
         selectedModule = module;
         showWarning = false;
+        isDeleteMode = false;
         isModalOpen = true;
         StateHasChanged();
         await modal!.ShowAsync();
@@ -210,7 +215,8 @@
     private async Task OnShowDeleteModalClick(ApplicationModule module)
     {
         selectedModule = module;
-        showWarning = true;
+        showWarning = false;
+        isDeleteMode = true;
         isModalOpen = true;
         StateHasChanged();
         await modal!.ShowAsync();

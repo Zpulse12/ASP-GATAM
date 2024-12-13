@@ -22,7 +22,7 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
         public async Task Handle_ValidRequest_UpdatesUserModuleState()
         {
             var userModuleId = "module1";
-            var newState = UserModuleState.InProgress;
+            var newState = UserModuleState.Done;
 
             var userModule = new Gatam.Domain.UserModule
             {
@@ -46,7 +46,11 @@ namespace UnitTesting.CQRSTest.ApplicationModule.UserModule
             Assert.AreEqual(newState, result.State);
 
             _uowMock.Verify(repo => repo.UserModuleRepository.FindByIdModuleWithIncludes(userModuleId), Times.Once);
-            _uowMock.Verify(repo => repo.UserModuleRepository.Update(It.Is<Gatam.Domain.UserModule>(um => um.Id == userModuleId && um.State == newState)), Times.Once);
+            _uowMock.Verify(repo => repo.UserModuleRepository.Update(
+                It.Is<Gatam.Domain.UserModule>(um => 
+                    um.Id == userModuleId && 
+                    um.State == newState)), 
+                Times.Once);
         }
     }
 }

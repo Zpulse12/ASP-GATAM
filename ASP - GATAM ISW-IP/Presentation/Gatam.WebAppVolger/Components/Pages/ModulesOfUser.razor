@@ -1,6 +1,7 @@
 ﻿@page "/ModulesOfUser"
 @using System.Security.Claims
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
 @using Gatam.WebAppVolger.Components.Layout
 @inject ApiClient ApiClient
@@ -8,9 +9,32 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 @attribute [Authorize(Policy = "RequireVolgersRole")]
+
 <InactiveUserRedirect />
-<div class="container mt-4">
-    <h2 class="mb-4">Mijn Modules</h2>
+<link href="css/modules-of-user.css" rel="stylesheet" />
+
+<div class="modules-container">
+    <div class="modules-header">
+        <div class="header-wrapper">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="bi bi-collection"></i>
+                </div>
+                <div class="header-text">
+                    <h2>Mijn Modules</h2>
+                    <p>Bekijk en beheer je toegewezen modules</p>
+                </div>
+            </div>
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" 
+                       placeholder="Zoek in modules..." 
+                       @bind="searchTerm" 
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearch" />
+            </div>
+        </div>
+    </div>
 
     @if (_isLoading)
     {
@@ -21,67 +45,61 @@
     else if (_hasError)
     {
         <div class="alert alert-danger text-center" role="alert">
-            <strong>Error:</strong> Er is een probleem opgetreden bij het ophalen van jouw modules. Probeer het later opnieuw.
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Er is een probleem opgetreden bij het ophalen van jouw modules. Probeer het later opnieuw.
         </div>
     }
     else if (_userModules?.Any() == true)
     {
-        <div class="row">
-            @foreach (var userModule in _userModules)
+        <div class="module-grid">
+            @foreach (var userModule in GetPaginatedModules())
             {
-                <div class="col-md-4 col-sm-6 mb-4">
-                    <div class="card h-100 shadow-lg border-0" style="background-color: #f9f9fc;" @onclick="() => NavigateToModule(userModule.Id)">
-                        <div class="card-body">
-                            <h5 class="card-title text-primary font-weight-bold">@userModule.Module.Title</h5>
+                <div class="module-card" @onclick="() => NavigateToModule(userModule.Id)">
+                    <div class="card-body">
+                        <h3 class="module-title">@userModule.Module.Title</h3>
+                        <div class="module-category">
+                            <i class="bi bi-tag me-2"></i>@userModule.Module.Category
+                        </div>
 
-                            <p class="card-text text-muted mb-3">@userModule.Module.Category</p>
+                        <div class="progress-info">
+                            <div class="info-item">
+                                <span class="info-label">Status</span>
+                                <span class="info-value @GetStateClass(userModule.State)">@GetStateText(userModule.State)</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Vragen</span>
+                                <span class="info-value">@userModule.UserQuestions?.Count(q => q.IsVisible)</span>
+                            </div>
+                        </div>
 
-                            @if (userModule.State != Domain.UserModuleState.NotStarted)
-                            {
-                                <p class="mb-1">
-                                    <strong>Status:</strong>
-                                    <span class="text-success">@userModule.State</span>
-                                </p>
-
-                                <p class="mb-1">
-                                    <strong>Visible Questions:</strong>
-                                    <span class="badge bg-info text-dark">@userModule.UserQuestions?.Count(q => q.IsVisible)</span>
-                                </p>
-
-                                <p class="mb-1">
-                                    <strong>Given Answers:</strong>
-                                    <span class="badge bg-warning text-dark">@userModule.UserGivenAnswers?.Count()</span>
-                                </p>
-
-                                <p class="mb-3">
-                                    <strong>Answered Percentage:</strong>
-                                    <span class="badge bg-primary text-white">@CalculateAnsweredPercentage(userModule)%</span>
-                                </p>
-
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <Button Class="btn btn-sm btn-secondary text-white"
-                                            @onclick="() => NavigateToModule(userModule.Id)">
-                                        Klik hier voor meer
-                                    </Button>
-
-                                    <Badge Style="@GetBadgeStyle(userModule)"
-                                           Color="BadgeColor.None"
-                                           Class="module-badge badge bg-light text-dark border">
-                                        @CalculateAnsweredPercentageLabel(userModule)
-                                    </Badge>
-                                </div>
-                            }
+                        <div class="module-footer">
+                            <button class="btn-details">
+                                <i class="bi bi-arrow-right me-2"></i>Bekijk Module
+                            </button>
+                            <span class="progress-badge" style="@GetBadgeStyle(userModule)">
+                                @CalculateAnsweredPercentageLabel(userModule)
+                            </span>
                         </div>
                     </div>
                 </div>
-
             }
+        </div>
+
+        <div class="pagination-container">
+            <button class="btn-pagination" @onclick="() => ChangePage(currentPage - 1)" disabled="@(currentPage == 1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <span class="page-info">@currentPage / @totalPages</span>
+            <button class="btn-pagination" @onclick="() => ChangePage(currentPage + 1)" disabled="@(currentPage == totalPages)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
         </div>
     }
     else
     {
         <div class="text-center mt-4">
-            <p class="text-muted">Geen modules gevonden voor jouw account.</p>
+            <i class="bi bi-inbox-fill text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">Je hebt nog geen modules toegewezen gekregen.</p>
         </div>
     }
 </div>
@@ -90,10 +108,17 @@
     private List<UserModuleDTO> _userModules = new List<UserModuleDTO>();
     private bool _isLoading = true;
     private bool _hasError = false;
+    private string searchTerm = "";
+    private Timer? _debounceTimer;
+    private List<UserModuleDTO> _originalUserModules = new();
+
+    private const int PAGE_SIZE = 1;  
+    private int currentPage = 1;
+    private int totalPages => (int)Math.Ceiling(_userModules.Count / (double)PAGE_SIZE);
+
     protected override async Task OnInitializedAsync()
     {
         await LoadUserModules();
-
     }
 
     private async Task LoadUserModules()
@@ -113,17 +138,14 @@
                     return;
                 }
                 _userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{userId}/modules");
+                _originalUserModules = new List<UserModuleDTO>(_userModules);
             }
             else
             {
                 _hasError = true;
             }
         }
-        catch (HttpRequestException ex)
-        {
-            _hasError = true;
-        }
-        catch (Exception ex)
+        catch (Exception)
         {
             _hasError = true;
         }
@@ -133,7 +155,47 @@
         }
     }
 
-   
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        _debounceTimer?.Dispose();
+        _debounceTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                FilterModules();
+                StateHasChanged();
+            });
+        }, null, 300, Timeout.Infinite);
+    }
+
+    private void FilterModules()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            _userModules = _originalUserModules;
+        }
+        else
+        {
+            _userModules = _originalUserModules.Where(m =>
+                m.Module.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                m.Module.Category.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    private List<UserModuleDTO> GetPaginatedModules()
+    {
+        return _userModules
+            .Skip((currentPage - 1) * PAGE_SIZE)
+            .Take(PAGE_SIZE)
+            .ToList();
+    }
+
+    private void ChangePage(int page)
+    {
+        currentPage = page;
+        StateHasChanged();
+    }
 
     public double CalculateAnsweredPercentage(UserModuleDTO userModule)
     {
@@ -169,23 +231,45 @@
         var percentage = CalculateAnsweredPercentage(userModule);
         return $"{percentage:0.##}%";
     }
+
     private string GetBadgeColor(UserModuleDTO userModule)
     {
         var percentage = CalculateAnsweredPercentage(userModule);
 
-        if (percentage >= 80) return "#28a745"; // Groen (succes)
-        if (percentage >= 50) return "#ffc107"; // Geel (waarschuwing)
-        return "#dc3545"; // Rood (fout)
+        if (percentage >= 80) return "#28a745";
+        if (percentage >= 50) return "#ffc107";
+        return "#dc3545";
     }
+
     private string GetBadgeStyle(UserModuleDTO userModule)
     {
         var badgeColor = GetBadgeColor(userModule);
         return $"margin-right: 10px; width: 60px; background-color: {badgeColor};";
     }
 
-     private void NavigateToModule(string userModuleId)
+    private void NavigateToModule(string userModuleId)
     {
         NavigationManager.NavigateTo($"/ModuleDetails/{userModuleId}");
     }
 
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+    }
+
+    private string GetStateClass(UserModuleState state) => state switch
+    {
+        UserModuleState.NotStarted => "state-niet-gestart",
+        UserModuleState.InProgress => "state-in-uitvoering",
+        UserModuleState.Done => "state-voltooid",
+        _ => ""
+    };
+
+    private string GetStateText(UserModuleState state) => state switch
+    {
+        UserModuleState.NotStarted => "Niet Gestart",
+        UserModuleState.InProgress => "In Uitvoering",
+        UserModuleState.Done => "Voltooid",
+        _ => ""
+    };
 }

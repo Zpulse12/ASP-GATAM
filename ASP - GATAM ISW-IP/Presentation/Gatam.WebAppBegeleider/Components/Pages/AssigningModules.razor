@@ -174,8 +174,8 @@
                                         {
                                             <span class="badge bg-light text-dark border fs-7 py-2">
                                                 <span class="text-secondary">@modules.FirstOrDefault(x => x.Id == userModule.ModuleId).Title</span>
-                                                <span class="ms-2 badge @(userModule.State == UserModuleState.NotStarted ? "bg-warning" : "bg-success") small">
-                                                    @(userModule.State == UserModuleState.NotStarted ? "Niet gestart" : "In progress")
+                                                <span class="ms-2 badge @GetStatusBadgeClass(userModule.State) small">
+                                                    @GetStatusText(userModule.State)
                                                 </span>
                                             </span>
                                         }
@@ -280,7 +280,6 @@
 
     private async Task AssignModuleToUser()
     {
-        // Validatie checks
         if (string.IsNullOrEmpty(SelectedUserId))
         {
             toastService.Notify(new(ToastType.Warning, "Selecteer eerst een gebruiker"));
@@ -341,13 +340,17 @@
                 users = users.Where(u => u.BegeleiderId == userId)
                      .ToList();
             }
-            foreach ( var followers in users)
+            foreach (var followers in users)
             {
                 if (string.IsNullOrEmpty(followers.Picture) || followers.Picture.Trim().ToLower() == "png")
                 {
                     followers.Picture = "/images/default.png";
                 }
             }
+
+            filteredUsers = new List<ApplicationUser>(users);
+            filteredModules = new List<ApplicationModule>(modules);
+            
             IsLoading = false;
         }
         catch (Exception ex)
@@ -437,5 +440,27 @@
     public void Dispose()
     {
         _debounceTimer?.Dispose();
+    }
+
+    private string GetStatusBadgeClass(UserModuleState state)
+    {
+        return state switch
+        {
+            UserModuleState.NotStarted => "bg-danger",   
+            UserModuleState.InProgress => "bg-warning",   
+            UserModuleState.Done => "bg-success",        
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusText(UserModuleState state)
+    {
+        return state switch
+        {
+            UserModuleState.NotStarted => "Niet gestart",
+            UserModuleState.InProgress => "In uitvoering",
+            UserModuleState.Done => "Voltooid",         
+            _ => "Onbekend"
+        };
     }
 }
