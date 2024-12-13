@@ -1,11 +1,9 @@
-/* Container */
 .questions-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
 
-/* Header */
 .page-header {
     background: linear-gradient(135deg, #9ac1d9, #232B6C);
     padding: 1.5rem 2rem;
@@ -21,7 +19,6 @@
     font-weight: 500;
 }
 
-/* Zoekbalk en button sectie */
 .actions-container {
     background: white;
     padding: 1.5rem;
@@ -52,7 +49,6 @@
     outline: none;
 }
 
-/* Tabel styling */
 .table {
     background: white;
     border-radius: 12px;
@@ -61,7 +57,6 @@
     border: none;
 }
 
-/* Tabel header styling */
 .custom-header {
     background: #232B6C !important;
     border-top-left-radius: 8px;
@@ -79,7 +74,6 @@
     background: transparent !important;
 }
 
-/* Voorkom witte hover op ALLE header elementen */
 .custom-header:hover,
 .custom-header th:hover,
 .custom-header tr:hover,
@@ -90,7 +84,6 @@
     background: transparent !important;
 }
 
-/* Extra specifieke regel voor de gradient */
 .table .custom-header {
     background: l#232B6C !important;
 }
@@ -99,7 +92,6 @@
     background: #232B6C !important;
 }
 
-/* Filter en sort icons */
 .custom-header ::deep(.sort-icon),
 .custom-header ::deep(.filter-icon) {
     color: white !important;
@@ -112,7 +104,6 @@
     opacity: 1;
 }
 
-/* Filter popup */
 .custom-header ::deep(.filter-popup) {
     background: white;
     padding: 1rem;
@@ -125,7 +116,6 @@
     color: #232B6C !important;
 }
 
-/* Tabel kolom breedtes en spacing */
 .table td, 
 .table th {
     padding: 0.75rem 1rem;
@@ -145,15 +135,14 @@
     width: 120px;
 }
 
-/* Datum kolommen */
 .table td:nth-child(3),
 .table td:nth-child(4),
 .table th:nth-child(3),
 .table th:nth-child(4) {
     width: 150px;
-    white-space: nowrap;  /* Voorkomt dat datum breekt naar nieuwe regel */
-    overflow: hidden;     /* Verbergt overflow */
-    text-overflow: ellipsis;  /* Toont ... als de tekst te lang is */
+    white-space: nowrap;  
+    overflow: hidden;     
+    text-overflow: ellipsis;  
 }
 
 .table td:last-child,
@@ -166,7 +155,6 @@
     background: rgba(154, 193, 217, 0.05);
 }
 
-/* Actie buttons */
 .table .btn {
     padding: 0.6rem;
     border-radius: 8px;
@@ -178,49 +166,64 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Modal styling */
+.modal-dialog.modal-dialog-centered {
+    max-width: 60vw !important;
+    width: 60vw !important;
+    margin: 0 auto;
+}
+
+.modal-dialog {
+    max-width: 60vw !important;
+    width: 60vw !important;
+    margin: 0 auto;
+}
+
+.modal {
+    padding: 0 !important;
+}
+
 .modal-content {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
+    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+    padding: clamp(1rem, 3vw, 1.5rem);
     border: none;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 1px 8px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    width: 100%;
+    transition: all 0.3s ease;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1.5rem;
+    border: none;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 0.75rem;
-    color: #232B6C;
-    font-weight: 500;
-    font-size: 0.95rem;
+    min-width: 180px;
+    padding-top: 0.5rem;
 }
 
-.form-control {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.2s ease;
+.form-group .col-md-10 {
+    flex: 1;
 }
 
-.form-control:focus {
-    border-color: #9ac1d9;
-    box-shadow: 0 0 0 3px rgba(154, 193, 217, 0.2);
-    outline: none;
+.answer-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 1rem;
+    align-items: start;
 }
 
-/* Validatie */
 .validation-message {
     color: #dc2626;
     font-size: 0.875rem;
     margin-top: 0.5rem;
 }
 
-/* Buttons algemeen */
 .btn {
     font-weight: 500;
     letter-spacing: 0.3px;
@@ -233,7 +236,6 @@
     font-size: 1.1rem;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .questions-container {
         padding: 1rem;
@@ -249,7 +251,6 @@
     }
 }
 
-/* Tooltip styling voor volledige datum */
 .table ::deep(.tooltip) {
     background: white;
     color: #232B6C;
