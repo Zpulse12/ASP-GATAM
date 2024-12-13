@@ -58,7 +58,6 @@ namespace Gatam.Application.CQRS.User
         {
             _unitOfWork = uow;
             _mapper = mapper;
-            _auth0Repository = auth0Repository;
         }
         public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
@@ -79,13 +78,8 @@ namespace Gatam.Application.CQRS.User
                 UserId = user.Id,
                 RoleId = volgerRole.Id
             });
-
-            var rolesToUpdate = new List<string> { volgerRole.Id };
-            await _auth0Repository.UpdateUserRoleAsync(user.Id, new RolesDTO() { Roles = rolesToUpdate });
-
             await _unitOfWork.UserRepository.Create(user);
             await _unitOfWork.Commit();
-
             return _mapper.Map<UserDTO>(user);
         }
     }

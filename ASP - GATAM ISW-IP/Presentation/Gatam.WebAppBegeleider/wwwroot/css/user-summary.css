@@ -1,0 +1,314 @@
+/* Page wrapper */
+.page-wrapper {
+    padding: clamp(1rem, 3vw, 2rem);
+    background: #f0f2f5;
+    min-height: 100vh;
+}
+
+/* Card styling */
+.card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: none;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    border: none;
+}
+
+.card-header h3 {
+    color: white;
+    margin: 0;
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+    font-weight: 600;
+}
+
+.card-body {
+    padding: clamp(1.5rem, 4vw, 2rem);
+}
+
+/* Form groups */
+.form-group {
+    margin-bottom: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    color: #64748b;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-group p {
+    color: #1e293b;
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+    font-weight: 500;
+    margin: 0;
+    padding: 0.75rem 0;
+}
+
+/* Module cards */
+.card.mb-3 {
+    transition: all 0.2s ease;
+}
+
+.card.mb-3:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card-title {
+    color: #1e293b;
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.card-text {
+    color: #64748b;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    margin-bottom: 0.5rem;
+}
+
+.card-text b {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+/* Tabs styling */
+::deep .nav-tabs {
+    border: none;
+    margin-bottom: 1.5rem;
+    gap: 0.5rem;
+}
+
+::deep .nav-tabs .nav-link {
+    border: none;
+    color: #64748b;
+    padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+::deep .nav-tabs .nav-link:hover {
+    background: rgba(73, 77, 126, 0.05);
+    color: #1e293b;
+}
+
+::deep .nav-tabs .nav-link.active {
+    background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+    color: white;
+}
+
+/* Accordion styling */
+::deep .accordion {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+::deep .accordion-item {
+    border: 1px solid #e2e8f0;
+}
+
+::deep .accordion-header {
+    background: #f8fafc;
+}
+
+::deep .accordion-button {
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: 500;
+    color: #1e293b;
+}
+
+::deep .accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+    color: white;
+}
+
+::deep .accordion-body {
+    padding: clamp(1.5rem, 4vw, 2rem);
+}
+
+/* Select styling */
+.form-control {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.875rem 1.25rem;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.form-control:focus {
+    border-color: rgb(73, 77, 126);
+    box-shadow: 0 0 0 4px rgba(73, 77, 126, 0.1);
+    outline: none;
+}
+
+/* Button styling */
+.btn-primary {
+    background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+    border: none;
+    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.5rem);
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(73, 77, 126, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .col-md-4 {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Banner styling */
+.banner {
+    background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(73, 77, 126, 0.2);
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+    position: relative;
+    overflow: hidden;
+}
+
+.banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    pointer-events: none;
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.25rem, 3vw, 2rem);
+    position: relative;
+}
+
+.banner-icon {
+    background: rgba(255, 255, 255, 0.15);
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.banner-icon i {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    color: white;
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.animate-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tab icons styling */
+.content-tabs ::deep .nav-link i {
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+.error-state {
+    text-align: center;
+    padding: 3rem;
+}
+
+.error-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Tab styling */
+.content-tabs ::deep .nav-tabs {
+    border: none;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.content-tabs ::deep .nav-link {
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    color: #64748b;
+    transition: all 0.2s ease;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.content-tabs ::deep .nav-link:hover {
+    color: rgb(73, 77, 126);
+    transform: translateY(-1px);
+}
+
+.content-tabs ::deep .nav-link.active {
+    background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(73, 77, 126, 0.2);
+}
+
+.tab-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tab-title i {
+    font-size: 1.2rem;
+}
+
+.tab-title span {
+    font-weight: 500;
+} 

@@ -11,7 +11,7 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider authStateProvider
 @attribute [Authorize(Policy = "RequireManagementRole")]
-<link href="css/usersummary.css" rel="stylesheet" />
+<link href="css/user-summary.css" rel="stylesheet" />
 @if (_hasError)
     {
         <p>Oops, er liep iets mis</p>
@@ -19,13 +19,16 @@
     }
     else if (user != null)
     {
-        <div class="page-container">
-    <Tabs EnableFadeEffect="true">
-        <Tab Active="true">
-            <TitleTemplate>
-                <Icon Name="IconName.PersonCircle" /> Volger
-            </TitleTemplate>
-            <Content>
+<Tabs EnableFadeEffect="true" Class="content-tabs">
+    <Tab Active="true">
+        <TitleTemplate>
+            <div class="tab-title">
+                <i class="bi bi-person-badge-fill"></i>
+                <span>Volger Info</span>
+            </div>
+        </TitleTemplate>
+        <Content>
+
                 <div class="card">
                     <div class="card-header">
                         <h3>Gebruikersinformatie</h3>
@@ -74,36 +77,39 @@
                         </div>
                     </div>
                 </div>
-            </Content>
-        </Tab>
-        <Tab>
-            <TitleTemplate>
-                <Icon Name="IconName.Book" /> Modules
-            </TitleTemplate>
-            <Content>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Toegewezen Modules</h3>
-                    </div>
-                    <div class="card-body">
-                        @if (userModules == null || !userModules.Any())
-                        {
-                            <p class="text-muted">Er zijn geen modules toegewezen aan deze gebruiker.</p>
-                        }
-                        else
-                        {
-                            <div class="row">
-                                @foreach (var userModule in userModules)
-                                {
-                                    <div class="col-md-4">
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <h5 class="card-title">@userModule.Module?.Title</h5>
-                                                <p class="card-text"><b>Categorie:</b> @userModule.Module?.Category</p>
-                                            </div>
+        </Content>
+    </Tab>
+    <Tab>
+        <TitleTemplate>
+            <div class="tab-title">
+                <i class="bi bi-journal-text"></i>
+                <span>Modules Overzicht</span>
+            </div>
+        </TitleTemplate>
+        <Content>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Toegewezen Modules</h3>
+                </div>
+                <div class="card-body">
+                    @if (userModules == null || !userModules.Any())
+                    {
+                        <p>Er zijn geen modules toegewezen aan deze gebruiker.</p>
+                    }
+                    else if(userModules != null)
+                    {
+                        <div class="row">
+                            @foreach (var userModule in userModules)
+                            {
+                                <div class="col-md-4">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@userModule.Module?.Title</h5>
+                                            <p class="card-text"><b>Categorie:</b> @userModule.Module?.Category</p>
                                         </div>
                                     </div>
-                                }
+                                </div>
+                            }
                             </div>
                         }
                     </div>
@@ -114,7 +120,10 @@
         {
     <Tab>
         <TitleTemplate>
-            <Icon Name="IconName.Gear" /> Beheerder Instellingen
+            <div class="tab-title">
+                <i class="bi bi-sliders"></i>
+                <span>Beheer Instellingen</span>
+            </div>
         </TitleTemplate>
         <Content>
             <Accordion>
@@ -192,7 +201,6 @@
     </Tab>
         }
 </Tabs>
-    </div>
     }
 <Modal @ref="removeRoleModal" Title="Verwijderen van rol.">
     <BodyTemplate>
@@ -237,7 +245,7 @@
         {
             user = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{UserId}");
             string roleId = RoleMapper.Roles[CustomRoles.BEGELEIDER].Id;
-            var users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
             if (user.MentorId != null)
             {
                 mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{user.MentorId}");

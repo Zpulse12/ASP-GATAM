@@ -24,7 +24,6 @@ namespace Gatam.Application.Extensions
         new KeyValuePair<CustomRoles, RoleInfo>(CustomRoles.VOLGER, new RoleInfo() { Name = "VOLGER", Id = "rol_2SgoYL1AoK9tXYXW" }),
         new KeyValuePair<CustomRoles, RoleInfo>(CustomRoles.MAKER, new RoleInfo() { Name = "MAKER", Id = "rol_tj8keS38380ZU4NR" })
         });
-
         public static RoleInfo[] GetRoleValues(params CustomRoles[] roleNames)
         {
             if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
@@ -43,7 +42,6 @@ namespace Gatam.Application.Extensions
                     : throw new ArgumentException($"Role {role} not found"))
                 .ToList();
         }
-
         public static List<string> GetListOfRoleNames(params CustomRoles[] roleNames)
         {
             if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));

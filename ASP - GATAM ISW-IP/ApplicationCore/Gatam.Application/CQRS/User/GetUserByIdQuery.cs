@@ -23,7 +23,7 @@ namespace Gatam.Application.CQRS.User
 
         public async Task<UserDTO> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<UserDTO>(await _uow.UserRepository.FindById(request.UserId));
+            return _mapper.Map<UserDTO>(await _uow.UserRepository.FindByIdWithIncludes(request.UserId, x => x.UserRoles));
         }
 
     }

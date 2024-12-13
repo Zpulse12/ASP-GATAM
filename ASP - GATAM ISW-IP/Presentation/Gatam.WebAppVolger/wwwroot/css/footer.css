@@ -1,0 +1,33 @@
+.bg-gatam {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: white;
+    padding: 1rem;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    position: relative;
+    left: 50%;
+    right: 50%;
+}
+
+footer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.nav a:hover {
+    opacity: 0.8;
+}
+
+/* Verberg footer op mobiel */
+@media (max-width: 767px) {
+    .bg-gatam {
+        display: none;
+    }
+}

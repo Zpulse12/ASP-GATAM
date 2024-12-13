@@ -1,35 +1,25 @@
 .page-wrapper {
-    padding: 1.5rem;
-    height: 75vh;
+    padding: 1rem;
     background: #f0f2f5;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    gap: 0.75rem;
 }
 
 .content-container {
     background: white;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    height: calc(75vh - 6rem);
-    margin: 1.5rem;
-    overflow: hidden;
-    flex: 1;
-    position: relative;
-    z-index: 1;
-    padding-top: 2rem;
 }
 
 .banner {
     background: linear-gradient(135deg, rgb(146, 175, 206) 0%, rgb(73, 77, 126) 100%);
-    padding: 2rem 3rem;
-    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
     box-shadow: 0 4px 12px -2px rgba(73, 77, 126, 0.15);
-    margin: 1.5rem 1.5rem -16px 1.5rem;
-    position: relative;
-    z-index: 2;
 }
 
 .banner-content {
@@ -72,50 +62,115 @@ EditForm {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding-bottom: 5rem;
 }
 
 .form-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    padding: 3rem 3rem 0 3rem;
-    overflow-y: auto;
-    flex: 1;
+    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0.5rem;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    position: relative;
+    margin-bottom: 0.5rem;
 }
 
-.form-group label {
-    font-size: 1rem;
-    font-weight: 500;
+.form-group:nth-child(3),
+.form-group:nth-child(4) {
+    grid-column: auto;
+}
+
+.form-group:nth-child(5),
+.role-selection {
+    grid-column: auto;
 }
 
 .form-control {
+    width: 100%;
     padding: 0.75rem 1rem;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--gradient-end);
+    box-shadow: 0 0 0 2px rgba(73, 77, 126, 0.1);
+    outline: none;
+}
+
+.password-input {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+.password-input .form-control {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+    width: 100%;
+}
+
+.password-input .password-toggle {
+    position: relative;
+    right: auto;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-left: none;
+    padding: 0.75rem 1rem;
+    border-radius: 0 8px 8px 0;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.password-toggle:hover {
+    background: #f8fafc;
+    color: var(--gradient-end);
+}
+
+.role-selection {
+    margin-bottom: 0.5rem;
+}
+
+.role-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.role-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 42px;
+}
+
+.role-card.active {
+    border-color: var(--gradient-end);
+    background: rgba(73, 77, 126, 0.05);
+}
+
+.role-card i {
+    font-size: 1rem;
+    color: #64748b;
 }
 
 .form-actions {
-    padding: 1.5rem 3rem;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
+    padding: 0.75rem;
     display: flex;
-    gap: 1rem;
     justify-content: flex-end;
-    border-radius: 0 0 16px 16px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    box-sizing: border-box;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
 }
 
 .btn-submit, .btn-cancel {
@@ -271,5 +326,18 @@ button[type="button"].btn-icon i,
     background: white;
     border: 1px solid #e2e8f0;
     padding: 0.75rem 1.5rem;
+}
+
+/* Responsive aanpassingen */
+@media (min-width: 1200px) {
+    .form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1199px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
 }
 
