@@ -66,9 +66,13 @@
                           Class="modern-table">
                         <GridColumns>
                             <GridColumn TItem="ApplicationUser" HeaderText="Naam" PropertyName="Name">
-                                <div class="user-info">
+                                <div class="user-info @(!context.IsActive ? "deactivated" : "")">
                                     <img src="@context.Picture" alt="@context.Name" class="user-avatar" />
                                     <span>@context.Name @context.Surname</span>
+                                    @if (!context.IsActive)
+                                    {
+                                        <span class="deactivated-badge">Gedeactiveerd</span>
+                                    }
                                 </div>
                             </GridColumn>
                             <GridColumn TItem="ApplicationUser" HeaderText="Email" PropertyName="Email">
@@ -79,7 +83,9 @@
                             </GridColumn>
                             <GridColumn TItem="ApplicationUser" HeaderText="Actie">
                                 <button class="btn-select @(SelectedUserId == context.Id ? "selected" : "")" 
-                                        @onclick="@(() => SelectUser(context.Id))">
+                                        @onclick="@(() => SelectUser(context.Id))"
+                                        disabled="@(!context.IsActive)"
+                                        title="@(!context.IsActive ? "Gedeactiveerde gebruiker" : "")">
                                     <i class="bi bi-check2-circle"></i>
                                     <span>@(SelectedUserId == context.Id ? "Geselecteerd" : "Selecteer")</span>
                                 </button>
@@ -146,7 +152,7 @@
                 <tbody>
                     @foreach (var user in users)
                     {
-                        <tr>
+                        <tr class="@(!user.IsActive ? "deactivated-row" : "")">
                             <td style="width: 30%">
                                 <div class="d-flex align-items-center">
                                     @if (!string.IsNullOrEmpty(user.Picture))
@@ -163,6 +169,10 @@
                                     <div>
                                         <div>@user.Name @user.Surname</div>
                                         <small class="text-muted">@user.Email</small>
+                                        @if (!user.IsActive)
+                                        {
+                                            <span class="deactivated-badge ms-2">Gedeactiveerd</span>
+                                        }
                                     </div>
                                 </div>
                             </td>
@@ -293,6 +303,13 @@
         }
 
         var user = users.FirstOrDefault(u => u.Id == SelectedUserId);
+        
+        if (!user?.IsActive == true)
+        {
+            toastService.Notify(new(ToastType.Warning, "Je kunt geen modules toewijzen aan een gedeactiveerde gebruiker."));
+            return;
+        }
+
         if (user?.UserModules?.Any(um => um.ModuleId == SelectedModuleId) == true)
         {
             toastService.Notify(new(ToastType.Warning, "Deze module is al toegewezen aan deze gebruiker."));
