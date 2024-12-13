@@ -7,49 +7,72 @@
 @rendermode InteractiveServer
 @inject AuthenticationStateProvider authStateProvider
 @attribute [Authorize(Policy = "RequireVolgersRole")]
-
-<div class="container">
+<link href="css/module-details.css" rel="stylesheet" />
+<div class="module-container">
     @if (_hasError)
     {
-        <p>Oops, dit mag niet. Je hebt geen toegang tot deze module.</p>
+        <div class="error-message">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            <span>Oops, dit mag niet. Je hebt geen toegang tot deze module.</span>
+        </div>
     }
     else if (userModule?.Module != null)
     {
-        <h3 class="mt-4">@userModule.Module.Title</h3>
-        <p>@userModule.Module.Category</p>
+        <div class="module-header">
+            <h3 class="module-title">@userModule.Module.Title</h3>
+            <span class="module-category">
+                <i class="bi bi-bookmark me-2"></i>
+                @userModule.Module.Category
+            </span>
+        </div>
 
         @if (userModule.UserQuestions != null && userModule.UserQuestions.Any())
         {
             @foreach (var question in userModule.UserQuestions.Where(x => x.IsVisible))
             {
-                <div class="card mb-3">
-                    <div class="card-body">
-                         <div class="card-body d-flex justify-content-between align-items-center">
-        <div>
-            <p style="font-size: 0.8em; color: gray;">Vraag:</p>
-            <h5 class="card-title">@question.QuestionTitle</h5>
-        </div>
-        <div>
-           @if (question.QuestionPriority == QuestionPriority.HIGH)
-{
-    <Tooltip Class="d-inline-block" Title="Deze vraag heeft een hoge prioriteit en is belangrijk." Color="TooltipColor.Dark"  role="button">
-        <Badge Color="BadgeColor.Danger">Hoge prioriteit</Badge>
-    </Tooltip>
-}
-else if (question.QuestionPriority == QuestionPriority.MEDIUM)
-{
-    <Tooltip Class="d-inline-block" Title="Deze vraag heeft een normale prioriteit." Color="TooltipColor.Dark" role="button">
-        <Badge Color="BadgeColor.Warning">Normale prioriteit</Badge>
-    </Tooltip>
-}
-else
-{
-    <Tooltip Class="d-inline-block" Title="Deze vraag heeft een lage prioriteit" Color="TooltipColor.Dark" role="button">
-        <Badge Color="BadgeColor.Secondary">Lage prioriteit</Badge>
-    </Tooltip>
-}
-        </div>
-    </div>
+                <div class="question-card">
+                    <div class="question-content">
+                        <div class="question-header">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <p class="question-label">
+                                        <i class="bi bi-question-circle me-2"></i>
+                                        Vraag
+                                    </p>
+                                    <h5 class="card-title">@question.QuestionTitle</h5>
+                                </div>
+                                <div>
+                                    @if (question.QuestionPriority == QuestionPriority.HIGH)
+                                    {
+                                        <Tooltip Class="d-inline-block" Title="Deze vraag heeft een hoge prioriteit en is belangrijk." Color="TooltipColor.Dark">
+                                            <Badge Color="BadgeColor.Danger">
+                                                <i class="bi bi-exclamation-circle me-1"></i>
+                                                Hoge prioriteit
+                                            </Badge>
+                                        </Tooltip>
+                                    }
+                                    else if (question.QuestionPriority == QuestionPriority.MEDIUM)
+                                    {
+                                        <Tooltip Class="d-inline-block" Title="Deze vraag heeft een normale prioriteit." Color="TooltipColor.Dark">
+                                            <Badge Color="BadgeColor.Warning">
+                                                <i class="bi bi-dash-circle me-1"></i>
+                                                Normale prioriteit
+                                            </Badge>
+                                        </Tooltip>
+                                    }
+                                    else
+                                    {
+                                        <Tooltip Class="d-inline-block" Title="Deze vraag heeft een lage prioriteit" Color="TooltipColor.Dark">
+                                            <Badge Color="BadgeColor.Secondary">
+                                                <i class="bi bi-arrow-down-circle me-1"></i>
+                                                Lage prioriteit
+                                            </Badge>
+                                        </Tooltip>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
                         @if ((short)question.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
                         {
                             <div class="form-check-group">
@@ -57,29 +80,32 @@ else
                                 {
                                     var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
                                     <div class="form-check">
-                                        <input class="form-check-input" checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)"
-                                        @onchange="(e) => UpdateAnswer(answer.Id, (bool)e.Value ? answer.Answer : string.Empty)" type="checkbox" value="@answer.Answer" id="answer-@answer.Id">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="answer-@answer.Id"
+                                               checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)"
+                                               @onchange="(e) => UpdateAnswer(answer.Id, (bool)e.Value ? answer.Answer : string.Empty)" />
                                         <label class="form-check-label" for="answer-@answer.Id">
                                             @answer.Answer
                                         </label>
                                     </div>
                                 }
-                              
                             </div>
-
                         }
                         else if ((short)question.QuestionType == (short)QuestionType.OPEN)
                         {
-                            @foreach (var answer in question.Question.Answers)
-                            {
-                                <div class="form-group mt-3">
-
-                                    <label for="open-answer-@question.Id">Uw antwoord:</label>
-                                    <textarea class="form-control"
-                                    @oninput="(e) => UpdateAnswer(answer.Id, e.Value?.ToString())"
-                                    id="open-answer-@question.Id" rows="4">@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer</textarea>
-                                </div>
-                            }
+                            <div class="form-group">
+                                <label for="open-answer-@question.Id" class="form-label">
+                                    <i class="bi bi-pencil me-2"></i>
+                                    Uw antwoord:
+                                </label>
+                                <textarea class="form-control" 
+                                          id="open-answer-@question.Id" 
+                                          rows="4"
+                                          @oninput="(e) => UpdateAnswer(question.Question.Answers.First().Id, e.Value?.ToString())">
+                                    @userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer
+                                </textarea>
+                            </div>
                         }
                         else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
                         {
@@ -123,12 +149,14 @@ else
                 </div>
 
             }
-            <button class="btn btn-primary mt-4 mb-4" @onclick="CheckAnswersAndShowModal">Antwoorden indienen</button>
+            <button class="btn btn-primary submit-button" @onclick="CheckAnswersAndShowModal">
+                Antwoorden indienen
+            </button>
 
             @if (isAnswersModalVisible)
             {
-                <div class="modal fade show" tabindex="-1" style="display:block" aria-labelledby="incompleteAnswersModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
+                <div class="modal custom-modal fade show" tabindex="-1" style="display:block" aria-labelledby="incompleteAnswersModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="incompleteAnswersModalLabel">Klaar voor de laatste stap?</h5>
