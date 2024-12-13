@@ -25,7 +25,7 @@ namespace Gatam.Application.CQRS.User
             foreach (var userDTO in userDTOs)
             {
                 var roles = await _auth0Repository.GetRolesByUserId(userDTO.Id);
-                userDTO.RolesIds = roles.ToList();
+                //userDTO.RolesIds = roles.ToList();
             }
 
             return userDTOs;

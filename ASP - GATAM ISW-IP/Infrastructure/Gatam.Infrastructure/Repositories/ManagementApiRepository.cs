@@ -7,6 +7,7 @@ using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Gatam.Application.Extensions.httpExtensions;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Gatam.Application.CQRS.DTOS.UsersDTO;
 
 namespace Gatam.Infrastructure.Repositories;
 
@@ -30,7 +31,7 @@ public class ManagementApiRepository: IManagementApi
 
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
     {
-        try 
+        try
         {
             var response = await _httpClient.GetFromJsonAsync<JsonElement>("users");
             return response.EnumerateArray().Select(user => new UserDTO
@@ -42,8 +43,13 @@ public class ManagementApiRepository: IManagementApi
                 Surname = user.TryGetProperty("nickname", out var nickname) ? nickname.GetString() : string.Empty,
                 Picture = user.TryGetProperty("picture", out var picture) ? picture.GetString() : string.Empty,
                 PhoneNumber = user.TryGetProperty("phone_number", out var phone) ? phone.GetString() : string.Empty,
-                RolesIds = user.TryGetProperty("roles", out var roles) ? roles.EnumerateArray().Select(role => role.GetProperty("name").GetString()).ToList() : new List<string>()
-            }).ToList();
+                RolesIds = user.TryGetProperty("roles", out var roles) ? roles.EnumerateArray().Select(role => new UserRoleDTO
+                {
+                    RoleId = role.GetProperty("id").GetString(),
+                    UserId = user.TryGetProperty("user_id", out var id) ? id.GetString() : string.Empty
+                })
+           .ToList() : new List<UserRoleDTO>()
+            });
         }
         catch (Exception ex)
         {
@@ -67,7 +73,7 @@ public class ManagementApiRepository: IManagementApi
         };
         return _user; 
     }
-    public async Task<Result<ApplicationUser>> CreateUserAsync(ApplicationUser user)
+    public async Task<Result<CreateUserDTO>> CreateUserAsync(CreateUserDTO user)
     {
         var payload = new
         {
@@ -92,10 +98,10 @@ public class ManagementApiRepository: IManagementApi
                 var createdUser = await response.Content.ReadFromJsonAsync<Auth0ResponseUsers>();
                 if (createdUser == null)
                 {
-                    return Result<ApplicationUser>.Fail(new Exception("Could not convert auth response to Auth0ResponseUsers object"));
+                    return Result<CreateUserDTO>.Fail(new Exception("Could not convert auth response to Auth0ResponseUsers object"));
                 } 
 
-                var applicationUser = new ApplicationUser
+                var applicationUser = new CreateUserDTO
                 {
                     Id = createdUser.UserId,  
                     Name = createdUser.Name,
@@ -107,26 +113,26 @@ public class ManagementApiRepository: IManagementApi
                     MentorId = user.MentorId,
                     PhoneNumber = user.PhoneNumber,
                     IsActive = true,
-                    UserRoles = new List<UserRole>
-                    {
-                        new UserRole
-                        {
-                            RoleId = RoleMapper.Roles[CustomRoles.VOLGER].Id
-                        }
-                    }
+                    //UserRoles = new List<UserRole>
+                    //{
+                    //    new UserRole
+                    //    {
+                    //        RoleId = RoleMapper.Roles[CustomRoles.VOLGER].Id
+                    //    }
+                    //}
                 };
 
-                return Result<ApplicationUser>.Ok(applicationUser);
+                return Result<CreateUserDTO>.Ok(applicationUser);
             }
             else
             {
                 var errorDetails = await response.Content.ReadAsStringAsync();
-                return Result<ApplicationUser>.Fail(new Exception(errorDetails));
+                return Result<CreateUserDTO>.Fail(new Exception(errorDetails));
             }
         }
         catch (Exception ex)
         {
-            return Result<ApplicationUser>.Fail(ex);
+            return Result<CreateUserDTO>.Fail(ex);
         }
     }
 

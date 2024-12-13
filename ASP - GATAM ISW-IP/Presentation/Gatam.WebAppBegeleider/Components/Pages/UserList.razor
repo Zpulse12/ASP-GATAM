@@ -251,7 +251,7 @@
             }
             else
             {
-                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/begeleider");
+                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/mentor");
             }
             
             StateHasChanged();
@@ -283,7 +283,7 @@
             }
             else
             {
-                users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/begeleider");
+                users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/mentor");
             }
 
             // Filter users based on search term
@@ -329,7 +329,7 @@
     {
         try
         {
-            var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
+            var response = await apiClient.DeleteAsync($"/api/user/{selectedUserId}/delete");
             if (response.IsSuccessStatusCode)
             {
                 await userGrid.RefreshDataAsync();

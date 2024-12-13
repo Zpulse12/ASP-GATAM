@@ -4,15 +4,22 @@ using Gatam.Domain;
 using Gatam.Application.CQRS.Questions;
 using Gatam.Application.CQRS.DTOS.QuestionsDTO;
 using Gatam.Application.CQRS.DTOS.ModulesDTO;
+using Gatam.Application.CQRS.DTOS.UsersDTO;
 namespace Gatam.Application
 {
     public class Mapping : Profile
     {
         public Mapping()
         {
-            CreateMap<ApplicationUser, UserDTO>();
+            CreateMap<ApplicationUser, UserDTO>()
+            .ForMember(dest => dest.RolesIds, opt => opt.MapFrom(src => src.UserRoles));
             CreateMap<UserDTO, ApplicationUser>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.UserRoles, opt => opt.Ignore());
+
+            CreateMap<ApplicationUser, CreateUserDTO>()
+                                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+            CreateMap<CreateUserDTO, ApplicationUser>();
 
 
             CreateMap<ApplicationModule, ModuleDTO>()

@@ -51,7 +51,7 @@
 <Modal @ref="editUserEmailModal" Title="Email aanpassen.">
     <BodyTemplate>
         <EditForm Model="userBeingEdited" OnValidSubmit="HandleEmailUpdate">
-            <div class="mb-3">
+            <div class="mb-3">OnHideModalClick
                 <label for="Email" class="form-label">Email</label>
                 <InputText @bind-Value="userBeingEdited.Email" type="email" class="form-control" />
             </div>
@@ -329,7 +329,7 @@
             if(request.IsSuccessStatusCode)
             {
                 userBeingEdited = await request.Content.ReadFromJsonAsync<UserDTO>();
-                userRoles = userBeingEdited.RolesIds;
+               // userRoles = userBeingEdited.RolesIds;
                 userRolesGrid.Data = userRoles;
                 userRolesGrid.RefreshDataAsync();
                 toastService.Notify(new(ToastType.Success, "Rol verwijderd", $"Rol succesvol verwijderd van gebruiker {userBeingEdited.Username}"));

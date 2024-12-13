@@ -229,6 +229,7 @@ else
         {
             _loading = true;
             _userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>("api/user/usersWithModules");
+
         }
         catch (Exception ex)
         {

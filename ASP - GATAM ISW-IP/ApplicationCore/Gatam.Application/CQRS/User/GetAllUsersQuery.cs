@@ -31,7 +31,7 @@ namespace Gatam.Application.CQRS.User
             //request._user.Email = AESProvider.Decrypt(request._user.Email, _environmentWrapper.KEY);
             //request._user.PhoneNumber = AESProvider.Decrypt(request._user.PhoneNumber, _environmentWrapper.KEY);
 
-            var users = await _unitOfWork.UserRepository.GetAllAsync();
+            var users = await _unitOfWork.UserRepository.GetAllAsync(x => x.UserRoles);
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 

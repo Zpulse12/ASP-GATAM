@@ -8,6 +8,7 @@ using Gatam.Application.CQRS.User.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Gatam.Application.CQRS.User.BegeleiderAssignment;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Gatam.Application.CQRS.DTOS.UsersDTO;
 namespace Gatam.WebAPI.Controllers
 {
     [ApiController]
@@ -51,8 +52,8 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = "RequireManagementRole")]
-        public async Task<IActionResult> CreateUser([FromBody] UserDTO user)
+        //[Authorize(Policy = "RequireManagementRole")]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO user)
         {
             var result = await _mediator.Send(new CreateUserCommand() { _user = user });
             return Created("", result);
@@ -84,7 +85,7 @@ namespace Gatam.WebAPI.Controllers
 
         [HttpDelete]
         [Route("{id}/delete")]
-        [Authorize(Policy = "RequireAdminRole")]
+        //[Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> DeleteUser(string id)
         {
            var response = await _mediator.Send(new DeleteUserCommand() { UserId = id });

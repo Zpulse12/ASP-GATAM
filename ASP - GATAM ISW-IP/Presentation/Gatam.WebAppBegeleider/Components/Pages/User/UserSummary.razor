@@ -2,6 +2,7 @@
 @using System.Diagnostics
 @using Gatam.Application.CQRS
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Application.CQRS.DTOS.RolesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Extensions
 @inject ApiClient ApiClient
@@ -148,12 +149,67 @@
                     </Content>
                 </AccordionItem>
             </Accordion>
+            <Accordion>
+                <AccordionItem Title="Rollen beheren">
+                    <Content>
+                                    <Grid TItem="string"
+                                          @ref="userRolesGrid"
+                                          Class="table table-hover"
+                                          Data="userRoles"
+                                          HeaderRowCssClass="custom-header"
+                                          Responsive="true">
+                                        <GridColumns>
+                                            <GridColumn Context="RoleContext" TItem="string" HeaderText="Rol:">
+                                                @RoleMapper.GetKeyBasedOnValue(RoleContext).ToString()
+                                            </GridColumn>
+                                            <GridColumn TItem="String" HeaderText="Actie" Filterable="false" Context="RoleContext">
+                                                <button type="button" class="btn btn-outline-danger"
+                                                        @onclick="() => {
+                                    selectedDeleteRole = RoleContext;
+                                    OnShowModalClick(removeRoleModal);
+                                }">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </GridColumn>
+                                        </GridColumns>
+                                    </Grid>
+
+                                    <div class="form-group mt-3">
+                                        <label for="Role" class="fw-bold text-muted">Rol Toewijzen</label>
+                                        <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
+                                            @foreach (var role in RoleMapper.Roles)
+                                            {
+                                                <option value="@role.Value.Id">@role.Key</option>
+                                            }
+                                        </InputSelect>
+                                    </div>
+                                    <button type="submit" @onclick="HandleValidSubmit" class="btn btn-sm btn-custom mt-4" style="background-color:#4454D2; color:white"><i class="bi bi-plus me-1"></i>Toewijzen</button>
+                    </Content>
+                </AccordionItem>
+               
+            </Accordion>
         </Content>
     </Tab>
         }
 </Tabs>
     </div>
     }
+<Modal @ref="removeRoleModal" Title="Verwijderen van rol.">
+    <BodyTemplate>
+        <p>Bent u zeker dat u de rol <strong>@RoleMapper.GetKeyBasedOnValue(selectedDeleteRole).ToString()</strong> van @user.Username wilt verwijderen?</p>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end" @onclick="() => OnHideModalClick(removeRoleModal)">Annuleren</Button>
+        <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@_isRequestLoading" @onclick="() => DeleteUserRoles(selectedDeleteRole)">
+            @if (_isLoading)
+            {
+                <Spinner Type="SpinnerType.Dots" />
+            }
+            else
+            {
+                <span>Bevestigen</span>
+            }
+        </Button>
+    </BodyTemplate>
+</Modal>
 @code {
     [Parameter]
     public string UserId { get; set; }
@@ -166,6 +222,13 @@
     private bool _isLoading = true;
     private bool _hasError = false;
     private bool _isMentor = false;
+
+    private bool _isRequestLoading = false;
+    private Grid<string> userRolesGrid = new Grid<string>();
+    private List<string> userRoles = new List<string>();
+    private string selectedRoles { get; set; } = "";
+    private string selectedDeleteRole { get; set; } = "";
+    private Modal? removeRoleModal;
 
     private string selectedMentorId;
     protected override async Task OnInitializedAsync()
@@ -181,7 +244,10 @@
             userModules = await ApiClient.GetFromJsonAsync<List<UserModuleDTO>>($"/api/usermodule/user/{UserId}/modules");
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var currentUser = authState.User;
-           
+
+            userRoles = await ApiClient.GetFromJsonAsync<List<string>>($"api/user/{user.Id}/roles");
+            userRolesGrid.Data = userRoles;
+            userRolesGrid.RefreshDataAsync();
             _isMentor = currentUser.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
         }
         catch (HttpRequestException ex)
@@ -198,7 +264,7 @@
         }
 
     }
-    
+
     private async Task UpdateBegeleider()
     {
         if (string.IsNullOrEmpty(selectedMentorId))
@@ -220,6 +286,87 @@
             {
                 toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
             }
+        }
+    }
+    private async Task OnHideModalClick(Modal inModal)
+    {
+        await inModal.HideAsync();
+    }
+    private async Task OnShowModalClick(Modal inModal)
+    {
+        await inModal.ShowAsync();
+    }
+    private async Task HandleValidSubmit()
+    {
+        if (user == null)
+        {
+            _hasError = true;
+            return;
+        }
+        try
+        {
+            RolesDTO roles = new RolesDTO() { Roles = new List<string?> { selectedRoles } };
+            var roleUpdateResponse = await ApiClient.PostAsJsonAsync($"/api/user/{user.Id}/roles", roles);
+
+            if (roleUpdateResponse.IsSuccessStatusCode)
+            {
+
+                toastService.Notify(new(ToastType.Success, "Rol toegevoegd", $"Rol succesvol toegevoegd aan gebruiker {user.Username}"));
+                StateHasChanged();
+            }
+            else
+            {
+                ValidationException errorResponse = await roleUpdateResponse.Content.ReadFromJsonAsync<ValidationException>();
+                string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : roleUpdateResponse.ReasonPhrase;
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het bewerken van de rollen", errors));
+            }
+            StateHasChanged();
+
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis", ex.Message));
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+    private async void DeleteUserRoles(string role)
+    {
+        _isRequestLoading = true;
+        try
+        {
+            var roleId = RoleMapper.Roles.FirstOrDefault(r => r.Value.Name == role).Value.Id;
+
+            RolesDTO payload = new RolesDTO() { Roles = new List<string?>() { roleId } };
+            var request = await ApiClient.PatchAsJsonAsync<RolesDTO>($"/api/user/{user.Id}/roles", payload);
+
+            if (request.IsSuccessStatusCode)
+            {
+                user = await request.Content.ReadFromJsonAsync<UserDTO>();
+               // userRoles = user.RolesIds;
+                userRolesGrid.Data = userRoles;
+                userRolesGrid.RefreshDataAsync();
+                toastService.Notify(new(ToastType.Success, "Rol verwijderd", $"Rol succesvol verwijderd van gebruiker {user.Username}"));
+                _isRequestLoading = false;
+                await OnHideModalClick(removeRoleModal);
+            }
+            else
+            {
+                ValidationException errorResponse = await request.Content.ReadFromJsonAsync<ValidationException>();
+                string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : request.ReasonPhrase;
+                toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het verwijderen van de rollen", errors));
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er ging iets mis", ex.Message));
+        }
+        finally
+        {
+            _isRequestLoading = false;
+            StateHasChanged();
         }
     }
 
