@@ -36,7 +36,7 @@ namespace Gatam.WebAPI.Controllers
 
         
         [HttpGet("{usermoduleId}")]
-       [Authorize(Policy = "RequireVolgersRole")]
+        [Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> GetUserModuleById(string usermoduleId)
         {
             var query = new FindUserModuleIdQuery() { UserModuleId = usermoduleId };
@@ -45,7 +45,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPut("{usermoduleId}/answers")]
-       [Authorize(Policy = "RequireVolgersRole")]
+        [Authorize(Policy = "RequireVolgersRole")]
         public async Task<IActionResult> SubmitAnswers(string userModuleId, [FromBody] List<UserAnswer> userAnswers)
         {
             var command = new SubmitUserAnswersCommand() { UserAnwsers = userAnswers, UserModuleId = userModuleId };
