@@ -26,9 +26,21 @@ namespace UnitTesting.ControllerTest.ApplicationUser
         [TestMethod]
         public async Task CreateUser_ReturnsCreated_AndUser()
         {
-            UserDTO user = new UserDTO() { Name="Test", Email="test@email.com" };
+            UserDTO user = new UserDTO
+            {
+                Id = "12345",
+                Name = "John",
+                Username = "john_doe",
+                Surname = "Smith",
+                Email = "john.smith@example.com",
+                PasswordHash = "Passw0rd@123",
+                PhoneNumber = "+123456789012",
+                Picture = "https://example.com/profile.jpg",
+                BegeleiderId = "begeleider123",
+                IsActive = true,
+            };
 
-            _mediatorMock.Setup(setup => setup.Send(It.IsAny<CreateUserCommand>(), default)).ReturnsAsync(user);
+            _mediatorMock.Setup(setup => setup.Send(It.IsAny<CreateAuth0UserCommand>(), default)).ReturnsAsync(user);
 
             IActionResult result = await _userController.CreateUser(user);
 

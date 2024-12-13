@@ -33,7 +33,7 @@ namespace Gatam.Application.CQRS.User
                 .WithMessage("Achternaam is te lang");
             RuleFor(u => u._user.Username)
                 .NotNull().NotEmpty()
-                .WithMessage("UserNam Mag niet leeg zijn");
+                .WithMessage("Username Mag niet leeg zijn");
             RuleFor(u => u._user.Email)
                 .NotNull().NotEmpty()
                 .WithMessage("Email moet ingevuld zijn");
