@@ -48,9 +48,9 @@
             }
             <div class="search-box">
                 <i class="bi bi-search"></i>
-                <input type="text" 
-                       placeholder="Zoek op naam of email..." 
-                       @bind="searchTerm" 
+                <input type="text"
+                       placeholder="Zoek op naam of email..."
+                       @bind="searchTerm"
                        @bind:event="oninput"
                        @onkeyup="HandleSearch" />
             </div>
@@ -67,66 +67,66 @@
                   ShowPager="true"
                   Class="table table-hover shadow-sm">
                 <GridColumns>
-                     <GridColumn TItem="UserDTO" 
-                    HeaderText="Naam" 
-                    PropertyName="Name"
-                    AllowFiltering="false"
-                    SortKeySelector="@(item => item.Name)">
-                <i class="bi bi-person me-2"></i>@context.Name
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                        HeaderText="Achternaam" 
-                        PropertyName="Surname"
-                        AllowFiltering="false"
-                        SortKeySelector="@(item => item.Surname)">
-                <i class="bi bi-person-badge me-2"></i>@context.Surname
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                        HeaderText="Email" 
-                        PropertyName="Email"
-                        AllowFiltering="false"
-                        SortKeySelector="@(item => item.Email)">
-                <i class="bi bi-envelope me-2"></i>@context.Email
-                </GridColumn>
-            <GridColumn TItem="UserDTO" 
-                            HeaderText="Gsm-nummer" 
-                            PropertyName="PhoneNumber"
-                            AllowFiltering="false"
-                            SortKeySelector="@(item => item.PhoneNumber)">
-                    <i class="bi bi-telephone me-2"></i>@context.PhoneNumber
-                </GridColumn>
-                <GridColumn TItem="UserDTO" 
-                            HeaderText="Status" 
-                            PropertyName="IsActive" 
-                            AllowFiltering="false"
-                            SortKeySelector="item => item.IsActive">
-                            <div class="d-flex justify-content-start">
-                                <button class="btn @(context.IsActive ? "btn-soft-danger" : "btn-soft-success")"
-                                        @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)" 
-                                        @onclick:stopPropagation>
-                                    <i class="bi @(context.IsActive ? "bi-person-x" : "bi-person-check") me-2"></i>
-                                    @(context.IsActive ? "Deactiveer" : "Activeer")
-                                    </button>
-                                </div>
-                            </GridColumn>
-                            <GridColumn TItem="UserDTO" 
-                                       HeaderText="Acties"
-                                       AllowFiltering="false"
-                                       Width="120px">
-                                <div class="d-flex gap-2 justify-content-center">
-                                    <button type="button" 
-                                            class="btn btn-outline-danger btn-action" 
-                                            @onclick="() => ShowDeleteModal(context.Id)"
-                                            @onclick:stopPropagation>
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                    <a class="btn btn-outline-primary btn-action" 
-                                       href="/admin/user/@(context.Id)" 
-                                       @onclick:stopPropagation>
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </a>
-                                </div>
-                            </GridColumn>
+                    <GridColumn TItem="UserDTO"
+                                HeaderText="Naam"
+                                PropertyName="Name"
+                                AllowFiltering="false"
+                                SortKeySelector="@(item => item.Name)">
+                        <i class="bi bi-person me-2"></i>@context.Name
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO"
+                                HeaderText="Achternaam"
+                                PropertyName="Surname"
+                                AllowFiltering="false"
+                                SortKeySelector="@(item => item.Surname)">
+                        <i class="bi bi-person-badge me-2"></i>@context.Surname
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO"
+                                HeaderText="Email"
+                                PropertyName="Email"
+                                AllowFiltering="false"
+                                SortKeySelector="@(item => item.Email)">
+                        <i class="bi bi-envelope me-2"></i>@context.Email
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO"
+                                HeaderText="Gsm-nummer"
+                                PropertyName="PhoneNumber"
+                                AllowFiltering="false"
+                                SortKeySelector="@(item => item.PhoneNumber)">
+                        <i class="bi bi-telephone me-2"></i>@context.PhoneNumber
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO"
+                                HeaderText="Status"
+                                PropertyName="IsActive"
+                                AllowFiltering="false"
+                                SortKeySelector="item => item.IsActive">
+                        <div class="d-flex justify-content-start">
+                            <button class="btn @(context.IsActive ? "btn-soft-danger" : "btn-soft-success")"
+                                    @onclick="() => ToggleUserActiveStatus(context.Id, !context.IsActive)"
+                            @onclick:stopPropagation>
+                                <i class="bi @(context.IsActive ? "bi-person-x" : "bi-person-check") me-2"></i>
+                                @(context.IsActive ? "Deactiveer" : "Activeer")
+                            </button>
+                        </div>
+                    </GridColumn>
+                    <GridColumn TItem="UserDTO"
+                                HeaderText="Acties"
+                                AllowFiltering="false"
+                                Width="120px">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-action"
+                                    @onclick="() => ShowDeleteModal(context.Id)"
+                            @onclick:stopPropagation>
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                            <a class="btn btn-outline-primary btn-action"
+                               href="/admin/user/@(context.Id)"
+                            @onclick:stopPropagation>
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                        </div>
+                    </GridColumn>
                 </GridColumns>
             </Grid>
         </div>
@@ -222,13 +222,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try 
+        try
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
             _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
             _currentUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             await LoadUsers();
         }
         catch (Exception ex)
@@ -243,17 +243,18 @@
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             _isBeheerder = authState.User.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
-            
-            
+
+
             if (_isBeheerder)
-            {   
+            {
                 _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
             }
             else
             {
                 _users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/mentor");
             }
-            
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            _users = _users.Where(user => user.Id != userId).ToList();
             StateHasChanged();
         }
         catch
@@ -275,7 +276,7 @@
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
             _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
-            
+
             List<UserDTO> users;
             if (_isBeheerder)
             {
@@ -289,12 +290,13 @@
             // Filter users based on search term
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                users = users.Where(u => 
+                users = users.Where(u =>
                     u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                     u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 ).ToList();
             }
-
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            users = users.Where(user => user.Id != userId).ToList();
             return request.ApplyTo(users ?? new List<UserDTO>());
         }
         catch (Exception ex)

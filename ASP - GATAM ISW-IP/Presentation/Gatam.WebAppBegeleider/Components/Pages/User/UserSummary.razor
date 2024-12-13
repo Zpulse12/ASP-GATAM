@@ -237,7 +237,7 @@
         {
             user = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{UserId}");
             string roleId = RoleMapper.Roles[CustomRoles.BEGELEIDER].Id;
-            var users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
             if (user.MentorId != null)
             {
                 mentor = await ApiClient.GetFromJsonAsync<UserDTO>($"/api/user/{user.MentorId}");

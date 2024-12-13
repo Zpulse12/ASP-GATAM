@@ -19,10 +19,18 @@ namespace Gatam.Application
                 .ForMember(dest => dest.UserRoles, opt => opt.Ignore());
 
             CreateMap<ApplicationUser, CreateUserDTO>()
+            .ForMember(dest => dest.RolesIds, opt => opt.MapFrom(src => src.UserRoles))
                                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
-            CreateMap<CreateUserDTO, ApplicationUser>();
+            CreateMap<CreateUserDTO, ApplicationUser>()
+                .ForMember(dest => dest.UserRoles, opt => opt.Ignore());
+
+
+
+
             CreateMap<UserRole, UserRoleDTO>();
-            CreateMap<UserRoleDTO, UserRole>();
+            CreateMap<UserRoleDTO, UserRole>()
+                                                .ForMember(dest => dest.User, opt => opt.Ignore());
+
 
 
 

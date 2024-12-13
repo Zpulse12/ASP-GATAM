@@ -138,7 +138,10 @@
                 <InputSelect @bind-Value="selectedRoles" class="form-control" multiple>
                     @foreach (var role in RoleMapper.Roles)
                     {
-                        <option value="@role.Value.Id">@role.Key</option>
+                        if (!userRoles.Contains(role.Value.Id))
+                        {
+                            <option value="@role.Value.Id">@role.Key</option>
+                        }
                     }
                 </InputSelect>
             </div>

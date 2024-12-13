@@ -6,7 +6,7 @@
 @inject ApiClient ApiClient
 @inject ToastService toastService
 @rendermode InteractiveServer
-@inject AuthenticationStateProvider authStateProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @attribute [Authorize(Policy = "RequireManagementRole")]
 <link href="css/assigning-modules.css" rel="stylesheet" />
@@ -219,6 +219,8 @@
     private List<UserDTO> filteredUsers = new();
     private List<ModuleDTO> filteredModules = new();
 
+    private bool _isAdmin = false;
+
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true; 
@@ -330,28 +332,44 @@
     private async Task LoadData()
     {
         IsLoading = true;
-        var authState = await authStateProvider.GetAuthenticationStateAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         modules = await ApiClient.GetFromJsonAsync<List<ModuleDTO>>($"api/module") ?? new();
-        users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{userId}/mentor") ?? new();
+        var userresponse = await ApiClient.GetFromJsonAsync<UserDTO>($"api/user/{userId}");
+        var beheerder = RoleMapper.Roles[CustomRoles.BEHEERDER].Id;
+        if (userresponse.RolesIds.Any(x => x.RoleId == beheerder))
+        {
+            string roleId = RoleMapper.Roles[CustomRoles.VOLGER].Id;
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
+            _isAdmin = true;
+        }
+        else 
+        {
+            users = await ApiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{userId}/mentor") ?? new();
+        }
+
+
         filteredModules = modules;
         filteredUsers = users;
         try
         {
-            if (users != null && users.Count > 0)
+            if (!_isAdmin)
             {
-                users = users.Where(u => u.MentorId == userId)
-                     .ToList();
-            }
-            foreach ( var followers in users)
-            {
-                if (string.IsNullOrEmpty(followers.Picture) || followers.Picture.Trim().ToLower() == "png")
+                if (users != null && users.Count > 0)
                 {
-                    followers.Picture = "/images/default.png";
+                    users = users.Where(u => u.MentorId == userId)
+                         .ToList();
                 }
+                foreach (var followers in users)
+                {
+                    if (string.IsNullOrEmpty(followers.Picture) || followers.Picture.Trim().ToLower() == "png")
+                    {
+                        followers.Picture = "/images/default.png";
+                    }
+                }
+                IsLoading = false;
             }
-            IsLoading = false;
         }
         catch (Exception ex)
         {
