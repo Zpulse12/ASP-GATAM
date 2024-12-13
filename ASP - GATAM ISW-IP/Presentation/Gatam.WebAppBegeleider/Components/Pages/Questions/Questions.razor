@@ -239,7 +239,6 @@
     {
         editContext = new EditContext(newQuestion);
         newQuestion.QuestionType = (short)selectedOption;
-
         questions = await apiClient.GetFromJsonAsync<List<QuestionDTO>>("/api/question");
         questionGrid.Data = questions;
         questionGrid.RefreshDataAsync();
@@ -264,6 +263,7 @@
         }
         if((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
         {
+            currentAnswer.AnswerValue = "";
             answers.Add(currentAnswer);
         }
         newQuestion.QuestionAnswers = answers;

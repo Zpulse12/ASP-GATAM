@@ -15,5 +15,10 @@ namespace Gatam.Application.CQRS.DTOS.QuestionsDTO
         public string? UserModuleId { get; set; }
         public string? QuestionAnswerId { get; set; }
         public string? GivenAnswer { get; set; }
+        public UserAnswerDTO()
+        {
+            Id = Guid.NewGuid().ToString();
+
+        }
     }
 }

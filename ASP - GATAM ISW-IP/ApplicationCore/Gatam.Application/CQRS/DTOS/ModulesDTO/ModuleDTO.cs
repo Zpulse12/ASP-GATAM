@@ -10,4 +10,10 @@ public class ModuleDTO
     public  string Category { get; set; }
     public DateTime CreatedAt { get; set; }
     public ICollection<QuestionDTO> Questions { get; set; } = new List<QuestionDTO>();
+    public ModuleDTO()
+    {
+        Id = Guid.NewGuid().ToString();
+        CreatedAt = DateTime.UtcNow;
+        
+    }
 }

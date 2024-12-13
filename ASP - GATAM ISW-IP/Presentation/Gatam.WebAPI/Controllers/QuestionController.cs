@@ -39,10 +39,10 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpPost]
-       [Authorize(Policy = "RequireMakerRole")]
-        public async Task<IActionResult> CreateQuestion([FromBody] Question question) 
+       //[Authorize(Policy = "RequireMakerRole")]
+        public async Task<IActionResult> CreateQuestion([FromBody] QuestionDTO question) 
         {
-            Question createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
+            var createdQuestion = await _mediator.Send(new CreateQuestionCommand() { question = question});
             return Created("", createdQuestion);
         }
         [HttpGet("{followerId}/visible/")]

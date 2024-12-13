@@ -12,5 +12,11 @@ public class UserQuestionDTO
     public bool IsVisible { get; set; }
     public QuestionPriority QuestionPriority { get; set; }
     public IEnumerable<QuestionAnswerDTO> Answers { get; set; } = new List<QuestionAnswerDTO>();
+    public UserQuestionDTO()
+    {
+        Id = Guid.NewGuid().ToString();
+        IsVisible = true;
+
+    }
 
 }

@@ -10,6 +10,7 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider authStateProvider
 @attribute [Authorize(Policy = "RequireManagementRole")]
+<link href="css/usersummary.css" rel="stylesheet" />
 @if (_hasError)
     {
         <p>Oops, er liep iets mis</p>
@@ -17,13 +18,13 @@
     }
     else if (user != null)
     {
-<Tabs EnableFadeEffect="true">
-    <Tab Active="true">
-        <TitleTemplate>
-            <Icon Name="IconName.PersonCircle" /> Volger
-        </TitleTemplate>
-        <Content>
-
+        <div class="page-container">
+    <Tabs EnableFadeEffect="true">
+        <Tab Active="true">
+            <TitleTemplate>
+                <Icon Name="IconName.PersonCircle" /> Volger
+            </TitleTemplate>
+            <Content>
                 <div class="card">
                     <div class="card-header">
                         <h3>Gebruikersinformatie</h3>
@@ -31,80 +32,82 @@
                     <div class="card-body">
                         <div class="form-group mb-3">
                             <label for="name">Voornaam</label>
-                            <p id="name">@user.Name</p>
+                            <p id="name" class="@(string.IsNullOrEmpty(user.Name) ? "text-muted" : "")">
+                                @(string.IsNullOrEmpty(user.Name) ? "Leeg" : user.Name)
+                            </p>
                         </div>
                         <div class="form-group mb-3">
                             <label for="surname">Achternaam</label>
-                            <p id="surname">@user.Surname</p>
+                            <p id="surname" class="@(string.IsNullOrEmpty(user.Surname) ? "text-muted" : "")">
+                                @(string.IsNullOrEmpty(user.Surname) ? "Leeg" : user.Surname)
+                            </p>
                         </div>
                         <div class="form-group mb-3">
                             <label for="email">E-mail</label>
-                            <p id="email">@user.Email</p>
+                            <p id="email" class="@(string.IsNullOrEmpty(user.Email) ? "text-muted" : "")">
+                                @(string.IsNullOrEmpty(user.Email) ? "Leeg" : user.Email)
+                            </p>
                         </div>
                         <div class="form-group mb-3">
                             <label for="phoneNumber">Telefoonnummer</label>
-                            <p id="phoneNumber">@(!string.IsNullOrEmpty(user.PhoneNumber) ? user.PhoneNumber : "Niet opgegeven")</p>
+                            <p id="phoneNumber" class="@(string.IsNullOrEmpty(user.PhoneNumber) ? "text-muted" : "")">
+                                @(string.IsNullOrEmpty(user.PhoneNumber) ? "Leeg" : user.PhoneNumber)
+                            </p>
                         </div>
                         <div class="form-group mb-3">
                             <label for="isActive">Actief</label>
-                            <p id="isActive">@((user.IsActive) ? "Ja" : "Nee")</p>
+                            <p id="isActive">
+                                @((user.IsActive) ? "Ja" : "Nee")
+                            </p>
                         </div>
                         <div class="form-group mb-3">
                             <label for="begeleiderId">Begeleider</label>
                             @if (mentor != null && user.MentorId != null)
                             {
-                                 <p>@mentor.Name @mentor.Surname</p>
-                            }
-                            else if (mentor == null || user.MentorId == null)
-                            {
-                                <p>Volger is nog niet gekoppeld aan een begeleider.</p>
+                                <p>@mentor.Name @mentor.Surname</p>
                             }
                             else
                             {
-                                <p>Er liep iets mis</p>
+                                <p class="text-muted">Volger is nog niet gekoppeld aan een begeleider.</p>
                             }
                         </div>
                     </div>
                 </div>
-        </Content>
-    </Tab>
-    <Tab>
-        <TitleTemplate>
-            <Icon Name="IconName.Book" /> Modules
-        </TitleTemplate>
-        <Content>
-            <div class="card">
-                <div class="card-header">
-                    <h3>Toegewezen Modules</h3>
-                </div>
-                <div class="card-body">
-                    @if (userModules == null || !userModules.Any())
-                    {
-                        <p>Er zijn geen modules toegewezen aan deze gebruiker.</p>
-                    }
-                    else if(userModules != null)
-                    {
-                        <div class="row">
-                            @foreach (var userModule in userModules)
-                            {
-                                <div class="col-md-4">
-                                    <div class="card mb-3">
-                                        <div class="card-body">
-                                            <h5 class="card-title">@userModule.Module?.Title</h5>
-                                            <p class="card-text"><b>Categorie:</b> @userModule.Module?.Category</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                            </div>
+            </Content>
+        </Tab>
+        <Tab>
+            <TitleTemplate>
+                <Icon Name="IconName.Book" /> Modules
+            </TitleTemplate>
+            <Content>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Toegewezen Modules</h3>
+                    </div>
+                    <div class="card-body">
+                        @if (userModules == null || !userModules.Any())
+                        {
+                            <p class="text-muted">Er zijn geen modules toegewezen aan deze gebruiker.</p>
                         }
                         else
                         {
-                            <p>Er loopt iets mis</p>
+                            <div class="row">
+                                @foreach (var userModule in userModules)
+                                {
+                                    <div class="col-md-4">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title">@userModule.Module?.Title</h5>
+                                                <p class="card-text"><b>Categorie:</b> @userModule.Module?.Category</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
                         }
                     </div>
-            </div>
-        </Content>
+                </div>
+            </Content>
     </Tab>
         @if (_isMentor)
         {
@@ -149,7 +152,7 @@
     </Tab>
         }
 </Tabs>
-
+    </div>
     }
 @code {
     [Parameter]

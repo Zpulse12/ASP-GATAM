@@ -96,7 +96,7 @@ namespace Gatam.WebAPI.Controllers
         }
 
         [HttpGet("{userId}/roles")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
             List<string> roles = await _mediator.Send(new GetUserRolesQuery { UserId = userId });
@@ -137,7 +137,7 @@ namespace Gatam.WebAPI.Controllers
 
 
         [HttpPost("{userId}/roles")]
-        [Authorize(Policy = "RequireManagementRole")]
+        //[Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> AssignUserRole(string userId, [FromBody] RolesDTO roles)
         {
             var returnedUser = await _mediator.Send(new UpdateUserRoleCommand { Roles = roles, Id = userId});

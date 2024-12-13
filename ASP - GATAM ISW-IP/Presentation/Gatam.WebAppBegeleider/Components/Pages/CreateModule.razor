@@ -213,7 +213,60 @@
                         </Button>
                     </div>
                 </div>
+            
+               
             </EditForm>
+        </div>
+        <div class="section-divider"></div>
+        <div class="section-card">
+            <div class="card-header">
+                <i class="bi bi-question-circle"></i>
+                <h3>Vragen zonder module</h3>
+            </div>
+            <div class="form-section">
+                @if(questionsWithoutModule.Count != 0)
+                {
+                <table class="questions-table" @bind="@questionWithoutModule">
+                    <thead>
+                        <tr>
+                            <th class="col-question">Vraag</th>
+                            <th class="col-question">Type</th>
+                            <th class="col-visibility"> Toevoegen </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var questionSetting in questionsWithoutModule)
+                        {
+                            <tr>
+                                <td class="col-question">@questionSetting.QuestionTitle</td>
+                                <td class="col-type">
+                                    <span class="question-type-badge">
+                                        <i class="bi @GetQuestionTypeIcon(questionSetting.QuestionType)"></i>
+                                        @GetQuestionTypeText(questionSetting.QuestionType)
+                                    </span>
+                                </td>
+                                <td class="col-priority">
+                                    <div class="priority-select">
+                                            <Button Type="ButtonType.Submit" @onclick="() => AddQuestionToNewModule(questionSetting)" Color="ButtonColor.Primary" Class="float-end me-2" Disabled="@isLoading">
+                                            @if (isLoading)
+                                            {
+                                                <Spinner Type="SpinnerType.Dots" />
+                                            }
+                                            else
+                                            {
+                                                <Icon Name="IconName.Plus"></Icon>
+                                            }
+                                        </Button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>}
+                else{
+                    <p> Er zijn geen vragen zonder module.</p>
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -234,6 +287,8 @@
     private Grid<QuestionAnswerDTO> answerGrid = new Grid<QuestionAnswerDTO>();
     private QuestionAnswerDTO currentAnswer = new QuestionAnswerDTO();
 
+    private List<QuestionDTO> questionsWithoutModule = new List<QuestionDTO>();
+
 
     [Inject] protected ToastService toastService { get; set; } = default!;
 
@@ -241,33 +296,40 @@
     protected override async Task OnInitializedAsync()
     {
         ResetForm();
+        LoadQuestionWithoutModule();
     }
-
+    private void AddQuestionToNewModule(QuestionDTO question)
+    {
+        questions.Add(question);
+        questionsWithoutModule.Remove(question);
+        StateHasChanged();
+    }
     private async Task CreateNewModule()
     {
         try
         {
+            newModule.Questions = questions;
+
+            foreach (var question in questions)
+            {
+                question.ApplicationModuleId = newModule.Id;
+                // //HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<QuestionDTO>("/api/question", question);
+
+                // if (createQuestionResponse.IsSuccessStatusCode)
+                // {
+                //     toastService.Notify(new(ToastType.Success, "Je vraag is succesvol aangemaakt", $"Vraag gemaakt op {newQuestion.CreatedAt}"));
+                //     ResetForm();
+                // }
+                // else
+                // {
+                //     ValidationException errorResponse = await createQuestionResponse.Content.ReadFromJsonAsync<ValidationException>();
+                //     string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : createQuestionResponse.ReasonPhrase;
+                //     toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", errors));
+                // }
+            }
             var result = await apiClient.PostAsJsonAsync("api/module", newModule);
             if (result.IsSuccessStatusCode)
             {
-                foreach (var question in questions)
-                {
-                    question.ApplicationModuleId = newModule.Id;
-                    HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<QuestionDTO>("/api/question", question);
-
-                    if (createQuestionResponse.IsSuccessStatusCode)
-                    {
-                        toastService.Notify(new(ToastType.Success, "Je vraag is succesvol aangemaakt", $"Vraag gemaakt op {newQuestion.CreatedAt}"));
-                        ResetForm();
-                    }
-                    else
-                    {
-                        ValidationException errorResponse = await createQuestionResponse.Content.ReadFromJsonAsync<ValidationException>();
-                        string errors = errorResponse?.Failures != null ? String.Join(",", errorResponse.Failures.Select(f => $"{f.ErrorMessage}")) : createQuestionResponse.ReasonPhrase;
-                        toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", errors));
-                    }
-                }
-
                 var responseData = await result.Content.ReadFromJsonAsync<ModuleDTO>();
                 toastService.Notify(new(ToastType.Success, "Module en vragen succesvol aangemaakt!"));
                 newModule = responseData ?? new ModuleDTO();
@@ -295,6 +357,7 @@
     public async Task HandleValidSubmit()
     {
         isLoading = true;
+        newQuestion.ApplicationModuleId = newModule.Id;
 
         if (questions.Any(q => q.QuestionTitle.Trim().Equals(newQuestion.QuestionTitle.Trim(), 
             StringComparison.OrdinalIgnoreCase) && q.QuestionType == (short)selectedOption))
@@ -338,7 +401,7 @@
                     QuestionType = newQuestion.QuestionType
                 });
                 toastService.Notify(new(ToastType.Success, "Vraag toegevoegd aan de module!", "Vraag is lokaal opgeslagen."));
-                
+
             }
             catch (Exception e)
             {
@@ -393,8 +456,8 @@
         questionGrid.Data = questions; 
         questionGrid.RefreshDataAsync();
     }
-    
-    
+
+
     private void ResetForm()
     {
         newQuestion = new QuestionDTO();
@@ -404,7 +467,48 @@
         currentAnswer = newAnswer;
         // editContext = new EditContext(newQuestion);
         selectedOption = QuestionType.OPEN;
+
     }
+
+    private async void LoadQuestionWithoutModule(){
+
+        isLoading = true;
+        try
+        {
+            var questionsWithoutModuleResponse = await apiClient.GetFromJsonAsync<List<QuestionDTO>>("/api/question");
+            foreach (var questionEmpty in questionsWithoutModuleResponse)
+            {
+                if (string.IsNullOrEmpty(questionEmpty.ApplicationModuleId))
+                {
+                    questionsWithoutModule.Add(questionEmpty);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het ophalen van vragen zonder modules.", e.Message));
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    private string GetQuestionTypeText(int questionType) => questionType switch
+    {
+        0 => "Meerkeuze",
+        1 => "Open vraag",
+        2 => "Waar/Onwaar",
+        3 => "Keuzelijst",
+        _ => "Onbekend type"
+    };
+    private string GetQuestionTypeIcon(int questionType) => questionType switch
+    {
+        0 => "bi-list-check",
+        1 => "bi-pencil-square",
+        2 => "bi-check2-circle",
+        3 => "bi-list-ul",
+        _ => "bi-question-circle"
+    };
     
 }
 

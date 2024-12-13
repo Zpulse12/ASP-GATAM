@@ -17,6 +17,11 @@ public class UserModuleDTO
         public ModuleDTO Module { get; set; } 
         public UserModuleState State { get; set; }
         public ICollection<UserQuestionDTO> UserQuestions { get; set; }
-        public ICollection<UserAnswerDTO> UserGivenAnswers { get; set; } 
+        public ICollection<UserAnswerDTO> UserGivenAnswers { get; set; }
+        public UserModuleDTO()
+        {
+            Id = Guid.NewGuid().ToString();
+            State = UserModuleState.NotStarted;
+        }
     }
 }
