@@ -1,0 +1,91 @@
+@page "/profile"
+@using System.Security.Claims
+@using Gatam.Domain
+@using Gatam.WebAppVolger.Extensions
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApiClient ApiClient
+@inject ToastService toastService
+@rendermode InteractiveServer
+@attribute [Authorize(Policy = "RequireVolgersRole")]
+
+<link href="css/profile.css" rel="stylesheet" />
+
+<CustomNavMenu>
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div class="header-text">
+                    <h2>Mijn Profiel</h2>
+                    <p>Bekijk je gegevens</p>
+                </div>
+            </div>
+        </div>
+
+        @if (_isLoading)
+        {
+            <div class="loading-state">
+                <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+            </div>
+        }
+        else
+        {
+            <div class="profile-content">
+                <div class="profile-image-section">
+                    <div class="profile-image">
+                        <div class="profile-placeholder">
+                            <i class="bi bi-person"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="bi bi-person"></i>
+                            <span>Naam</span>
+                        </div>
+                        <div class="detail-value">@user?.Name @user?.Surname</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="bi bi-envelope"></i>
+                            <span>Email</span>
+                        </div>
+                        <div class="detail-value">@user?.Email</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</CustomNavMenu>
+
+@code {
+    private ApplicationUser? user;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                user = await ApiClient.GetFromJsonAsync<ApplicationUser>($"api/user/{userId}");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.Notify(new(ToastType.Danger, "Er is iets fout gegaan bij het ophalen van je profiel. Probeer het later opnieuw."));
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+} 
