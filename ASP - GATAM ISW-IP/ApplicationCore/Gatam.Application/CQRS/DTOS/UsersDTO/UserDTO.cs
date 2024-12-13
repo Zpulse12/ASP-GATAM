@@ -34,7 +34,7 @@ namespace Gatam.Application.CQRS
         [RegularExpression(@"^\+?[1-9]\d{1,14}$",
                       ErrorMessage = "Telefoonnummer moet beginnen met een '+' gevolgd door 2 tot 15 cijfers")]
         public string? PhoneNumber { get; set; }
-        public  List<UserRoleDTO>? RolesIds { get; set; }
+        public ICollection<UserRoleDTO>? RolesIds { get; set; }
         
         public string? Picture { get; set; }
 
@@ -42,6 +42,6 @@ namespace Gatam.Application.CQRS
    
         public bool IsActive { get; set; }
       
-        public List<UserModuleDTO>? UserModules { get; set; }
+        public ICollection<UserModuleDTO>? UserModules { get; set; }
     }
 }

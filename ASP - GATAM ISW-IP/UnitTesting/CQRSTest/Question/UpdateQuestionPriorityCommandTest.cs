@@ -37,7 +37,7 @@ namespace UnitTesting.CQRSTest.Question
             var result = await _validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.UserQuestionId)
-                .WithErrorMessage("QuestionSetting ID is required");
+                .WithErrorMessage("QuestionSetting ID mag niet leeg zijn.");
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace UnitTesting.CQRSTest.Question
             var result = await _validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.UserQuestionId)
-                .WithErrorMessage("Question setting doesn't exist");
+                .WithErrorMessage("Question setting bestaat niet");
         }
 
         [TestMethod]
@@ -89,7 +89,7 @@ namespace UnitTesting.CQRSTest.Question
             var result = await _validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.Priority)
-                .WithErrorMessage("No valid priority given");
+                .WithErrorMessage("Foute prioriteit");
         }
 
         [TestMethod]

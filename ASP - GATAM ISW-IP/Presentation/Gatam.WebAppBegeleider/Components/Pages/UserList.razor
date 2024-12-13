@@ -228,7 +228,7 @@
             var user = authState.User;
             _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
             _currentUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             await LoadUsers();
         }
         catch (Exception ex)
@@ -243,8 +243,8 @@
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             _isBeheerder = authState.User.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
-            
-            
+
+
             if (_isBeheerder)
             {   
                 _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
@@ -253,7 +253,8 @@
             {
                 _users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/mentor");
             }
-            
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            _users = _users.Where(user => user.Id != userId).ToList();
             StateHasChanged();
         }
         catch
@@ -294,7 +295,8 @@
                     u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 ).ToList();
             }
-
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            users = users.Where(user => user.Id != userId).ToList();
             return request.ApplyTo(users ?? new List<UserDTO>());
         }
         catch (Exception ex)

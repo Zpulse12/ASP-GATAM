@@ -33,13 +33,13 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             var result = validator.Validate(command);
 
             Assert.IsFalse(result.IsValid);
-            Assert.IsTrue(result.Errors.Exists(e => e.PropertyName == "VolgerId"));
+            Assert.IsTrue(result.Errors.Exists(e => e.PropertyName == "FollowerId"));
         }
 
         [TestMethod]
         public void Validator_Should_Fail_When_BegeleiderId_Is_Empty()
         {
-            var command = new AssignUserToMentorCommand
+            var command = new AssignUserToMentorCommand()
             {
                 FollowerId = "someVolgerId",
                 MentorId = string.Empty
@@ -50,7 +50,7 @@ namespace UnitTesting.CQRSTest.ApplicationUser
             var result = validator.Validate(command);
 
             Assert.IsFalse(result.IsValid);
-            Assert.IsTrue(result.Errors.Exists(e => e.PropertyName == "BegeleiderId"));
+            Assert.IsTrue(result.Errors.Exists(e => e.PropertyName == "MentorId"));
         }
 
         [TestMethod]

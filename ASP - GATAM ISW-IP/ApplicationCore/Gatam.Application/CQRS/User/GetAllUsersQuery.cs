@@ -5,10 +5,10 @@ using MediatR;
 
 namespace Gatam.Application.CQRS.User
 {
-    public class GetAllUsersQuery : IRequest<IEnumerable<UserDTO>>
+    public class GetAllUsersQuery : IRequest<List<UserDTO>>
     {
     }
-    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDTO>>
+    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, List<UserDTO>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,16 +23,10 @@ namespace Gatam.Application.CQRS.User
             _environmentWrapper = environmentWrapper;
         }
 
-        public async Task<IEnumerable<UserDTO>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+        public async Task<List<UserDTO>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            //request._user.Name = AESProvider.Decrypt(request._user.Name, _environmentWrapper.KEY);
-            //request._user.Surname = AESProvider.Decrypt(request._user.Surname, _environmentWrapper.KEY);
-            //request._user.Username = AESProvider.Decrypt(request._user.Username, _environmentWrapper.KEY);
-            //request._user.Email = AESProvider.Decrypt(request._user.Email, _environmentWrapper.KEY);
-            //request._user.PhoneNumber = AESProvider.Decrypt(request._user.PhoneNumber, _environmentWrapper.KEY);
-
             var users = await _unitOfWork.UserRepository.GetAllAsync(x => x.UserRoles);
-            return _mapper.Map<IEnumerable<UserDTO>>(users);
+            return _mapper.Map<List<UserDTO>>(users);
         }
 
     }
