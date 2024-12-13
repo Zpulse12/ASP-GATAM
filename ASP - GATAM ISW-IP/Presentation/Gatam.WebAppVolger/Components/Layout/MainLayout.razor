@@ -1,7 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@using Gatam.WebAppVolger.Components.Layout
 
-<div>
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
     <CustomNavMenu>
         <ul class="navbar-nav d-flex flex-row align-items-center justify-content-center" style="width: 100%; padding: 0; gap: 2rem;">
             <AuthorizeView Policy="RequireVolgersRole">
@@ -26,9 +27,11 @@
         </ul>
     </CustomNavMenu>
 
-    <main>
+    <main class="main-content" style="flex: 1;">
         @Body
     </main>
+
+    <Footer />
 
     <AuthorizeView Policy="RequireVolgersRole">
         <Authorized>

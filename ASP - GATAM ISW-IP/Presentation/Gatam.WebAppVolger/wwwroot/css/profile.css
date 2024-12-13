@@ -8,9 +8,8 @@ html, body {
 .profile-container {
     padding: 1rem;
     background: #f8fafc;
-    min-height: 100vh;
+    min-height: fit-content;
     overflow-y: auto;
-    height: 100vh;
 }
 
 .profile-header {
@@ -171,4 +170,11 @@ html, body {
     justify-content: center;
     align-items: center;
     min-height: 200px;
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 0.5rem;
+        padding-bottom: calc(var(--bottom-nav-height) + 1rem);
+    }
 } 

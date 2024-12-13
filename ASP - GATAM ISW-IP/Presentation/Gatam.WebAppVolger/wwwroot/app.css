@@ -197,8 +197,9 @@ h1:focus {
 
 .main-content {
     flex: 1;
-    padding: 1rem;
-    width: 100%;
+    background-color: #f0f2f5;
+    min-height: fit-content;  /* In plaats van 100vh */
+    position: relative;      /* Verwijder position: absolute als die er staat */
 }
 
 /* Media queries voor responsive gedrag */

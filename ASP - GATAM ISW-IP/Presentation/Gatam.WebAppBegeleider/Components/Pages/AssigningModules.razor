@@ -280,7 +280,6 @@
 
     private async Task AssignModuleToUser()
     {
-        // Validatie checks
         if (string.IsNullOrEmpty(SelectedUserId))
         {
             toastService.Notify(new(ToastType.Warning, "Selecteer eerst een gebruiker"));
@@ -349,7 +348,6 @@
                 }
             }
 
-            // Initialiseer de gefilterde lijsten
             filteredUsers = new List<ApplicationUser>(users);
             filteredModules = new List<ApplicationModule>(modules);
             
@@ -450,7 +448,7 @@
         {
             UserModuleState.NotStarted => "bg-danger",   
             UserModuleState.InProgress => "bg-warning",   
-            UserModuleState.Done => "bg-success",         
+            UserModuleState.Done => "bg-success",        
             _ => "bg-secondary"
         };
     }
@@ -460,8 +458,8 @@
         return state switch
         {
             UserModuleState.NotStarted => "Niet gestart",
-            UserModuleState.InProgress => "In progress",
-            UserModuleState.Done => "Voltooid",
+            UserModuleState.InProgress => "In uitvoering",
+            UserModuleState.Done => "Voltooid",         
             _ => "Onbekend"
         };
     }
