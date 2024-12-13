@@ -5,19 +5,22 @@ using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Gatam.Application.CQRS.User
 {
-    public class CreateUserCommand: IRequest<UserDTO>
+    public class CreateAuth0UserCommand : IRequest<UserDTO>
     {
         public required UserDTO _user { get; set; }
     }
-    public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
+    public class CreateAuth0UserCommandValidator : AbstractValidator<CreateAuth0UserCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public CreateUserCommandValidator(IUnitOfWork unitOfWork)
+        public CreateAuth0UserCommandValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
 
@@ -48,19 +51,25 @@ namespace Gatam.Application.CQRS.User
 
         }
     }
-    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDTO>
+    public class CreateAuth0UserCommandHandler : IRequestHandler<CreateAuth0UserCommand, UserDTO>
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IManagementApi _auth0Repository;
-        public CreateUserCommandHandler(IUnitOfWork uow, IMapper mapper, IManagementApi auth0Repository)
+        public CreateAuth0UserCommandHandler(IMapper mapper, IManagementApi auth0Repository)
         {
-            _unitOfWork = uow;
             _mapper = mapper;
+            _auth0Repository = auth0Repository;
         }
-        public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<UserDTO> Handle(CreateAuth0UserCommand request, CancellationToken cancellationToken)
         {
-            var user = _mapper.Map<ApplicationUser>(request._user);
+            Result<ApplicationUser> createUser = await _auth0Repository.CreateUserAsync(_mapper.Map<ApplicationUser>(request._user));
+
+            if (!createUser.Success)
+            {
+                throw new InvalidOperationException($"Failed to create user: {createUser.Exception?.Message}", createUser.Exception);
+            }
+
+            var user = createUser.Value;
 
             user.UserRoles = new List<UserRole>();
 
@@ -70,10 +79,12 @@ namespace Gatam.Application.CQRS.User
                 UserId = user.Id,
                 RoleId = volgerRole.Id
             });
-            await _unitOfWork.UserRepository.Create(user);
-            await _unitOfWork.Commit();
+
+            var rolesToUpdate = new List<string> { volgerRole.Id };
+            await _auth0Repository.UpdateUserRoleAsync(user.Id, new RolesDTO() { Roles = rolesToUpdate });
 
             return _mapper.Map<UserDTO>(user);
         }
     }
+
 }
