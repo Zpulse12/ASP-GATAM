@@ -1,5 +1,6 @@
 ﻿@page "/ModuleDetails/{CurrentUserModuleId:guid}"
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Application.CQRS.DTOS.QuestionsDTO
 @using Gatam.Domain
 @using Gatam.WebAppVolger.Extensions
 @inject ApiClient ApiClient
@@ -76,7 +77,7 @@
                         @if ((short)question.QuestionType == (short)QuestionType.MULTIPLE_CHOICE)
                         {
                             <div class="form-check-group">
-                                @foreach (var answer in question.Question.Answers)
+                                @foreach (var answer in question.Answers)
                                 {
                                     var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
                                     <div class="form-check">
@@ -102,21 +103,21 @@
                                 <textarea class="form-control" 
                                           id="open-answer-@question.Id" 
                                           rows="4"
-                                          @oninput="(e) => UpdateAnswer(question.Question.Answers.First().Id, e.Value?.ToString())">
-                                    @userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.First().Id)?.GivenAnswer
+                                          @oninput="(e) => UpdateAnswer(question.Answers.First().Id, e.Value?.ToString())">
+                                    @userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Answers.First().Id)?.GivenAnswer
                                 </textarea>
                             </div>
                         }
                         else if ((short)question.QuestionType == (short)QuestionType.TRUE_OR_FALSE)
                         {
                             <div class="form-check-group">
-                                @foreach (var answer in question.Question.Answers)
+                                @foreach (var answer in question.Answers)
                                 {
                                     var userAnswer = userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == answer.Id);
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="truefalse-@question.Id" @onchange="(e) => {
                                             UpdateAnswer(answer.Id, e.Value?.ToString());
-                    var otherAnswer = question.Question.Answers.First(a => a.Answer != answer.Answer);
+                    var otherAnswer = question.Answers.First(a => a.Answer != answer.Answer);
                                             UpdateAnswer(otherAnswer.Id, string.Empty);
                                             }" value="@answer.Answer" id="answer-@answer.Id"
                                         checked="@(!string.IsNullOrEmpty(userAnswer?.GivenAnswer) && userAnswer.GivenAnswer == answer.Answer)">
@@ -131,10 +132,10 @@
                         {
                             <div class="form-group mt-3">
                                 <label for="select-answer-@question.Id">Kies een optie:</label>
-                                <select class="form-select" @onchange="(e) => OnSelectChange(e, question.Question)" id="select-answer-@question.Id"
-                                value="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Question.Answers.FirstOrDefault(a => a.Id == x.QuestionAnswerId)?.Id)?.GivenAnswer">
+                                <select class="form-select" @onchange="(e) => OnSelectChange(e, question)" id="select-answer-@question.Id"
+                                value="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.QuestionAnswerId == question.Answers.FirstOrDefault(a => a.Id == x.QuestionAnswerId)?.Id)?.GivenAnswer">
                                     <option value="">Kies een antwoord</option>
-                                    @foreach (var answer in question.Question.Answers)
+                                    @foreach (var answer in question.Answers)
                                     {
                                         <option value="@answer.Answer"
                                         selected="@userModule.UserGivenAnswers?.FirstOrDefault(x => x.GivenAnswer == answer.Answer)">
@@ -255,7 +256,7 @@
             toastService.Notify(new(ToastType.Danger, "Oops, er liep iets mis."));
         }
     }
-    private void OnSelectChange(ChangeEventArgs e, Question question)
+    private void OnSelectChange(ChangeEventArgs e, UserQuestionDTO question)
     {
         var selectedAnswer = e.Value.ToString();  
 

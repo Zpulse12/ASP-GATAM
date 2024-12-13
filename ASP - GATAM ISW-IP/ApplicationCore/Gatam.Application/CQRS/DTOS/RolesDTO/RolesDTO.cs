@@ -5,6 +5,6 @@ namespace Gatam.Application.CQRS.DTOS.RolesDTO
     public class RolesDTO
     {
         [JsonPropertyName("roles")]
-        public List<string?> Roles { get; set; }
+        public List<string?> Roles { get; set; } = new List<string>();
     }
 }

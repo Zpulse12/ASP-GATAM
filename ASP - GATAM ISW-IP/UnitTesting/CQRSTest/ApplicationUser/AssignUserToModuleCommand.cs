@@ -56,7 +56,7 @@ public class AssignUserToModuleCommand
 
         var validationResult = await validator.ValidateAsync(command);
         Assert.IsFalse(validationResult.IsValid);
-        Assert.IsTrue(validationResult.Errors.Exists(e => e.ErrorMessage == "The user does not exist"));
+        Assert.IsTrue(validationResult.Errors.Exists(e => e.ErrorMessage == "De gebruiker bestaat niet."));
     }
 }
 

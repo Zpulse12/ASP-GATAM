@@ -1,6 +1,7 @@
 ﻿@page "/AssignToBegeleider"
 @inject ApiClient apiClient
 @rendermode InteractiveServer
+@using Gatam.Application.CQRS
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
@@ -45,13 +46,13 @@
                 </div>
 
                 <div class="table-wrapper">
-                    <Grid TItem="ApplicationUser"
+                    <Grid TItem="UserDTO"
                           Class="table"
                           Data="@usersWithBegeleiderId"
                           AllowPaging="true"
                           PageSize="5">
                         <GridColumns>
-                            <GridColumn TItem="ApplicationUser" 
+                            <GridColumn TItem="UserDTO"
                                         HeaderText="Gebruiker" 
                                         Width="250">
                                 <div class="user-info">
@@ -59,7 +60,7 @@
                                     <span>@context.Username</span>
                                 </div>
                             </GridColumn>
-                            <GridColumn TItem="ApplicationUser" 
+                            <GridColumn TItem="UserDTO"
                                         HeaderText="Email"
                                         Width="350">
                                 <div class="user-info">
@@ -67,7 +68,7 @@
                                     <span>@context.Email</span>
                                 </div>
                             </GridColumn>
-                            <GridColumn TItem="ApplicationUser" 
+                            <GridColumn TItem="UserDTO"
                                         HeaderText="Actie"
                                         Width="250">
                                 <button class="btn-action remove" @onclick="() => UnassignVolgerToBegeleider(context)">
@@ -91,13 +92,13 @@
                     </div>
                 </div>
 
-                <Grid TItem="ApplicationUser"
+                <Grid TItem="UserDTO"
                       Class="table"
                       Data="@usersWithoutBegeleiderId"
                       AllowPaging="true"
                       PageSize="5">
                     <GridColumns>
-                        <GridColumn TItem="ApplicationUser" 
+                        <GridColumn TItem="UserDTO"
                                     HeaderText="Gebruiker" 
                                     Width="200">
                             <div class="user-info">
@@ -105,7 +106,7 @@
                                 <span>@context.Username</span>
                             </div>
                         </GridColumn>
-                        <GridColumn TItem="ApplicationUser" 
+                        <GridColumn TItem="UserDTO"
                                     HeaderText="Email"
                                     Width="300">
                             <div class="user-info">
@@ -113,7 +114,7 @@
                                 <span>@context.Email</span>
                             </div>
                         </GridColumn>
-                        <GridColumn TItem="ApplicationUser" 
+                        <GridColumn TItem="UserDTO"
                                     HeaderText="Actie"
                                     Width="150">
                             <button class="btn-action assign" @onclick="() => AssignVolgerToBegeleider(context)">
@@ -133,16 +134,19 @@
 @code {
     [Inject] protected ToastService toastService { get; set; } = default!;
 
-    private List<ApplicationUser> usersWithBegeleiderId = new();
-    private List<ApplicationUser> usersWithoutBegeleiderId = new();
+    private List<UserDTO> usersWithBegeleiderId = new();
+    private List<UserDTO> usersWithoutBegeleiderId = new();
     private string searchTerm = "";
     private Timer? _debounceTimer;
-    private List<ApplicationUser> _originalUsersWithBegeleiderId = new();
-    private List<ApplicationUser> _originalUsersWithoutBegeleiderId = new();
+    private List<UserDTO> _originalUsersWithBegeleiderId = new();
+    private List<UserDTO> _originalUsersWithoutBegeleiderId = new();
+
+
 
     protected override async Task OnInitializedAsync()
     {
-        var usersResponse = await apiClient.GetFromJsonAsync<List<ApplicationUser>>("api/user/AssignUsersToBegeleider");
+        string roleId = RoleMapper.Roles[CustomRoles.VOLGER].Id;
+        var usersResponse = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{roleId}/userbyrole");
         var authState = await authStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -150,20 +154,20 @@
         if (usersResponse != null && usersResponse.Count > 0)
         {
             _originalUsersWithBegeleiderId = usersResponse
-                .Where(u => u.BegeleiderId == userId)
+                .Where(u => u.MentorId == userId)
                 .ToList();
 
             _originalUsersWithoutBegeleiderId = usersResponse
-                .Where(u => string.IsNullOrEmpty(u.BegeleiderId))
+                .Where(u => string.IsNullOrEmpty(u.MentorId))
                 .ToList();
 
             // Initialize displayed lists
-            usersWithBegeleiderId = new List<ApplicationUser>(_originalUsersWithBegeleiderId);
-            usersWithoutBegeleiderId = new List<ApplicationUser>(_originalUsersWithoutBegeleiderId);
+            usersWithBegeleiderId = new List<UserDTO>(_originalUsersWithBegeleiderId);
+            usersWithoutBegeleiderId = new List<UserDTO>(_originalUsersWithoutBegeleiderId);
         }
     }
 
-    private async Task AssignVolgerToBegeleider(ApplicationUser user)
+    private async Task AssignVolgerToBegeleider(UserDTO user)
     {
         try 
         {
@@ -177,16 +181,16 @@
                 return;
             }
 
-            var response = await apiClient.PutAsJsonAsync($"api/user/{begeleiderId}/AssignUsersToBegeleider", user);
+            var response = await apiClient.PutAsJsonAsync($"api/user/{begeleiderId}/users-assignment", user);
 
             if (response.IsSuccessStatusCode)
             {
                 usersWithoutBegeleiderId.Remove(user);
                 usersWithBegeleiderId.Add(user);
-                user.BegeleiderId = begeleiderId; 
+                user.MentorId = begeleiderId;
 
-                usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
-                usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
+                usersWithoutBegeleiderId = new List<UserDTO>(usersWithoutBegeleiderId);
+                usersWithBegeleiderId = new List<UserDTO>(usersWithBegeleiderId);
                 await InvokeAsync(StateHasChanged);
 
                 toastService.Notify(new(ToastType.Success, "Gebruiker succesvol toegewezen!"));
@@ -201,20 +205,20 @@
             toastService.Notify(new(ToastType.Danger, "Er is een fout opgetreden bij het toewijzen van de gebruiker."));
         }
     }
-    private async Task UnassignVolgerToBegeleider(ApplicationUser user)
+    private async Task UnassignVolgerToBegeleider(UserDTO user)
     {
         try 
         {
-            var response = await apiClient.PutAsJsonAsync($"api/user/UnassignUsersToBegeleider", user);
+            var response = await apiClient.PutAsJsonAsync($"api/user/users-assignment/removal", user);
 
             if (response.IsSuccessStatusCode)
             {
                 usersWithoutBegeleiderId.Add(user);
                 usersWithBegeleiderId.Remove(user);
-                user.BegeleiderId = null;
+                user.MentorId = null;
                 
-                usersWithoutBegeleiderId = new List<ApplicationUser>(usersWithoutBegeleiderId);
-                usersWithBegeleiderId = new List<ApplicationUser>(usersWithBegeleiderId);
+                usersWithoutBegeleiderId = new List<UserDTO>(usersWithoutBegeleiderId);
+                usersWithBegeleiderId = new List<UserDTO>(usersWithBegeleiderId);
                 
                 await InvokeAsync(StateHasChanged);
                 toastService.Notify(new(ToastType.Success, "Gebruiker succesvol verwijderd!"));
@@ -247,8 +251,8 @@
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
-            usersWithBegeleiderId = new List<ApplicationUser>(_originalUsersWithBegeleiderId);
-            usersWithoutBegeleiderId = new List<ApplicationUser>(_originalUsersWithoutBegeleiderId);
+            usersWithBegeleiderId = new List<UserDTO>(_originalUsersWithBegeleiderId);
+            usersWithoutBegeleiderId = new List<UserDTO>(_originalUsersWithoutBegeleiderId);
         }
         else
         {

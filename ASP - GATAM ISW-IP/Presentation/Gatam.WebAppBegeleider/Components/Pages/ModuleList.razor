@@ -1,6 +1,7 @@
 ﻿@page "/content/modules"
 @inject ApiClient apiClient
 @rendermode InteractiveServer
+@using Gatam.Application.CQRS.DTOS.ModulesDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
@@ -137,11 +138,11 @@
 </Modal>
 
 @code {
-    private Grid<ApplicationModule> moduleGrid = new Grid<ApplicationModule>();
-    private List<ApplicationModule> modules = new();
+    private Grid<ModuleDTO> moduleGrid = new Grid<ModuleDTO>();
+    private List<ModuleDTO> modules = new();
 
     private Modal? modal;
-    private ApplicationModule? selectedModule;
+    private ModuleDTO? selectedModule;
     private bool isModalOpen;
     private bool showWarning = false;
     private bool isDeleteMode = false;
@@ -151,7 +152,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var modulesResponse = await apiClient.GetFromJsonAsync<List<ApplicationModule>>("api/module");
+        var modulesResponse = await apiClient.GetFromJsonAsync<List<ModuleDTO>>("api/module");
         if (modulesResponse != null)
         {
             modules = modulesResponse;
@@ -197,7 +198,7 @@
         }
     }
 
-    private async Task OnShowModalClick(ApplicationModule module)
+    private async Task OnShowModalClick(ModuleDTO module)
     {
         selectedModule = module;
         showWarning = false;
@@ -212,7 +213,7 @@
         await modal.HideAsync();
     }
 
-    private async Task OnShowDeleteModalClick(ApplicationModule module)
+    private async Task OnShowDeleteModalClick(ModuleDTO module)
     {
         selectedModule = module;
         showWarning = false;

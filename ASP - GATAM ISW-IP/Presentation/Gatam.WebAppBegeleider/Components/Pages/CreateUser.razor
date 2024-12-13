@@ -1,6 +1,8 @@
 ﻿@page "/admin/create"
 @inject IHttpClientFactory HttpClientFactory
 @using Gatam.Application.CQRS
+@using Gatam.Application.CQRS.DTOS.RolesDTO
+@using Gatam.Application.CQRS.DTOS.UsersDTO
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
 
@@ -116,7 +118,7 @@
     private string response = "";
     private bool isSuccess = false;
     private bool showPassword = false;
-    private UserDTO user = new UserDTO();
+    private CreateUserDTO user = new CreateUserDTO();
     private bool isFollowerRoleSelected = true;
     private bool isAddedToUserSelected = false;
     private int currentStep = 1;
@@ -135,21 +137,31 @@
 
         if (authUser.Identity != null && authUser.Identity.IsAuthenticated && RoleMapper.Roles.TryGetValue(CustomRoles.VOLGER, out var FollowerRoleId))
         {
-            user.RolesIds = isFollowerRoleSelected ? new List<string> { FollowerRoleId.Name } : new List<string>();
+            user.RolesIds = isFollowerRoleSelected
+    ? new List<UserRoleDTO>
+        {
+        new UserRoleDTO
+        {
+            RoleId = FollowerRoleId.Id,
+            UserId = user.Id
+        }
+        }
+    : new List<UserRoleDTO>();
+
             user.Username = user.Email.Split('@')[0];
 
             if(isAddedToUserSelected)
             {
                 string userId = authUser.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                user.BegeleiderId = userId;
+                user.MentorId = userId;
             }
             try
             {
-                var result = await apiClient.PostAsJsonAsync<UserDTO>("/api/user", user);
+                var result = await apiClient.PostAsJsonAsync<CreateUserDTO>("/api/user", user);
                 if(result.IsSuccessStatusCode)
                 {
-                    var createdUser = await result.Content.ReadFromJsonAsync<UserDTO>();
-                    toastService.Notify(new(ToastType.Success, "Je gebruiker is succesvol aangemaakt", $"Met id {createdUser.Id}"));
+                  //var createdUser = await result.Content.ReadFromJsonAsync<UserDTO>();
+                    toastService.Notify(new(ToastType.Success, "Je gebruiker is succesvol aangemaakt"));
                 } else
                 {
                     ValidationException errorResponse = await result.Content.ReadFromJsonAsync<ValidationException>();
@@ -161,7 +173,7 @@
                 toastService.Notify(new(ToastType.Danger, "Er ging iets mis met het aanmaken van de gebruiker", e.Message));
             } finally
             {
-                user = new UserDTO();
+                user = new CreateUserDTO();
                 StateHasChanged();
             }
         } else

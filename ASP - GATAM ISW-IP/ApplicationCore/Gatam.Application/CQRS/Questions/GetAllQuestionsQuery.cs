@@ -1,23 +1,27 @@
-﻿using Gatam.Application.Interfaces;
+﻿using AutoMapper;
+using Gatam.Application.CQRS.DTOS.QuestionsDTO;
+using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using MediatR;
 
 namespace Gatam.Application.CQRS.Questions
 {
-    public class GetAllQuestionsQuery : IRequest<IEnumerable<Question>>
+    public class GetAllQuestionsQuery : IRequest<IEnumerable<QuestionDTO>>
     {
         public GetAllQuestionsQuery() { }
     }
 
-    public class GetAllQuestionsQueryHandler : IRequestHandler<GetAllQuestionsQuery, IEnumerable<Question>>
+    public class GetAllQuestionsQueryHandler : IRequestHandler<GetAllQuestionsQuery, IEnumerable<QuestionDTO>>
     {
 
         private readonly IUnitOfWork? _uow;
-        public GetAllQuestionsQueryHandler(IUnitOfWork? uow) { _uow = uow; }
+        private readonly IMapper _mapper;
 
-        public async Task<IEnumerable<Question>> Handle(GetAllQuestionsQuery request, CancellationToken cancellationToken)
+        public GetAllQuestionsQueryHandler(IUnitOfWork? uow, IMapper mapper) { _uow = uow; _mapper = mapper; }
+
+        public async Task<IEnumerable<QuestionDTO>> Handle(GetAllQuestionsQuery request, CancellationToken cancellationToken)
         {
-            return await _uow.QuestionRepository.GetAllAsync(x => x.Answers);
+            return _mapper.Map<IEnumerable<QuestionDTO>>(await _uow.QuestionRepository.GetAllAsync(x => x.Answers));
         }
     }
 }

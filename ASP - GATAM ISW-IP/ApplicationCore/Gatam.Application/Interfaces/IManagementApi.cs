@@ -1,5 +1,6 @@
 ﻿using Gatam.Application.CQRS;
 using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Gatam.Application.CQRS.DTOS.UsersDTO;
 using Gatam.Application.Extensions;
 using Gatam.Domain;
 
@@ -9,7 +10,7 @@ public interface IManagementApi
 {
     Task<IEnumerable<UserDTO>> GetAllUsersAsync();
     Task<bool> DeleteUserAsync(string userId);
-    Task<Result<ApplicationUser>> CreateUserAsync(ApplicationUser user);
+    Task<Result<CreateUserDTO>> CreateUserAsync(CreateUserDTO user);
     Task<UserDTO> UpdateUserAsync(UserDTO user);
     Task<UserDTO> UpdateUserNicknameAsync(UserDTO user);
     Task<UserDTO> UpdateUserEmailAsync(UserDTO user);

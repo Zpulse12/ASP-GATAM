@@ -67,7 +67,6 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 9966554411",
                 Email = "admin@app.com",
                 Picture = "png",
-                PasswordHash = hasher.HashPassword(null, "root"),
                 IsActive = false
 
             };
@@ -80,9 +79,8 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 456789166",
                 Picture = "png",
                 Email = "john.doe@example.com",
-                PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false,
-                BegeleiderId = GLOBALTESTUSER.Id
+                MentorId = GLOBALTESTUSER.Id
             };
             ApplicationUser jane = new ApplicationUser()
             {
@@ -93,7 +91,6 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+32 568779633",
                 Email = "jane.doe@example.com",
                 Picture = "png",
-                PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
             ApplicationUser lauren = new ApplicationUser()
@@ -105,7 +102,6 @@ namespace Gatam.Infrastructure.Contexts
                 PhoneNumber = "+23 7896544336",
                 Email = "lautje.doe@example.com",
                 Picture = "png",
-                PasswordHash = hasher.HashPassword(null, "Test@1234"),
                 IsActive = false
             };
             builder.Entity<ApplicationUser>().HasData(

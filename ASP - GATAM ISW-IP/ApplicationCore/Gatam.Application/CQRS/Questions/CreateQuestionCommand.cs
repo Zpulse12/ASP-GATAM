@@ -3,12 +3,14 @@ using Gatam.Domain;
 using Gatam.Application.Interfaces;
 using FluentValidation;
 using Gatam.Application.Extensions;
+using Gatam.Application.CQRS.DTOS.QuestionsDTO;
+using AutoMapper;
 
 namespace Gatam.Application.CQRS.Questions
 {
-    public class CreateQuestionCommand : IRequest<Question>
+    public class CreateQuestionCommand : IRequest<QuestionDTO>
     {
-        public Question question { get; set; }
+        public QuestionDTO question { get; set; }
     }
     public class CreateQuestionCommandValidator : AbstractValidator<CreateQuestionCommand>
     {
@@ -22,7 +24,7 @@ namespace Gatam.Application.CQRS.Questions
 
             RuleFor(q => q.question.QuestionTitle).NotEmpty().WithMessage("Je moet een vraag meegeven");
             RuleFor(q => q.question.QuestionTitle).NotNull().WithMessage("Je moet een vraag meegeven");
-            RuleFor(q => q.question.Answers).NotEmpty().WithMessage("Je moet een antwoord meegeven");
+            RuleFor(q => q.question.QuestionAnswers).NotEmpty().WithMessage("Je moet een antwoord meegeven");
             RuleFor(q => q.question.QuestionType).Must(value => Enum.IsDefined(typeof(QuestionType), (QuestionType)value)).WithMessage("Je moet een type meegeven");
             RuleFor(q => q.question.ApplicationModuleId).NotEqual(q => q.question.Id)
                 .WithMessage("Module heeft dezelfde Id als de vraag en dit zorgt voor conflicten. Probeer een nieuwe vraag aan te maken.");
@@ -44,15 +46,16 @@ namespace Gatam.Application.CQRS.Questions
                 .WithMessage("Deze vraag bestaat al voor dit type vraag. Kies een ander type of pas de vraag aan.");
         }
     }
-    public class CreateQuestionCommandHandler : IRequestHandler<CreateQuestionCommand, Question>
+    public class CreateQuestionCommandHandler : IRequestHandler<CreateQuestionCommand, QuestionDTO>
     {
         private readonly IUnitOfWork? _uow;
-        public CreateQuestionCommandHandler(IUnitOfWork? uow) { _uow = uow; }
-        public async Task<Question> Handle(CreateQuestionCommand request, CancellationToken cancellationToken)
+        private readonly IMapper? _mapper;
+        public CreateQuestionCommandHandler(IUnitOfWork? uow,IMapper mapper) { _uow = uow; _mapper = mapper; }
+        public async Task<QuestionDTO> Handle(CreateQuestionCommand request, CancellationToken cancellationToken)
         {
 
             request.question.QuestionTitle = HandleTitleUniformEntry(request.question.QuestionTitle);
-            await _uow.QuestionRepository.Create(request.question);
+            await _uow.QuestionRepository.Create(_mapper.Map<Question>(request.question));
             await _uow.Commit();
             return request.question;
         }

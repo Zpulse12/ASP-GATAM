@@ -9,7 +9,6 @@ public class UpdateUserCommand:IRequest<UserDTO>
 {
     public string Id { get; set; }
     public required UserDTO User { get; set; }
-
 }
 
 public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
@@ -20,21 +19,21 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     {
         _unitOfWork = unitOfWork;
         RuleFor(x => x.User.Username)
-           .NotEmpty().WithMessage("Nickname cannot be empty")
+           .NotEmpty().WithMessage("Nickname mag niet leeg zijn")
            .MustAsync(async (userCommand, nickname, cancellationToken) =>
            {
                var existingUser = await _unitOfWork.UserRepository.FindByProperty("Nickname", nickname);
                return existingUser == null || existingUser.Id == userCommand.Id;
-           }).WithMessage("Username already exists.");
+           }).WithMessage("Username bestaat al");
 
         RuleFor(x => x.User.Email)
-           .NotEmpty().WithMessage("Email cannot be empty")
-           .EmailAddress().WithMessage("Invalid email format")
+           .NotEmpty().WithMessage("Email mag niet leeg zijn")
+           .EmailAddress().WithMessage("Ongeldig e-mailformaat")
            .MustAsync(async (userCommand, email, cancellationToken) =>
            {
                var existingUser = await _unitOfWork.UserRepository.FindByProperty("Email", email);
                return existingUser == null || existingUser.Id == userCommand.Id;
-           }).WithMessage("Email already exists.");
+           }).WithMessage("Email bestaat al.");
     }
 }
 

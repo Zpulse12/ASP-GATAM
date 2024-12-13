@@ -1,5 +1,6 @@
 ﻿@page "/questions"
 
+@using Gatam.Application.CQRS.DTOS.QuestionsDTO
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.Domain
 @using WebAppBegeleider.Extensions
@@ -23,11 +24,11 @@
         <div class="search-box">
             <AutoComplete @ref="search"
                 @bind-Value="searchValue"
-                TItem="Question"
+                          TItem="QuestionDTO"
                 DataProvider="QuestionSearchDataProvider"
                 PropertyName="QuestionTitle"
                 Placeholder="Zoek een vraag..."
-                OnChanged="(Question question) => OnAutoCompleteChanged(question)" />
+                          OnChanged="(QuestionDTO question) => OnAutoCompleteChanged(question)" />
         </div>
         <Button Color="ButtonColor.Primary" @onclick="OnShowModalClick">
             <Icon Name="IconName.Plus"/>
@@ -35,7 +36,7 @@
         </Button>    
     </div>
 
-    <Grid TItem="Question"
+    <Grid TItem="QuestionDTO"
     @ref="questionGrid"
     AllowRowClick="true"
     AllowSorting="true"
@@ -46,23 +47,23 @@
     HeaderRowCssClass="custom-header"
     Responsive="true">
         <GridColumns>
-            <GridColumn TItem="Question" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
+            <GridColumn TItem="QuestionDTO" HeaderText="Vraag:" PropertyName="QuestionTitle" SortString="QuestionTitle" SortKeySelector="item => item.QuestionTitle">
                 @context.QuestionTitle
             </GridColumn>
-            <GridColumn TItem="Question" HeaderText="Type:" PropertyName="QuestionType" SortString="QuestionType" SortKeySelector="item => item.QuestionType">
+            <GridColumn TItem="QuestionDTO" HeaderText="Type:" PropertyName="QuestionType" SortString="QuestionType" SortKeySelector="item => item.QuestionType">
                 @((QuestionType)@context.QuestionType)
             </GridColumn>
             @*           <GridColumn TItem="Question" HeaderText="Antwoord:" PropertyName="QuestionAnswer" SortString="QuestionTitle" SortKeySelector="item => item.QuestionAnswer">
                 @context.QuestionAnswer
             </GridColumn> *@
-            <GridColumn TItem="Question" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
+            <GridColumn TItem="QuestionDTO" HeaderText="Aangemaakt op:" PropertyName="CreatedAt" SortString="QuestionTitle" SortKeySelector="item => item.CreatedAt">
                 <Tooltip Class="me-4" Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.CreatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
             </GridColumn>
-            <GridColumn TItem="Question" HeaderText="Aangepast op:" PropertyName="LastUpdatedAt" SortString="QuestionTitle" SortKeySelector="item => item.LastUpdatedAt">
+            <GridColumn TItem="QuestionDTO" HeaderText="Aangepast op:" PropertyName="LastUpdatedAt" SortString="QuestionTitle" SortKeySelector="item => item.LastUpdatedAt">
                 <Tooltip Class="me-4" Title="@context.LastUpdatedAt.ToString("dd MMMM yyyy HH:mm")" Placement="TooltipPlacement.Right">@context.LastUpdatedAt.ToString("dd-MM-yyyy HH:mm")</Tooltip>
             </GridColumn>
 
-            <GridColumn TItem="Question" HeaderText="Actie" Filterable="false">
+            <GridColumn TItem="QuestionDTO" HeaderText="Actie" Filterable="false">
                 <div>
                     <button type="button"
                     class="btn btn-outline-danger"
@@ -119,7 +120,7 @@
                                 <option value="true">Waar</option>
                                 <option value="false">Onwaar</option>
                             </InputSelect>
-                            <ValidationMessage For="@(() => newQuestion.Answers)" />
+                            <ValidationMessage For="@(() => newQuestion.QuestionAnswers)" />
                         </div>
                     </div>
                 }
@@ -139,20 +140,20 @@
                             <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
                         </div>
                     </div>
-                    <Grid TItem="QuestionAnswer"
+                    <Grid TItem="QuestionAnswerDTO"
                     @ref="answerGrid"
                     Class="table table-hover"
                     Data="answers"
                     HeaderRowCssClass="custom-header"
                     Responsive="true">
                         <GridColumns>
-                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                                 @AnswerContext.Answer
                             </GridColumn>
-                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
                                 @AnswerContext.AnswerValue
                             </GridColumn>
-                            <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                            <GridColumn TItem="QuestionAnswerDTO" HeaderText="Actie" Filterable="false" Context="AnswerContext">
                                 <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -176,20 +177,20 @@
                             <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
                         </div>
                     </div>
-                    <Grid TItem="QuestionAnswer"
+                    <Grid TItem="QuestionAnswerDTO"
                     @ref="answerGrid"
                     Class="table table-hover"
                     Data="answers"
                     HeaderRowCssClass="custom-header"
                     Responsive="true">
                         <GridColumns>
-                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                                 @AnswerContext.Answer
                             </GridColumn>
-                            <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                            <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
                                 @AnswerContext.AnswerValue
                             </GridColumn>
-                            <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                            <GridColumn TItem="QuestionAnswerDTO" HeaderText="Actie" Filterable="false" Context="AnswerContext">
                                 <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -221,16 +222,16 @@
 @code {
     private Modal? modal;
     private EditContext editContext;
-    private AutoComplete<Question> search;
-    private Question newQuestion = new Question();
+    private AutoComplete<QuestionDTO> search;
+    private QuestionDTO newQuestion = new QuestionDTO();
     private QuestionType selectedOption = QuestionType.OPEN;
     private bool isLoading = false;
     private string searchValue;
-    private List<Question> questions = new List<Question>();
-    private List<QuestionAnswer> answers = new List<QuestionAnswer>();
-    private Grid<Question> questionGrid = new Grid<Question>();
-    private Grid<QuestionAnswer> answerGrid = new Grid<QuestionAnswer>();
-    private QuestionAnswer currentAnswer = new QuestionAnswer();
+    private List<QuestionDTO> questions = new List<QuestionDTO>();
+    private List<QuestionAnswerDTO> answers = new List<QuestionAnswerDTO>();
+    private Grid<QuestionDTO> questionGrid = new Grid<QuestionDTO>();
+    private Grid<QuestionAnswerDTO> answerGrid = new Grid<QuestionAnswerDTO>();
+    private QuestionAnswerDTO currentAnswer = new QuestionAnswerDTO();
 
     [Inject] protected ToastService toastService { get; set; } = default!;
 
@@ -238,8 +239,7 @@
     {
         editContext = new EditContext(newQuestion);
         newQuestion.QuestionType = (short)selectedOption;
-
-        questions = await apiClient.GetFromJsonAsync<List<Question>>("/api/question");
+        questions = await apiClient.GetFromJsonAsync<List<QuestionDTO>>("/api/question");
         questionGrid.Data = questions;
         questionGrid.RefreshDataAsync();
         selectedOption = QuestionType.OPEN;
@@ -263,9 +263,10 @@
         }
         if((QuestionType)newQuestion.QuestionType == QuestionType.OPEN)
         {
+            currentAnswer.AnswerValue = "";
             answers.Add(currentAnswer);
         }
-        newQuestion.Answers = answers;
+        newQuestion.QuestionAnswers = answers;
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {
             string userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -274,7 +275,7 @@
             try
             {
                 newQuestion.ApplicationModuleId = null;
-                HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<Question>("/api/question", newQuestion);
+                HttpResponseMessage createQuestionResponse = await apiClient.PostAsJsonAsync<QuestionDTO>("/api/question", newQuestion);
 
                 if (createQuestionResponse.IsSuccessStatusCode)
                 {
@@ -306,39 +307,39 @@
         }
     }
 
-    private async Task<AutoCompleteDataProviderResult<Question>> QuestionSearchDataProvider(AutoCompleteDataProviderRequest<Question> request)
+    private async Task<AutoCompleteDataProviderResult<QuestionDTO>> QuestionSearchDataProvider(AutoCompleteDataProviderRequest<QuestionDTO> request)
     {
         try
         {
-            List<Question> getAllQuestionsResponse = await apiClient.GetFromJsonAsync<List<Question>>("/api/question");
+            List<QuestionDTO> getAllQuestionsResponse = await apiClient.GetFromJsonAsync<List<QuestionDTO>>("/api/question");
             return await Task.FromResult(request.ApplyTo(getAllQuestionsResponse));
         }
         catch (Exception e)
         {
             toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het ophalen van de vragen", e.Message));
-            return await Task.FromResult(request.ApplyTo(new List<Question>()));
+            return await Task.FromResult(request.ApplyTo(new List<QuestionDTO>()));
         }
     }
 
-    public async Task<List<Question>> GetQuestions()
+    public async Task<List<QuestionDTO>> GetQuestions()
     {
         try
         {
-            List<Question> getAllQuestionsResponse = await apiClient.GetFromJsonAsync<List<Question>>("/api/question");
+            List<QuestionDTO> getAllQuestionsResponse = await apiClient.GetFromJsonAsync<List<QuestionDTO>>("/api/question");
             return getAllQuestionsResponse;
         }
         catch (Exception e)
         {
             toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het ophalen van de vragen", e.Message));
-            return new List<Question>();
+            return new List<QuestionDTO>();
         }
     }
 
     private void ResetForm()
     {
-        newQuestion = new Question();
+        newQuestion = new QuestionDTO();
         answers.Clear();
-        QuestionAnswer newAnswer = new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id };
+        QuestionAnswerDTO newAnswer = new QuestionAnswerDTO() { Answer = "OPEN", QuestionId = newQuestion.Id };
         answers.Append(newAnswer);
         currentAnswer = newAnswer;
         editContext = new EditContext(newQuestion);
@@ -354,11 +355,11 @@
         await modal.HideAsync();
     }
 
-    private async void OnAutoCompleteChanged(Question question)
+    private async void OnAutoCompleteChanged(QuestionDTO question)
     {
         if(question != null)
         {
-            questionGrid.Data = new List<Question>() { question };
+            questionGrid.Data = new List<QuestionDTO>() { question };
         } else
         {
             questionGrid.Data = questions;
@@ -367,7 +368,7 @@
     }
     private async void UpdateTable()
     {
-        questionGrid.Data = await apiClient.GetFromJsonAsync<List<Question>>("/api/question");
+        questionGrid.Data = await apiClient.GetFromJsonAsync<List<QuestionDTO>>("/api/question");
         await questionGrid.RefreshDataAsync();
     }
     private async void AddAnswerToList()
@@ -377,11 +378,11 @@
             toastService.Notify(new(ToastType.Warning, "Antwoord mag niet leeg zijn"));
             return;
         }
-        answers.Add(new QuestionAnswer() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
+        answers.Add(new QuestionAnswerDTO() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
         await answerGrid.RefreshDataAsync();
-        currentAnswer = new QuestionAnswer() { AnswerValue = "true" };
+        currentAnswer = new QuestionAnswerDTO() { AnswerValue = "true" };
     }
-    private async void RemoveAnswerFromList(QuestionAnswer answer)
+    private async void RemoveAnswerFromList(QuestionAnswerDTO answer)
     {
         answers.Remove(answer);
         await answerGrid.RefreshDataAsync();

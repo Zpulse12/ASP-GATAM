@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
+using Gatam.Application.CQRS.DTOS.UsersDTO;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
@@ -10,7 +12,7 @@ namespace Gatam.Application.CQRS.User
 {
     public class CreateUserCommand: IRequest<UserDTO>
     {
-        public required UserDTO _user { get; set; }
+        public required CreateUserDTO _user { get; set; }
     }
     public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
     {
@@ -59,9 +61,17 @@ namespace Gatam.Application.CQRS.User
         }
         public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            var user = _mapper.Map<ApplicationUser>(request._user);
-            user.Id = request._user.Id;
-            user.UserRoles = new List<UserRole>();
+            Result<CreateUserDTO> createUser = await _auth0Repository.CreateUserAsync(_mapper.Map<CreateUserDTO>(request._user));
+
+            if (!createUser.Success)
+            {
+                throw new InvalidOperationException($"Failed to create user: {createUser.Exception?.Message}", createUser.Exception);
+            }
+
+            var user = _mapper.Map<ApplicationUser>(createUser.Value);
+
+           user.UserRoles = new List<UserRole>();
+
             var volgerRole = RoleMapper.Roles[CustomRoles.VOLGER];
             user.UserRoles.Add(new UserRole
             {

@@ -109,6 +109,10 @@ namespace Gatam.Application.CQRS.User.Roles
             {
                 throw ex;
             }
+            finally
+            {
+                await _uow.Commit();
+            }
         }
     }
 }

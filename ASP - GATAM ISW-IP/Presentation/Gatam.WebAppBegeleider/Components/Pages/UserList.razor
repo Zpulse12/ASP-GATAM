@@ -48,9 +48,9 @@
             }
             <div class="search-box">
                 <i class="bi bi-search"></i>
-                <input type="text" 
-                       placeholder="Zoek op naam of email..." 
-                       @bind="searchTerm" 
+                <input type="text"
+                       placeholder="Zoek op naam of email..."
+                       @bind="searchTerm"
                        @bind:event="oninput"
                        @onkeyup="HandleSearch" />
             </div>
@@ -222,13 +222,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try 
+        try
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
             _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Id);
             _currentUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             await LoadUsers();
         }
         catch (Exception ex)
@@ -245,17 +245,18 @@
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             _isBeheerder = authState.User.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
-            
-            
+
+
             if (_isBeheerder)
-            {   
+            {
                 _users = await apiClient.GetFromJsonAsync<List<UserDTO>>("/api/user");
             }
             else
             {
-                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/begeleider");
+                _users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/mentor");
             }
-            
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            _users = _users.Where(user => user.Id != userId).ToList();
             StateHasChanged();
         }
         catch
@@ -277,7 +278,7 @@
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
             _isBeheerder = user.IsInRole(RoleMapper.Roles[CustomRoles.BEHEERDER].Name);
-            
+
             List<UserDTO> users;
             if (_isBeheerder)
             {
@@ -285,18 +286,19 @@
             }
             else
             {
-                users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/begeleider");
+                users = await apiClient.GetFromJsonAsync<List<UserDTO>>($"api/user/{_currentUserId}/mentor");
             }
 
             // Filter users based on search term
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                users = users.Where(u => 
+                users = users.Where(u =>
                     u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                     u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 ).ToList();
             }
-
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            users = users.Where(user => user.Id != userId).ToList();
             return request.ApplyTo(users ?? new List<UserDTO>());
         }
         catch (Exception ex)
@@ -331,7 +333,7 @@
     {
         try
         {
-            var response = await apiClient.DeleteAsync($"/api/User/delete/{selectedUserId}");
+            var response = await apiClient.DeleteAsync($"/api/user/{selectedUserId}/delete");
             if (response.IsSuccessStatusCode)
             {
                 await userGrid.RefreshDataAsync();

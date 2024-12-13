@@ -158,7 +158,7 @@
         foreach (var question in visibleQuestions)
         {
             bool isAnswered = false;
-            foreach (var answer in question.Question.Answers)
+            foreach (var answer in question.Answers)
             {
                 if (isAnswered)
                     break;
@@ -208,7 +208,7 @@
 
         foreach (var question in visibleQuestions)
         {
-            foreach (var answer in question.Question.Answers)
+            foreach (var answer in question.Answers)
             {
                 var matchingAnswer = module.UserGivenAnswers
                     .FirstOrDefault(uga => uga.QuestionAnswerId == answer.Id && !string.IsNullOrEmpty(uga.GivenAnswer));

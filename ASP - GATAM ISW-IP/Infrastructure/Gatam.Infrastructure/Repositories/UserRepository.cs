@@ -1,3 +1,4 @@
+using Azure.Core;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
 using Gatam.Infrastructure.Contexts;
@@ -26,8 +27,9 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
                 .ThenInclude(um => um.UserQuestions)
                     .ThenInclude(qs => qs.Question)
                     .ThenInclude(q => q.Answers)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == userId);
+           .AsNoTracking()
+        .Where(u => u.Id == userId)
+        .FirstOrDefaultAsync();
     }
     public async Task<List<ApplicationUser>> GetUsersWithModulesAsync()
     {
@@ -46,10 +48,10 @@ public class UserRepository : GenericRepository<ApplicationUser>, IUserRepositor
             .ToListAsync();
     }
 
-    public async Task<List<ApplicationUser>> GetUsersForBegeleiderAsync(string begeleiderId)
+    public async Task<List<ApplicationUser>> GetUsersFoMentorAsync(string mentorId)
     {
         return await _context.Users
-        .Where(u => u.BegeleiderId == begeleiderId)
+        .Where(u => u.MentorId == mentorId)
         .Include(x => x.UserModules)
         .ThenInclude(x => x.Module)
         .ThenInclude(x => x.Questions)

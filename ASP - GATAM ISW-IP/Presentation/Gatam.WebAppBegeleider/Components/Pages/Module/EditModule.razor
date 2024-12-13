@@ -1,5 +1,6 @@
 ﻿@page "/content/modules/{Id}"
 @using Gatam.Application.CQRS.DTOS.ModulesDTO
+@using Gatam.Application.CQRS.DTOS.QuestionsDTO
 @using Gatam.Domain
 @using Gatam.WebAppBegeleider.Components.Layout
 @using Gatam.WebAppBegeleider.Extensions
@@ -51,7 +52,7 @@
                             <option value="true">Waar</option>
                             <option value="false">Onwaar</option>
                         </InputSelect>
-                        <ValidationMessage For="@(() => newQuestion.Answers)" />
+                        <ValidationMessage For="@(() => newQuestion.QuestionAnswers)" />
                     </div>
                 </div>
             }
@@ -71,20 +72,20 @@
                         <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
                     </div>
                 </div>
-                <Grid TItem="QuestionAnswer"
+                <Grid TItem="QuestionAnswerDTO"
                       @ref="answerGrid"
                       Class="table table-hover"
                       Data="answers"
                       HeaderRowCssClass="custom-header"
                       Responsive="true">
                     <GridColumns>
-                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                             @AnswerContext.Answer
                         </GridColumn>
-                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
                             @AnswerContext.AnswerValue
                         </GridColumn>
-                        <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                        <GridColumn TItem="QuestionAnswerDTO" HeaderText="Actie" Filterable="false" Context="AnswerContext">
                             <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
                                 <i class="bi bi-trash"></i>
                             </button>
@@ -108,20 +109,20 @@
                         <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end me-2 btn-sm" @onclick="AddAnswerToList"><Icon Name="IconName.Plus" /> Voeg toe</Button>
                     </div>
                 </div>
-                <Grid TItem="QuestionAnswer"
+                <Grid TItem="QuestionAnswerDTO"
                       @ref="answerGrid"
                       Class="table table-hover"
                       Data="answers"
                       HeaderRowCssClass="custom-header"
                       Responsive="true">
                     <GridColumns>
-                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Antwoord:" PropertyName="Answer" SortString="Answer" SortKeySelector="item => item.Answer">
                             @AnswerContext.Answer
                         </GridColumn>
-                        <GridColumn Context="AnswerContext" TItem="QuestionAnswer" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
+                        <GridColumn Context="AnswerContext" TItem="QuestionAnswerDTO" HeaderText="Correct:" PropertyName="AnswerValue" SortString="AnswerValue" SortKeySelector="item => item.AnswerValue">
                             @AnswerContext.AnswerValue
                         </GridColumn>
-                        <GridColumn TItem="QuestionAnswer" HeaderText="Actie" Filterable="false" Context="AnswerContext">
+                        <GridColumn TItem="QuestionAnswerDTO" HeaderText="Actie" Filterable="false" Context="AnswerContext">
                             <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveAnswerFromList(AnswerContext)">
                                 <i class="bi bi-trash"></i>
                             </button>
@@ -212,7 +213,7 @@
             @if (questions?.Any() == true)
             {
                 <Grid @ref="questionGrid"
-                      TItem="Question"
+                      TItem="QuestionDTO"
                       Class="table table-hover"
                       Data="questions"
                       AllowSorting="true"
@@ -220,18 +221,18 @@
                       PageSize="10"
                       Responsive>
                     <GridColumns>
-                        <GridColumn TItem="Question" HeaderText="Vraag" PropertyName="QuestionTitle">
+                        <GridColumn TItem="QuestionDTO" HeaderText="Vraag" PropertyName="QuestionTitle">
                             @context.QuestionTitle
                         </GridColumn>
-                        <GridColumn TItem="Question" HeaderText="Type" PropertyName="QuestionType">
-                            @GetQuestionTypeText(context.QuestionType)
+                        <GridColumn TItem="QuestionDTO" HeaderText="Type" PropertyName="QuestionType">
+                            @GetQuestionTypeText((short)context.QuestionType)
                         </GridColumn>
-                        <GridColumn TItem="Question" HeaderText="Aangemaakt" PropertyName="CreatedAt">
+                        <GridColumn TItem="QuestionDTO" HeaderText="Aangemaakt" PropertyName="CreatedAt">
                             <Tooltip Title="@context.CreatedAt.ToString("dd MMMM yyyy HH:mm")">
                                 @context.CreatedAt.ToString("dd-MM-yyyy")
                             </Tooltip>
                         </GridColumn>
-                        <GridColumn TItem="Question" HeaderText="Acties">
+                        <GridColumn TItem="QuestionDTO" HeaderText="Acties">
                             <div class="action-buttons">
                                 <Button Type="ButtonType.Button" Color="ButtonColor.Danger" 
                                         @onclick="() => RemoveQuestion(context)">
@@ -272,14 +273,14 @@
     [Parameter] public string Id { get; set; } = "";
     private ModuleDTO moduleBeingEdited = new ModuleDTO();
     [Inject] protected ToastService toastService { get; set; } = default!;
-    private Question newQuestion = new Question();
+    private QuestionDTO newQuestion = new QuestionDTO();
     private QuestionType selectedOption = QuestionType.OPEN;
     private bool isLoading = false;
-    private List<Question> questions = new List<Question>();
-    private Grid<Question> questionGrid = new Grid<Question>();
-    private List<QuestionAnswer> answers = new List<QuestionAnswer>();
-    private Grid<QuestionAnswer> answerGrid = new Grid<QuestionAnswer>();
-    private QuestionAnswer currentAnswer = new QuestionAnswer();
+    private List<QuestionDTO> questions = new List<QuestionDTO>();
+    private Grid<QuestionDTO> questionGrid = new Grid<QuestionDTO>();
+    private List<QuestionAnswerDTO> answers = new List<QuestionAnswerDTO>();
+    private Grid<QuestionAnswerDTO> answerGrid = new Grid<QuestionAnswerDTO>();
+    private QuestionAnswerDTO currentAnswer = new QuestionAnswerDTO();
     private bool _isLoading = false;
 
     private bool _showWarning = false;
@@ -386,7 +387,7 @@
         {
             answers.Add(currentAnswer);
         }
-        newQuestion.Answers = answers;
+        newQuestion.QuestionAnswers = answers;
 
 
         if (user.Identity != null && user.Identity.IsAuthenticated)
@@ -397,14 +398,14 @@
             try
             {
                 newQuestion.ApplicationModuleId = moduleBeingEdited.Id;
-                questions.Add(new Question()
+                questions.Add(new QuestionDTO()
                     {
                         Id = newQuestion.Id,
                         CreatedAt = newQuestion.CreatedAt,
                         CreatedUserId = newQuestion.LastUpdatedUserId,
                         LastUpdatedAt = newQuestion.LastUpdatedAt,
                         LastUpdatedUserId = newQuestion.LastUpdatedUserId,
-                        Answers = newQuestion.Answers,
+                        QuestionAnswers = newQuestion.QuestionAnswers,
                         QuestionTitle = newQuestion.QuestionTitle,
                         QuestionType = newQuestion.QuestionType
                     });
@@ -438,7 +439,7 @@
             {
                 questionToAdd.ApplicationModuleId = moduleBeingEdited.Id;
 
-                HttpResponseMessage createQuestionResponse = await apiclient.PostAsJsonAsync<Question>("/api/question", questionToAdd);
+                HttpResponseMessage createQuestionResponse = await apiclient.PostAsJsonAsync<QuestionDTO>("/api/question", questionToAdd);
 
                 if (createQuestionResponse.IsSuccessStatusCode)
                 {
@@ -458,7 +459,7 @@
             toastService.Notify(new(ToastType.Warning, "Er ging iets mis bij het aanmaken van je vraag.", e.Message));
         }
     }
-    private async Task RemoveQuestion(Question question)
+    private async Task RemoveQuestion(QuestionDTO question)
     {
         if (question == null)
             return;
@@ -477,12 +478,12 @@
             toastService.Notify(new(ToastType.Warning, "Antwoord mag niet leeg zijn"));
             return;
         }
-        answers.Add(new QuestionAnswer() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
+        answers.Add(new QuestionAnswerDTO() { Answer = currentAnswer.Answer, AnswerValue = currentAnswer.AnswerValue, QuestionId = newQuestion.Id });
         await answerGrid.RefreshDataAsync();
-        currentAnswer = new QuestionAnswer() { AnswerValue = "true" };
+        currentAnswer = new QuestionAnswerDTO() { AnswerValue = "true" };
     }
 
-    private async void RemoveAnswerFromList(QuestionAnswer answer)
+    private async void RemoveAnswerFromList(QuestionAnswerDTO answer)
     {
         answers.Remove(answer);
         await answerGrid.RefreshDataAsync();
@@ -497,9 +498,9 @@
 
     private void ResetForm()
     {
-        newQuestion = new Question();
+        newQuestion = new QuestionDTO();
         answers.Clear();
-        QuestionAnswer newAnswer = new QuestionAnswer() { Answer = "OPEN", QuestionId = newQuestion.Id };
+        QuestionAnswerDTO newAnswer = new QuestionAnswerDTO() { Answer = "OPEN", QuestionId = newQuestion.Id };
         answers.Append(newAnswer);
         currentAnswer = newAnswer;
         editContext = new EditContext(newQuestion);
