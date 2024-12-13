@@ -5,6 +5,7 @@ using Gatam.Application.CQRS.Questions;
 using Gatam.Application.CQRS.DTOS.QuestionsDTO;
 using Gatam.Application.CQRS.DTOS.ModulesDTO;
 using Gatam.Application.CQRS.DTOS.UsersDTO;
+using Gatam.Application.CQRS.DTOS.RolesDTO;
 namespace Gatam.Application
 {
     public class Mapping : Profile
@@ -20,6 +21,10 @@ namespace Gatam.Application
             CreateMap<ApplicationUser, CreateUserDTO>()
                                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
             CreateMap<CreateUserDTO, ApplicationUser>();
+            CreateMap<UserRole, UserRoleDTO>();
+            CreateMap<UserRoleDTO, UserRole>();
+
+
 
 
             CreateMap<ApplicationModule, ModuleDTO>()
