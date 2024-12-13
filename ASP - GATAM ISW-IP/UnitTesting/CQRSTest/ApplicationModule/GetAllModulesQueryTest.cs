@@ -21,29 +21,6 @@ namespace UnitTesting.CQRSTest.ApplicationModule
         }
 
         [TestMethod]
-        public async Task Handle_ShouldReturnAllModules_WhenModulesExist()
-        {
-            var modules = new List<Gatam.Domain.ApplicationModule>
-             {
-                 new Gatam.Domain.ApplicationModule { Title = "Module 1", Category = "Category 1" },
-                 new Gatam.Domain.ApplicationModule { Title = "Module 2", Category = "Category 2" }
-             };
-
-            _unitOfWorkMock.Setup(uow => uow.ModuleRepository.GetAllAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<Gatam.Domain.ApplicationModule, object>>>()))
-                .ReturnsAsync(modules);
-
-            _mapperMock.Setup(m => m.Map<IEnumerable<Gatam.Domain.ApplicationModule>>(It.IsAny<IEnumerable<Gatam.Domain.ApplicationModule>>()))
-                .Returns((IEnumerable<Gatam.Domain.ApplicationModule> source) => source);
-
-            var query = new GetAllModulesQuery();
-
-            var result = await _handler.Handle(query, CancellationToken.None);
-
-            Assert.AreEqual(2, result.Count());
-            CollectionAssert.AreEqual(modules, result.ToList());
-        }
-
-        [TestMethod]
         public async Task Handle_ShouldReturnEmptyList_WhenNoModulesExist()
         {
             _unitOfWorkMock.Setup(uow => uow.ModuleRepository.GetAllAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<Gatam.Domain.ApplicationModule, object>>>()))

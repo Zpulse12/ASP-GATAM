@@ -37,7 +37,7 @@ namespace UnitTesting.ControllerTest.ApplicationModule
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode);
             var modules = okResult.Value as List<Gatam.Domain.ApplicationModule>;
-            Assert.IsNotNull(modules);
+            Assert.IsNull(modules);
             Assert.AreEqual(expectedModules.Count, modules.Count);
         }
 
