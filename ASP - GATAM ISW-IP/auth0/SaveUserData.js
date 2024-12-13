@@ -10,9 +10,9 @@ exports.onExecutePostUserRegistration = async (event, api) => {
   const userData = {
     email: event.user.email,
     username: event.user.username || event.user.email,
-    name: event.user.name,
+    name: event.user.username,
     user_id: event.user.user_id,
-    profile_picture: event.user.picture,
+    profile_picture: `https://api.dicebear.com/9.x/thumbs/svg?seed=${event.user.email}`,
   };
   const headers = {
     "X-Api-Key": event.secrets.API_KEY

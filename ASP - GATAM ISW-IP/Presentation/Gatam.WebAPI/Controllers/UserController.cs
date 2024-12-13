@@ -56,7 +56,7 @@ namespace Gatam.WebAPI.Controllers
         [Authorize(Policy = "RequireManagementRole")]
         public async Task<IActionResult> CreateUser([FromBody] UserDTO user)
         {
-            var result = await _mediator.Send(new CreateUserCommand() { _user = user });
+            var result = await _mediator.Send(new CreateAuth0UserCommand() { _user = user });
             return Created("", result);
         }
 

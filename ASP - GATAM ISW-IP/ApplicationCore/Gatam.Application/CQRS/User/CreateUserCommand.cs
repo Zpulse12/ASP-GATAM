@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Gatam.Application.CQRS.DTOS.RolesDTO;
 using Gatam.Application.Extensions;
 using Gatam.Application.Interfaces;
 using Gatam.Domain;
@@ -61,9 +60,8 @@ namespace Gatam.Application.CQRS.User
         public async Task<UserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             var user = _mapper.Map<ApplicationUser>(request._user);
-
+            user.Id = request._user.Id;
             user.UserRoles = new List<UserRole>();
-
             var volgerRole = RoleMapper.Roles[CustomRoles.VOLGER];
             user.UserRoles.Add(new UserRole
             {
@@ -72,7 +70,6 @@ namespace Gatam.Application.CQRS.User
             });
             await _unitOfWork.UserRepository.Create(user);
             await _unitOfWork.Commit();
-
             return _mapper.Map<UserDTO>(user);
         }
     }
