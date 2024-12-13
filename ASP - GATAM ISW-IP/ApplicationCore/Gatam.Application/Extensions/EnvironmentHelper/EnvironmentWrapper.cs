@@ -43,7 +43,7 @@ namespace Gatam.Application.Extensions.EnvironmentHelper
             if (string.IsNullOrEmpty(SAPASSWORD)) { throw new MissingEnvironmentVariableException(nameof(SAPASSWORD)); }
             if (string.IsNullOrEmpty(AUTH0DOMAIN)) { throw new MissingEnvironmentVariableException(nameof(AUTH0DOMAIN)); }
             if (string.IsNullOrEmpty(AUTH0AUDIENCE)) { throw new MissingEnvironmentVariableException(nameof(AUTH0AUDIENCE)); }
-            if (string.IsNullOrEmpty(TOKEN)) { throw new MissingEnvironmentVariableException(nameof(TOKEN)) }  
+            if (string.IsNullOrEmpty(TOKEN)) { throw new MissingEnvironmentVariableException(nameof(TOKEN)); }  
             if (string.IsNullOrEmpty(BASEURI)) { throw new MissingEnvironmentVariableException(nameof(BASEURI)); }
             if (string.IsNullOrEmpty(KEY)) { throw new MissingEnvironmentVariableException(nameof(KEY)); }
             if (string.IsNullOrEmpty(APIKEY)) { throw new MissingEnvironmentVariableException(nameof(APIKEY)); }
